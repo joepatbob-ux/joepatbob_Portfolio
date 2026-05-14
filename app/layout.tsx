@@ -1,7 +1,16 @@
 // app/layout.tsx
 import type { Metadata } from 'next'
+import { JetBrains_Mono } from 'next/font/google'
 import '../styles/globals.css'
 import { SidebarNav } from '@/components/SidebarNav'
+import { ThemeProvider } from '@/components/ThemeProvider'
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  weight: ['400', '700'],
+  variable: '--font-mono',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
   title: 'Joseph Patrick Roberts — Principal Product Designer',
@@ -22,12 +31,14 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className={jetbrainsMono.variable}>
       <body>
-        <SidebarNav />
-        <main className="content-area">
-          {children}
-        </main>
+        <ThemeProvider>
+          <SidebarNav />
+          <main className="content-area">
+            {children}
+          </main>
+        </ThemeProvider>
       </body>
     </html>
   )

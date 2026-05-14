@@ -12,9 +12,9 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { NAV_SECTIONS } from '@/lib/nav'
 
-// ── FONT STRINGS ──────────────────────────────────────────────────────────────
-const FONT_AHG  = '"Alte Haas Grotesk Bold", sans-serif'
-const FONT_MONO = '"JetBrains Mono", monospace'
+// ── FONT STRINGS (CSS vars: --font-ahg / --font-mono from globals + layout) ─
+const FONT_AHG  = 'var(--font-ahg)'
+const FONT_MONO = 'var(--font-mono)'
 
 // ── CONSTANTS ─────────────────────────────────────────────────────────────────
 const ACCENT          = '#F2411B'

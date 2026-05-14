@@ -1,13 +1,22 @@
 // components/Hero.tsx
 'use client'
 
+import { useTheme } from '@/components/ThemeProvider'
+
 // The hero section is 100vh.
 // The sidebar reads the hero height to calculate scroll thresholds.
 // Portrait photo fills the right half.
 // Left side: eyebrow + name stack.
 // The name in the sidebar mirrors this and blurs out as user scrolls.
 
+const PORTRAIT_LIGHT = '/images/PortraitLight_MG_3496.jpg'
+const PORTRAIT_DARK = '/images/PortraitDark_MG_3490.jpg'
+
 export function Hero() {
+  const { resolvedTheme } = useTheme()
+  const portraitSrc =
+    resolvedTheme === 'dark' ? PORTRAIT_DARK : PORTRAIT_LIGHT
+
   return (
     <section
       id="hero"
@@ -21,8 +30,7 @@ export function Hero() {
         backgroundColor: 'var(--color-paper)',
       }}
     >
-      {/* Portrait photo — right half */}
-      {/* Replace src with actual portrait image */}
+      {/* Portrait — right half; light / dark assets from /public/images */}
       <div style={{
         position: 'absolute',
         right: 0,
@@ -32,7 +40,7 @@ export function Hero() {
         overflow: 'hidden',
       }}>
         <img
-          src="/images/portrait.jpg"
+          src={portraitSrc}
           alt="Joseph Patrick Roberts"
           style={{
             width: '100%',
