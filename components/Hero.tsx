@@ -4,10 +4,9 @@
 import Image from 'next/image'
 import { useTheme } from '@/components/ThemeProvider'
 
-// The hero section is 100vh.
-// The sidebar reads the hero height to calculate scroll thresholds.
-// Full-bleed portrait behind copy; scrim keeps type readable on both themes.
-// The name in the sidebar mirrors this and blurs out as user scrolls.
+// The hero section is 100vh — portrait only (intro copy lives in the fixed sidebar).
+// Portrait spans the full viewport width, anchored right. Scrim keeps the sidebar
+// legible over the photo. Breakout math matches .content-area horizontal padding.
 
 const PORTRAIT_LIGHT = '/images/PortraitLight_MG_3496.jpg'
 const PORTRAIT_DARK = '/images/PortraitDark_MG_3490.jpg'
@@ -24,13 +23,14 @@ export function Hero() {
         position: 'relative',
         height: '100vh',
         minHeight: 600,
-        display: 'flex',
-        alignItems: 'flex-end',
         overflow: 'hidden',
         backgroundColor: 'var(--color-paper)',
+        marginLeft:
+          'calc(-1 * (var(--sidebar-width) + var(--content-pad-x)))',
+        width: '100vw',
+        maxWidth: '100vw',
       }}
     >
-      {/* Full-bleed portrait (within content area next to fixed sidebar) */}
       <div
         style={{
           position: 'absolute',
@@ -43,15 +43,15 @@ export function Hero() {
           alt="Joseph Patrick Roberts"
           fill
           priority
-          sizes="(min-width: 901px) calc(100vw - 400px), 100vw"
+          sizes="100vw"
           style={{
             objectFit: 'cover',
-            objectPosition: 'center top',
+            objectPosition: 'right top',
           }}
         />
       </div>
 
-      {/* Readability scrim — follows light/dark paper */}
+      {/* Light scrim on the left so fixed sidebar type stays readable */}
       <div
         aria-hidden
         style={{
@@ -60,65 +60,9 @@ export function Hero() {
           zIndex: 1,
           pointerEvents: 'none',
           background:
-            'linear-gradient(105deg, var(--color-paper) 0%, color-mix(in srgb, var(--color-paper) 55%, transparent) 42%, transparent 72%)',
+            'linear-gradient(105deg, var(--color-paper) 0%, color-mix(in srgb, var(--color-paper) 45%, transparent) 38%, transparent 62%)',
         }}
       />
-
-      {/* Left content */}
-      <div style={{
-        position: 'relative',
-        zIndex: 2,
-        padding: '0 0 64px 72px',
-        maxWidth: 'min(560px, 92%)',
-      }}>
-        {/* Eyebrow — "Hello, I am" in accent */}
-        <p style={{
-          fontFamily: 'var(--font-ahg)',
-          fontWeight: 700,
-          fontSize: 'clamp(14px, 1.5vw, 24px)',
-          lineHeight: 1.4,
-          textTransform: 'uppercase',
-          color: 'var(--color-accent)',
-          marginBottom: 12,
-          letterSpacing: 0,
-        }}>
-          Hello, I am
-        </p>
-
-        {/* Name — large, uppercase */}
-        <h1 style={{
-          fontFamily: 'var(--font-ahg)',
-          fontWeight: 700,
-          fontSize: 'clamp(48px, 6.5vw, 120px)',
-          lineHeight: 0.88,
-          letterSpacing: '-0.02em',
-          textTransform: 'uppercase',
-          color: 'var(--color-ink)',
-          margin: 0,
-        }}>
-          JOSEPH
-          <br />
-          PATRICK
-          <br />
-          ROBERTS
-          <span style={{ color: 'var(--color-accent)' }}>.</span>
-        </h1>
-
-        {/* Descriptor sentence */}
-        <p style={{
-          fontFamily: 'var(--font-ahg)',
-          fontWeight: 700,
-          fontSize: 'clamp(14px, 1.25vw, 20px)',
-          lineHeight: 1.5,
-          textTransform: 'uppercase',
-          color: 'var(--color-muted)',
-          marginTop: 32,
-          maxWidth: 360,
-        }}>
-          I design complex systems for hardware,
-          mobile, web apps, and everything in between.
-        </p>
-      </div>
     </section>
   )
 }
