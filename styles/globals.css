@@ -33,6 +33,8 @@
     --color-chapter-dim: rgba(242, 65, 27, 0.25);
     --sidebar-width:    400px;
     --gutter:           72px;
+    /* Horizontal inset for main column: rules and blocks don’t hug viewport or sidebar */
+    --content-pad-x:    24px;
     /* Match @font-face family names; --font-mono comes from next/font on <html> */
     --font-ahg:   "Alte Haas Grotesk Bold", sans-serif;
     --font-body:  "Alte Haas Grotesk", sans-serif;
@@ -61,9 +63,11 @@
     font-family: var(--font-body), system-ui, sans-serif;
   }
 
-  /* Offset all content by sidebar width */
+  /* Offset by sidebar + breathing room so dividers don’t touch edges */
   .content-area {
     margin-left: var(--sidebar-width);
+    padding-left: var(--content-pad-x);
+    padding-right: var(--content-pad-x);
   }
 }
 
