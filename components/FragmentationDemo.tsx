@@ -1,0 +1,15 @@
+// components/FragmentationDemo.tsx
+// STUB — see DESIGN_SPEC.md for full interaction description
+// Build this out with Cursor
+
+'use client'
+
+export function FragmentationDemo() {
+  return (
+    <div style={{ padding: 24, background: 'rgba(0,0,0,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 200 }}>
+      <span style={{ fontFamily: 'monospace', fontSize: 11, color: 'rgba(0,0,0,0.3)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+        [ FragmentationDemo — to be built ]
+      </span>
+    </div>
+  )
+}

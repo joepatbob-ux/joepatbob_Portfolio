@@ -1,0 +1,102 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── FONTS ────────────────────────────────────────────────────────────────── */
+/* Place font files in /public/fonts/
+   AlteHaasGroteskBold.woff2
+   AlteHaasGroteskRegular.woff2
+   JetBrainsMono-Bold.woff2
+   JetBrainsMono-Regular.woff2
+*/
+
+@font-face {
+  font-family: 'Alte Haas Grotesk Bold';
+  src: url('/fonts/AlteHaasGroteskBold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Alte Haas Grotesk';
+  src: url('/fonts/AlteHaasGroteskRegular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/fonts/JetBrainsMono-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/fonts/JetBrainsMono-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ── BASE ─────────────────────────────────────────────────────────────────── */
+@layer base {
+  :root {
+    --color-ink:        #0d0d0d;
+    --color-paper:      #f9f8f6;
+    --color-accent:     #F2411B;
+    --color-rule:       rgba(0, 0, 0, 0.1);
+    --color-muted:      rgba(13, 13, 13, 0.45);
+    --color-chapter-dim: rgba(242, 65, 27, 0.25);
+    --sidebar-width:    400px;
+    --gutter:           72px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-ink:        #f0eeea;
+      --color-paper:      #111110;
+      --color-rule:       rgba(255, 255, 255, 0.1);
+      --color-muted:      rgba(240, 238, 234, 0.45);
+      --color-chapter-dim: rgba(242, 65, 27, 0.3);
+    }
+  }
+
+  html {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Offset all content by sidebar width */
+  .content-area {
+    margin-left: var(--sidebar-width);
+  }
+}
+
+/* ── UTILITIES ────────────────────────────────────────────────────────────── */
+@layer utilities {
+  .font-ahg  { font-family: 'Alte Haas Grotesk Bold', sans-serif; font-weight: 700; }
+  .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+  .text-ink    { color: var(--color-ink); }
+  .text-muted  { color: var(--color-muted); }
+  .text-accent { color: var(--color-accent); }
+
+  .bg-paper { background-color: var(--color-paper); }
+
+  .rule { border-color: var(--color-rule); }
+
+  /* Section layout */
+  .section-padding { padding: 48px var(--gutter) 56px; }
+  .col-max         { max-width: calc(100% - var(--gutter) * 2); }
+}
