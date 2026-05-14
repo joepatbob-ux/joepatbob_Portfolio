@@ -1,12 +1,12 @@
 // components/Hero.tsx
 'use client'
 
+import Image from 'next/image'
 import { useTheme } from '@/components/ThemeProvider'
 
 // The hero section is 100vh.
 // The sidebar reads the hero height to calculate scroll thresholds.
-// Portrait photo fills the right half.
-// Left side: eyebrow + name stack.
+// Full-bleed portrait behind copy; scrim keeps type readable on both themes.
 // The name in the sidebar mirrors this and blurs out as user scrolls.
 
 const PORTRAIT_LIGHT = '/images/PortraitLight_MG_3496.jpg'
@@ -30,33 +30,46 @@ export function Hero() {
         backgroundColor: 'var(--color-paper)',
       }}
     >
-      {/* Portrait — right half; light / dark assets from /public/images */}
-      <div style={{
-        position: 'absolute',
-        right: 0,
-        top: 0,
-        width: '55%',
-        height: '100%',
-        overflow: 'hidden',
-      }}>
-        <img
+      {/* Full-bleed portrait (within content area next to fixed sidebar) */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          zIndex: 0,
+        }}
+      >
+        <Image
           src={portraitSrc}
           alt="Joseph Patrick Roberts"
+          fill
+          priority
+          sizes="(min-width: 901px) calc(100vw - 400px), 100vw"
           style={{
-            width: '100%',
-            height: '100%',
             objectFit: 'cover',
             objectPosition: 'center top',
           }}
         />
       </div>
 
+      {/* Readability scrim — follows light/dark paper */}
+      <div
+        aria-hidden
+        style={{
+          position: 'absolute',
+          inset: 0,
+          zIndex: 1,
+          pointerEvents: 'none',
+          background:
+            'linear-gradient(105deg, var(--color-paper) 0%, color-mix(in srgb, var(--color-paper) 55%, transparent) 42%, transparent 72%)',
+        }}
+      />
+
       {/* Left content */}
       <div style={{
         position: 'relative',
-        zIndex: 1,
+        zIndex: 2,
         padding: '0 0 64px 72px',
-        maxWidth: '45%',
+        maxWidth: 'min(560px, 92%)',
       }}>
         {/* Eyebrow — "Hello, I am" in accent */}
         <p style={{
