@@ -3,12 +3,8 @@
 @tailwind utilities;
 
 /* ── FONTS ────────────────────────────────────────────────────────────────── */
-/* Place font files in /public/fonts/
-   AlteHaasGroteskBold.woff2
-   AlteHaasGroteskRegular.woff2
-   JetBrainsMono-Bold.woff2
-   JetBrainsMono-Regular.woff2
-*/
+/* Place Alte Haas Grotesk in /public/fonts/ (see @font-face below).
+   JetBrains Mono is loaded via next/font/google in app/layout.tsx. */
 
 @font-face {
   font-family: 'Alte Haas Grotesk Bold';
@@ -26,22 +22,6 @@
   font-display: swap;
 }
 
-@font-face {
-  font-family: 'JetBrains Mono';
-  src: url('/fonts/JetBrainsMono-Bold.woff2') format('woff2');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'JetBrains Mono';
-  src: url('/fonts/JetBrainsMono-Regular.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
 /* ── BASE ─────────────────────────────────────────────────────────────────── */
 @layer base {
   :root {
@@ -53,6 +33,9 @@
     --color-chapter-dim: rgba(242, 65, 27, 0.25);
     --sidebar-width:    400px;
     --gutter:           72px;
+    /* Match @font-face family names; --font-mono comes from next/font on <html> */
+    --font-ahg:   "Alte Haas Grotesk Bold", sans-serif;
+    --font-body:  "Alte Haas Grotesk", sans-serif;
   }
 
   @media (prefers-color-scheme: dark) {
@@ -75,6 +58,7 @@
   body {
     margin: 0;
     padding: 0;
+    font-family: var(--font-body), system-ui, sans-serif;
   }
 
   /* Offset all content by sidebar width */
@@ -85,8 +69,8 @@
 
 /* ── UTILITIES ────────────────────────────────────────────────────────────── */
 @layer utilities {
-  .font-ahg  { font-family: 'Alte Haas Grotesk Bold', sans-serif; font-weight: 700; }
-  .font-mono { font-family: 'JetBrains Mono', monospace; }
+  .font-ahg  { font-family: var(--font-ahg); font-weight: 700; }
+  .font-mono { font-family: var(--font-mono), ui-monospace, monospace; }
 
   .text-ink    { color: var(--color-ink); }
   .text-muted  { color: var(--color-muted); }

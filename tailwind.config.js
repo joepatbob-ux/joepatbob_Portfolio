@@ -15,8 +15,8 @@ module.exports = {
         rule:    'rgba(0,0,0,0.1)',
       },
       fontFamily: {
-        ahg:  ['"Alte Haas Grotesk Bold"', 'sans-serif'],
-        mono: ['"JetBrains Mono"', 'monospace'],
+        ahg:  ['var(--font-ahg)', 'sans-serif'],
+        mono: ['var(--font-mono)', 'ui-monospace', 'monospace'],
       },
       fontSize: {
         'hero':    ['clamp(40px,5vw,96px)', { lineHeight: '0.82' }],
