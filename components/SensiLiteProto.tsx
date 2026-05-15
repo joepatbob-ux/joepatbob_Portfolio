@@ -5,6 +5,11 @@
 'use client'
 
 import { useState, useRef, useCallback, type CSSProperties, type ReactNode } from 'react'
+import {
+  DIGIT_ONES_OFFSET,
+  DIGIT_SEGMENT_PATHS,
+  DIGIT_TENS_OFFSET,
+} from '@/lib/sensi-lite/digit-paths'
 
 const DESIGN_WIDTH = 240
 const DESIGN_HEIGHT = 147
@@ -21,17 +26,7 @@ const asset = (name: string) => `/images/sensi-lite/${name}.svg`
 const imgLiteFrame = asset('lite-frame')
 const imgButtons = asset('lite-buttons')
 const imgType = asset('lite-type')
-
-// One SVG set per segment (a–g); shared by tens and ones digits
-const SEGMENT_SRCS = [
-  asset('segment-a'),
-  asset('segment-b'),
-  asset('segment-c'),
-  asset('segment-d'),
-  asset('segment-e'),
-  asset('segment-f'),
-  asset('segment-g'),
-]
+const imgFullScreenChrome = asset('full-screen-chrome')
 
 const imgCool = asset('icon-cool')
 const imgHeat = asset('icon-heat')
@@ -42,15 +37,11 @@ const imgFan = asset('icon-fan')
 const imgWiFi = asset('icon-wifi')
 const imgCloud = asset('icon-cloud')
 const imgSensor = asset('icon-sensor')
-const imgIndoor = asset('icon-indoor')
-const imgOutdoor = asset('icon-outdoor')
 const imgCallForService = asset('icon-service')
 const imgReplaceBattery = asset('icon-replace-battery')
 const imgSavingsEvent = asset('icon-savings-event')
 const imgSetTo = asset('icon-set-to')
-const imgSetup = asset('icon-setup')
 const imgPercent = asset('icon-percent')
-const imgLock = asset('icon-lock')
 
 // ── 7-SEGMENT ENCODING ────────────────────────────────────────────────────────
 const SEG7: Record<string, boolean[]> = {
@@ -80,21 +71,6 @@ const SEG7: Record<string, boolean[]> = {
   'd': [false, true, true, true, true, false, true],
 }
 
-// Segment positions on 25×47 digit canvas (matches exported SVG artboards)
-// a,d = 21×7 · g = 22×7 · b,c,e,f = 7×22
-const SEGMENT_BOX: CSSProperties[] = [
-  { top: '0%', left: '8%', width: '84%', height: '14.89%' }, // a
-  { top: '8.5%', left: '72%', width: '28%', height: '46.81%' }, // b
-  { top: '53.19%', left: '72%', width: '28%', height: '46.81%' }, // c
-  { top: '85.11%', left: '8%', width: '84%', height: '14.89%' }, // d
-  { top: '53.19%', left: '0%', width: '28%', height: '46.81%' }, // e
-  { top: '8.5%', left: '0%', width: '28%', height: '46.81%' }, // f
-  { top: '40.43%', left: '6%', width: '88%', height: '14.89%' }, // g
-]
-
-const DIGIT_ASPECT = `${25} / ${47}`
-const DIGIT_ROW_HEIGHT = `${(47 / 75) * 100}%` // 47px tall in 75px LCD
-const DIGIT_GAP = `${(2 / 52) * 100}%` // 2px gap in ~52px display row
 const SEG_INACTIVE = 0.06
 const ICON_INACTIVE = 0.1
 
@@ -234,35 +210,20 @@ function toScreenMode(mode: Mode): SensiLiteProtoProps['mode'] {
   return mode
 }
 
-function Digit({ char, segmentSrcs }: { char: string; segmentSrcs: string[] }) {
+function SvgDigitGroup({ char, x, y }: { char: string; x: number; y: number }) {
   const segs = SEG7[char] ?? SEG7[' ']
   return (
-    <div
-      style={{
-        position: 'relative',
-        height: '100%',
-        aspectRatio: DIGIT_ASPECT,
-        flex: '0 0 auto',
-      }}
-    >
-      {segmentSrcs.map((src, i) => (
-        <img
+    <g transform={`translate(${x}, ${y})`}>
+      {DIGIT_SEGMENT_PATHS.map((d, i) => (
+        <path
           key={i}
-          src={src}
-          alt=""
-          draggable={false}
-          style={{
-            position: 'absolute',
-            ...SEGMENT_BOX[i],
-            opacity: segs[i] ? 1 : SEG_INACTIVE,
-            transition: 'opacity 80ms ease',
-            objectFit: 'contain',
-            objectPosition: 'center',
-            pointerEvents: 'none',
-          }}
+          d={d}
+          fill="white"
+          opacity={segs[i] ? 1 : SEG_INACTIVE}
+          style={{ transition: 'opacity 80ms ease' }}
         />
       ))}
-    </div>
+    </g>
   )
 }
 
@@ -301,7 +262,37 @@ export function LiteScreen({
         transition: flash ? 'none' : 'opacity 80ms ease',
       }}
     >
-      {/* Status icons — always mounted */}
+      <img
+        src={imgFullScreenChrome}
+        alt=""
+        draggable={false}
+        style={{
+          position: 'absolute',
+          inset: 0,
+          width: '100%',
+          height: '100%',
+          objectFit: 'fill',
+          pointerEvents: 'none',
+        }}
+      />
+
+      <svg
+        viewBox="0 0 75 75"
+        aria-hidden
+        style={{
+          position: 'absolute',
+          inset: 0,
+          width: '100%',
+          height: '100%',
+          display: 'block',
+          overflow: 'visible',
+          pointerEvents: 'none',
+        }}
+      >
+        <SvgDigitGroup char={tens} x={DIGIT_TENS_OFFSET.x} y={DIGIT_TENS_OFFSET.y} />
+        <SvgDigitGroup char={ones} x={DIGIT_ONES_OFFSET.x} y={DIGIT_ONES_OFFSET.y} />
+      </svg>
+
       <Layer src={imgCool} box={inset('32.68%', '2.29%', '55.75%', '87.47%')} active={mode === 'cool'} />
       <Layer src={imgHeat} box={inset('46.62%', '3.24%', '41.76%', '88.27%')} active={mode === 'heat'} />
       <Layer src={imgAux} box={inset('60.16%', '1.51%', '33.29%', '86.93%')} active={mode === 'aux'} />
@@ -311,9 +302,6 @@ export function LiteScreen({
       <Layer src={imgWiFi} box={inset('43.26%', '86.92%', '49.76%', '3.22%')} active={wifiConnected} />
       <Layer src={imgCloud} box={inset('48%', '95.36%', '48.69%', '1.33%')} active={cloudConnected} />
       <Layer src={imgSensor} box={inset('53.33%', '87.17%', '39.81%', '2.67%')} active={sensorActive} />
-      <Layer src={imgLock} box={inset('62%', '87%', '28%', '3%')} active={false} />
-      <Layer src={imgIndoor} box={inset('4%', '19.03%', '91.34%', '55.74%')} active={false} />
-      <Layer src={imgOutdoor} box={inset('4.01%', '46.35%', '91.33%', '21.33%')} active={false} />
       <Layer
         src={imgCallForService}
         box={inset('86.67%', '66.67%', '4%', '9.33%')}
@@ -326,27 +314,7 @@ export function LiteScreen({
       />
       <Layer src={imgSavingsEvent} box={inset('86.67%', '36%', '4%', '36%')} active={savingsEvent} />
       <Layer src={imgSetTo} box={inset('10.67%', '36%', '83.33%', '37.33%')} active={showSetTo} />
-      <Layer src={imgSetup} box={inset('2.67%', '80%', '90.67%', '2.67%')} active={false} />
       <Layer src={imgPercent} box={inset('19.6%', '3%', '71.63%', '88.25%')} active={showPercent} />
-
-      {/* Two-digit 7-segment display (25×47 per digit, 2px gap) */}
-      <div
-        style={{
-          position: 'absolute',
-          left: '16%',
-          right: '14.67%',
-          top: '50%',
-          transform: 'translateY(-50%)',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          gap: DIGIT_GAP,
-          height: DIGIT_ROW_HEIGHT,
-        }}
-      >
-        <Digit char={tens} segmentSrcs={SEGMENT_SRCS} />
-        <Digit char={ones} segmentSrcs={SEGMENT_SRCS} />
-      </div>
     </div>
   )
 }
