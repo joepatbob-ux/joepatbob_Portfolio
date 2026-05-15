@@ -2,6 +2,9 @@
 import { Hero } from '@/components/Hero'
 import { CaseStudy } from '@/components/CaseStudy'
 import { hardware } from '@/lib/sections/hardware'
+import { mobile } from '@/lib/sections/mobile'
+import { webApps } from '@/lib/sections/webapps'
+import { everythingElse } from '@/lib/sections/everything-else'
 
 export default function Home() {
   return (
@@ -9,16 +12,11 @@ export default function Home() {
       {/* Hero — 100vh, sidebar name fades out on scroll */}
       <Hero />
 
-      {/* Hardware case study */}
-      <CaseStudy
-        section={hardware}
-        sectionId="hardware"
-      />
-
-      {/* Placeholder sections — build out later */}
-      <div data-section-id="mobile"        style={{ minHeight: '100vh' }} />
-      <div data-section-id="web-apps"      style={{ minHeight: '100vh' }} />
-      <div data-section-id="everything-else" style={{ minHeight: '100vh' }} />
+      {/* Case studies */}
+      <CaseStudy section={hardware}      sectionId="hardware" />
+      <CaseStudy section={mobile}        sectionId="mobile" />
+      <CaseStudy section={webApps}       sectionId="web-apps" />
+      <CaseStudy section={everythingElse} sectionId="everything-else" />
     </>
   )
 }
