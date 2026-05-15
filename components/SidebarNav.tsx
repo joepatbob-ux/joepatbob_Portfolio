@@ -204,7 +204,7 @@ export function SidebarNav() {
       {/* Sidebar shell */}
       <div style={{
         position: 'fixed', left: 0, top: 0,
-        width: 400, height: '100vh',
+        width: 400, height: '100dvh',
         zIndex: 100, pointerEvents: 'none',
       }}>
         {/* Divider */}

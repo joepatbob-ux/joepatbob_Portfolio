@@ -4,8 +4,8 @@
 import Image from 'next/image'
 import { useTheme } from '@/components/ThemeProvider'
 
-// The hero section is 100vh — portrait only (intro copy lives in the fixed sidebar).
-// Portrait scales to the viewport, anchored left; background matches photo matte.
+// Hero = one dynamic viewport tall (dvh avoids mobile 100vh drift). Portrait
+// scales inside it (contain), anchored right; background matches photo matte.
 
 const PORTRAIT_LIGHT = '/images/PortraitLight_MG_3496.jpg'
 const PORTRAIT_DARK = '/images/PortraitDark_MG_3490.jpg'
@@ -25,8 +25,9 @@ export function Hero() {
       id="hero"
       style={{
         position: 'relative',
-        height: '100vh',
-        minHeight: 600,
+        height: '100dvh',
+        minHeight: '100dvh',
+        maxHeight: '100dvh',
         overflow: 'hidden',
         backgroundColor: heroBg,
         marginLeft:
@@ -44,7 +45,7 @@ export function Hero() {
           sizes="100vw"
           style={{
             objectFit: 'contain',
-            objectPosition: 'left center',
+            objectPosition: 'right center',
           }}
         />
       </div>
