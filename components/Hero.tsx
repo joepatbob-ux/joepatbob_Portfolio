@@ -5,13 +5,13 @@ import Image from 'next/image'
 import { useTheme } from '@/components/ThemeProvider'
 
 // Hero = one dynamic viewport tall (dvh avoids mobile 100vh drift). Portrait
-// scales inside it (contain), anchored right; background matches photo matte.
+// Portrait fills the right 55%; background matches photo matte.
 
 const PORTRAIT_LIGHT = '/images/PortraitLight_MG_3496.jpg'
 const PORTRAIT_DARK = '/images/PortraitDark_MG_3490.jpg'
 
-const HERO_BG_LIGHT = '#f0f0f0'
-const HERO_BG_DARK = '#101010'
+const HERO_BG_LIGHT = '#f4f4f4'
+const HERO_BG_DARK = '#191919'
 
 export function Hero() {
   const { resolvedTheme } = useTheme()
@@ -30,30 +30,33 @@ export function Hero() {
         maxHeight: '100dvh',
         overflow: 'hidden',
         backgroundColor: heroBg,
-        marginLeft:
-          'calc(-1 * (var(--sidebar-width) + var(--content-pad-x)))',
-        width: '100vw',
-        maxWidth: '100vw',
+        // Bleed to content-column edges (not under the 400px sidebar).
+        marginLeft: 'calc(-1 * var(--content-pad-x))',
+        marginRight: 'calc(-1 * var(--content-pad-x))',
+        width: 'calc(100vw - var(--sidebar-width))',
+        maxWidth: 'calc(100vw - var(--sidebar-width))',
       }}
     >
       <div
         style={{
           position: 'absolute',
-          inset: 0,
-          width: '100%',
-          height: '100%',
+          top: 0,
+          right: 0,
+          bottom: 0,
+          width: '55%',
           minHeight: 0,
         }}
       >
         <Image
+          key={portraitSrc}
           src={portraitSrc}
           alt="Joseph Patrick Roberts"
           fill
           priority
-          sizes="100vw"
+          sizes="(min-width: 401px) 55vw, 100vw"
           style={{
-            objectFit: 'contain',
-            objectPosition: 'right center',
+            objectFit: 'cover',
+            objectPosition: 'right bottom',
           }}
         />
       </div>
