@@ -213,10 +213,8 @@ function ImagePlaceholder({
   alt: string
   width: number | string
   height: number
-  /** Composition hint for layout (left/right rails, full-bleed). */
   framing?: Pick<ChapterType, 'imagePosition' | 'imageLayout'>
   style?: React.CSSProperties
-  /** intrinsic: scales with container, preserves aspect ratio (full-width figures) */
   fit?: 'cover-box' | 'intrinsic'
 }) {
   const w =
