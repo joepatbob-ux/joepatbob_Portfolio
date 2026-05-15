@@ -15,6 +15,16 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: 'Joseph Patrick Roberts — Principal Product Designer',
   description: 'I simplify complex systems for Hardware, Mobile, Web Apps, and Everything In Between.',
+  icons: {
+    icon: [
+      { url: '/favicon/favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon/favicon.ico', type: 'image/x-icon' },
+      { url: '/favicon/favicon-32.png', type: 'image/png', sizes: '32x32' },
+      { url: '/favicon/favicon-16.png', type: 'image/png', sizes: '16x16' },
+    ],
+    apple: { url: '/favicon/apple-touch-icon.png', sizes: '180x180' },
+  },
+  manifest: '/favicon/site.webmanifest',
   openGraph: {
     title: 'Joseph Patrick Roberts',
     description: 'Principal Product Designer. Hardware, Mobile, Web Apps.',
@@ -32,6 +42,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={jetbrainsMono.variable}>
+      <head>
+        <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
+        <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000" />
+      </head>
       <body>
         <ThemeProvider>
           <SidebarNav />
