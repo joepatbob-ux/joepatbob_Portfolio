@@ -21,6 +21,11 @@ export interface Section {
   lessonTitle: string
   lessonBody: string
   chapters: Chapter[]
+  /** Optional block after the last chapter; scroll-spy uses lessons id, not nav. */
+  closingQuote?: {
+    quote: string
+    attribution: string
+  }
 }
 
 export interface NavChapter {

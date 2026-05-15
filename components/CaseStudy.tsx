@@ -1,6 +1,7 @@
 // components/CaseStudy.tsx
 import type { Section } from '@/lib/types'
 import { Chapter } from './Chapter'
+import { ClosingQuote } from './ClosingQuote'
 
 interface Props {
   section: Section
@@ -113,39 +114,51 @@ export function CaseStudy({ section, sectionId }: Props) {
         data-chapter-id={`${sectionId}-lessons`}
         style={{
           padding: `clamp(32px, 5vw, 48px) clamp(16px, 5vw, 72px) clamp(48px, 6vw, 72px)`,
+          scrollMarginTop: 24,
           display: 'flex',
           flexWrap: 'wrap',
           gap: 'clamp(32px, 5vw, 64px)',
           alignItems: 'start',
         }}
       >
-        <h3 style={{
-          fontFamily: 'var(--font-ahg)',
-          fontWeight: 700,
-          fontSize: 28,
-          lineHeight: 1.15,
-          color: 'var(--color-ink)',
-          margin: 0,
-          whiteSpace: 'pre-line',
-          flex: '1 1 260px',
-          minWidth: 0,
-          maxWidth: '100%',
-        }}>
-          {section.lessonTitle}
-        </h3>
-        <p style={{
-          fontSize: 14,
-          lineHeight: 1.7,
-          color: 'var(--color-muted)',
-          margin: 0,
-          whiteSpace: 'pre-line',
-          flex: '1 1 280px',
-          minWidth: 0,
-          maxWidth: '100%',
-        }}>
-          {section.lessonBody}
-        </p>
+          <h3
+            style={{
+              fontFamily: 'var(--font-ahg)',
+              fontWeight: 700,
+              fontSize: 28,
+              lineHeight: 1.15,
+              color: 'var(--color-ink)',
+              margin: 0,
+              whiteSpace: 'pre-line',
+              flex: '1 1 260px',
+              minWidth: 0,
+              maxWidth: '100%',
+            }}
+          >
+            {section.lessonTitle}
+          </h3>
+          <p
+            style={{
+              fontSize: 14,
+              lineHeight: 1.7,
+              color: 'var(--color-muted)',
+              margin: 0,
+              whiteSpace: 'pre-line',
+              flex: '1 1 280px',
+              minWidth: 0,
+              maxWidth: '100%',
+            }}
+          >
+            {section.lessonBody}
+          </p>
       </div>
+
+      {section.closingQuote ? (
+        <ClosingQuote
+          quote={section.closingQuote.quote}
+          attribution={section.closingQuote.attribution}
+        />
+      ) : null}
     </article>
   )
 }
