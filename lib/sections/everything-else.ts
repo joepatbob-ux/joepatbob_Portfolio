@@ -104,4 +104,9 @@ Inspiring Horizons. Copeland runs an outreach program — volunteering in the co
       imagePosition: 'left',
     },
   ],
+  closingQuote: {
+    quote:
+      'A common mistake that people make when trying to design something completely foolproof is to underestimate the ingenuity of complete fools.',
+    attribution: 'Douglas Adams',
+  },
 }
