@@ -48,16 +48,18 @@ export function Chapter({ chapter, sectionId, index, isLast }: Props) {
         }}>
           {num}
         </span>
-        <h3 style={{
-          fontFamily: 'var(--font-ahg)',
-          fontWeight: 700,
-          fontSize: 'clamp(22px, 2vw, 32px)',
-          lineHeight: 1.1,
-          letterSpacing: '-0.01em',
-          textTransform: 'uppercase',
-          color: 'var(--color-ink)',
-          margin: 0,
-        }}>
+        <h3
+          style={{
+            fontFamily: 'var(--font-ahg)',
+            fontWeight: 700,
+            fontSize: 'clamp(22px, 2vw, 32px)',
+            lineHeight: 1.1,
+            letterSpacing: '-0.01em',
+            textTransform: 'uppercase',
+            color: 'var(--color-ink)',
+            margin: 0,
+          }}
+        >
           {chapter.title}
         </h3>
       </div>

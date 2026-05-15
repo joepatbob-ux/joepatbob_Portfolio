@@ -268,7 +268,7 @@ export function SegmentDisplay() {
             <ScreenIcon
               label="HEAT"
               visible={heatCycleActive}
-              color="#F2411B"
+              color="#DE3E18"
             />
           </div>
 
@@ -393,7 +393,7 @@ export function SegmentDisplay() {
           fontSize: 11,
           fontFamily: 'monospace',
           letterSpacing: '0.07em',
-          color: mode==='heat' ? '#F2411B' : mode==='cool' ? '#4A9FD4' : 'rgba(128,128,128,0.6)',
+          color: mode==='heat' ? '#DE3E18' : mode==='cool' ? '#4A9FD4' : 'rgba(128,128,128,0.6)',
           background: 'transparent',
           transition: 'border-color 200ms, color 200ms',
         }}>
@@ -408,7 +408,7 @@ export function SegmentDisplay() {
         {/* Setpoints */}
         <div style={{ display:'flex', gap:16 }}>
           {[
-            { label:'heat', val:heatSP, color:'#F2411B', dimmed: mode==='cool'||mode==='off' },
+            { label:'heat', val:heatSP, color:'#DE3E18', dimmed: mode==='cool'||mode==='off' },
             { label:'cool', val:coolSP, color:'#4A9FD4', dimmed: mode==='heat'||mode==='off' },
           ].map(sp => (
             <div key={sp.label} style={{

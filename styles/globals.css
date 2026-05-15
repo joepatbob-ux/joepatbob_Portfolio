@@ -27,10 +27,19 @@
   :root {
     --color-ink:        #0d0d0d;
     --color-paper:      #f0f0f0;
-    --color-accent:     #F2411B;
+    /* Base accent: slightly darker than legacy #F2411B for better contrast (incl. white UI text on pill). */
+    --color-accent:     #DE3E18;
+    /* Links / nav hovers: darker still for ~AA against paper and clear focus/hover signal. */
+    --color-accent-hover: #B73412;
     --color-rule:       rgba(0, 0, 0, 0.1);
-    --color-muted:      rgba(13, 13, 13, 0.45);
-    --color-chapter-dim: rgba(242, 65, 27, 0.25);
+    /* ~4.5:1 vs paper for 14px body (was 0.45 alpha — too light). */
+    --color-muted:      rgba(13, 13, 13, 0.72);
+    /* Nav “de-selected while exploring” — same hue as accent, not grey. */
+    --color-nav-faded-selection: rgba(222, 62, 24, 0.4);
+    --color-accent-nav-hover:    #5a2410;
+    /* Subnav: selected row fill; hover = 1px muted-accent ring (no fill on hover-only). */
+    --color-nav-pill-muted-accent-1: rgba(222, 62, 24, 0.12);
+    --color-nav-pill-outline:        rgba(222, 62, 24, 0.42);
     --sidebar-width:    400px;
     --gutter:           72px;
     /* Horizontal inset for main column: rules and blocks don’t hug viewport or sidebar */
@@ -44,9 +53,13 @@
     :root {
       --color-ink:        #f0eeea;
       --color-paper:      #101010;
-      --color-rule:       rgba(255, 255, 255, 0.1);
-      --color-muted:      rgba(240, 238, 234, 0.45);
-      --color-chapter-dim: rgba(242, 65, 27, 0.3);
+      --color-rule:       rgba(255, 255, 255, 0.12);
+      /* Stronger than 0.45 — readable cream on near-black */
+      --color-muted:      rgba(240, 238, 234, 0.78);
+      --color-accent-nav-hover:    #ff9a7a;
+      --color-nav-faded-selection: rgba(222, 62, 24, 0.45);
+      --color-nav-pill-muted-accent-1: rgba(222, 62, 24, 0.16);
+      --color-nav-pill-outline:        rgba(222, 62, 24, 0.48);
     }
   }
 
@@ -203,7 +216,7 @@
 }
 
 .contact-liquid__btn:hover {
-  background: rgba(0, 0, 0, 0.14);
+  background: rgba(0, 0, 0, 0.26);
 }
 
 .contact-liquid__btn:focus-visible {
@@ -291,7 +304,7 @@
   gap: 12px;
   padding: 40px;
   box-sizing: border-box;
-  background: #f2411b;
+  background: var(--color-accent);
   color: #fff;
   text-align: center;
 }
@@ -346,7 +359,7 @@
 
 .not-found-page__link:hover {
   background: #fff;
-  color: #f2411b;
+  color: var(--color-accent-hover);
 }
 
 .not-found-page__link:focus-visible {
