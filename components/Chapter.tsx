@@ -1,5 +1,6 @@
 // components/Chapter.tsx
 import type { Chapter as ChapterType } from '@/lib/types'
+import { SensiLiteProto } from '@/components/SensiLiteProto'
 
 interface Props {
   chapter: ChapterType
@@ -92,6 +93,20 @@ export function Chapter({ chapter, sectionId, index, isLast }: Props) {
           }}>
             {chapter.body}
           </p>
+          {chapterId === 'hardware-sensi-lite' && (
+            <div
+              style={{
+                marginTop: 40,
+                padding: '32px 24px',
+                background: '#0d0d0d',
+                borderRadius: 12,
+                display: 'flex',
+                justifyContent: 'center',
+              }}
+            >
+              <SensiLiteProto />
+            </div>
+          )}
         </>
       )}
 
