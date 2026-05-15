@@ -43,6 +43,15 @@ function toChapterId(sectionId: string, chapterId: string): string {
   return `${sectionId}-${chapterId}`
 }
 
+function getScrollTop(): number {
+  return (
+    window.scrollY ||
+    document.documentElement.scrollTop ||
+    document.body.scrollTop ||
+    0
+  )
+}
+
 // ── COMPONENT ─────────────────────────────────────────────────────────────────
 export function SidebarNav() {
   const dark = useDarkMode()
@@ -72,6 +81,8 @@ export function SidebarNav() {
   const [viewportH,  setViewportH]  = useState(900)
   const [navRestTop, setNavRestTop] = useState(0)
   const NAV_STICK_THRESHOLD = viewportH * 0.72
+  const stickThresholdRef = useRef(NAV_STICK_THRESHOLD)
+  stickThresholdRef.current = NAV_STICK_THRESHOLD
 
   useEffect(() => {
     const update = () => setViewportH(window.innerHeight)
@@ -130,44 +141,76 @@ export function SidebarNav() {
     subNavVisibleRef.current = subNavVisible
   }, [subNavVisible])
 
+  const applyScrollChoreography = useCallback(
+    (y: number) => {
+      setScrollY(y)
+      const threshold = stickThresholdRef.current
+      const shouldStick = y >= threshold
+
+      if (shouldStick && !prevStuck.current) {
+        prevStuck.current = true
+        setNavIsStuck(true)
+        setDimActive(true)
+        subNavTimer.current = setTimeout(() => {
+          setSubNavVisible(true)
+          setActiveSection((prev) => {
+            const id = prev || NAV_SECTIONS[0].id
+            staggerIn(id, id === NAV_SECTIONS[0].id)
+            return id
+          })
+        }, SUBNAV_DELAY_MS)
+      } else if (!shouldStick && prevStuck.current) {
+        prevStuck.current = false
+        setNavIsStuck(false)
+        setSubNavVisible(false)
+        setDividerVisible(false)
+        setDimActive(false)
+        setChapterItemsVisible([])
+        if (subNavTimer.current) clearTimeout(subNavTimer.current)
+        staggerTimers.current.forEach(clearTimeout)
+      }
+    },
+    [staggerIn],
+  )
+
   useEffect(() => {
     let ticking = false
     const onScroll = () => {
-      if (!ticking) {
-        requestAnimationFrame(() => {
-          const y = window.scrollY
-          setScrollY(y)
-          const shouldStick = y >= NAV_STICK_THRESHOLD
-          if (shouldStick && !prevStuck.current) {
-            prevStuck.current = true
-            setNavIsStuck(true)
-            setDimActive(true)
-            subNavTimer.current = setTimeout(() => {
-              setSubNavVisible(true)
-              setActiveSection((prev) => {
-                const id = prev || NAV_SECTIONS[0].id
-                staggerIn(id, id === NAV_SECTIONS[0].id)
-                return id
-              })
-            }, SUBNAV_DELAY_MS)
-          } else if (!shouldStick && prevStuck.current) {
-            prevStuck.current = false
-            setNavIsStuck(false)
-            setSubNavVisible(false)
-            setDividerVisible(false)
-            setDimActive(false)
-            setChapterItemsVisible([])
-            if (subNavTimer.current) clearTimeout(subNavTimer.current)
-            staggerTimers.current.forEach(clearTimeout)
-          }
-          ticking = false
-        })
-        ticking = true
-      }
+      if (ticking) return
+      ticking = true
+      requestAnimationFrame(() => {
+        applyScrollChoreography(getScrollTop())
+        ticking = false
+      })
     }
+
+    applyScrollChoreography(getScrollTop())
     window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [staggerIn, NAV_STICK_THRESHOLD])
+    document.addEventListener('scroll', onScroll, { passive: true, capture: true })
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      document.removeEventListener('scroll', onScroll, true)
+    }
+  }, [applyScrollChoreography])
+
+  useEffect(() => {
+    applyScrollChoreography(getScrollTop())
+  }, [viewportH, applyScrollChoreography])
+
+  const syncScrollAfterNavigate = useCallback(() => {
+    applyScrollChoreography(getScrollTop())
+    let frames = 0
+    const tick = () => {
+      applyScrollChoreography(getScrollTop())
+      if (++frames < 90) requestAnimationFrame(tick)
+    }
+    requestAnimationFrame(tick)
+    if ('onscrollend' in window) {
+      window.addEventListener('scrollend', () => applyScrollChoreography(getScrollTop()), {
+        once: true,
+      })
+    }
+  }, [applyScrollChoreography])
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -222,6 +265,7 @@ export function SidebarNav() {
       .querySelector(`[data-section-id="${id}"]`)
       ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     switchSection(id)
+    syncScrollAfterNavigate()
   }
 
   const scrollToChapter = (chapterId: string) => {
@@ -231,6 +275,7 @@ export function SidebarNav() {
     const sectionId = sectionIdForChapter(chapterId)
     if (sectionId) switchSection(sectionId)
     setActiveChapter(chapterId)
+    syncScrollAfterNavigate()
   }
 
   const currentSection = NAV_SECTIONS.find((s) => s.id === activeSection) || NAV_SECTIONS[0]
