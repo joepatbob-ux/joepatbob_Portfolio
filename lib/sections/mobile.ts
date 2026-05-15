@@ -22,7 +22,7 @@ The goal isn't a spike in ratings. It's a product that stays current, feels nati
     {
       id: 'strategy',
       title: 'The Strategy',
-      subtitle: 'Don't just redesign. Fix the foundation.',
+      subtitle: "Don't just redesign. Fix the foundation.",
       body: `Sensi has been around for a while. By the time I took ownership of the app design, it had the kind of UI you'd expect from a product that moved fast and prioritized shipping: functional, but patchy. Custom controls where system components would have worked fine. Patterns that made sense in 2017 and never got revisited. A design language that accumulated inconsistencies over years of one-off decisions.
 
 The ratings reflected it. Around 4.3 stars on the App Store. Not bad, but not a product people were excited about.
@@ -58,7 +58,7 @@ The solution: move the color to the number. Instead of the background adopting t
     {
       id: 'install-flow',
       title: 'The Install Flow',
-      subtitle: 'Removing a button that was doing someone else's job.',
+      subtitle: "Removing a button that was doing someone else's job.",
       body: `The installation flow is one of the highest-stakes experiences in the app. A homeowner selecting the wrong wires in the wirepicker means the app infers the wrong equipment configuration. Getting it wrong has real consequences.
 
 The legacy install flow had two buttons at the bottom of every screen: Previous and Next. Modern iOS and Android navigation already provides a reliable back action — it lives in the navigation bar at the top of every screen. Adding a second back button at the bottom creates visual clutter, splits attention, and buries the primary action between two competing controls.
@@ -76,7 +76,7 @@ App Store reviewers picked up on the install experience without prompting. One l
     {
       id: 'spotlight',
       title: 'Spotlight',
-      subtitle: 'Building a content surface that doesn't feel like an ad.',
+      subtitle: "Building a content surface that doesn't feel like an ad.",
       body: `Sensi partners with utility companies to offer energy demand-response programs. Good programs. Low enrollment because users had no reason to go looking for them inside the app.
 
 Spotlight was the answer. A named, dedicated section on the home screen, separate from the thermostat card, that can carry partner content, product news, and savings opportunities.
