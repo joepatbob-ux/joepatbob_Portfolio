@@ -17,3 +17,6 @@ yarn-error.log*
 
 # vercel
 .vercel
+
+# local python venv (blob crop tooling)
+.venv-blob/

@@ -86,7 +86,7 @@ export function CaseStudy({ section, sectionId }: Props) {
           fontWeight: 700,
           fontSize: 'clamp(20px, 1.8vw, 28px)',
           lineHeight: 1.4,
-          color: 'rgba(13,13,13,0.45)',
+          color: 'var(--color-muted)',
           margin: 0,
           padding: 0,
           border: 'none',

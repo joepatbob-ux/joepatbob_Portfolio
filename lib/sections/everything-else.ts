@@ -9,7 +9,7 @@ export const everythingElse: Section = {
   overviewBody: `Principal Product Designer working at the intersection of hardware and software. Brand-trained. St. Louis-based.
 
 Location: St. Louis, MO · Email: me@joepatbob.com · Patents: 1 awarded · 1 pending`,
-  pullQuote: 'A common mistake people make when trying to design something completely foolproof is to underestimate the ingenuity of complete fools.',
+  pullQuote: 'Our job is to do the hard work so users don\'t have to.',
   lessonTitle: 'Direct,\ncollaborative,\nnot precious.',
   lessonBody: `I'm collaborative by nature and direct by preference. I'll push back when I think something is wrong, and I'll document why — but I'm not precious about outcomes. The goal is a better product, not a preserved opinion.
 
@@ -98,8 +98,8 @@ Headshots, sorted. Consistent professional headshots matter, for the company's p
 Feed the engineers. During our company homecoming, I organized a crawfish boil for the software development team. There's no UX rationale here. Sometimes you just feed people. It turns out that's also collaboration.
 
 Inspiring Horizons. Copeland runs an outreach program — volunteering in the community, showing up for organizations that need hands. We've sorted donated clothing at the Little Bit Foundation and volunteered at food banks across the St. Louis area. Good design solves problems for people. So does showing up on a Saturday morning to sort kids' shoes.`,
-      imageAlt: 'Sensi demo kit, launch stickers, headshot session, crawfish boil',
-      imageSrc: '/images/things-collage.jpg',
+      imageAlt: 'Portable Sensi demo kit with branded foam-cut case',
+      imageSrc: '/images/img-demo-kit.jpeg',
       imageLayout: 'full-width',
       imagePosition: 'left',
     },

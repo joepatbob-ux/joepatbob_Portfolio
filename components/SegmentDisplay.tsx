@@ -2,15 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 
-// ── SEGMENT DEFINITIONS ───────────────────────────────────────────────────────
-// Each digit: [top, mid, bot, tl, tr, bl, br]
-const SEGS: Record<number, number[]> = {
-  0:[1,0,1,1,1,1,1], 1:[0,0,0,0,1,0,1], 2:[1,1,1,0,1,1,0],
-  3:[1,1,1,0,1,0,1], 4:[0,1,0,1,1,0,1], 5:[1,1,1,1,0,0,1],
-  6:[1,1,1,1,0,1,1], 7:[1,0,0,0,1,0,1], 8:[1,1,1,1,1,1,1],
-  9:[1,1,1,1,1,0,1],
-}
-const SEG_PARTS = ['top','mid','bot','tl','tr','bl','br'] as const
+import { SEGS, SEG_PARTS, LCD_SEGMENT_LAYOUT } from '@/lib/sensi-lite/lcd-segments'
 
 // ── CONSTANTS ─────────────────────────────────────────────────────────────────
 const DEADBAND   = 2
@@ -34,16 +26,7 @@ function Digit({ value }: { value: number }) {
           borderRadius: 2,
           transition: 'background 60ms',
         }
-        const styles: Record<string, React.CSSProperties> = {
-          top: { top:1,    left:4,  right:4,  height:3 },
-          mid: { top:'50%',left:2,  right:2,  height:3, marginTop:-1.5 },
-          bot: { bottom:1, left:4,  right:4,  height:3 },
-          tl:  { top:4,    left:2,  width:3,  bottom:'calc(50% + 3px)' },
-          tr:  { top:4,    right:2, width:3,  bottom:'calc(50% + 3px)' },
-          bl:  { bottom:4, left:2,  width:3,  top:'calc(50% + 3px)' },
-          br:  { bottom:4, right:2, width:3,  top:'calc(50% + 3px)' },
-        }
-        return <div key={part} style={{ ...base, ...styles[part] }} />
+        return <div key={part} style={{ ...base, ...LCD_SEGMENT_LAYOUT[part] }} />
       })}
     </div>
   )

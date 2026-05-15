@@ -4,7 +4,7 @@ import type { Section } from '../types'
 export const webApps: Section = {
   id: 'web-apps',
   label: 'Web Apps',
-  eyebrow: 'Case Study · 03',
+  eyebrow: 'Case Study — Web Apps',
   headline: "Unifying Copeland's\nProduct Suite.",
   overviewBody: `Building Kelvin — a design system for four products, two domains, and a user base that can't afford mistakes.
 

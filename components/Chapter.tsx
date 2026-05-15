@@ -1,5 +1,6 @@
 // components/Chapter.tsx
 import type { Chapter as ChapterType } from '@/lib/types'
+import { BeforeAfterSlider } from '@/components/BeforeAfterSlider'
 import { SensiLiteProto } from '@/components/SensiLiteProto'
 
 interface Props {
@@ -96,8 +97,22 @@ export function Chapter({ chapter, sectionId, index, isLast }: Props) {
               </div>
             </div>
           )}
-          {chapterId !== 'hardware-sensi-lite' && (
+          {chapterId === 'mobile-color' && (
+            <div style={{ marginBottom: 28 }}>
+              <BeforeAfterSlider
+                beforeSrc="/images/mobile-android-legacy-fullbleed-orange.png"
+                afterSrc="/images/mobile-android-v1-dark-orange-number.png"
+                beforeAlt="Legacy full-bleed orange heat mode screen"
+                afterAlt="Refined UI with mode color on the temperature number"
+              />
+            </div>
+          )}
+          {chapterId !== 'hardware-sensi-lite' && chapterId !== 'mobile-color' && (
             <ImagePlaceholder
+              framing={{
+                imagePosition: chapter.imagePosition,
+                imageLayout: chapter.imageLayout,
+              }}
               src={chapter.imageSrc}
               alt={chapter.imageAlt}
               width="100%"
@@ -129,6 +144,10 @@ export function Chapter({ chapter, sectionId, index, isLast }: Props) {
         }}>
           {!imgRight && (
             <ImagePlaceholder
+              framing={{
+                imagePosition: chapter.imagePosition,
+                imageLayout: chapter.imageLayout,
+              }}
               src={chapter.imageSrc}
               alt={chapter.imageAlt}
               width={imgW}
@@ -150,6 +169,10 @@ export function Chapter({ chapter, sectionId, index, isLast }: Props) {
           </p>
           {imgRight && (
             <ImagePlaceholder
+              framing={{
+                imagePosition: chapter.imagePosition,
+                imageLayout: chapter.imageLayout,
+              }}
               src={chapter.imageSrc}
               alt={chapter.imageAlt}
               width={imgW}
@@ -164,6 +187,17 @@ export function Chapter({ chapter, sectionId, index, isLast }: Props) {
   )
 }
 
+function chapterPhotoObjectPosition(
+  framing: Pick<ChapterType, 'imagePosition' | 'imageLayout'>,
+  fit: 'intrinsic' | 'cover-box',
+): string {
+  if (fit === 'intrinsic') {
+    return framing.imagePosition === 'right' ? 'right center' : 'left center'
+  }
+  if (framing.imageLayout === 'full-width') return 'center center'
+  return framing.imagePosition === 'right' ? '62% center' : '38% center'
+}
+
 // ── Image with placeholder fallback ──────────────────────────────────────────
 
 function ImagePlaceholder({
@@ -171,6 +205,7 @@ function ImagePlaceholder({
   alt,
   width,
   height,
+  framing,
   style,
   fit = 'cover-box',
 }: {
@@ -178,6 +213,8 @@ function ImagePlaceholder({
   alt: string
   width: number | string
   height: number
+  /** Composition hint for layout (left/right rails, full-bleed). */
+  framing?: Pick<ChapterType, 'imagePosition' | 'imageLayout'>
   style?: React.CSSProperties
   /** intrinsic: scales with container, preserves aspect ratio (full-width figures) */
   fit?: 'cover-box' | 'intrinsic'
@@ -185,19 +222,25 @@ function ImagePlaceholder({
   const w =
     typeof width === 'number' ? `min(${width}px, 100%)` : width
 
+  const framingResolved =
+    framing ?? { imagePosition: 'left' as const, imageLayout: 'portrait' as const }
+
+  const photoPos = chapterPhotoObjectPosition(framingResolved, fit)
+
   if (src) {
     if (fit === 'intrinsic') {
       return (
         <img
           src={src}
           alt={alt}
+          decoding="async"
           style={{
             width: w,
             maxWidth: '100%',
             height: 'auto',
             maxHeight: height,
             objectFit: 'contain',
-            objectPosition: 'left center',
+            objectPosition: photoPos,
             display: 'block',
             ...style,
           }}
@@ -209,11 +252,13 @@ function ImagePlaceholder({
       <img
         src={src}
         alt={alt}
+        decoding="async"
         style={{
           width: w,
           maxWidth: '100%',
           height,
           objectFit: 'cover',
+          objectPosition: photoPos,
           display: 'block',
           ...style,
         }}
