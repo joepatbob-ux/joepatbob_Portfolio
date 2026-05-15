@@ -4,7 +4,17 @@
 
 'use client'
 
-import { useState, useRef, useCallback, type CSSProperties } from 'react'
+import {
+  useState,
+  useRef,
+  useCallback,
+  useLayoutEffect,
+  type CSSProperties,
+  type ReactNode,
+} from 'react'
+
+const DESIGN_WIDTH = 240
+const DESIGN_HEIGHT = 147
 
 // ── LOCAL SVG ASSETS (public/images/sensi-lite/) ───────────────────────────────
 const asset = (name: string) => `/images/sensi-lite/${name}.svg`
@@ -129,6 +139,53 @@ export interface SensiLiteProtoProps {
 const HW_SCREENS: Screen[] = ['hw_schedule', 'hw_hold', 'hw_backlight']
 const CT_SCREENS: Screen[] = ['ct_heat_offset', 'ct_cool_offset', 'ct_swing', 'ct_id']
 
+// ── RESPONSIVE SCALE ───────────────────────────────────────────────────────────
+function ProtoScaler({ children }: { children: ReactNode }) {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [scale, setScale] = useState(1)
+
+  useLayoutEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+
+    const update = () => {
+      const width = el.getBoundingClientRect().width
+      if (width > 0) setScale(width / DESIGN_WIDTH)
+    }
+
+    update()
+    const ro = new ResizeObserver(update)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+
+  return (
+    <div
+      ref={containerRef}
+      style={{
+        width: '100%',
+        maxWidth: 480,
+        aspectRatio: `${DESIGN_WIDTH} / ${DESIGN_HEIGHT}`,
+        position: 'relative',
+      }}
+    >
+      <div
+        style={{
+          position: 'absolute',
+          left: 0,
+          top: 0,
+          width: DESIGN_WIDTH,
+          height: DESIGN_HEIGHT,
+          transform: `scale(${scale})`,
+          transformOrigin: 'top left',
+        }}
+      >
+        {children}
+      </div>
+    </div>
+  )
+}
+
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 function inset(top: string, right: string, bottom: string, left: string): CSSProperties {
   return { position: 'absolute', top, right, bottom, left }
@@ -205,7 +262,7 @@ function toScreenMode(mode: Mode): SensiLiteProtoProps['mode'] {
 function Digit({ char, segmentSrcs }: { char: string; segmentSrcs: string[] }) {
   const segs = SEG7[char] ?? SEG7[' ']
   return (
-    <div style={{ position: 'relative', width: 25, height: 47, flexShrink: 0 }}>
+    <div style={{ position: 'relative', width: '48%', height: '100%', flexShrink: 0 }}>
       {segmentSrcs.map((src, i) => (
         <img
           key={i}
@@ -252,10 +309,10 @@ export function LiteScreen({
     <div
       style={{
         position: 'absolute',
-        left: 82,
-        top: 36,
-        width: 75,
-        height: 75,
+        left: `${(82 / DESIGN_WIDTH) * 100}%`,
+        top: `${(36 / DESIGN_HEIGHT) * 100}%`,
+        width: `${(75 / DESIGN_WIDTH) * 100}%`,
+        height: `${(75 / DESIGN_HEIGHT) * 100}%`,
         background: '#000',
         borderRadius: 3,
         boxShadow: 'inset 0px 0px 10px 0px rgba(255,255,255,0.17)',
@@ -301,8 +358,8 @@ export function LiteScreen({
           top: '50%',
           transform: 'translateY(-50%)',
           display: 'flex',
-          gap: 2,
-          height: 47,
+          gap: '2.67%',
+          height: '62.67%',
         }}
       >
         <Digit char={tens} segmentSrcs={SEGMENT_SRCS} />
@@ -359,7 +416,7 @@ function LiteFrame({
   }
 
   return (
-    <div style={{ position: 'relative', width: 240, height: 147 }}>
+    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
       <img
         src={imgLiteFrame}
         alt=""
@@ -558,28 +615,31 @@ export function SensiLiteProto() {
   return (
     <div
       style={{
-        display: 'inline-flex',
+        display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
+        width: '100%',
         userSelect: 'none',
       }}
     >
-      <div style={{ position: 'relative', width: 240, height: 147 }}>
-        <LiteFrame onUp={handleUp} onDown={handleDown} onMenu={handleMenu} onMenuLong={handleMenuLong} />
-        <LiteScreen
-          temperature={state.currentTemp}
-          mode={screenMode}
-          fanActive={state.fan === 'on'}
-          wifiConnected
-          cloudConnected={navLevel !== 'normal'}
-          sensorActive={false}
-          replaceBattery={false}
-          callForService={false}
-          savingsEvent={false}
-          displayChars={display.chars}
-          flash={flash}
-        />
-      </div>
+      <ProtoScaler>
+        <div style={{ position: 'relative', width: DESIGN_WIDTH, height: DESIGN_HEIGHT }}>
+          <LiteFrame onUp={handleUp} onDown={handleDown} onMenu={handleMenu} onMenuLong={handleMenuLong} />
+          <LiteScreen
+            temperature={state.currentTemp}
+            mode={screenMode}
+            fanActive={state.fan === 'on'}
+            wifiConnected
+            cloudConnected={navLevel !== 'normal'}
+            sensorActive={false}
+            replaceBattery={false}
+            callForService={false}
+            savingsEvent={false}
+            displayChars={display.chars}
+            flash={flash}
+          />
+        </div>
+      </ProtoScaler>
 
       <div
         style={{
