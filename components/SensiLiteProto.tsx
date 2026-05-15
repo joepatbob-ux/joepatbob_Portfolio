@@ -50,6 +50,7 @@ const imgSavingsEvent = asset('icon-savings-event')
 const imgSetTo = asset('icon-set-to')
 const imgSetup = asset('icon-setup')
 const imgPercent = asset('icon-percent')
+const imgLock = asset('icon-lock')
 
 // ── 7-SEGMENT ENCODING ────────────────────────────────────────────────────────
 const SEG7: Record<string, boolean[]> = {
@@ -79,16 +80,21 @@ const SEG7: Record<string, boolean[]> = {
   'd': [false, true, true, true, true, false, true],
 }
 
-// Segment layout within each 25×47 digit (a–g)
+// Segment positions on 25×47 digit canvas (matches exported SVG artboards)
+// a,d,g = 21–22×7 · b,c,e,f = 7×22
 const SEGMENT_BOX: CSSProperties[] = [
-  { top: '2%', left: '12%', right: '12%', height: '14%' },
-  { top: '16%', right: '2%', width: '14%', bottom: '52%' },
-  { bottom: '16%', right: '2%', width: '14%', top: '52%' },
-  { bottom: '2%', left: '12%', right: '12%', height: '14%' },
-  { bottom: '16%', left: '2%', width: '14%', top: '52%' },
-  { top: '16%', left: '2%', width: '14%', bottom: '52%' },
-  { top: '46%', left: '12%', right: '12%', height: '12%' },
+  { top: '0%', left: '8%', width: '84%', height: '14.9%' }, // a
+  { top: '10.6%', left: '72%', width: '28%', height: '46.8%' }, // b
+  { top: '53.2%', left: '72%', width: '28%', height: '46.8%' }, // c
+  { top: '85.1%', left: '8%', width: '84%', height: '14.9%' }, // d
+  { top: '53.2%', left: '0%', width: '28%', height: '46.8%' }, // e
+  { top: '10.6%', left: '0%', width: '28%', height: '46.8%' }, // f
+  { top: '42.6%', left: '6%', width: '88%', height: '14.9%' }, // g
 ]
+
+const DIGIT_ASPECT = `${25} / ${47}`
+const DIGIT_ROW_HEIGHT = `${(47 / 75) * 100}%` // 47px tall in 75px LCD
+const DIGIT_GAP = `${(2 / 52) * 100}%` // 2px gap in ~52px display row
 
 // ── NAVIGATION TYPES (existing logic) ─────────────────────────────────────────
 type Mode = 'heat' | 'cool' | 'auto' | 'off'
@@ -229,7 +235,14 @@ function toScreenMode(mode: Mode): SensiLiteProtoProps['mode'] {
 function Digit({ char, segmentSrcs }: { char: string; segmentSrcs: string[] }) {
   const segs = SEG7[char] ?? SEG7[' ']
   return (
-    <div style={{ position: 'relative', flex: '1 1 0', minWidth: 0, height: '100%' }}>
+    <div
+      style={{
+        position: 'relative',
+        height: '100%',
+        aspectRatio: DIGIT_ASPECT,
+        flex: '0 0 auto',
+      }}
+    >
       {segmentSrcs.map((src, i) => (
         <img
           key={i}
@@ -237,10 +250,12 @@ function Digit({ char, segmentSrcs }: { char: string; segmentSrcs: string[] }) {
           alt=""
           draggable={false}
           style={{
+            position: 'absolute',
             ...SEGMENT_BOX[i],
             opacity: segs[i] ? 1 : 0.1,
             transition: 'opacity 80ms ease',
-            objectFit: 'fill',
+            objectFit: 'contain',
+            objectPosition: 'center',
             pointerEvents: 'none',
           }}
         />
@@ -296,9 +311,9 @@ export function LiteScreen({
       <Layer src={imgWiFi} box={inset('43.26%', '86.92%', '49.76%', '3.22%')} active={wifiConnected} />
       <Layer src={imgCloud} box={inset('48%', '95.36%', '48.69%', '1.33%')} active={cloudConnected} />
       <Layer src={imgSensor} box={inset('53.33%', '87.17%', '39.81%', '2.67%')} active={sensorActive} />
+      <Layer src={imgLock} box={inset('62%', '87%', '28%', '3%')} active={false} />
       <Layer src={imgIndoor} box={inset('4%', '19.03%', '91.34%', '55.74%')} active={false} />
       <Layer src={imgOutdoor} box={inset('4.01%', '46.35%', '91.33%', '21.33%')} active={false} />
-      <Layer src={SEGMENT_SRCS[4]} box={inset('69.33%', '88.7%', '22.94%', '5.33%')} active={false} />
       <Layer
         src={imgCallForService}
         box={inset('86.67%', '66.67%', '4%', '9.33%')}
@@ -314,7 +329,7 @@ export function LiteScreen({
       <Layer src={imgSetup} box={inset('2.67%', '80%', '90.67%', '2.67%')} active={false} />
       <Layer src={imgPercent} box={inset('19.6%', '3%', '71.63%', '88.25%')} active={showPercent} />
 
-      {/* Two-digit display */}
+      {/* Two-digit 7-segment display (25×47 per digit, 2px gap) */}
       <div
         style={{
           position: 'absolute',
@@ -323,8 +338,10 @@ export function LiteScreen({
           top: '50%',
           transform: 'translateY(-50%)',
           display: 'flex',
-          gap: '3.85%',
-          height: '62.67%',
+          justifyContent: 'center',
+          alignItems: 'center',
+          gap: DIGIT_GAP,
+          height: DIGIT_ROW_HEIGHT,
         }}
       >
         <Digit char={tens} segmentSrcs={SEGMENT_SRCS} />
