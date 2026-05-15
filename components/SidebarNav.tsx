@@ -40,7 +40,7 @@ function useDarkMode() {
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 function toChapterId(sectionId: string, chapter: string): string {
-  return `${sectionId}-${chapter.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}`
+  return `${sectionId}-${chapter}`
 }
 
 // ── COMPONENT ─────────────────────────────────────────────────────────────────
