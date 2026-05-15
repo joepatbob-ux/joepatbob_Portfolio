@@ -5,7 +5,7 @@ export const webApps: Section = {
   id: 'web-apps',
   label: 'Web Apps',
   eyebrow: 'Case Study · 03',
-  headline: 'Unifying Copeland\'s\nProduct Suite.',
+  headline: "Unifying Copeland's\nProduct Suite.",
   overviewBody: `Building Kelvin — a design system for four products, two domains, and a user base that can't afford mistakes.
 
 Role: Principal Product Designer · Design System: Kelvin · Products: Sensi MTM · Verdant Thermostat Manager · Copeland Connect+ · Copeland TempTrak 6 · Status: Active — parallel track rollout with positive customer validation`,
@@ -96,7 +96,7 @@ What Kelvin addresses:
     {
       id: 'rollout',
       title: 'The Rollout Strategy',
-      subtitle: 'It's okay to move the cheese, as long as you put it somewhere better.',
+      subtitle: "It's okay to move the cheese, as long as you put it somewhere better.",
       body: `The standard design system playbook — freeze features, migrate everything, relaunch — doesn't work for a user base with regulatory SOPs and hardware dependencies. The risk profile is too high and the organizational will for that kind of disruption doesn't exist.
 
 Instead, Kelvin is rolling out through a parallel track approach: small, non-critical features built in Kelvin running alongside the existing interface. Users can try them, give feedback, and continue using what they know. No forced migration. No retraining before the new experience has proven itself.
