@@ -11,6 +11,7 @@ import {
   type CSSProperties,
   type ReactNode,
 } from 'react'
+import { FRAME_HEIGHT, FRAME_LOGO, FRAME_WIDTH, type FrameRect } from '@/lib/sensi-lite/frame-layout'
 import { LCD_DIGITS, LCD_ICONS, LCD_SIZE, type LcdRect } from '@/lib/sensi-lite/lcd-layout'
 
 const DESIGN_WIDTH = 240
@@ -117,13 +118,23 @@ function nextMode(mode: Mode): Mode {
   return MODES[(i + 1) % MODES.length]
 }
 
-function rectStyle(rect: LcdRect): CSSProperties {
+function lcdRectStyle(rect: LcdRect): CSSProperties {
   return {
     position: 'absolute',
     left: `${(rect.x / LCD_SIZE) * 100}%`,
     top: `${(rect.y / LCD_SIZE) * 100}%`,
     width: `${(rect.w / LCD_SIZE) * 100}%`,
     height: `${(rect.h / LCD_SIZE) * 100}%`,
+  }
+}
+
+function frameRectStyle(rect: FrameRect): CSSProperties {
+  return {
+    position: 'absolute',
+    left: `${(rect.x / FRAME_WIDTH) * 100}%`,
+    top: `${(rect.y / FRAME_HEIGHT) * 100}%`,
+    width: `${(rect.w / FRAME_WIDTH) * 100}%`,
+    height: `${(rect.h / FRAME_HEIGHT) * 100}%`,
   }
 }
 
@@ -160,7 +171,7 @@ function LcdIcon({
       alt={alt}
       draggable={false}
       style={{
-        ...rectStyle(rect),
+        ...lcdRectStyle(rect),
         opacity: active ? 1 : ICON_INACTIVE,
         transition: 'opacity 80ms ease',
         objectFit: 'fill',
@@ -186,13 +197,13 @@ function TempDigits({ value }: { value: number }) {
         src={DIGIT_SRC[tens]}
         alt=""
         draggable={false}
-        style={{ ...rectStyle(LCD_DIGITS.tens), ...digitBase }}
+        style={{ ...lcdRectStyle(LCD_DIGITS.tens), ...digitBase }}
       />
       <img
         src={DIGIT_SRC[ones]}
         alt=""
         draggable={false}
-        style={{ ...rectStyle(LCD_DIGITS.ones), ...digitBase }}
+        style={{ ...lcdRectStyle(LCD_DIGITS.ones), ...digitBase }}
       />
     </>
   )
@@ -283,12 +294,8 @@ function LiteFrame({
         alt="Sensi"
         draggable={false}
         style={{
-          position: 'absolute',
-          top: '5.44%',
-          right: '40.44%',
-          bottom: '79.32%',
-          left: '40.89%',
-          objectFit: 'contain',
+          ...frameRectStyle(FRAME_LOGO),
+          objectFit: 'fill',
           pointerEvents: 'none',
         }}
       />
