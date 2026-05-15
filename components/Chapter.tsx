@@ -95,8 +95,6 @@ export function Chapter({ chapter, sectionId, index, isLast }: Props) {
                   padding: '32px 24px',
                   background: '#0d0d0d',
                   borderRadius: 12,
-                  display: 'flex',
-                  justifyContent: 'center',
                   width: '100%',
                 }}
               >

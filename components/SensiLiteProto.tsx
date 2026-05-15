@@ -4,17 +4,16 @@
 
 'use client'
 
-import {
-  useState,
-  useRef,
-  useCallback,
-  useLayoutEffect,
-  type CSSProperties,
-  type ReactNode,
-} from 'react'
+import { useState, useRef, useCallback, type CSSProperties, type ReactNode } from 'react'
 
 const DESIGN_WIDTH = 240
 const DESIGN_HEIGHT = 147
+
+// LCD window on the frame (design px → % of stage)
+const SCREEN_LEFT = `${(82 / DESIGN_WIDTH) * 100}%`
+const SCREEN_TOP = `${(36 / DESIGN_HEIGHT) * 100}%`
+const SCREEN_WIDTH = `${(75 / DESIGN_WIDTH) * 100}%`
+const SCREEN_HEIGHT = `${(75 / DESIGN_HEIGHT) * 100}%`
 
 // ── LOCAL SVG ASSETS (public/images/sensi-lite/) ───────────────────────────────
 const asset = (name: string) => `/images/sensi-lite/${name}.svg`
@@ -139,49 +138,19 @@ export interface SensiLiteProtoProps {
 const HW_SCREENS: Screen[] = ['hw_schedule', 'hw_hold', 'hw_backlight']
 const CT_SCREENS: Screen[] = ['ct_heat_offset', 'ct_cool_offset', 'ct_swing', 'ct_id']
 
-// ── RESPONSIVE SCALE ───────────────────────────────────────────────────────────
-function ProtoScaler({ children }: { children: ReactNode }) {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const [scale, setScale] = useState(1)
-
-  useLayoutEffect(() => {
-    const el = containerRef.current
-    if (!el) return
-
-    const update = () => {
-      const width = el.getBoundingClientRect().width
-      if (width > 0) setScale(width / DESIGN_WIDTH)
-    }
-
-    update()
-    const ro = new ResizeObserver(update)
-    ro.observe(el)
-    return () => ro.disconnect()
-  }, [])
-
+// ── RESPONSIVE STAGE ───────────────────────────────────────────────────────────
+function ProtoStage({ children }: { children: ReactNode }) {
   return (
     <div
-      ref={containerRef}
       style={{
         width: '100%',
         maxWidth: 480,
+        margin: '0 auto',
         aspectRatio: `${DESIGN_WIDTH} / ${DESIGN_HEIGHT}`,
         position: 'relative',
       }}
     >
-      <div
-        style={{
-          position: 'absolute',
-          left: 0,
-          top: 0,
-          width: DESIGN_WIDTH,
-          height: DESIGN_HEIGHT,
-          transform: `scale(${scale})`,
-          transformOrigin: 'top left',
-        }}
-      >
-        {children}
-      </div>
+      <div style={{ position: 'absolute', inset: 0 }}>{children}</div>
     </div>
   )
 }
@@ -209,8 +178,6 @@ function Layer({
       draggable={false}
       style={{
         ...box,
-        width: '100%',
-        height: '100%',
         opacity: active ? 1 : 0.1,
         transition: 'opacity 80ms ease',
         objectFit: 'contain',
@@ -262,7 +229,7 @@ function toScreenMode(mode: Mode): SensiLiteProtoProps['mode'] {
 function Digit({ char, segmentSrcs }: { char: string; segmentSrcs: string[] }) {
   const segs = SEG7[char] ?? SEG7[' ']
   return (
-    <div style={{ position: 'relative', width: '48%', height: '100%', flexShrink: 0 }}>
+    <div style={{ position: 'relative', flex: '1 1 0', minWidth: 0, height: '100%' }}>
       {segmentSrcs.map((src, i) => (
         <img
           key={i}
@@ -271,8 +238,6 @@ function Digit({ char, segmentSrcs }: { char: string; segmentSrcs: string[] }) {
           draggable={false}
           style={{
             ...SEGMENT_BOX[i],
-            width: '100%',
-            height: '100%',
             opacity: segs[i] ? 1 : 0.1,
             transition: 'opacity 80ms ease',
             objectFit: 'fill',
@@ -309,12 +274,12 @@ export function LiteScreen({
     <div
       style={{
         position: 'absolute',
-        left: `${(82 / DESIGN_WIDTH) * 100}%`,
-        top: `${(36 / DESIGN_HEIGHT) * 100}%`,
-        width: `${(75 / DESIGN_WIDTH) * 100}%`,
-        height: `${(75 / DESIGN_HEIGHT) * 100}%`,
+        left: SCREEN_LEFT,
+        top: SCREEN_TOP,
+        width: SCREEN_WIDTH,
+        height: SCREEN_HEIGHT,
         background: '#000',
-        borderRadius: 3,
+        borderRadius: '4%',
         boxShadow: 'inset 0px 0px 10px 0px rgba(255,255,255,0.17)',
         overflow: 'hidden',
         opacity: flash ? 0.35 : 1,
@@ -358,7 +323,7 @@ export function LiteScreen({
           top: '50%',
           transform: 'translateY(-50%)',
           display: 'flex',
-          gap: '2.67%',
+          gap: '3.85%',
           height: '62.67%',
         }}
       >
@@ -617,13 +582,13 @@ export function SensiLiteProto() {
       style={{
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center',
+        alignItems: 'stretch',
         width: '100%',
         userSelect: 'none',
       }}
     >
-      <ProtoScaler>
-        <div style={{ position: 'relative', width: DESIGN_WIDTH, height: DESIGN_HEIGHT }}>
+      <ProtoStage>
+        <div style={{ position: 'relative', width: '100%', height: '100%' }}>
           <LiteFrame onUp={handleUp} onDown={handleDown} onMenu={handleMenu} onMenuLong={handleMenuLong} />
           <LiteScreen
             temperature={state.currentTemp}
@@ -639,11 +604,12 @@ export function SensiLiteProto() {
             flash={flash}
           />
         </div>
-      </ProtoScaler>
+      </ProtoStage>
 
       <div
         style={{
           marginTop: 16,
+          alignSelf: 'center',
           fontFamily: 'var(--font-mono, monospace)',
           fontSize: 9,
           letterSpacing: '0.08em',
