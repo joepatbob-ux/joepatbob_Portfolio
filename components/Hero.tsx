@@ -1,7 +1,6 @@
 // components/Hero.tsx
 'use client'
 
-import Image from 'next/image'
 import { useTheme } from '@/components/ThemeProvider'
 
 // Hero = one dynamic viewport tall (dvh avoids mobile 100vh drift). Breaks out
@@ -38,27 +37,20 @@ export function Hero() {
       }}
     >
       <div
+        role="img"
+        aria-label="Joseph Patrick Roberts"
         style={{
           position: 'absolute',
           inset: 0,
           width: '100%',
           height: '100%',
           minHeight: 0,
+          backgroundImage: `url(${JSON.stringify(portraitSrc)})`,
+          backgroundSize: 'contain',
+          backgroundPosition: 'right bottom',
+          backgroundRepeat: 'no-repeat',
         }}
-      >
-        <Image
-          key={portraitSrc}
-          src={portraitSrc}
-          alt="Joseph Patrick Roberts"
-          fill
-          priority
-          sizes="100vw"
-          style={{
-            objectFit: 'contain',
-            objectPosition: 'right bottom',
-          }}
-        />
-      </div>
+      />
     </section>
   )
 }

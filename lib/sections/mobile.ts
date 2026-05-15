@@ -4,8 +4,8 @@ import type { Section } from '../types'
 export const mobile: Section = {
   id: 'mobile',
   label: 'Mobile',
-  eyebrow: 'Case Study · 02',
-  headline: 'Mobile Design.',
+  eyebrow: 'Case Study — Mobile',
+  headline: "Don't just redesign.\nFix the foundation.",
   overviewBody: `Platform migration, a color system overhaul, a content surface that didn't feel like an ad, and rethinking how technicians configure hardware.
 
 Role: Principal Product Designer · Platform: iOS + Android · Timeline: 2018 – Present · Outcome: 4.3 → 4.7 iOS · 4.4 Android`,
@@ -31,7 +31,7 @@ The first phase was a ground-up redesign of the core experience: simplified ther
 
 But shipping the redesign was the easy part. Keeping it good over time — that's the harder problem. The platform migrations to SwiftUI on iOS and Material Expressive on Android were the opportunity to actually fix the foundation. This isn't a big-bang rewrite. The strategy is screen-by-screen: when a new feature touches a screen, that screen gets migrated. Two birds, one stone, every time.`,
       imageAlt: 'Sensi app before and after redesign',
-      imageSrc: undefined,
+      imageSrc: '/images/mobile-android-v2-light-refined.png',
       imageLayout: 'full-width',
       imagePosition: 'left',
     },
@@ -51,7 +51,7 @@ Brand consistency. The Sensi Touch 2 thermostat uses a different visual language
 
 The solution: move the color to the number. Instead of the background adopting the mode color, the displayed temperature adopts it. Orange for heat. Blue for cool. Neutral for passive. The information is still ambient — sitting on the most prominent element on the screen — but it's surgical rather than wholesale. One change. Three problems solved.`,
       imageAlt: 'Before and after — full-bleed orange vs. colored temperature number on neutral background',
-      imageSrc: '/images/mobile-android-legacy-fullbleed-orange.png',
+      imageSrc: undefined,
       imageLayout: 'full-width',
       imagePosition: 'left',
     },

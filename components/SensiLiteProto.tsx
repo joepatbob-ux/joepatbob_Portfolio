@@ -35,7 +35,7 @@ const asset = (name: string) => `/images/sensi-lite/${name}.svg`
 const imgLiteFrame = asset('lite-frame')
 const imgButtons = asset('lite-buttons')
 const imgType = asset('lite-type')
-const imgScreen = `${asset('screen')}?v=3`
+const imgScreen = `${asset('screen')}?v=5`
 
 const imgCool = asset('icon-cool')
 const imgHeat = asset('icon-heat')
