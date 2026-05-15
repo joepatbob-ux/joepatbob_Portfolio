@@ -10,7 +10,7 @@ const PORTRAIT_LIGHT = '/images/PortraitLight_MG_3496.jpg'
 const PORTRAIT_DARK = '/images/PortraitDark_MG_3490.jpg'
 
 const HERO_BG_LIGHT = '#f4f4f4'
-const HERO_BG_DARK = '#191919'
+const HERO_BG_DARK = '#060606'
 
 export function Hero() {
   const { resolvedTheme } = useTheme()
