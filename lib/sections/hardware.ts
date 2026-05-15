@@ -58,9 +58,7 @@ Navigation stayed flat and cyclical. The menu/action button serves triple duty: 
 With flat navigation, sequence is logic. I ordered settings based on conditional dependencies so users answer questions only when they have context.
 
 Two design positions didn't survive stakeholder review. Post-launch data proved them right.`,
-      imageAlt:
-        'Sensi Lite thermostat prototype on black, segmented display showing set temperature and three vertical controls',
-      imageSrc: '/images/hw-sensilite-prototype.png',
+      imageAlt: 'Sensi Lite interactive thermostat prototype',
       imageLayout: 'full-width',
       imagePosition: 'left',
     },
