@@ -8,25 +8,29 @@ interface Props {
   isLast: boolean
 }
 
+const padY = 'clamp(28px, 4vw, 48px)'
+const padX = 'clamp(16px, 4vw, 72px)'
+
 export function Chapter({ chapter, sectionId, index, isLast }: Props) {
   const chapterId = `${sectionId}-${chapter.id}`
   const num = String(index + 1).padStart(2, '0')
   const isFullWidth = chapter.imageLayout === 'full-width'
-  const isPortrait  = chapter.imageLayout === 'portrait'
-  const imgRight    = chapter.imagePosition === 'right'
+  const isPortrait = chapter.imageLayout === 'portrait'
+  const imgRight = chapter.imagePosition === 'right'
 
-  // Image dimensions by layout type
+  // Image dimensions by layout type (max bounds; intrinsic full-width scales down)
   const imgW = isPortrait ? 360 : 520
-  const imgH = isPortrait ? 560 : isFullWidth ? 460 : 380
-  const textW = isFullWidth ? '100%' : `calc(100% - ${imgW}px - 56px)`
+  const imgH = isPortrait ? 560 : 380
+  const fullWidthMaxH = 640
 
   return (
     <section
       data-chapter-id={chapterId}
       style={{
-        padding: '48px 72px 56px',
+        padding: `${padY} ${padX} clamp(32px, 4vw, 56px)`,
         borderTop: '1px solid var(--color-rule)',
         borderBottom: isLast ? '1px solid var(--color-rule)' : undefined,
+        minWidth: 0,
       }}
     >
       {/* Title row */}
@@ -67,14 +71,15 @@ export function Chapter({ chapter, sectionId, index, isLast }: Props) {
         {chapter.subtitle}
       </p>
 
-      {/* Full-width layout: image above body */}
+      {/* Full-width layout: image above body — intrinsic width, capped height */}
       {isFullWidth && (
         <>
           <ImagePlaceholder
             src={chapter.imageSrc}
             alt={chapter.imageAlt}
             width="100%"
-            height={imgH}
+            height={fullWidthMaxH}
+            fit="intrinsic"
             style={{ marginBottom: 28 }}
           />
           <p style={{
@@ -94,9 +99,9 @@ export function Chapter({ chapter, sectionId, index, isLast }: Props) {
       {!isFullWidth && (
         <div style={{
           display: 'flex',
-          gap: 56,
+          gap: 'clamp(24px, 4vw, 56px)',
           alignItems: 'flex-start',
-          flexDirection: imgRight ? 'row' : 'row',
+          flexWrap: 'wrap',
         }}>
           {!imgRight && (
             <ImagePlaceholder
@@ -104,6 +109,7 @@ export function Chapter({ chapter, sectionId, index, isLast }: Props) {
               alt={chapter.imageAlt}
               width={imgW}
               height={imgH}
+              fit="cover-box"
               style={{ flexShrink: 0 }}
             />
           )}
@@ -112,7 +118,8 @@ export function Chapter({ chapter, sectionId, index, isLast }: Props) {
             lineHeight: 1.7,
             color: 'var(--color-muted)',
             margin: 0,
-            flex: 1,
+            flex: '1 1 240px',
+            minWidth: 0,
             whiteSpace: 'pre-line',
           }}>
             {chapter.body}
@@ -123,6 +130,7 @@ export function Chapter({ chapter, sectionId, index, isLast }: Props) {
               alt={chapter.imageAlt}
               width={imgW}
               height={imgH}
+              fit="cover-box"
               style={{ flexShrink: 0 }}
             />
           )}
@@ -135,21 +143,51 @@ export function Chapter({ chapter, sectionId, index, isLast }: Props) {
 // ── Image with placeholder fallback ──────────────────────────────────────────
 
 function ImagePlaceholder({
-  src, alt, width, height, style
+  src,
+  alt,
+  width,
+  height,
+  style,
+  fit = 'cover-box',
 }: {
   src?: string
   alt: string
   width: number | string
   height: number
   style?: React.CSSProperties
+  /** intrinsic: scales with container, preserves aspect ratio (full-width figures) */
+  fit?: 'cover-box' | 'intrinsic'
 }) {
+  const w =
+    typeof width === 'number' ? `min(${width}px, 100%)` : width
+
   if (src) {
+    if (fit === 'intrinsic') {
+      return (
+        <img
+          src={src}
+          alt={alt}
+          style={{
+            width: w,
+            maxWidth: '100%',
+            height: 'auto',
+            maxHeight: height,
+            objectFit: 'contain',
+            objectPosition: 'left center',
+            display: 'block',
+            ...style,
+          }}
+        />
+      )
+    }
+
     return (
       <img
         src={src}
         alt={alt}
         style={{
-          width: typeof width === 'number' ? width : '100%',
+          width: w,
+          maxWidth: '100%',
           height,
           objectFit: 'cover',
           display: 'block',
@@ -159,14 +197,17 @@ function ImagePlaceholder({
     )
   }
 
-  // Placeholder — shows until real image is placed
+  const placeholderMinH = fit === 'intrinsic' ? Math.min(height, 220) : height
+
   return (
     <div
       aria-label={alt}
       role="img"
       style={{
-        width: typeof width === 'number' ? width : '100%',
-        height,
+        width: w,
+        maxWidth: '100%',
+        height: fit === 'intrinsic' ? placeholderMinH : height,
+        minHeight: fit === 'intrinsic' ? placeholderMinH : undefined,
         backgroundColor: 'rgba(0,0,0,0.06)',
         display: 'flex',
         alignItems: 'center',
@@ -177,7 +218,6 @@ function ImagePlaceholder({
         ...style,
       }}
     >
-      {/* Diagonal cross lines */}
       <svg
         style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
         preserveAspectRatio="none"

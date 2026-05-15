@@ -27,7 +27,7 @@ A touchscreen isn't a fixed segment display with more pixels. It's a different c
 
 I kept the core menu architecture. I changed the visual language, the interaction model, and introduced a persistent, contextual action button: one button, one job, always in the same place. The less visible decision was designing the architecture to be extensible. Remote sensors and the EIM weren't in scope. I built the UI framework so they could be added without breaking existing structure. They were added later. They fit cleanly.`,
       imageAlt: 'ID evaluation session with Touch 2 prototypes on a table',
-      imageSrc: '/images/hw-touch2.jpg',
+      imageSrc: '/images/ch1-touch2-id-evaluation.jpeg',
       imageLayout: 'portrait',
       imagePosition: 'left',
     },
@@ -41,7 +41,7 @@ I moved the configuration to the thermostat. Through a simple pairing flow, the 
 
 Patent US 12,608,066 covers the resulting power management behavior: blanking the display and surfacing device state to the mobile app rather than showing an on-device error when power stealing is lost.`,
       imageAlt: 'Contractor reviewing EIM device in discussion with Copeland team',
-      imageSrc: '/images/hw-eim.jpg',
+      imageSrc: '/images/ch2-eim-contractor-discussion.jpg',
       imageLayout: 'full-width',
       imagePosition: 'left',
     },
@@ -74,7 +74,7 @@ The Line Voltage thermostat for the European market pushed further: I replaced a
 
 To support the Verdant display, I designed a high-density segment character set from scratch — angled slices with flexible geometry that renders numbers with far greater clarity at distance. Pending US patent.`,
       imageAlt: 'Custom segment character set showing full alphanumeric range in orange on black',
-      imageSrc: '/images/hw-verdant.jpg',
+      imageSrc: '/images/ch3-verdant-segment-character-set.png',
       imageLayout: 'full-width',
       imagePosition: 'left',
     },
@@ -88,7 +88,7 @@ The brand stayed Trane's. Working within their visual language surfaced most con
 
 Trane's thermostats include a motion sensor our products don't have. Getting deep into how it worked seeded thinking about how motion sensing could integrate into our own product line.`,
       imageAlt: 'Verdant VX4 PCB and display hardware',
-      imageSrc: '/images/hw-trane.jpg',
+      imageSrc: '/images/ch3-verdant-vx4-pcb-display.jpeg',
       imageLayout: 'portrait',
       imagePosition: 'right',
     },
