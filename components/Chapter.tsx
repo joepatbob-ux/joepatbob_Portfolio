@@ -32,6 +32,7 @@ export function Chapter({ chapter, sectionId, index, isLast }: Props) {
         borderTop: '1px solid var(--color-rule)',
         borderBottom: isLast ? '1px solid var(--color-rule)' : undefined,
         minWidth: 0,
+        scrollMarginTop: 24,
       }}
     >
       {/* Title row */}
