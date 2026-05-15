@@ -36,7 +36,15 @@ export function Hero() {
         maxWidth: '100vw',
       }}
     >
-      <div style={{ position: 'absolute', inset: 0 }}>
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          width: '100%',
+          height: '100%',
+          minHeight: 0,
+        }}
+      >
         <Image
           src={portraitSrc}
           alt="Joseph Patrick Roberts"

@@ -68,6 +68,7 @@
     margin-left: var(--sidebar-width);
     padding-left: var(--content-pad-x);
     padding-right: var(--content-pad-x);
+    min-width: 0;
   }
 }
 

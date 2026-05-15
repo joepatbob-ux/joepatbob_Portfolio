@@ -7,15 +7,18 @@ interface Props {
   sectionId: string
 }
 
+const padHeader = 'clamp(32px, 5vw, 56px) clamp(16px, 5vw, 72px) clamp(28px, 4vw, 48px)'
+const padBlock = 'clamp(32px, 5vw, 48px) clamp(16px, 5vw, 72px) clamp(36px, 5vw, 56px)'
+
 export function CaseStudy({ section, sectionId }: Props) {
   return (
     <article
       data-section-id={sectionId}
-      style={{ backgroundColor: 'var(--color-paper)' }}
+      style={{ backgroundColor: 'var(--color-paper)', minWidth: 0 }}
     >
       {/* ── HEADER ── */}
       <header style={{
-        padding: '56px 72px 48px',
+        padding: padHeader,
         borderBottom: '1px solid var(--color-rule)',
       }}>
         <p style={{
@@ -45,14 +48,14 @@ export function CaseStudy({ section, sectionId }: Props) {
 
       {/* ── OVERVIEW ── */}
       <div style={{
-        padding: '48px 72px 56px',
+        padding: padBlock,
         borderBottom: '1px solid var(--color-rule)',
-        display: 'grid',
-        gridTemplateColumns: '380px 1fr',
-        gap: 64,
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: 'clamp(32px, 5vw, 64px)',
         alignItems: 'start',
       }}>
-        <div>
+        <div style={{ flex: '1 1 280px', minWidth: 0, maxWidth: '100%' }}>
           <h3 style={{
             fontFamily: 'var(--font-ahg)',
             fontWeight: 700,
@@ -82,6 +85,9 @@ export function CaseStudy({ section, sectionId }: Props) {
           margin: 0,
           padding: 0,
           border: 'none',
+          flex: '1 1 280px',
+          minWidth: 0,
+          maxWidth: '100%',
         }}>
           "{section.pullQuote}"
         </blockquote>
@@ -102,10 +108,10 @@ export function CaseStudy({ section, sectionId }: Props) {
       <div
         data-chapter-id={`${sectionId}-lessons`}
         style={{
-          padding: '48px 72px 72px',
-          display: 'grid',
-          gridTemplateColumns: '320px 1fr',
-          gap: 64,
+          padding: `clamp(32px, 5vw, 48px) clamp(16px, 5vw, 72px) clamp(48px, 6vw, 72px)`,
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: 'clamp(32px, 5vw, 64px)',
           alignItems: 'start',
         }}
       >
@@ -117,6 +123,9 @@ export function CaseStudy({ section, sectionId }: Props) {
           color: 'var(--color-ink)',
           margin: 0,
           whiteSpace: 'pre-line',
+          flex: '1 1 260px',
+          minWidth: 0,
+          maxWidth: '100%',
         }}>
           {section.lessonTitle}
         </h3>
@@ -126,6 +135,9 @@ export function CaseStudy({ section, sectionId }: Props) {
           color: 'var(--color-muted)',
           margin: 0,
           whiteSpace: 'pre-line',
+          flex: '1 1 280px',
+          minWidth: 0,
+          maxWidth: '100%',
         }}>
           {section.lessonBody}
         </p>
