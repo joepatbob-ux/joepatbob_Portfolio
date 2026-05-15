@@ -26,7 +26,7 @@
 @layer base {
   :root {
     --color-ink:        #0d0d0d;
-    --color-paper:      #f9f8f6;
+    --color-paper:      #f0f0f0;
     --color-accent:     #F2411B;
     --color-rule:       rgba(0, 0, 0, 0.1);
     --color-muted:      rgba(13, 13, 13, 0.45);
@@ -43,7 +43,7 @@
   @media (prefers-color-scheme: dark) {
     :root {
       --color-ink:        #f0eeea;
-      --color-paper:      #111110;
+      --color-paper:      #101010;
       --color-rule:       rgba(255, 255, 255, 0.1);
       --color-muted:      rgba(240, 238, 234, 0.45);
       --color-chapter-dim: rgba(242, 65, 27, 0.3);
