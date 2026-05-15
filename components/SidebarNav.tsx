@@ -44,12 +44,7 @@ function toChapterId(sectionId: string, chapterId: string): string {
 }
 
 function getScrollTop(): number {
-  return (
-    window.scrollY ||
-    document.documentElement.scrollTop ||
-    document.body.scrollTop ||
-    0
-  )
+  return document.scrollingElement?.scrollTop ?? window.scrollY
 }
 
 // ── COMPONENT ─────────────────────────────────────────────────────────────────
@@ -61,7 +56,6 @@ export function SidebarNav() {
     chapterDim: dark ? 'rgba(242,65,27,0.3)'   : 'rgba(242,65,27,0.25)',
   }
 
-  const [scrollY,             setScrollY]             = useState(0)
   const [navIsStuck,          setNavIsStuck]          = useState(false)
   const [dividerVisible,      setDividerVisible]      = useState(false)
   const [subNavVisible,       setSubNavVisible]       = useState(false)
@@ -75,34 +69,38 @@ export function SidebarNav() {
   const prevStuck     = useRef(false)
   const subNavVisibleRef = useRef(false)
   const sectionRatiosRef = useRef<Map<Element, number>>(new Map())
+  const heroRef       = useRef<HTMLDivElement>(null)
   const navWrapRef    = useRef<HTMLDivElement>(null)
   const emailRef      = useRef<HTMLAnchorElement>(null)
+  const layoutRef     = useRef({ viewportH: 900, navRestTop: 0, threshold: 648 })
+  const stickThresholdRef = useRef(648)
 
-  const [viewportH,  setViewportH]  = useState(900)
-  const [navRestTop, setNavRestTop] = useState(0)
-  const NAV_STICK_THRESHOLD = viewportH * 0.72
-  const stickThresholdRef = useRef(NAV_STICK_THRESHOLD)
-  stickThresholdRef.current = NAV_STICK_THRESHOLD
-
-  useEffect(() => {
-    const update = () => setViewportH(window.innerHeight)
-    update()
-    window.addEventListener('resize', update)
-    return () => window.removeEventListener('resize', update)
+  const measureLayout = useCallback(() => {
+    const vh = window.innerHeight
+    let navRest = 0
+    if (navWrapRef.current && emailRef.current) {
+      navRest =
+        vh -
+        EMAIL_BOTTOM_PX -
+        emailRef.current.clientHeight -
+        12 -
+        navWrapRef.current.clientHeight
+    }
+    layoutRef.current = { viewportH: vh, navRestTop: navRest, threshold: vh * 0.72 }
+    stickThresholdRef.current = vh * 0.72
   }, [])
 
   useEffect(() => {
-    if (!navWrapRef.current || !emailRef.current) return
-    const navH   = navWrapRef.current.clientHeight
-    const emailH = emailRef.current.clientHeight
-    setNavRestTop(viewportH - EMAIL_BOTTOM_PX - emailH - 12 - navH)
-  }, [viewportH])
-
-  const navTop = navIsStuck
-    ? NAV_TOP_PX
-    : navRestTop + (NAV_TOP_PX - navRestTop) * Math.min(1, scrollY / NAV_STICK_THRESHOLD)
-
-  const heroProgress = Math.min(1, Math.max(0, (scrollY - 20) / (viewportH * 0.6)))
+    measureLayout()
+    window.addEventListener('resize', measureLayout)
+    const ro = new ResizeObserver(measureLayout)
+    if (navWrapRef.current) ro.observe(navWrapRef.current)
+    if (emailRef.current) ro.observe(emailRef.current)
+    return () => {
+      window.removeEventListener('resize', measureLayout)
+      ro.disconnect()
+    }
+  }, [measureLayout])
 
   const staggerIn = useCallback((sectionId: string, isFirst = false) => {
     staggerTimers.current.forEach(clearTimeout)
@@ -141,9 +139,8 @@ export function SidebarNav() {
     subNavVisibleRef.current = subNavVisible
   }, [subNavVisible])
 
-  const applyScrollChoreography = useCallback(
+  const applyStuckState = useCallback(
     (y: number) => {
-      setScrollY(y)
       const threshold = stickThresholdRef.current
       const shouldStick = y >= threshold
 
@@ -173,44 +170,42 @@ export function SidebarNav() {
     [staggerIn],
   )
 
+  // Scroll-linked hero blur + nav travel: rAF + direct DOM (not batched React state).
   useEffect(() => {
-    let ticking = false
-    const onScroll = () => {
-      if (ticking) return
-      ticking = true
-      requestAnimationFrame(() => {
-        applyScrollChoreography(getScrollTop())
-        ticking = false
-      })
+    let rafId = 0
+
+    const frame = () => {
+      const y = getScrollTop()
+      const { viewportH, navRestTop, threshold } = layoutRef.current
+      const safeThreshold = threshold > 0 ? threshold : 1
+
+      const heroProgress = Math.min(1, Math.max(0, (y - 20) / (viewportH * 0.6)))
+      const travelT = Math.min(1, y / safeThreshold)
+      const navTop =
+        y >= safeThreshold
+          ? NAV_TOP_PX
+          : navRestTop + (NAV_TOP_PX - navRestTop) * travelT
+
+      if (heroRef.current) {
+        heroRef.current.style.opacity = String(1 - heroProgress)
+        heroRef.current.style.filter = `blur(${heroProgress * BLUR_PX}px)`
+      }
+      if (navWrapRef.current) {
+        navWrapRef.current.style.top = `${navTop}px`
+      }
+
+      applyStuckState(y)
+      rafId = requestAnimationFrame(frame)
     }
 
-    applyScrollChoreography(getScrollTop())
-    window.addEventListener('scroll', onScroll, { passive: true })
-    document.addEventListener('scroll', onScroll, { passive: true, capture: true })
-    return () => {
-      window.removeEventListener('scroll', onScroll)
-      document.removeEventListener('scroll', onScroll, true)
-    }
-  }, [applyScrollChoreography])
-
-  useEffect(() => {
-    applyScrollChoreography(getScrollTop())
-  }, [viewportH, applyScrollChoreography])
+    measureLayout()
+    rafId = requestAnimationFrame(frame)
+    return () => cancelAnimationFrame(rafId)
+  }, [applyStuckState, measureLayout])
 
   const syncScrollAfterNavigate = useCallback(() => {
-    applyScrollChoreography(getScrollTop())
-    let frames = 0
-    const tick = () => {
-      applyScrollChoreography(getScrollTop())
-      if (++frames < 90) requestAnimationFrame(tick)
-    }
-    requestAnimationFrame(tick)
-    if ('onscrollend' in window) {
-      window.addEventListener('scrollend', () => applyScrollChoreography(getScrollTop()), {
-        once: true,
-      })
-    }
-  }, [applyScrollChoreography])
+    applyStuckState(getScrollTop())
+  }, [applyStuckState])
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -298,12 +293,12 @@ export function SidebarNav() {
           transition: 'opacity 600ms ease, filter 600ms ease',
         }} />
 
-        {/* Hero name */}
-        <div aria-hidden style={{
+        {/* Hero name — opacity/blur driven by scroll rAF */}
+        <div ref={heroRef} aria-hidden style={{
           position: 'absolute', top: 40, left: 40,
           width: '33vw',
-          opacity: 1 - heroProgress,
-          filter: `blur(${heroProgress * BLUR_PX}px)`,
+          opacity: 1,
+          filter: 'blur(0px)',
           transition: 'none',
           pointerEvents: 'none', userSelect: 'none',
         }}>
@@ -319,8 +314,12 @@ export function SidebarNav() {
 
         {/* Main nav sentence */}
         <div ref={navWrapRef} style={{
-          position: 'absolute', top: navTop, left: 40, right: 40,
-          transition: 'none', pointerEvents: 'auto',
+          position: 'absolute',
+          top: layoutRef.current.navRestTop,
+          left: 40,
+          right: 40,
+          transition: 'none',
+          pointerEvents: 'auto',
         }}>
           <p style={{ fontFamily: FONT_AHG, fontWeight: 700, fontSize: 24, lineHeight: 1.2, letterSpacing: '0.02em', textTransform: 'uppercase', color: C.ink, margin: 0 }}>
             {'I simplify complex systems for '}

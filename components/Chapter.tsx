@@ -75,6 +75,34 @@ export function Chapter({ chapter, sectionId, index, isLast }: Props) {
       {/* Full-width layout: image above body — intrinsic width, capped height */}
       {isFullWidth && (
         <>
+          {chapterId === 'hardware-sensi-lite' && (
+            <div style={{ marginBottom: 32 }}>
+              <p
+                style={{
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: 11,
+                  fontWeight: 700,
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                  color: 'var(--color-accent)',
+                  marginBottom: 16,
+                }}
+              >
+                Interactive prototype
+              </p>
+              <div
+                style={{
+                  padding: '32px 24px',
+                  background: '#0d0d0d',
+                  borderRadius: 12,
+                  display: 'flex',
+                  justifyContent: 'center',
+                }}
+              >
+                <SensiLiteProto />
+              </div>
+            </div>
+          )}
           <ImagePlaceholder
             src={chapter.imageSrc}
             alt={chapter.imageAlt}
@@ -93,20 +121,6 @@ export function Chapter({ chapter, sectionId, index, isLast }: Props) {
           }}>
             {chapter.body}
           </p>
-          {chapterId === 'hardware-sensi-lite' && (
-            <div
-              style={{
-                marginTop: 40,
-                padding: '32px 24px',
-                background: '#0d0d0d',
-                borderRadius: 12,
-                display: 'flex',
-                justifyContent: 'center',
-              }}
-            >
-              <SensiLiteProto />
-            </div>
-          )}
         </>
       )}
 
