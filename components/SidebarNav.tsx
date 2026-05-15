@@ -4,7 +4,9 @@
 // - Main nav sentence travels from above email up to top, locks at threshold
 // - Divider blurs in when last chapter item of first section appears
 // - Sub nav blurs in at viewport center after nav locks, chapters stagger in
-// - All keywords start lit, dim to 20% once nav is stuck (active stays full)
+// - All keywords start lit, dim to ~22% once nav is stuck (active stays full until exploration hover)
+// - Hovering another section fades the active keyword; subnav chapter hover does not dim main
+// - Subnav: selected = muted-accent fill; any hover = muted-accent outline ring (selected never dimmed)
 // - Email pill is fixed at bottom
 
 'use client'
@@ -18,13 +20,37 @@ const FONT_AHG  = 'var(--font-ahg)'
 const FONT_MONO = 'var(--font-mono)'
 
 // ── CONSTANTS ─────────────────────────────────────────────────────────────────
-const ACCENT          = '#F2411B'
+const ACCENT      = 'var(--color-accent)'
+const NAV_FADED   = 'var(--color-nav-faded-selection)'
+const NAV_PILL_1  = 'var(--color-nav-pill-muted-accent-1)'
+const NAV_OUTLINE = 'var(--color-nav-pill-outline)'
 const STAGGER_MS      = 60
 const TRANSITION_MS   = 320
 const SUBNAV_DELAY_MS = 280
 const BLUR_PX         = 6
 const NAV_TOP_PX      = 40
 const EMAIL_BOTTOM_PX = 40
+
+/** Main nav section keywords: orange + opacity dimming when stuck. */
+function navKeywordStyle(opts: {
+  dimActive: boolean
+  isActive: boolean
+  isHoverThis: boolean
+  selectionExploringElsewhere: boolean
+}): { color: string; opacity: number } {
+  const { dimActive, isActive, isHoverThis, selectionExploringElsewhere } = opts
+  if (!dimActive) return { color: ACCENT, opacity: 1 }
+  if (isActive) {
+    return {
+      color: selectionExploringElsewhere ? NAV_FADED : ACCENT,
+      opacity: 1,
+    }
+  }
+  return {
+    color: ACCENT,
+    opacity: isHoverThis ? 1 : 0.22,
+  }
+}
 
 // ── DARK MODE ─────────────────────────────────────────────────────────────────
 function useDarkMode() {
@@ -111,9 +137,8 @@ function pickActiveSpyTarget(): { chapterId: string | null; sectionId: string | 
 export function SidebarNav() {
   const dark = useDarkMode()
   const C = {
-    ink:        dark ? '#f0eeea'                : '#0d0d0d',
-    divider:    dark ? 'rgba(255,255,255,0.1)'  : 'rgba(0,0,0,0.1)',
-    chapterDim: dark ? 'rgba(242,65,27,0.3)'   : 'rgba(242,65,27,0.25)',
+    ink:     dark ? '#f0eeea' : '#0d0d0d',
+    divider: 'var(--color-rule)',
   }
 
   const [navIsStuck,          setNavIsStuck]          = useState(false)
@@ -123,6 +148,14 @@ export function SidebarNav() {
   const [activeSection,       setActiveSection]       = useState<string | null>(null)
   const [activeChapter,       setActiveChapter]       = useState<string | null>(null)
   const [dimActive,           setDimActive]           = useState(false)
+  const [hoverSectionId, setHoverSectionId] = useState<string | null>(null)
+  const [hoverChapterId, setHoverChapterId] = useState<string | null>(null)
+
+  /** Fade main keywords only when hovering a different section (subnav hover does not dim main). */
+  const fadeMainNavSelection =
+    hoverSectionId != null &&
+    activeSection != null &&
+    hoverSectionId !== activeSection
 
   const staggerTimers = useRef<ReturnType<typeof setTimeout>[]>([])
   const subNavTimer   = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -380,13 +413,32 @@ export function SidebarNav() {
             {NAV_SECTIONS.map((sec, i) => {
               const isActive  = activeSection === sec.id
               const connector = i === NAV_SECTIONS.length - 2 ? ', and ' : i < NAV_SECTIONS.length - 1 ? ', ' : '.'
+              const isHoverThis = hoverSectionId === sec.id
+              const { color: mainColor, opacity: mainOpacity } = navKeywordStyle({
+                dimActive,
+                isActive,
+                isHoverThis,
+                selectionExploringElsewhere: fadeMainNavSelection,
+              })
               return (
-                <span key={sec.id}>
-                  <span onClick={() => scrollToSection(sec.id)} style={{
-                    color: ACCENT, cursor: 'pointer',
-                    opacity: dimActive && !isActive ? 0.2 : 1,
-                    transition: 'opacity 400ms ease', display: 'inline',
-                  }}>
+                  <span key={sec.id}>
+                  <span
+                    onClick={() => scrollToSection(sec.id)}
+                    style={{
+                      color: mainColor,
+                      cursor: 'pointer',
+                      opacity: mainOpacity,
+                      transition: 'opacity 220ms ease, color 200ms ease',
+                      display: 'inline',
+                    }}
+                    onMouseEnter={() => {
+                      setHoverSectionId(sec.id)
+                      setHoverChapterId(null)
+                    }}
+                    onMouseLeave={() => {
+                      setHoverSectionId((prev) => (prev === sec.id ? null : prev))
+                    }}
+                  >
                     {sec.label}
                   </span>
                   {connector}
@@ -414,7 +466,8 @@ export function SidebarNav() {
       <div aria-label="Chapter navigation" style={{
         position: 'fixed', left: 40, top: '50vh',
         transform: 'translateY(-50%)',
-        display: 'flex', flexDirection: 'column', gap: 4,
+        display: 'flex', flexDirection: 'column', gap: 6,
+        width: 'min(300px, calc(var(--sidebar-width) - 80px))',
         zIndex: 101,
         pointerEvents: subNavVisible ? 'auto' : 'none',
       }}>
@@ -422,25 +475,49 @@ export function SidebarNav() {
           const chId      = toChapterId(currentSection.id, chapter.id)
           const isActive  = activeChapter === chId
           const isVisible = subNavVisible && chapterItemsVisible.includes(i)
+          const isHoverThis = hoverChapterId === chId
+          const chapterFill = isActive ? NAV_PILL_1 : 'transparent'
+          const chapterRing = isHoverThis ? `0 0 0 1px ${NAV_OUTLINE}` : 'none'
           return (
             <span key={chapter.id} onClick={() => scrollToChapter(chId)}
               aria-current={isActive ? 'true' : undefined}
               style={{
-                display: 'block', fontFamily: FONT_MONO, fontWeight: 700,
-                fontSize: 11, letterSpacing: '0.07em', textTransform: 'uppercase',
-                lineHeight: 1.6, padding: '2px 0',
-                color: isActive ? ACCENT : C.chapterDim,
-                cursor: 'pointer', userSelect: 'none',
+                display: 'inline-flex',
+                alignSelf: 'flex-start',
+                alignItems: 'center',
+                cursor: 'pointer',
+                userSelect: 'none',
                 opacity: isVisible ? 1 : 0,
                 filter: isVisible ? 'blur(0)' : `blur(${BLUR_PX}px)`,
                 transform: isVisible ? 'translateY(0)' : 'translateY(4px)',
-                transition: `opacity ${TRANSITION_MS}ms ease ${i * 20}ms, filter ${TRANSITION_MS}ms ease ${i * 20}ms, transform ${TRANSITION_MS}ms ease ${i * 20}ms, color ${TRANSITION_MS}ms ease`,
+                transition: `opacity ${TRANSITION_MS}ms ease ${i * 20}ms, filter ${TRANSITION_MS}ms ease ${i * 20}ms, transform ${TRANSITION_MS}ms ease ${i * 20}ms, background 180ms ease, box-shadow 180ms ease`,
                 pointerEvents: isVisible ? 'auto' : 'none',
+                borderRadius: 9999,
+                padding: '5px 14px',
+                background: chapterFill,
+                boxShadow: chapterRing,
               }}
-              onMouseEnter={(e) => { if (!isActive) (e.currentTarget as HTMLElement).style.opacity = '0.6' }}
-              onMouseLeave={(e) => { if (!isActive) (e.currentTarget as HTMLElement).style.opacity = '1' }}
+              onMouseEnter={() => {
+                setHoverChapterId(chId)
+                setHoverSectionId(null)
+              }}
+              onMouseLeave={() => {
+                setHoverChapterId((prev) => (prev === chId ? null : prev))
+              }}
             >
-              {chapter.label}
+              <span
+                style={{
+                  fontFamily: FONT_MONO,
+                  fontWeight: 700,
+                  fontSize: 11,
+                  letterSpacing: '0.07em',
+                  textTransform: 'uppercase',
+                  lineHeight: 1.5,
+                  color: ACCENT,
+                }}
+              >
+                {chapter.label}
+              </span>
             </span>
           )
         })}

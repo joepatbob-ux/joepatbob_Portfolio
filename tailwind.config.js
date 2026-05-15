@@ -8,11 +8,12 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        accent:  '#F2411B',
-        ink:     '#0d0d0d',
-        paper:   '#f9f8f6',
-        muted:   'rgba(13,13,13,0.45)',
-        rule:    'rgba(0,0,0,0.1)',
+        accent: '#DE3E18',
+        'accent-hover': '#B73412',
+        ink: '#0d0d0d',
+        paper: '#f0f0f0',
+        muted: 'rgba(13,13,13,0.72)',
+        rule: 'rgba(0,0,0,0.1)',
       },
       fontFamily: {
         ahg:  ['var(--font-ahg)', 'sans-serif'],

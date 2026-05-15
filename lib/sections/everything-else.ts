@@ -21,7 +21,7 @@ me@joepatbob.com`,
   chapters: [
     {
       id: 'who',
-      title: '/ Who I am',
+      title: 'Who I am',
       subtitle: 'Brand-trained, product-tempered.',
       body: `I'm a Principal Product Designer with a background in brand design that never really went away. I started in brand, identity, packaging, print — and carried those instincts into product design when I made the switch. The through-line is the same: every touchpoint is part of the experience, whether it's the app, the device, the packaging it shipped in, or the email a support agent sends when something goes wrong.
 
@@ -33,7 +33,7 @@ I now design primarily at the intersection of hardware and software — thermost
     },
     {
       id: 'thinking',
-      title: '/ How I think about design',
+      title: 'How I think about design',
       subtitle: 'Form, function, and foolproofing.',
       body: `"A common mistake that people make when trying to design something completely foolproof is to underestimate the ingenuity of complete fools." — Douglas Adams
 
@@ -49,7 +49,7 @@ I also believe UX extends well beyond the product itself. The way a company pric
     },
     {
       id: 'principles',
-      title: '/ What I believe',
+      title: 'What I believe',
       subtitle: 'Four working principles.',
       body: `01 — If it's worth buying, it sells itself.
 Good products don't need tricks. They need to work.
@@ -69,7 +69,7 @@ Change isn't the problem. Disorienting change is.`,
     },
     {
       id: 'background',
-      title: '/ Background',
+      title: 'Background',
       subtitle: 'How I got here.',
       body: `I came up through brand design — identity systems, packaging, print — before moving into product design. That background shows up in how I think about visual communication, typographic hierarchy, and the full lifecycle of a product experience beyond the screen.
 
@@ -85,7 +85,7 @@ I'm based in the St. Louis area.`,
     },
     {
       id: 'in-between',
-      title: '/ Everything in between',
+      title: 'Everything in between',
       subtitle: "The work that doesn't fit in a case study.",
       body: `Not everything worth doing fits a case study format. These are the things I do because they make the work — and the people doing it — better.
 
