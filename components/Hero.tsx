@@ -4,8 +4,8 @@
 import Image from 'next/image'
 import { useTheme } from '@/components/ThemeProvider'
 
-// Hero = one dynamic viewport tall (dvh avoids mobile 100vh drift). Portrait
-// Portrait fills the right 55%; background matches photo matte.
+// Hero = one dynamic viewport tall (dvh avoids mobile 100vh drift). Breaks out
+// of .content-area to full viewport width; portrait scales inside (contain).
 
 const PORTRAIT_LIGHT = '/images/PortraitLight_MG_3496.jpg'
 const PORTRAIT_DARK = '/images/PortraitDark_MG_3490.jpg'
@@ -30,20 +30,19 @@ export function Hero() {
         maxHeight: '100dvh',
         overflow: 'hidden',
         backgroundColor: heroBg,
-        // Bleed to content-column edges (not under the 400px sidebar).
-        marginLeft: 'calc(-1 * var(--content-pad-x))',
+        marginLeft:
+          'calc(-1 * (var(--sidebar-width) + var(--content-pad-x)))',
         marginRight: 'calc(-1 * var(--content-pad-x))',
-        width: 'calc(100vw - var(--sidebar-width))',
-        maxWidth: 'calc(100vw - var(--sidebar-width))',
+        width: '100vw',
+        maxWidth: '100vw',
       }}
     >
       <div
         style={{
           position: 'absolute',
-          top: 0,
-          right: 0,
-          bottom: 0,
-          width: '55%',
+          inset: 0,
+          width: '100%',
+          height: '100%',
           minHeight: 0,
         }}
       >
@@ -53,9 +52,9 @@ export function Hero() {
           alt="Joseph Patrick Roberts"
           fill
           priority
-          sizes="(min-width: 401px) 55vw, 100vw"
+          sizes="100vw"
           style={{
-            objectFit: 'cover',
+            objectFit: 'contain',
             objectPosition: 'right bottom',
           }}
         />
