@@ -6,43 +6,53 @@
 
 import { useState, useRef, useCallback, type CSSProperties } from 'react'
 
-// ── FIGMA ASSETS ──────────────────────────────────────────────────────────────
-const imgLiteFrame = 'https://www.figma.com/api/mcp/asset/04f7bce2-0077-419e-9f93-44b61e834989'
-const imgButtons = 'https://www.figma.com/api/mcp/asset/ed5a3a38-1c69-4949-99ad-5d7b316fe9cc'
-const imgType = 'https://www.figma.com/api/mcp/asset/a68bedf5-e422-4779-b4f6-a18786e54789'
+// ── LOCAL SVG ASSETS (public/images/sensi-lite/) ───────────────────────────────
+const asset = (name: string) => `/images/sensi-lite/${name}.svg`
 
-const imgVector = 'https://www.figma.com/api/mcp/asset/80e968c6-f3fa-4f99-b187-974c434d328e'
-const imgVector1 = 'https://www.figma.com/api/mcp/asset/f80b345e-15e5-4d3f-8eea-17bb7e69bfff'
-const imgVector2 = 'https://www.figma.com/api/mcp/asset/b1129319-8503-450b-b8cc-672e2333fcf3'
-const imgVector3 = 'https://www.figma.com/api/mcp/asset/827d4293-6154-436e-978e-1ff8c14a3cff'
-const imgVector4 = 'https://www.figma.com/api/mcp/asset/779ef75b-5d1b-479f-a3a5-d3b3ff86a7fb'
-const imgVector5 = 'https://www.figma.com/api/mcp/asset/67e1fc61-5985-41b6-8032-3fcbbb09aa5b'
-const imgVector6 = 'https://www.figma.com/api/mcp/asset/fcccefe9-242c-45d0-a02e-5180b1c458a8'
-const imgVector7 = 'https://www.figma.com/api/mcp/asset/775e68e9-4944-4f43-b272-27aa6513cafb'
-const imgVector8 = 'https://www.figma.com/api/mcp/asset/c985a3d1-f434-4807-8594-0561c8a47ba5'
-const imgVector9 = 'https://www.figma.com/api/mcp/asset/2c667a71-5697-46ce-b96d-87307eacfa9b'
-const imgVector10 = 'https://www.figma.com/api/mcp/asset/d0ffa719-ca41-4dea-9cf9-6fd09669d00f'
-const imgVector11 = 'https://www.figma.com/api/mcp/asset/1c696ae3-237a-41b3-a829-4dded201150f'
-const imgCool = 'https://www.figma.com/api/mcp/asset/12b0424b-406b-4b49-87d9-36e07d5b9838'
-const imgHeat = 'https://www.figma.com/api/mcp/asset/7e2c2029-ab9a-49df-a1c2-ce39e530abfc'
-const imgAux = 'https://www.figma.com/api/mcp/asset/090baa95-9d1b-442d-acf1-e4285786c1e1'
-const imgOff = 'https://www.figma.com/api/mcp/asset/e1e4baf9-f6c6-4b8c-b0ae-6676d9f060be'
-const imgOn = 'https://www.figma.com/api/mcp/asset/adf28b6e-6422-4332-9351-29367036c51f'
-const imgFan = 'https://www.figma.com/api/mcp/asset/3dde5a85-ca19-41be-8093-92e081f41820'
-const imgWiFi = 'https://www.figma.com/api/mcp/asset/1dd3d8a1-384c-437f-812b-0cd4b792d243'
-const imgCloud = 'https://www.figma.com/api/mcp/asset/226c2dd3-6d11-4839-bfac-926f6745f161'
-const imgSensor = 'https://www.figma.com/api/mcp/asset/7f81a61c-2a32-40ba-8584-5dbf6a4c05de'
-const imgIndoor = 'https://www.figma.com/api/mcp/asset/f61e84e1-b9ab-4e4b-a76d-58493c954df2'
-const imgOutdoor = 'https://www.figma.com/api/mcp/asset/06733123-3238-4ce8-b8a1-6918210f7bd2'
-const imgCallForService = 'https://www.figma.com/api/mcp/asset/d5af332a-0b76-4b2d-abed-2001235fdbb9'
-const imgReplaceBattery = 'https://www.figma.com/api/mcp/asset/85f3b41d-7124-4a28-b344-9e6155c11c39'
-const imgSavingsEvent = 'https://www.figma.com/api/mcp/asset/d15bb682-c536-4d79-95bd-e88586115764'
-const imgSetTo = 'https://www.figma.com/api/mcp/asset/7091b271-fa12-4ccf-8deb-5699ee96837d'
-const imgSetup = 'https://www.figma.com/api/mcp/asset/c2a486b1-5642-4566-bc8a-b7adcbbe7b9c'
-const imgPercent = 'https://www.figma.com/api/mcp/asset/645ebe82-d960-455a-906b-ea5dff9d2047'
+const imgLiteFrame = asset('lite-frame')
+const imgButtons = asset('lite-buttons')
+const imgType = asset('lite-type')
 
-const TENS_SEGMENT_SRCS = [imgVector, imgVector1, imgVector2, imgVector3, imgVector4, imgVector5, imgVector6]
-const ONES_SEGMENT_SRCS = [imgVector7, imgVector8, imgVector9, imgVector10, imgVector11, imgVector6, imgVector5]
+const segTensF = asset('seg-tens-f')
+const segTensG = asset('seg-tens-g')
+const segOnesE = asset('seg-ones-e')
+
+const TENS_SEGMENT_SRCS = [
+  asset('seg-tens-a'),
+  asset('seg-tens-b'),
+  asset('seg-tens-c'),
+  asset('seg-tens-d'),
+  asset('seg-tens-e'),
+  segTensF,
+  segTensG,
+]
+const ONES_SEGMENT_SRCS = [
+  asset('seg-ones-a'),
+  asset('seg-ones-b'),
+  asset('seg-ones-c'),
+  asset('seg-ones-d'),
+  segOnesE,
+  segTensG,
+  segTensF,
+]
+
+const imgCool = asset('icon-cool')
+const imgHeat = asset('icon-heat')
+const imgAux = asset('icon-aux')
+const imgOff = asset('icon-off')
+const imgOn = asset('icon-on')
+const imgFan = asset('icon-fan')
+const imgWiFi = asset('icon-wifi')
+const imgCloud = asset('icon-cloud')
+const imgSensor = asset('icon-sensor')
+const imgIndoor = asset('icon-indoor')
+const imgOutdoor = asset('icon-outdoor')
+const imgCallForService = asset('icon-call-service')
+const imgReplaceBattery = asset('icon-replace-battery')
+const imgSavingsEvent = asset('icon-savings-event')
+const imgSetTo = asset('icon-set-to')
+const imgSetup = asset('icon-setup')
+const imgPercent = asset('icon-percent')
 
 // ── 7-SEGMENT ENCODING ────────────────────────────────────────────────────────
 const SEG7: Record<string, boolean[]> = {
@@ -154,6 +164,8 @@ function Layer({
       draggable={false}
       style={{
         ...box,
+        width: '100%',
+        height: '100%',
         opacity: active ? 1 : 0.1,
         transition: 'opacity 80ms ease',
         objectFit: 'contain',
@@ -214,6 +226,8 @@ function Digit({ char, segmentSrcs }: { char: string; segmentSrcs: string[] }) {
           draggable={false}
           style={{
             ...SEGMENT_BOX[i],
+            width: '100%',
+            height: '100%',
             opacity: segs[i] ? 1 : 0.1,
             transition: 'opacity 80ms ease',
             objectFit: 'fill',
@@ -274,7 +288,7 @@ export function LiteScreen({
       <Layer src={imgSensor} box={inset('53.33%', '87.17%', '39.81%', '2.67%')} active={sensorActive} />
       <Layer src={imgIndoor} box={inset('4%', '19.03%', '91.34%', '55.74%')} active={false} />
       <Layer src={imgOutdoor} box={inset('4.01%', '46.35%', '91.33%', '21.33%')} active={false} />
-      <Layer src={imgVector11} box={inset('69.33%', '88.7%', '22.94%', '5.33%')} active={false} />
+      <Layer src={segOnesE} box={inset('69.33%', '88.7%', '22.94%', '5.33%')} active={false} />
       <Layer
         src={imgCallForService}
         box={inset('86.67%', '66.67%', '4%', '9.33%')}
