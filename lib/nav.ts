@@ -5,21 +5,21 @@ export const NAV_SECTIONS: NavSection[] = [
   {
     id: 'hardware',
     label: 'Hardware',
-    chapters: ['Touch 2', 'EIM', 'Sensi Lite', 'Verdant', 'Trane', 'Lessons'],
+    chapters: ['touch-2', 'eim', 'sensi-lite', 'verdant', 'trane', 'lessons'],
   },
   {
     id: 'mobile',
     label: 'Mobile',
-    chapters: ['Foundation', 'Color', 'Install', 'Spotlight', 'Lessons'],
+    chapters: ['strategy', 'color', 'install-flow', 'spotlight', 'wr-connect', 'lessons'],
   },
   {
     id: 'web-apps',
     label: 'Web Apps',
-    chapters: ['Context', 'Stakes', 'Kelvin', 'Rollout', 'Lessons'],
+    chapters: ['products', 'problem', 'stakes', 'kelvin', 'rollout', 'lessons'],
   },
   {
     id: 'everything-else',
-    label: 'Everything In Between',
-    chapters: ['The Small Stuff', 'Team', 'How I Think', 'Lessons'],
+    label: 'Everything Else',
+    chapters: ['who', 'thinking', 'principles', 'background', 'in-between', 'lessons'],
   },
 ]
