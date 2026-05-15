@@ -3,7 +3,14 @@
 
 'use client'
 
-import { useState, useCallback, type CSSProperties, type ReactNode } from 'react'
+import {
+  useState,
+  useRef,
+  useCallback,
+  useEffect,
+  type CSSProperties,
+  type ReactNode,
+} from 'react'
 
 const DESIGN_WIDTH = 240
 const DESIGN_HEIGHT = 147
@@ -23,17 +30,22 @@ const DIGIT_TOP = `${(14 / LCD_W) * 100}%`
 const DEADBAND = 2
 const TEMP_MIN = 40
 const TEMP_MAX = 99
+const DISPLAY_TEMP = 72
+const SETPOINT_IDLE_MS = 3000
+
+const ICON_INACTIVE = 0.05
 
 const asset = (name: string) => `/images/sensi-lite/${name}.svg`
 
 const imgLiteFrame = asset('lite-frame')
 const imgButtons = asset('lite-buttons')
 const imgType = asset('lite-type')
-const imgFullScreenChrome = asset('full-screen-chrome')
+const imgScreen = asset('screen')
 
 const imgCool = asset('icon-cool')
 const imgHeat = asset('icon-heat')
 const imgOff = asset('icon-off')
+const imgOn = asset('icon-on')
 const imgSetTo = asset('icon-set-to')
 
 const DIGIT_SRC: Record<number, string> = {
@@ -48,8 +60,6 @@ const DIGIT_SRC: Record<number, string> = {
   8: asset('digit-8'),
   9: asset('digit-9'),
 }
-
-const ICON_INACTIVE = 0.1
 
 type Mode = 'heat' | 'cool' | 'off'
 const MODES: Mode[] = ['heat', 'cool', 'off']
@@ -113,6 +123,10 @@ function nextMode(mode: Mode): Mode {
   return MODES[(i + 1) % MODES.length]
 }
 
+function inset(top: string, right: string, bottom: string, left: string): CSSProperties {
+  return { position: 'absolute', top, right, bottom, left }
+}
+
 function ProtoStage({ children }: { children: ReactNode }) {
   return (
     <div
@@ -129,14 +143,10 @@ function ProtoStage({ children }: { children: ReactNode }) {
   )
 }
 
-function inset(top: string, right: string, bottom: string, left: string): CSSProperties {
-  return { position: 'absolute', top, right, bottom, left }
-}
-
 function Layer({
   src,
   box,
-  active = true,
+  active = false,
   alt = '',
 }: {
   src: string
@@ -184,15 +194,17 @@ function TempDigits({ value }: { value: number }) {
 
 export function LiteScreen({
   mode,
-  setpoint,
+  lcdTemp,
+  showSetTo,
+  onActive,
   flash = false,
 }: {
   mode: Mode
-  setpoint: number | null
+  lcdTemp: number
+  showSetTo: boolean
+  onActive: boolean
   flash?: boolean
 }) {
-  const showSetpoint = setpoint !== null
-
   return (
     <div
       style={{
@@ -208,7 +220,7 @@ export function LiteScreen({
       }}
     >
       <img
-        src={imgFullScreenChrome}
+        src={imgScreen}
         alt=""
         draggable={false}
         style={{
@@ -221,12 +233,13 @@ export function LiteScreen({
         }}
       />
 
-      {showSetpoint && <TempDigits value={setpoint} />}
+      <TempDigits value={lcdTemp} />
 
+      <Layer src={imgSetTo} box={inset('10.67%', '36%', '83.33%', '37.33%')} active={showSetTo} />
       <Layer src={imgCool} box={inset('32.68%', '2.29%', '55.75%', '87.47%')} active={mode === 'cool'} />
       <Layer src={imgHeat} box={inset('46.62%', '3.24%', '41.76%', '88.27%')} active={mode === 'heat'} />
       <Layer src={imgOff} box={inset('67.68%', '1.51%', '25.77%', '86.93%')} active={mode === 'off'} />
-      <Layer src={imgSetTo} box={inset('10.67%', '36%', '83.33%', '37.33%')} active={showSetpoint} />
+      <Layer src={imgOn} box={inset('76%', '2.67%', '19.2%', '87.73%')} active={onActive} />
     </div>
   )
 }
@@ -305,9 +318,33 @@ export function SensiLiteProto() {
   const [state, setState] = useState<ThermostatState>({
     mode: 'cool',
     heatTo: 68,
-    coolTo: 72,
+    coolTo: 75,
   })
+  const [editingSetpoint, setEditingSetpoint] = useState(false)
   const [flash, setFlash] = useState(false)
+  const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const clearIdleTimer = useCallback(() => {
+    if (idleTimerRef.current) {
+      clearTimeout(idleTimerRef.current)
+      idleTimerRef.current = null
+    }
+  }, [])
+
+  const startSetpointIdleTimer = useCallback(() => {
+    clearIdleTimer()
+    idleTimerRef.current = setTimeout(() => {
+      setEditingSetpoint(false)
+      idleTimerRef.current = null
+    }, SETPOINT_IDLE_MS)
+  }, [clearIdleTimer])
+
+  const beginSetpointEdit = useCallback(() => {
+    setEditingSetpoint(true)
+    startSetpointIdleTimer()
+  }, [startSetpointIdleTimer])
+
+  useEffect(() => () => clearIdleTimer(), [clearIdleTimer])
 
   const triggerFlash = useCallback(() => {
     setFlash(true)
@@ -317,6 +354,7 @@ export function SensiLiteProto() {
   const handleUp = useCallback(() => {
     if (state.mode === 'off') return
     triggerFlash()
+    beginSetpointEdit()
     setState((s) => {
       if (s.mode === 'heat') {
         const next = adjustHeatSetpoint(s.heatTo, s.coolTo, 1)
@@ -328,11 +366,12 @@ export function SensiLiteProto() {
       }
       return s
     })
-  }, [state.mode, triggerFlash])
+  }, [state.mode, triggerFlash, beginSetpointEdit])
 
   const handleDown = useCallback(() => {
     if (state.mode === 'off') return
     triggerFlash()
+    beginSetpointEdit()
     setState((s) => {
       if (s.mode === 'heat') {
         const next = adjustHeatSetpoint(s.heatTo, s.coolTo, -1)
@@ -344,15 +383,28 @@ export function SensiLiteProto() {
       }
       return s
     })
-  }, [state.mode, triggerFlash])
+  }, [state.mode, triggerFlash, beginSetpointEdit])
 
   const handleMenu = useCallback(() => {
     triggerFlash()
     setState((s) => ({ ...s, mode: nextMode(s.mode) }))
   }, [triggerFlash])
 
-  const setpoint =
-    state.mode === 'heat' ? state.heatTo : state.mode === 'cool' ? state.coolTo : null
+  const showSetTo = editingSetpoint && state.mode !== 'off'
+
+  const lcdTemp =
+    showSetTo && state.mode === 'heat'
+      ? state.heatTo
+      : showSetTo && state.mode === 'cool'
+        ? state.coolTo
+        : DISPLAY_TEMP
+
+  const onActive =
+    state.mode === 'heat'
+      ? state.heatTo > DISPLAY_TEMP
+      : state.mode === 'cool'
+        ? state.coolTo < DISPLAY_TEMP
+        : false
 
   return (
     <div
@@ -367,7 +419,13 @@ export function SensiLiteProto() {
       <ProtoStage>
         <div style={{ position: 'relative', width: '100%', height: '100%' }}>
           <LiteFrame onUp={handleUp} onDown={handleDown} onMenu={handleMenu} />
-          <LiteScreen mode={state.mode} setpoint={setpoint} flash={flash} />
+          <LiteScreen
+            mode={state.mode}
+            lcdTemp={lcdTemp}
+            showSetTo={showSetTo}
+            onActive={onActive}
+            flash={flash}
+          />
         </div>
       </ProtoStage>
 
@@ -386,7 +444,7 @@ export function SensiLiteProto() {
       >
         <span style={{ display: 'block' }}>▲ ▼ setpoint · ● heat / cool / off</span>
         <span style={{ display: 'block' }}>
-          Heat {state.heatTo}° · Cool {state.coolTo}° · {DEADBAND}° min gap
+          Room {DISPLAY_TEMP}° · Heat {state.heatTo}° · Cool {state.coolTo}° · {DEADBAND}° min gap
         </span>
       </p>
     </div>
