@@ -47,6 +47,65 @@ function getScrollTop(): number {
   return document.scrollingElement?.scrollTop ?? window.scrollY
 }
 
+/** Viewport band aligned with sub-nav spy (matches former IO rootMargin). */
+const SPY_BAND_TOP = 0.15
+const SPY_BAND_BOTTOM = 0.15
+const SPY_MIN_SCORE = 0.02
+
+function visibleBandScore(rect: DOMRect, vh: number): number {
+  const bandTop = vh * SPY_BAND_TOP
+  const bandBottom = vh * (1 - SPY_BAND_BOTTOM)
+  const bandHeight = bandBottom - bandTop
+  const visibleTop = Math.max(rect.top, bandTop)
+  const visibleBottom = Math.min(rect.bottom, bandBottom)
+  const visible = Math.max(0, visibleBottom - visibleTop)
+  if (visible <= 0) return 0
+  return visible / Math.min(rect.height, bandHeight)
+}
+
+function pickActiveSpyTarget(): { chapterId: string | null; sectionId: string | null } {
+  const vh = window.innerHeight
+
+  let bestChapterId: string | null = null
+  let bestChapterScore = 0
+  document.querySelectorAll<HTMLElement>('[data-chapter-id]').forEach((el) => {
+    const id = el.dataset.chapterId
+    if (!id) return
+    const score = visibleBandScore(el.getBoundingClientRect(), vh)
+    if (score > bestChapterScore) {
+      bestChapterScore = score
+      bestChapterId = id
+    }
+  })
+
+  if (bestChapterId && bestChapterScore >= SPY_MIN_SCORE) {
+    return { chapterId: bestChapterId, sectionId: sectionIdForChapter(bestChapterId) }
+  }
+
+  let bestSectionId: string | null = null
+  let bestSectionScore = 0
+  document.querySelectorAll<HTMLElement>('[data-section-id]').forEach((el) => {
+    const id = el.dataset.sectionId
+    if (!id) return
+    const score = visibleBandScore(el.getBoundingClientRect(), vh)
+    if (score > bestSectionScore) {
+      bestSectionScore = score
+      bestSectionId = id
+    }
+  })
+
+  if (bestSectionId && bestSectionScore >= SPY_MIN_SCORE) {
+    const sec = NAV_SECTIONS.find((s) => s.id === bestSectionId)
+    const first = sec?.chapters[0]
+    return {
+      sectionId: bestSectionId,
+      chapterId: first ? toChapterId(bestSectionId, first.id) : null,
+    }
+  }
+
+  return { chapterId: null, sectionId: null }
+}
+
 // ── COMPONENT ─────────────────────────────────────────────────────────────────
 export function SidebarNav() {
   const dark = useDarkMode()
@@ -68,7 +127,8 @@ export function SidebarNav() {
   const subNavTimer   = useRef<ReturnType<typeof setTimeout> | null>(null)
   const prevStuck     = useRef(false)
   const subNavVisibleRef = useRef(false)
-  const sectionRatiosRef = useRef<Map<Element, number>>(new Map())
+  const activeSectionRef = useRef<string | null>(null)
+  const activeChapterRef = useRef<string | null>(null)
   const heroRef       = useRef<HTMLDivElement>(null)
   const navWrapRef    = useRef<HTMLDivElement>(null)
   const emailRef      = useRef<HTMLAnchorElement>(null)
@@ -139,6 +199,30 @@ export function SidebarNav() {
     subNavVisibleRef.current = subNavVisible
   }, [subNavVisible])
 
+  useEffect(() => {
+    activeSectionRef.current = activeSection
+  }, [activeSection])
+
+  useEffect(() => {
+    activeChapterRef.current = activeChapter
+  }, [activeChapter])
+
+  const applyScrollSpy = useCallback(() => {
+    const { chapterId, sectionId } = pickActiveSpyTarget()
+    if (!sectionId) return
+
+    if (chapterId && activeChapterRef.current !== chapterId) {
+      activeChapterRef.current = chapterId
+      setActiveChapter(chapterId)
+    }
+
+    if (activeSectionRef.current !== sectionId) {
+      activeSectionRef.current = sectionId
+      setActiveSection(sectionId)
+      if (subNavVisibleRef.current) staggerOut(() => staggerIn(sectionId))
+    }
+  }, [staggerIn, staggerOut])
+
   const applyStuckState = useCallback(
     (y: number) => {
       const threshold = stickThresholdRef.current
@@ -150,11 +234,15 @@ export function SidebarNav() {
         setDimActive(true)
         subNavTimer.current = setTimeout(() => {
           setSubNavVisible(true)
-          setActiveSection((prev) => {
-            const id = prev || NAV_SECTIONS[0].id
-            staggerIn(id, id === NAV_SECTIONS[0].id)
-            return id
-          })
+          const { sectionId, chapterId } = pickActiveSpyTarget()
+          const id = sectionId || NAV_SECTIONS[0].id
+          activeSectionRef.current = id
+          setActiveSection(id)
+          if (chapterId) {
+            activeChapterRef.current = chapterId
+            setActiveChapter(chapterId)
+          }
+          staggerIn(id, id === NAV_SECTIONS[0].id)
         }, SUBNAV_DELAY_MS)
       } else if (!shouldStick && prevStuck.current) {
         prevStuck.current = false
@@ -195,6 +283,7 @@ export function SidebarNav() {
       }
 
       applyStuckState(y)
+      if (prevStuck.current) applyScrollSpy()
       rafId = requestAnimationFrame(frame)
     }
 
@@ -205,60 +294,20 @@ export function SidebarNav() {
 
   const syncScrollAfterNavigate = useCallback(() => {
     applyStuckState(getScrollTop())
-  }, [applyStuckState])
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          sectionRatiosRef.current.set(entry.target, entry.intersectionRatio)
-        })
-
-        let bestId: string | null = null
-        let bestRatio = 0
-        sectionRatiosRef.current.forEach((ratio, el) => {
-          const id = (el as HTMLElement).dataset.sectionId
-          if (id && ratio > bestRatio) {
-            bestRatio = ratio
-            bestId = id
-          }
-        })
-
-        if (!bestId || bestRatio < 0.15) return
-        switchSection(bestId)
-      },
-      {
-        threshold: [0, 0.15, 0.25, 0.5, 0.75, 1],
-        rootMargin: '-12% 0px -40% 0px',
-      },
-    )
-    const elements = document.querySelectorAll('[data-section-id]')
-    elements.forEach((el) => observer.observe(el))
-    return () => {
-      observer.disconnect()
-      sectionRatiosRef.current.clear()
-    }
-  }, [switchSection])
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) return
-          const id = (entry.target as HTMLElement).dataset.chapterId
-          if (id) setActiveChapter(id)
-        })
-      },
-      { threshold: 0.5, rootMargin: '-15% 0px -15% 0px' }
-    )
-    document.querySelectorAll('[data-chapter-id]').forEach((el) => observer.observe(el))
-    return () => observer.disconnect()
-  }, [activeSection])
+    applyScrollSpy()
+  }, [applyStuckState, applyScrollSpy])
 
   const scrollToSection = (id: string) => {
     document
       .querySelector(`[data-section-id="${id}"]`)
       ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    const sec = NAV_SECTIONS.find((s) => s.id === id)
+    if (sec) {
+      const chId = toChapterId(id, sec.chapters[0].id)
+      activeChapterRef.current = chId
+      setActiveChapter(chId)
+    }
+    activeSectionRef.current = id
     switchSection(id)
     syncScrollAfterNavigate()
   }
@@ -268,7 +317,11 @@ export function SidebarNav() {
       .querySelector(`[data-chapter-id="${chapterId}"]`)
       ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     const sectionId = sectionIdForChapter(chapterId)
-    if (sectionId) switchSection(sectionId)
+    if (sectionId) {
+      activeSectionRef.current = sectionId
+      switchSection(sectionId)
+    }
+    activeChapterRef.current = chapterId
     setActiveChapter(chapterId)
     syncScrollAfterNavigate()
   }
