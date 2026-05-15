@@ -17,8 +17,7 @@ export const metadata: Metadata = {
   description: 'I simplify complex systems for Hardware, Mobile, Web Apps, and Everything In Between.',
   icons: {
     icon: [
-      { url: '/favicon/favicon.svg', type: 'image/svg+xml' },
-      { url: '/favicon/favicon.ico', type: 'image/x-icon' },
+      { url: '/favicon/favicon.ico', sizes: 'any' },
       { url: '/favicon/favicon-32.png', type: 'image/png', sizes: '32x32' },
       { url: '/favicon/favicon-16.png', type: 'image/png', sizes: '16x16' },
     ],
