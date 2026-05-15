@@ -64,18 +64,40 @@ function clampTemp(value: number): number {
   return Math.min(TEMP_MAX, Math.max(TEMP_MIN, Math.round(value)))
 }
 
-/** coolTo must stay at least DEADBAND above heatTo */
+/** coolTo must stay at least DEADBAND above heatTo (within TEMP_MIN..TEMP_MAX) */
+function enforceDeadband(
+  heatTo: number,
+  coolTo: number,
+  preferred: 'heat' | 'cool',
+): Pick<ThermostatState, 'heatTo' | 'coolTo'> {
+  let heat = clampTemp(heatTo)
+  let cool = clampTemp(coolTo)
+
+  if (cool >= heat + DEADBAND) {
+    return { heatTo: heat, coolTo: cool }
+  }
+
+  if (preferred === 'heat') {
+    cool = clampTemp(heat + DEADBAND)
+    if (cool < heat + DEADBAND) {
+      heat = clampTemp(cool - DEADBAND)
+    }
+  } else {
+    heat = clampTemp(cool - DEADBAND)
+    if (cool < heat + DEADBAND) {
+      cool = clampTemp(heat + DEADBAND)
+    }
+  }
+
+  return { heatTo: heat, coolTo: cool }
+}
+
 function adjustHeatSetpoint(
   heatTo: number,
   coolTo: number,
   delta: number,
 ): Pick<ThermostatState, 'heatTo' | 'coolTo'> {
-  const nextHeat = clampTemp(heatTo + delta)
-  let nextCool = coolTo
-  if (nextCool < nextHeat + DEADBAND) {
-    nextCool = clampTemp(nextHeat + DEADBAND)
-  }
-  return { heatTo: nextHeat, coolTo: nextCool }
+  return enforceDeadband(clampTemp(heatTo + delta), coolTo, 'heat')
 }
 
 function adjustCoolSetpoint(
@@ -83,12 +105,7 @@ function adjustCoolSetpoint(
   coolTo: number,
   delta: number,
 ): Pick<ThermostatState, 'heatTo' | 'coolTo'> {
-  const nextCool = clampTemp(coolTo + delta)
-  let nextHeat = heatTo
-  if (nextCool < nextHeat + DEADBAND) {
-    nextHeat = clampTemp(nextCool - DEADBAND)
-  }
-  return { heatTo: nextHeat, coolTo: nextCool }
+  return enforceDeadband(heatTo, clampTemp(coolTo + delta), 'cool')
 }
 
 function nextMode(mode: Mode): Mode {
