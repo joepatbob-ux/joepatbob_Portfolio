@@ -2,7 +2,6 @@
 import type { Metadata } from 'next'
 import { JetBrains_Mono } from 'next/font/google'
 import '../styles/globals.css'
-import { SidebarNav } from '@/components/SidebarNav'
 import { ThemeProvider } from '@/components/ThemeProvider'
 
 const jetbrainsMono = JetBrains_Mono({
@@ -46,12 +45,7 @@ export default function RootLayout({
         <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000" />
       </head>
       <body>
-        <ThemeProvider>
-          <SidebarNav />
-          <main className="content-area">
-            {children}
-          </main>
-        </ThemeProvider>
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   )
