@@ -51,7 +51,7 @@ Brand consistency. The Sensi Touch 2 thermostat uses a different visual language
 
 The solution: move the color to the number. Instead of the background adopting the mode color, the displayed temperature adopts it. Orange for heat. Blue for cool. Neutral for passive. The information is still ambient — sitting on the most prominent element on the screen — but it's surgical rather than wholesale. One change. Three problems solved.`,
       imageAlt: 'Before and after — full-bleed orange vs. colored temperature number on neutral background',
-      imageSrc: '/images/mobile-color.jpg',
+      imageSrc: '/images/mobile-android-legacy-fullbleed-orange.png',
       imageLayout: 'full-width',
       imagePosition: 'left',
     },
@@ -69,7 +69,7 @@ With the redundant button gone, Continue became the clear primary action. The he
 
 App Store reviewers picked up on the install experience without prompting. One long-term user specifically called out the step-by-step install guidance as "a little touch that made me fall in love with it."`,
       imageAlt: 'Wirepicker before and after — removing one button clarified the entire screen hierarchy',
-      imageSrc: '/images/mobile-wirepicker.png',
+      imageSrc: '/images/mobile-wirepicker-before-after.png',
       imageLayout: 'full-width',
       imagePosition: 'left',
     },
@@ -87,7 +87,7 @@ The decisions that mattered: Spotlight is a named section, not injected into the
 
 Energy program enrollment increased measurably after launch. App store ratings held at 4.7 iOS · 4.4 Android through the Spotlight launch. For a content surface added to a utility app, no regression is a win.`,
       imageAlt: 'Spotlight in context — named section, partner logo leading, expiration date visible, consistent CTA',
-      imageSrc: '/images/mobile-spotlight.png',
+      imageSrc: '/images/mobile-spotlight-example.png',
       imageLayout: 'full-width',
       imagePosition: 'left',
     },

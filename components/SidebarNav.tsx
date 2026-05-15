@@ -10,7 +10,7 @@
 'use client'
 
 import { useEffect, useRef, useState, useCallback } from 'react'
-import { NAV_SECTIONS } from '@/lib/nav'
+import { NAV_SECTIONS, sectionIdForChapter } from '@/lib/nav'
 
 // ── FONT STRINGS (CSS vars: --font-ahg / --font-mono from globals + layout) ─
 const FONT_AHG  = 'var(--font-ahg)'
@@ -39,8 +39,8 @@ function useDarkMode() {
 }
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
-function toChapterId(sectionId: string, chapter: string): string {
-  return `${sectionId}-${chapter}`
+function toChapterId(sectionId: string, chapterId: string): string {
+  return `${sectionId}-${chapterId}`
 }
 
 // ── COMPONENT ─────────────────────────────────────────────────────────────────
@@ -64,6 +64,8 @@ export function SidebarNav() {
   const staggerTimers = useRef<ReturnType<typeof setTimeout>[]>([])
   const subNavTimer   = useRef<ReturnType<typeof setTimeout> | null>(null)
   const prevStuck     = useRef(false)
+  const subNavVisibleRef = useRef(false)
+  const sectionRatiosRef = useRef<Map<Element, number>>(new Map())
   const navWrapRef    = useRef<HTMLDivElement>(null)
   const emailRef      = useRef<HTMLAnchorElement>(null)
 
@@ -113,6 +115,21 @@ export function SidebarNav() {
     setTimeout(cb, TRANSITION_MS * 0.55)
   }, [])
 
+  const switchSection = useCallback(
+    (id: string) => {
+      setActiveSection((prev) => {
+        if (prev === id) return prev
+        if (subNavVisibleRef.current) staggerOut(() => staggerIn(id))
+        return id
+      })
+    },
+    [staggerIn, staggerOut],
+  )
+
+  useEffect(() => {
+    subNavVisibleRef.current = subNavVisible
+  }, [subNavVisible])
+
   useEffect(() => {
     let ticking = false
     const onScroll = () => {
@@ -156,25 +173,34 @@ export function SidebarNav() {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (!entry.isIntersecting || entry.intersectionRatio < 0.2) return
-          const id = (entry.target as HTMLElement).dataset.sectionId
-          if (!id) return
-          setActiveSection((prev) => {
-            if (prev === id) return prev
-            if (subNavVisible) {
-              staggerOut(() => { setActiveSection(id); staggerIn(id) })
-              return prev
-            }
-            staggerIn(id)
-            return id
-          })
+          sectionRatiosRef.current.set(entry.target, entry.intersectionRatio)
         })
+
+        let bestId: string | null = null
+        let bestRatio = 0
+        sectionRatiosRef.current.forEach((ratio, el) => {
+          const id = (el as HTMLElement).dataset.sectionId
+          if (id && ratio > bestRatio) {
+            bestRatio = ratio
+            bestId = id
+          }
+        })
+
+        if (!bestId || bestRatio < 0.15) return
+        switchSection(bestId)
       },
-      { threshold: 0.2 }
+      {
+        threshold: [0, 0.15, 0.25, 0.5, 0.75, 1],
+        rootMargin: '-12% 0px -40% 0px',
+      },
     )
-    document.querySelectorAll('[data-section-id]').forEach((el) => observer.observe(el))
-    return () => observer.disconnect()
-  }, [staggerIn, staggerOut, subNavVisible])
+    const elements = document.querySelectorAll('[data-section-id]')
+    elements.forEach((el) => observer.observe(el))
+    return () => {
+      observer.disconnect()
+      sectionRatiosRef.current.clear()
+    }
+  }, [switchSection])
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -191,11 +217,21 @@ export function SidebarNav() {
     return () => observer.disconnect()
   }, [activeSection])
 
-  const scrollToSection = (id: string) =>
-    document.querySelector(`[data-section-id="${id}"]`)?.scrollIntoView({ behavior: 'smooth' })
+  const scrollToSection = (id: string) => {
+    document
+      .querySelector(`[data-section-id="${id}"]`)
+      ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    switchSection(id)
+  }
 
-  const scrollToChapter = (id: string) =>
-    document.querySelector(`[data-chapter-id="${id}"]`)?.scrollIntoView({ behavior: 'smooth' })
+  const scrollToChapter = (chapterId: string) => {
+    document
+      .querySelector(`[data-chapter-id="${chapterId}"]`)
+      ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    const sectionId = sectionIdForChapter(chapterId)
+    if (sectionId) switchSection(sectionId)
+    setActiveChapter(chapterId)
+  }
 
   const currentSection = NAV_SECTIONS.find((s) => s.id === activeSection) || NAV_SECTIONS[0]
 
@@ -287,11 +323,11 @@ export function SidebarNav() {
         pointerEvents: subNavVisible ? 'auto' : 'none',
       }}>
         {currentSection.chapters.map((chapter, i) => {
-          const chId      = toChapterId(currentSection.id, chapter)
+          const chId      = toChapterId(currentSection.id, chapter.id)
           const isActive  = activeChapter === chId
           const isVisible = subNavVisible && chapterItemsVisible.includes(i)
           return (
-            <span key={chapter} onClick={() => scrollToChapter(chId)}
+            <span key={chapter.id} onClick={() => scrollToChapter(chId)}
               aria-current={isActive ? 'true' : undefined}
               style={{
                 display: 'block', fontFamily: FONT_MONO, fontWeight: 700,
@@ -308,7 +344,7 @@ export function SidebarNav() {
               onMouseEnter={(e) => { if (!isActive) (e.currentTarget as HTMLElement).style.opacity = '0.6' }}
               onMouseLeave={(e) => { if (!isActive) (e.currentTarget as HTMLElement).style.opacity = '1' }}
             >
-              {chapter}
+              {chapter.label}
             </span>
           )
         })}
