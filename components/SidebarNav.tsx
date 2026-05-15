@@ -11,6 +11,7 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { NAV_SECTIONS, sectionIdForChapter } from '@/lib/nav'
+import { ContactButton } from '@/components/ContactButton'
 
 // ── FONT STRINGS (CSS vars: --font-ahg / --font-mono from globals + layout) ─
 const FONT_AHG  = 'var(--font-ahg)'
@@ -131,18 +132,18 @@ export function SidebarNav() {
   const activeChapterRef = useRef<string | null>(null)
   const heroRef       = useRef<HTMLDivElement>(null)
   const navWrapRef    = useRef<HTMLDivElement>(null)
-  const emailRef      = useRef<HTMLAnchorElement>(null)
+  const contactRef    = useRef<HTMLDivElement>(null)
   const layoutRef     = useRef({ viewportH: 900, navRestTop: 0, threshold: 648 })
   const stickThresholdRef = useRef(648)
 
   const measureLayout = useCallback(() => {
     const vh = window.innerHeight
     let navRest = 0
-    if (navWrapRef.current && emailRef.current) {
+    if (navWrapRef.current && contactRef.current) {
       navRest =
         vh -
         EMAIL_BOTTOM_PX -
-        emailRef.current.clientHeight -
+        contactRef.current.clientHeight -
         12 -
         navWrapRef.current.clientHeight
     }
@@ -155,7 +156,7 @@ export function SidebarNav() {
     window.addEventListener('resize', measureLayout)
     const ro = new ResizeObserver(measureLayout)
     if (navWrapRef.current) ro.observe(navWrapRef.current)
-    if (emailRef.current) ro.observe(emailRef.current)
+    if (contactRef.current) ro.observe(contactRef.current)
     return () => {
       window.removeEventListener('resize', measureLayout)
       ro.disconnect()
@@ -395,20 +396,18 @@ export function SidebarNav() {
           </p>
         </div>
 
-        {/* Email pill */}
-        <a ref={emailRef} href="mailto:me@joepatbob.com" style={{
-          position: 'absolute', bottom: EMAIL_BOTTOM_PX, left: 40,
-          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-          background: ACCENT, borderRadius: 24, padding: '0 20px', height: 40,
-          fontFamily: FONT_MONO, fontWeight: 700, fontSize: 11, letterSpacing: '0.06em',
-          textTransform: 'uppercase', color: '#ffffff', textDecoration: 'none',
-          pointerEvents: 'auto', transition: 'opacity 200ms ease', userSelect: 'none',
-        }}
-          onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.opacity = '0.75')}
-          onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.opacity = '1')}
+        {/* Contact — liquid split to Email / LinkedIn on hover */}
+        <div
+          ref={contactRef}
+          style={{
+            position: 'absolute',
+            bottom: EMAIL_BOTTOM_PX,
+            left: 40,
+            pointerEvents: 'auto',
+          }}
         >
-          me@joepatbob.com
-        </a>
+          <ContactButton />
+        </div>
       </div>
 
       {/* Sub nav — viewport center */}
