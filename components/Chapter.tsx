@@ -95,14 +95,16 @@ export function Chapter({ chapter, sectionId, index, isLast }: Props) {
               </div>
             </div>
           )}
-          <ImagePlaceholder
-            src={chapter.imageSrc}
-            alt={chapter.imageAlt}
-            width="100%"
-            height={fullWidthMaxH}
-            fit="intrinsic"
-            style={{ marginBottom: 28 }}
-          />
+          {chapterId !== 'hardware-sensi-lite' && (
+            <ImagePlaceholder
+              src={chapter.imageSrc}
+              alt={chapter.imageAlt}
+              width="100%"
+              height={fullWidthMaxH}
+              fit="intrinsic"
+              style={{ marginBottom: 28 }}
+            />
+          )}
           <p style={{
             fontSize: 14,
             lineHeight: 1.7,
