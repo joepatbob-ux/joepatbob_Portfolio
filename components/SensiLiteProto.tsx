@@ -35,7 +35,7 @@ const asset = (name: string) => `/images/sensi-lite/${name}.svg`
 const imgLiteFrame = asset('lite-frame')
 const imgButtons = asset('lite-buttons')
 const imgType = asset('lite-type')
-const imgScreen = asset('screen')
+const imgScreen = `${asset('screen')}?v=3`
 
 const imgCool = asset('icon-cool')
 const imgHeat = asset('icon-heat')
@@ -165,20 +165,27 @@ function LcdIcon({
   active?: boolean
   alt?: string
 }) {
+  const imgStyle: CSSProperties = {
+    ...lcdRectStyle(rect),
+    objectFit: 'fill',
+    pointerEvents: 'none',
+    userSelect: 'none',
+    transition: 'opacity 80ms ease',
+  }
+
   return (
-    <img
-      src={src}
-      alt={alt}
-      draggable={false}
-      style={{
-        ...lcdRectStyle(rect),
-        opacity: active ? 1 : ICON_INACTIVE,
-        transition: 'opacity 80ms ease',
-        objectFit: 'fill',
-        pointerEvents: 'none',
-        userSelect: 'none',
-      }}
-    />
+    <>
+      <img
+        src={src}
+        alt=""
+        draggable={false}
+        aria-hidden
+        style={{ ...imgStyle, opacity: ICON_INACTIVE }}
+      />
+      {active ? (
+        <img src={src} alt={alt} draggable={false} style={{ ...imgStyle, opacity: 1 }} />
+      ) : null}
+    </>
   )
 }
 
