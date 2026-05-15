@@ -9,7 +9,7 @@ export const mobile: Section = {
   overviewBody: `Platform migration, a color system overhaul, a content surface that didn't feel like an ad, and rethinking how technicians configure hardware.
 
 Role: Principal Product Designer · Platform: iOS + Android · Timeline: 2018 – Present · Outcome: 4.3 → 4.7 iOS · 4.4 Android`,
-  pullQuote: 'Don't just redesign. Fix the foundation.',
+  pullQuote: "Don't just redesign. Fix the foundation.",
   lessonTitle: 'What ongoing\nmodernization\nlooks like.',
   lessonBody: `The app is better than it was, and it keeps getting better. Not because of a single launch, but because the strategy creates steady compounding improvement over time.
 

@@ -86,7 +86,7 @@ I'm based in the St. Louis area.`,
     {
       id: 'in-between',
       title: '/ Everything in between',
-      subtitle: 'The work that doesn't fit in a case study.',
+      subtitle: "The work that doesn't fit in a case study.",
       body: `Not everything worth doing fits a case study format. These are the things I do because they make the work — and the people doing it — better.
 
 The demo kit. The sales team needed to demo the Sensi thermostat at client sites where finding a power outlet wasn't a given. So I built a portable kit — single-board power, Sensi-branded foam-cut case, thermostat and remote sensor mounted and ready to go. It worked well enough that official versions were commissioned for the whole sales team.
