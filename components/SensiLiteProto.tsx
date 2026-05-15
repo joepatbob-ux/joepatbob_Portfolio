@@ -11,6 +11,7 @@ import {
   type CSSProperties,
   type ReactNode,
 } from 'react'
+import { LCD_DIGITS, LCD_ICONS, LCD_SIZE, type LcdRect } from '@/lib/sensi-lite/lcd-layout'
 
 const DESIGN_WIDTH = 240
 const DESIGN_HEIGHT = 147
@@ -19,13 +20,6 @@ const SCREEN_LEFT = `${(82 / DESIGN_WIDTH) * 100}%`
 const SCREEN_TOP = `${(36 / DESIGN_HEIGHT) * 100}%`
 const SCREEN_WIDTH = `${(75 / DESIGN_WIDTH) * 100}%`
 const SCREEN_HEIGHT = `${(75 / DESIGN_HEIGHT) * 100}%`
-
-const LCD_W = 75
-const DIGIT_W_PCT = `${(25 / LCD_W) * 100}%`
-const DIGIT_H_PCT = `${(47 / LCD_W) * 100}%`
-const DIGIT_TENS_LEFT = `${(12 / LCD_W) * 100}%`
-const DIGIT_ONES_LEFT = `${(39 / LCD_W) * 100}%`
-const DIGIT_TOP = `${(14 / LCD_W) * 100}%`
 
 const DEADBAND = 2
 const TEMP_MIN = 40
@@ -123,8 +117,14 @@ function nextMode(mode: Mode): Mode {
   return MODES[(i + 1) % MODES.length]
 }
 
-function inset(top: string, right: string, bottom: string, left: string): CSSProperties {
-  return { position: 'absolute', top, right, bottom, left }
+function rectStyle(rect: LcdRect): CSSProperties {
+  return {
+    position: 'absolute',
+    left: `${(rect.x / LCD_SIZE) * 100}%`,
+    top: `${(rect.y / LCD_SIZE) * 100}%`,
+    width: `${(rect.w / LCD_SIZE) * 100}%`,
+    height: `${(rect.h / LCD_SIZE) * 100}%`,
+  }
 }
 
 function ProtoStage({ children }: { children: ReactNode }) {
@@ -143,14 +143,14 @@ function ProtoStage({ children }: { children: ReactNode }) {
   )
 }
 
-function Layer({
+function LcdIcon({
   src,
-  box,
+  rect,
   active = false,
   alt = '',
 }: {
   src: string
-  box: CSSProperties
+  rect: LcdRect
   active?: boolean
   alt?: string
 }) {
@@ -160,10 +160,10 @@ function Layer({
       alt={alt}
       draggable={false}
       style={{
-        ...box,
+        ...rectStyle(rect),
         opacity: active ? 1 : ICON_INACTIVE,
         transition: 'opacity 80ms ease',
-        objectFit: 'contain',
+        objectFit: 'fill',
         pointerEvents: 'none',
         userSelect: 'none',
       }}
@@ -175,19 +175,25 @@ function TempDigits({ value }: { value: number }) {
   const clamped = clampTemp(value)
   const tens = Math.floor(clamped / 10)
   const ones = clamped % 10
-  const digitStyle: CSSProperties = {
-    position: 'absolute',
-    top: DIGIT_TOP,
-    width: DIGIT_W_PCT,
-    height: DIGIT_H_PCT,
-    objectFit: 'contain',
+  const digitBase: CSSProperties = {
+    objectFit: 'fill',
     pointerEvents: 'none',
   }
 
   return (
     <>
-      <img src={DIGIT_SRC[tens]} alt="" draggable={false} style={{ ...digitStyle, left: DIGIT_TENS_LEFT }} />
-      <img src={DIGIT_SRC[ones]} alt="" draggable={false} style={{ ...digitStyle, left: DIGIT_ONES_LEFT }} />
+      <img
+        src={DIGIT_SRC[tens]}
+        alt=""
+        draggable={false}
+        style={{ ...rectStyle(LCD_DIGITS.tens), ...digitBase }}
+      />
+      <img
+        src={DIGIT_SRC[ones]}
+        alt=""
+        draggable={false}
+        style={{ ...rectStyle(LCD_DIGITS.ones), ...digitBase }}
+      />
     </>
   )
 }
@@ -235,11 +241,11 @@ export function LiteScreen({
 
       <TempDigits value={lcdTemp} />
 
-      <Layer src={imgSetTo} box={inset('10.67%', '36%', '83.33%', '37.33%')} active={showSetTo} />
-      <Layer src={imgCool} box={inset('32.68%', '2.29%', '55.75%', '87.47%')} active={mode === 'cool'} />
-      <Layer src={imgHeat} box={inset('46.62%', '3.24%', '41.76%', '88.27%')} active={mode === 'heat'} />
-      <Layer src={imgOff} box={inset('67.68%', '1.51%', '25.77%', '86.93%')} active={mode === 'off'} />
-      <Layer src={imgOn} box={inset('76%', '2.67%', '19.2%', '87.73%')} active={onActive} />
+      <LcdIcon src={imgSetTo} rect={LCD_ICONS.setTo} active={showSetTo} />
+      <LcdIcon src={imgCool} rect={LCD_ICONS.cool} active={mode === 'cool'} />
+      <LcdIcon src={imgHeat} rect={LCD_ICONS.heat} active={mode === 'heat'} />
+      <LcdIcon src={imgOff} rect={LCD_ICONS.off} active={mode === 'off'} />
+      <LcdIcon src={imgOn} rect={LCD_ICONS.on} active={onActive} />
     </div>
   )
 }
