@@ -13,27 +13,15 @@ const imgLiteFrame = asset('lite-frame')
 const imgButtons = asset('lite-buttons')
 const imgType = asset('lite-type')
 
-const segTensF = asset('seg-tens-f')
-const segTensG = asset('seg-tens-g')
-const segOnesE = asset('seg-ones-e')
-
-const TENS_SEGMENT_SRCS = [
-  asset('seg-tens-a'),
-  asset('seg-tens-b'),
-  asset('seg-tens-c'),
-  asset('seg-tens-d'),
-  asset('seg-tens-e'),
-  segTensF,
-  segTensG,
-]
-const ONES_SEGMENT_SRCS = [
-  asset('seg-ones-a'),
-  asset('seg-ones-b'),
-  asset('seg-ones-c'),
-  asset('seg-ones-d'),
-  segOnesE,
-  segTensG,
-  segTensF,
+// One SVG set per segment (a–g); shared by tens and ones digits
+const SEGMENT_SRCS = [
+  asset('segment-a'),
+  asset('segment-b'),
+  asset('segment-c'),
+  asset('segment-d'),
+  asset('segment-e'),
+  asset('segment-f'),
+  asset('segment-g'),
 ]
 
 const imgCool = asset('icon-cool')
@@ -288,7 +276,7 @@ export function LiteScreen({
       <Layer src={imgSensor} box={inset('53.33%', '87.17%', '39.81%', '2.67%')} active={sensorActive} />
       <Layer src={imgIndoor} box={inset('4%', '19.03%', '91.34%', '55.74%')} active={false} />
       <Layer src={imgOutdoor} box={inset('4.01%', '46.35%', '91.33%', '21.33%')} active={false} />
-      <Layer src={segOnesE} box={inset('69.33%', '88.7%', '22.94%', '5.33%')} active={false} />
+      <Layer src={SEGMENT_SRCS[4]} box={inset('69.33%', '88.7%', '22.94%', '5.33%')} active={false} />
       <Layer
         src={imgCallForService}
         box={inset('86.67%', '66.67%', '4%', '9.33%')}
@@ -317,8 +305,8 @@ export function LiteScreen({
           height: 47,
         }}
       >
-        <Digit char={tens} segmentSrcs={TENS_SEGMENT_SRCS} />
-        <Digit char={ones} segmentSrcs={ONES_SEGMENT_SRCS} />
+        <Digit char={tens} segmentSrcs={SEGMENT_SRCS} />
+        <Digit char={ones} segmentSrcs={SEGMENT_SRCS} />
       </div>
     </div>
   )
