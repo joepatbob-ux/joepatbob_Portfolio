@@ -23,8 +23,13 @@ export interface Section {
   chapters: Chapter[]
 }
 
+export interface NavChapter {
+  id: string
+  label: string
+}
+
 export interface NavSection {
   id: string
   label: string
-  chapters: string[]
+  chapters: NavChapter[]
 }

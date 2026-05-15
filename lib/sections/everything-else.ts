@@ -3,7 +3,7 @@ import type { Section } from '../types'
 
 export const everythingElse: Section = {
   id: 'everything-else',
-  label: 'Everything Else',
+  label: 'Everything In Between',
   eyebrow: 'About',
   headline: 'Joseph Patrick\nRoberts.',
   overviewBody: `Principal Product Designer working at the intersection of hardware and software. Brand-trained. St. Louis-based.

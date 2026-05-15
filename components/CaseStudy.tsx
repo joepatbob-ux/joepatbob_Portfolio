@@ -14,7 +14,11 @@ export function CaseStudy({ section, sectionId }: Props) {
   return (
     <article
       data-section-id={sectionId}
-      style={{ backgroundColor: 'var(--color-paper)', minWidth: 0 }}
+      style={{
+        backgroundColor: 'var(--color-paper)',
+        minWidth: 0,
+        scrollMarginTop: 24,
+      }}
     >
       {/* ── HEADER ── */}
       <header style={{
