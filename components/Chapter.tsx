@@ -97,6 +97,7 @@ export function Chapter({ chapter, sectionId, index, isLast }: Props) {
                   borderRadius: 12,
                   display: 'flex',
                   justifyContent: 'center',
+                  width: '100%',
                 }}
               >
                 <SensiLiteProto />
