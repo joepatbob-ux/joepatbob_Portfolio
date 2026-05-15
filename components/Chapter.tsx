@@ -90,14 +90,7 @@ export function Chapter({ chapter, sectionId, index, isLast }: Props) {
               >
                 Interactive prototype
               </p>
-              <div
-                style={{
-                  padding: '32px 24px',
-                  background: '#0d0d0d',
-                  borderRadius: 12,
-                  width: '100%',
-                }}
-              >
+              <div style={{ width: '100%' }}>
                 <SensiLiteProto />
               </div>
             </div>

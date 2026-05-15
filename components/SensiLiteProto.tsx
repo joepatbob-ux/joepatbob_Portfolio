@@ -81,20 +81,22 @@ const SEG7: Record<string, boolean[]> = {
 }
 
 // Segment positions on 25×47 digit canvas (matches exported SVG artboards)
-// a,d,g = 21–22×7 · b,c,e,f = 7×22
+// a,d = 21×7 · g = 22×7 · b,c,e,f = 7×22
 const SEGMENT_BOX: CSSProperties[] = [
-  { top: '0%', left: '8%', width: '84%', height: '14.9%' }, // a
-  { top: '10.6%', left: '72%', width: '28%', height: '46.8%' }, // b
-  { top: '53.2%', left: '72%', width: '28%', height: '46.8%' }, // c
-  { top: '85.1%', left: '8%', width: '84%', height: '14.9%' }, // d
-  { top: '53.2%', left: '0%', width: '28%', height: '46.8%' }, // e
-  { top: '10.6%', left: '0%', width: '28%', height: '46.8%' }, // f
-  { top: '42.6%', left: '6%', width: '88%', height: '14.9%' }, // g
+  { top: '0%', left: '8%', width: '84%', height: '14.89%' }, // a
+  { top: '8.5%', left: '72%', width: '28%', height: '46.81%' }, // b
+  { top: '53.19%', left: '72%', width: '28%', height: '46.81%' }, // c
+  { top: '85.11%', left: '8%', width: '84%', height: '14.89%' }, // d
+  { top: '53.19%', left: '0%', width: '28%', height: '46.81%' }, // e
+  { top: '8.5%', left: '0%', width: '28%', height: '46.81%' }, // f
+  { top: '40.43%', left: '6%', width: '88%', height: '14.89%' }, // g
 ]
 
 const DIGIT_ASPECT = `${25} / ${47}`
 const DIGIT_ROW_HEIGHT = `${(47 / 75) * 100}%` // 47px tall in 75px LCD
 const DIGIT_GAP = `${(2 / 52) * 100}%` // 2px gap in ~52px display row
+const SEG_INACTIVE = 0.06
+const ICON_INACTIVE = 0.1
 
 // ── NAVIGATION TYPES (existing logic) ─────────────────────────────────────────
 type Mode = 'heat' | 'cool' | 'auto' | 'off'
@@ -184,7 +186,7 @@ function Layer({
       draggable={false}
       style={{
         ...box,
-        opacity: active ? 1 : 0.1,
+        opacity: active ? 1 : ICON_INACTIVE,
         transition: 'opacity 80ms ease',
         objectFit: 'contain',
         pointerEvents: 'none',
@@ -252,7 +254,7 @@ function Digit({ char, segmentSrcs }: { char: string; segmentSrcs: string[] }) {
           style={{
             position: 'absolute',
             ...SEGMENT_BOX[i],
-            opacity: segs[i] ? 1 : 0.1,
+            opacity: segs[i] ? 1 : SEG_INACTIVE,
             transition: 'opacity 80ms ease',
             objectFit: 'contain',
             objectPosition: 'center',
@@ -293,10 +295,8 @@ export function LiteScreen({
         top: SCREEN_TOP,
         width: SCREEN_WIDTH,
         height: SCREEN_HEIGHT,
-        background: '#000',
-        borderRadius: '4%',
-        boxShadow: 'inset 0px 0px 10px 0px rgba(255,255,255,0.17)',
-        overflow: 'hidden',
+        background: 'transparent',
+        overflow: 'visible',
         opacity: flash ? 0.35 : 1,
         transition: flash ? 'none' : 'opacity 80ms ease',
       }}
@@ -631,7 +631,7 @@ export function SensiLiteProto() {
           fontSize: 9,
           letterSpacing: '0.08em',
           textTransform: 'uppercase',
-          color: 'rgba(255,255,255,0.25)',
+          color: 'var(--color-muted)',
           textAlign: 'center',
           lineHeight: 1.8,
         }}
