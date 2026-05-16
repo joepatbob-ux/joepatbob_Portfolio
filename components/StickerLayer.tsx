@@ -68,21 +68,23 @@ export function StickerLayer() {
     }
   }, [activeDrag, moveDrag, endDrag, cancelDrag])
 
+  // Deselect on press outside stickers (not release — avoids deselect after drag/rotate).
   useEffect(() => {
-    const onPointerUp = (e: PointerEvent) => {
+    const onPointerDown = (e: PointerEvent) => {
+      if (activeDrag) return
       const target = e.target as HTMLElement
       if (
         target.closest(
-          '.sticker-placed, .sticker-pile-wrap, .sticker-pile, .sticker-layer__drag, [data-sticker-rotate]',
+          '.sticker-placed, .sticker-pile-wrap, .sticker-pile, .sticker-layer__drag',
         )
       ) {
         return
       }
       selectSticker(null)
     }
-    window.addEventListener('pointerup', onPointerUp)
-    return () => window.removeEventListener('pointerup', onPointerUp)
-  }, [selectSticker])
+    window.addEventListener('pointerdown', onPointerDown, true)
+    return () => window.removeEventListener('pointerdown', onPointerDown, true)
+  }, [selectSticker, activeDrag])
 
   return (
     <>

@@ -57,12 +57,16 @@ export function PlacedStickerControl({ sticker }: Props) {
     if (!img) return
 
     const lockFromImage = () => {
-      const h = stickerHeight(STICKER_SIZE_PLACED, sticker.assetId)
-      const aspect =
-        img.naturalWidth > 0 && img.naturalHeight > 0
-          ? img.naturalWidth / img.naturalHeight
-          : 1
-      const w = h * aspect
+      let w = img.offsetWidth
+      let h = img.offsetHeight
+      if (w <= 0 || h <= 0) {
+        h = stickerHeight(STICKER_SIZE_PLACED, sticker.assetId)
+        const aspect =
+          img.naturalWidth > 0 && img.naturalHeight > 0
+            ? img.naturalWidth / img.naturalHeight
+            : 1
+        w = h * aspect
+      }
       const stickerOuterR = Math.hypot(w, h) / 2
       const trackR = stickerOuterR + TRACK_INSET_PX + TRACK_STROKE_PX / 2
       const ringSize = Math.ceil(
@@ -94,39 +98,80 @@ export function PlacedStickerControl({ sticker }: Props) {
     e.stopPropagation()
     selectSticker(sticker.instanceId)
 
+    const target = e.currentTarget as SVGElement
+    const pointerId = e.pointerId
     const s = stickerRef.current
     const startRotation = rotationFromPointer(s.x, s.y, e.pageX, e.pageY)
     const angleOffset = startRotation - s.rotation
 
+    target.setPointerCapture(pointerId)
+
     const onMove = (ev: PointerEvent) => {
+      if (ev.pointerId !== pointerId) return
       const cur = stickerRef.current
       const next = rotationFromPointer(cur.x, cur.y, ev.pageX, ev.pageY) - angleOffset
       const rotation = Math.round(next * 10) / 10
       updatePlaced(cur.instanceId, { rotation })
     }
 
-    const onUp = () => {
-      window.removeEventListener('pointermove', onMove)
-      window.removeEventListener('pointerup', onUp)
+    const onUp = (ev: PointerEvent) => {
+      if (ev.pointerId !== pointerId) return
+      if (target.hasPointerCapture(pointerId)) {
+        target.releasePointerCapture(pointerId)
+      }
+      target.removeEventListener('pointermove', onMove)
+      target.removeEventListener('pointerup', onUp)
+      target.removeEventListener('pointercancel', onUp)
     }
 
-    window.addEventListener('pointermove', onMove)
-    window.addEventListener('pointerup', onUp)
+    target.addEventListener('pointermove', onMove)
+    target.addEventListener('pointerup', onUp)
+    target.addEventListener('pointercancel', onUp)
   }
 
   const onBodyPointerDown = (e: React.PointerEvent) => {
-    if ((e.target as HTMLElement).closest('[data-sticker-rotate]')) return
+    if (
+      (e.target as HTMLElement).closest(
+        '.sticker-placed__track-hit, .sticker-placed__scrubber-hit',
+      )
+    ) {
+      return
+    }
+
+    const body = bodyRef.current
+    if (!body) return
 
     const wasSelected = selected
     if (!wasSelected) {
       selectSticker(sticker.instanceId)
     }
 
+    const pointerId = e.pointerId
     const startX = e.pageX
     const startY = e.pageY
     let mode: 'tap' | 'move' = 'tap'
 
+    body.setPointerCapture(pointerId)
+
+    const end = (ev: PointerEvent) => {
+      if (ev.pointerId !== pointerId) return
+
+      const dx = ev.pageX - startX
+      const dy = ev.pageY - startY
+      if (mode === 'tap' && Math.hypot(dx, dy) < MOVE_THRESHOLD && wasSelected) {
+        selectSticker(null)
+      }
+
+      if (body.hasPointerCapture(pointerId)) {
+        body.releasePointerCapture(pointerId)
+      }
+      body.removeEventListener('pointermove', onMove)
+      body.removeEventListener('pointerup', end)
+      body.removeEventListener('pointercancel', end)
+    }
+
     const onMove = (ev: PointerEvent) => {
+      if (ev.pointerId !== pointerId) return
       const dx = ev.pageX - startX
       const dy = ev.pageY - startY
       if (mode === 'tap' && Math.hypot(dx, dy) >= MOVE_THRESHOLD) {
@@ -140,18 +185,9 @@ export function PlacedStickerControl({ sticker }: Props) {
       }
     }
 
-    const onUp = (ev: PointerEvent) => {
-      const dx = ev.pageX - startX
-      const dy = ev.pageY - startY
-      if (mode === 'tap' && Math.hypot(dx, dy) < MOVE_THRESHOLD && wasSelected) {
-        selectSticker(null)
-      }
-      window.removeEventListener('pointermove', onMove)
-      window.removeEventListener('pointerup', onUp)
-    }
-
-    window.addEventListener('pointermove', onMove)
-    window.addEventListener('pointerup', onUp)
+    body.addEventListener('pointermove', onMove)
+    body.addEventListener('pointerup', end)
+    body.addEventListener('pointercancel', end)
   }
 
   const ring = lockedRing
@@ -168,7 +204,16 @@ export function PlacedStickerControl({ sticker }: Props) {
         ref={bodyRef}
         role="button"
         tabIndex={0}
-        className="sticker-placed__body"
+        className={`sticker-placed__body${selected && ring ? ' sticker-placed__body--with-ring' : ''}`}
+        style={
+          selected && ring
+            ? ({
+                ['--ring-size' as string]: `${ring.ringSize}px`,
+                width: ring.ringSize,
+                height: ring.ringSize,
+              } as React.CSSProperties)
+            : undefined
+        }
         aria-label={
           selected
             ? `${sticker.alt}, selected. Drag sticker to move, drag ring or dot to rotate, click to set.`
@@ -188,7 +233,6 @@ export function PlacedStickerControl({ sticker }: Props) {
           <div
             className="sticker-placed__rotate-track"
             data-sticker-rotate
-            style={{ width: ring.ringSize, height: ring.ringSize }}
             aria-hidden
           >
             <svg
@@ -218,19 +262,20 @@ export function PlacedStickerControl({ sticker }: Props) {
           className="sticker-placed__rotator"
           style={{ transform: `rotate(${sticker.rotation}deg)` }}
         >
-          <Sticker
-            src={sticker.src}
-            alt={sticker.alt}
-            assetId={sticker.assetId}
-            size="placed"
-            rotation={0}
-            selected={selected}
-          />
+          <div className="sticker-placed__sticker-center">
+            <Sticker
+              src={sticker.src}
+              alt={sticker.alt}
+              assetId={sticker.assetId}
+              size="placed"
+              rotation={0}
+              selected={selected}
+            />
+          </div>
           {selected && ring && (
             <div
               className="sticker-placed__scrubber-mount"
               data-sticker-rotate
-              style={{ width: ring.ringSize, height: ring.ringSize }}
               aria-hidden
             >
               <svg
