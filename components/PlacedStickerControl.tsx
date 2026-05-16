@@ -30,6 +30,10 @@ interface LockedRing {
   trackR: number
   cx: number
   cy: number
+  bodyW: number
+  bodyH: number
+  artOffsetX: number
+  artOffsetY: number
 }
 
 interface Props {
@@ -45,7 +49,6 @@ export function PlacedStickerControl({ sticker }: Props) {
   const bodyRef = useRef<HTMLDivElement>(null)
   const [lockedRing, setLockedRing] = useState<LockedRing | null>(null)
 
-  // Lock ring dimensions once when selected — never tied to rotated bounding box.
   useLayoutEffect(() => {
     if (!selected) {
       setLockedRing(null)
@@ -81,8 +84,12 @@ export function PlacedStickerControl({ sticker }: Props) {
       setLockedRing({
         ringSize,
         trackR,
-        cx: ringSize / 2 - artOffsetX,
-        cy: ringSize / 2 - artOffsetY,
+        cx: ringSize / 2,
+        cy: ringSize / 2,
+        bodyW: w,
+        bodyH: h,
+        artOffsetX,
+        artOffsetY,
       })
     }
 
@@ -106,7 +113,14 @@ export function PlacedStickerControl({ sticker }: Props) {
     const target = e.currentTarget as SVGElement
     const pointerId = e.pointerId
     const s = stickerRef.current
-    const startRotation = rotationFromPointer(s.x, s.y, e.pageX, e.pageY)
+    const offX = lockedRing?.artOffsetX ?? 0
+    const offY = lockedRing?.artOffsetY ?? 0
+    const startRotation = rotationFromPointer(
+      s.x - offX,
+      s.y - offY,
+      e.pageX,
+      e.pageY,
+    )
     const angleOffset = startRotation - s.rotation
 
     target.setPointerCapture(pointerId)
@@ -114,7 +128,9 @@ export function PlacedStickerControl({ sticker }: Props) {
     const onMove = (ev: PointerEvent) => {
       if (ev.pointerId !== pointerId) return
       const cur = stickerRef.current
-      const next = rotationFromPointer(cur.x, cur.y, ev.pageX, ev.pageY) - angleOffset
+      const next =
+        rotationFromPointer(cur.x - offX, cur.y - offY, ev.pageX, ev.pageY) -
+        angleOffset
       const rotation = Math.round(next * 10) / 10
       updatePlaced(cur.instanceId, { rotation })
     }
@@ -198,9 +214,17 @@ export function PlacedStickerControl({ sticker }: Props) {
   const ring = lockedRing
   const scrubberX = ring ? ring.cx : 0
   const scrubberY = ring ? ring.cy - ring.trackR : 0
-  const rotatorTransform = selected
-    ? `translateY(-5px) rotate(${sticker.rotation}deg) scale(1.02)`
-    : `rotate(${sticker.rotation}deg)`
+  const bodyStyle =
+    selected && ring
+      ? ({
+          width: ring.bodyW,
+          height: ring.bodyH,
+          ['--ring-size' as string]: `${ring.ringSize}px`,
+          ['--art-offset-x' as string]: `${ring.artOffsetX}px`,
+          ['--art-offset-y' as string]: `${ring.artOffsetY}px`,
+        } as React.CSSProperties)
+      : undefined
+  const rotatorTransform = `rotate(${sticker.rotation}deg)`
 
   return (
     <div
@@ -213,6 +237,7 @@ export function PlacedStickerControl({ sticker }: Props) {
         role="button"
         tabIndex={0}
         className="sticker-placed__body"
+        style={bodyStyle}
         aria-label={
           selected
             ? `${sticker.alt}, selected. Drag sticker to move, drag ring or dot to rotate, click to set.`
@@ -230,13 +255,12 @@ export function PlacedStickerControl({ sticker }: Props) {
       >
         {selected && ring && (
           <div
-            className="sticker-placed__ring-stage"
+            className="sticker-placed__ring-stage sticker-placed__ring-stage--track"
             style={{ width: ring.ringSize, height: ring.ringSize }}
             aria-hidden
           >
-            <div className="sticker-placed__rotate-track" data-sticker-rotate>
-              <svg
-                className="sticker-placed__track-svg"
+            <svg
+              className="sticker-placed__ring-svg"
               width={ring.ringSize}
               height={ring.ringSize}
               viewBox={`0 0 ${ring.ringSize} ${ring.ringSize}`}
@@ -255,11 +279,35 @@ export function PlacedStickerControl({ sticker }: Props) {
                 r={ring.trackR}
                 pointerEvents="none"
               />
-              </svg>
+            </svg>
+          </div>
+        )}
+        <div
+          className="sticker-placed__rotator"
+          style={{ transform: rotatorTransform }}
+        >
+          <div className="sticker-placed__sticker-center">
+            <div
+              className={`sticker-placed__art${selected ? ' sticker-placed__art--lifted' : ''}`}
+            >
+              <Sticker
+                src={sticker.src}
+                alt={sticker.alt}
+                assetId={sticker.assetId}
+                size="placed"
+                rotation={0}
+                selected={selected}
+              />
             </div>
-            <div className="sticker-placed__scrubber-mount" data-sticker-rotate>
+          </div>
+          {selected && ring && (
+            <div
+              className="sticker-placed__scrubber-mount"
+              data-sticker-rotate
+              aria-hidden
+            >
               <svg
-                className="sticker-placed__track-svg"
+                className="sticker-placed__ring-svg"
                 width={ring.ringSize}
                 height={ring.ringSize}
                 viewBox={`0 0 ${ring.ringSize} ${ring.ringSize}`}
@@ -287,20 +335,7 @@ export function PlacedStickerControl({ sticker }: Props) {
                 />
               </svg>
             </div>
-          </div>
-        )}
-        <div
-          className="sticker-placed__rotator"
-          style={{ transform: rotatorTransform }}
-        >
-          <Sticker
-            src={sticker.src}
-            alt={sticker.alt}
-            assetId={sticker.assetId}
-            size="placed"
-            rotation={0}
-            selected={selected}
-          />
+          )}
         </div>
       </div>
     </div>
