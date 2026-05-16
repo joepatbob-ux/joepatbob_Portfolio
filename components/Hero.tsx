@@ -7,8 +7,9 @@ import { useHandedness } from '@/components/HandednessProvider'
 
 // Hero = one dynamic viewport tall (dvh avoids mobile 100vh drift). Breaks out
 // of .content-area to full viewport width; `.hero-portrait` uses contain (desktop)
-// and cover (≤767px) via globals.css, with `--left|--right` anchor. Phone: swipe hero
-// left/right toggles handedness; `.hero-mobile-scrim` is a subtle veil over the portrait for copy contrast.
+// and cover (≤767px) via globals.css, with `--left|--right` anchor. At the mobile
+// breakpoint, landscape orientation sets initial handedness until the first swipe; swipe hero left/right toggles
+// and persists. `.hero-mobile-scrim` is a subtle veil over the portrait for copy contrast.
 // Canvas color comes from `<html>` (see ThemeProvider + `lib/hero-canvas`).
 
 const PORTRAIT_LIGHT = '/images/PortraitLight_MG_3496.jpg'
