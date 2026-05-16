@@ -30,8 +30,6 @@ interface LockedRing {
   trackR: number
   cx: number
   cy: number
-  artOffsetX: number
-  artOffsetY: number
 }
 
 interface Props {
@@ -78,13 +76,13 @@ export function PlacedStickerControl({ sticker }: Props) {
         2 * (trackR + TRACK_STROKE_PX / 2 + SCRUBBER_R_PX),
       )
 
+      const artOffsetX = optical?.offsetX ?? 0
+      const artOffsetY = optical?.offsetY ?? 0
       setLockedRing({
         ringSize,
         trackR,
-        cx: ringSize / 2,
-        cy: ringSize / 2,
-        artOffsetX: optical?.offsetX ?? 0,
-        artOffsetY: optical?.offsetY ?? 0,
+        cx: ringSize / 2 - artOffsetX,
+        cy: ringSize / 2 - artOffsetY,
       })
     }
 
@@ -200,6 +198,9 @@ export function PlacedStickerControl({ sticker }: Props) {
   const ring = lockedRing
   const scrubberX = ring ? ring.cx : 0
   const scrubberY = ring ? ring.cy - ring.trackR : 0
+  const rotatorTransform = selected
+    ? `translateY(-5px) rotate(${sticker.rotation}deg) scale(1.02)`
+    : `rotate(${sticker.rotation}deg)`
 
   return (
     <div
@@ -211,18 +212,7 @@ export function PlacedStickerControl({ sticker }: Props) {
         ref={bodyRef}
         role="button"
         tabIndex={0}
-        className={`sticker-placed__body${selected && ring ? ' sticker-placed__body--with-ring' : ''}`}
-        style={
-          selected && ring
-            ? ({
-                ['--ring-size' as string]: `${ring.ringSize}px`,
-                ['--art-offset-x' as string]: `${ring.artOffsetX}px`,
-                ['--art-offset-y' as string]: `${ring.artOffsetY}px`,
-                width: ring.ringSize,
-                height: ring.ringSize,
-              } as React.CSSProperties)
-            : undefined
-        }
+        className="sticker-placed__body"
         aria-label={
           selected
             ? `${sticker.alt}, selected. Drag sticker to move, drag ring or dot to rotate, click to set.`
@@ -240,12 +230,13 @@ export function PlacedStickerControl({ sticker }: Props) {
       >
         {selected && ring && (
           <div
-            className="sticker-placed__rotate-track"
-            data-sticker-rotate
+            className="sticker-placed__ring-stage"
+            style={{ width: ring.ringSize, height: ring.ringSize }}
             aria-hidden
           >
-            <svg
-              className="sticker-placed__track-svg"
+            <div className="sticker-placed__rotate-track" data-sticker-rotate>
+              <svg
+                className="sticker-placed__track-svg"
               width={ring.ringSize}
               height={ring.ringSize}
               viewBox={`0 0 ${ring.ringSize} ${ring.ringSize}`}
@@ -264,29 +255,9 @@ export function PlacedStickerControl({ sticker }: Props) {
                 r={ring.trackR}
                 pointerEvents="none"
               />
-            </svg>
-          </div>
-        )}
-        <div
-          className="sticker-placed__rotator"
-          style={{ transform: `rotate(${sticker.rotation}deg)` }}
-        >
-          <div className="sticker-placed__sticker-center">
-            <Sticker
-              src={sticker.src}
-              alt={sticker.alt}
-              assetId={sticker.assetId}
-              size="placed"
-              rotation={0}
-              selected={selected}
-            />
-          </div>
-          {selected && ring && (
-            <div
-              className="sticker-placed__scrubber-mount"
-              data-sticker-rotate
-              aria-hidden
-            >
+              </svg>
+            </div>
+            <div className="sticker-placed__scrubber-mount" data-sticker-rotate>
               <svg
                 className="sticker-placed__track-svg"
                 width={ring.ringSize}
@@ -316,7 +287,20 @@ export function PlacedStickerControl({ sticker }: Props) {
                 />
               </svg>
             </div>
-          )}
+          </div>
+        )}
+        <div
+          className="sticker-placed__rotator"
+          style={{ transform: rotatorTransform }}
+        >
+          <Sticker
+            src={sticker.src}
+            alt={sticker.alt}
+            assetId={sticker.assetId}
+            size="placed"
+            rotation={0}
+            selected={selected}
+          />
         </div>
       </div>
     </div>
