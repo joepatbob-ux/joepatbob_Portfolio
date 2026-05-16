@@ -7,15 +7,21 @@ import { useStickers } from '@/components/StickerProvider'
 import { STICKER_SIZE_PLACED, stickerHeight } from '@/lib/stickers'
 
 const MOVE_THRESHOLD = 8
-/** Track circle radius: sticker circumradius + this offset (px). */
-const TRACK_GAP_PX = 8
+/** Maps pointer atan2 (0° = east) to sticker rotation (0° = dot at top). */
+const POINTER_TO_ROTATION = 90
+/** Negative = track band overlaps sticker edge (sits under art via z-index). */
+const TRACK_INSET_PX = -6
 const TRACK_STROKE_PX = 16
 const SCRUBBER_R_PX = 14
 const SCRUBBER_CENTER_R_PX = 5
 const SCRUBBER_HIT_R_PX = 28
 
-function angleFromCenter(cx: number, cy: number, px: number, py: number): number {
+function pointerAngleDeg(cx: number, cy: number, px: number, py: number): number {
   return (Math.atan2(py - cy, px - cx) * 180) / Math.PI
+}
+
+function rotationFromPointer(cx: number, cy: number, px: number, py: number): number {
+  return pointerAngleDeg(cx, cy, px, py) + POINTER_TO_ROTATION
 }
 
 interface LockedRing {
@@ -51,7 +57,6 @@ export function PlacedStickerControl({ sticker }: Props) {
     if (!img) return
 
     const lockFromImage = () => {
-      // Use intrinsic height + aspect only — never layout box (changes when rotated).
       const h = stickerHeight(STICKER_SIZE_PLACED, sticker.assetId)
       const aspect =
         img.naturalWidth > 0 && img.naturalHeight > 0
@@ -59,7 +64,7 @@ export function PlacedStickerControl({ sticker }: Props) {
           : 1
       const w = h * aspect
       const stickerOuterR = Math.hypot(w, h) / 2
-      const trackR = stickerOuterR + TRACK_GAP_PX
+      const trackR = stickerOuterR + TRACK_INSET_PX + TRACK_STROKE_PX / 2
       const ringSize = Math.ceil(
         2 * (trackR + TRACK_STROKE_PX / 2 + SCRUBBER_R_PX),
       )
@@ -90,13 +95,13 @@ export function PlacedStickerControl({ sticker }: Props) {
     selectSticker(sticker.instanceId)
 
     const s = stickerRef.current
-    const pointerAngle = angleFromCenter(s.x, s.y, e.pageX, e.pageY)
-    const angleOffset = pointerAngle - s.rotation
+    const startRotation = rotationFromPointer(s.x, s.y, e.pageX, e.pageY)
+    const angleOffset = startRotation - s.rotation
 
     const onMove = (ev: PointerEvent) => {
       const cur = stickerRef.current
-      const angle = angleFromCenter(cur.x, cur.y, ev.pageX, ev.pageY)
-      const rotation = Math.round((angle - angleOffset) * 10) / 10
+      const next = rotationFromPointer(cur.x, cur.y, ev.pageX, ev.pageY) - angleOffset
+      const rotation = Math.round(next * 10) / 10
       updatePlaced(cur.instanceId, { rotation })
     }
 
@@ -150,11 +155,8 @@ export function PlacedStickerControl({ sticker }: Props) {
   }
 
   const ring = lockedRing
-  const dotAngle = ring
-    ? ((sticker.rotation - 90) * Math.PI) / 180
-    : 0
-  const dotX = ring ? ring.cx + ring.trackR * Math.cos(dotAngle) : 0
-  const dotY = ring ? ring.cy + ring.trackR * Math.sin(dotAngle) : 0
+  const scrubberX = ring ? ring.cx : 0
+  const scrubberY = ring ? ring.cy - ring.trackR : 0
 
   return (
     <div
@@ -212,51 +214,56 @@ export function PlacedStickerControl({ sticker }: Props) {
             </svg>
           </div>
         )}
-        <Sticker
-          src={sticker.src}
-          alt={sticker.alt}
-          assetId={sticker.assetId}
-          size="placed"
-          rotation={sticker.rotation}
-          selected={selected}
-        />
-        {selected && ring && (
-          <div
-            className="sticker-placed__rotate-scrubber"
-            data-sticker-rotate
-            style={{ width: ring.ringSize, height: ring.ringSize }}
-            aria-hidden
-          >
-            <svg
-              className="sticker-placed__track-svg"
-              width={ring.ringSize}
-              height={ring.ringSize}
-              viewBox={`0 0 ${ring.ringSize} ${ring.ringSize}`}
+        <div
+          className="sticker-placed__rotator"
+          style={{ transform: `rotate(${sticker.rotation}deg)` }}
+        >
+          <Sticker
+            src={sticker.src}
+            alt={sticker.alt}
+            assetId={sticker.assetId}
+            size="placed"
+            rotation={0}
+            selected={selected}
+          />
+          {selected && ring && (
+            <div
+              className="sticker-placed__scrubber-mount"
+              data-sticker-rotate
+              style={{ width: ring.ringSize, height: ring.ringSize }}
+              aria-hidden
             >
-              <circle
-                className="sticker-placed__scrubber-hit"
-                cx={dotX}
-                cy={dotY}
-                r={SCRUBBER_HIT_R_PX}
-                onPointerDown={startRotateScrub}
-              />
-              <circle
-                className="sticker-placed__scrubber"
-                cx={dotX}
-                cy={dotY}
-                r={SCRUBBER_R_PX}
-                pointerEvents="none"
-              />
-              <circle
-                className="sticker-placed__scrubber-center"
-                cx={dotX}
-                cy={dotY}
-                r={SCRUBBER_CENTER_R_PX}
-                pointerEvents="none"
-              />
-            </svg>
-          </div>
-        )}
+              <svg
+                className="sticker-placed__track-svg"
+                width={ring.ringSize}
+                height={ring.ringSize}
+                viewBox={`0 0 ${ring.ringSize} ${ring.ringSize}`}
+              >
+                <circle
+                  className="sticker-placed__scrubber-hit"
+                  cx={scrubberX}
+                  cy={scrubberY}
+                  r={SCRUBBER_HIT_R_PX}
+                  onPointerDown={startRotateScrub}
+                />
+                <circle
+                  className="sticker-placed__scrubber"
+                  cx={scrubberX}
+                  cy={scrubberY}
+                  r={SCRUBBER_R_PX}
+                  pointerEvents="none"
+                />
+                <circle
+                  className="sticker-placed__scrubber-center"
+                  cx={scrubberX}
+                  cy={scrubberY}
+                  r={SCRUBBER_CENTER_R_PX}
+                  pointerEvents="none"
+                />
+              </svg>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )

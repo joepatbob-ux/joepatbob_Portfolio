@@ -81,25 +81,60 @@ export function uniqueStickerDeck(assets: StickerAsset[]): StickerAsset[] {
   })
 }
 
-/**
- * Pile order: STICKER_ASSETS[0] on top (grab first), last asset on bottom.
- * Preserves saved deck order when restoring; appends any missing in catalog order.
- */
-export function buildOrderedDeck(
-  placedAssetIds: Set<string>,
-  savedDeckIds?: string[],
-): StickerAsset[] {
-  if (savedDeckIds?.length) {
-    const byId = new Map(STICKER_ASSETS.map((s) => [s.id, s]))
-    const fromSaved = savedDeckIds
-      .map((id) => byId.get(id))
-      .filter((s): s is StickerAsset => s != null && !placedAssetIds.has(s.id))
-    const inDeck = new Set(fromSaved.map((s) => s.id))
-    const missing = STICKER_ASSETS.filter(
-      (a) => !placedAssetIds.has(a.id) && !inDeck.has(a.id),
-    )
-    return uniqueStickerDeck([...fromSaved, ...missing])
+/** Fisher–Yates shuffle; index 0 is the top of the pile. */
+export function shuffleStickerDeck(assets: StickerAsset[]): StickerAsset[] {
+  const deck = [...assets]
+  for (let i = deck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    const tmp = deck[i]
+    deck[i] = deck[j]
+    deck[j] = tmp
   }
+  return deck
+}
 
-  return STICKER_ASSETS.filter((a) => !placedAssetIds.has(a.id))
+/** deck[0] is the top of the pile (grab first). */
+export function createShuffledDeck(placedAssetIds: Set<string>): StickerAsset[] {
+  const available = STICKER_ASSETS.filter((a) => !placedAssetIds.has(a.id))
+  return shuffleStickerDeck(available)
+}
+
+/** Restore pile order from saved ids (top first); shuffles any catalog additions. */
+export function deckFromOrderedIds(
+  orderedIds: string[],
+  placedAssetIds: Set<string>,
+): StickerAsset[] {
+  const byId = new Map(STICKER_ASSETS.map((s) => [s.id, s]))
+  const fromSaved = orderedIds
+    .map((id) => byId.get(id))
+    .filter((s): s is StickerAsset => s != null && !placedAssetIds.has(s.id))
+  const inDeck = new Set(fromSaved.map((s) => s.id))
+  const missing = STICKER_ASSETS.filter(
+    (a) => !placedAssetIds.has(a.id) && !inDeck.has(a.id),
+  )
+  return uniqueStickerDeck([...fromSaved, ...shuffleStickerDeck(missing)])
+}
+
+export const STICKER_DECK_ORDER_KEY = 'joepatbob-sticker-deck-order-v1'
+
+export function readStoredDeckIds(): string[] | null {
+  if (typeof window === 'undefined') return null
+  try {
+    const raw = window.sessionStorage.getItem(STICKER_DECK_ORDER_KEY)
+    if (!raw) return null
+    const parsed = JSON.parse(raw) as unknown
+    if (!Array.isArray(parsed)) return null
+    return parsed.filter((id): id is string => typeof id === 'string')
+  } catch {
+    return null
+  }
+}
+
+export function writeStoredDeckIds(ids: string[]): void {
+  if (typeof window === 'undefined') return
+  try {
+    window.sessionStorage.setItem(STICKER_DECK_ORDER_KEY, JSON.stringify(ids))
+  } catch {
+    /* ignore */
+  }
 }

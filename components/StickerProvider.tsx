@@ -11,8 +11,11 @@ import {
   type ReactNode,
 } from 'react'
 import {
-  buildOrderedDeck,
+  createShuffledDeck,
+  deckFromOrderedIds,
+  readStoredDeckIds,
   uniqueStickerDeck,
+  writeStoredDeckIds,
   type StickerAsset,
 } from '@/lib/stickers'
 
@@ -36,6 +39,7 @@ export interface ActiveDrag {
 
 interface StickerContextValue {
   deck: StickerAsset[]
+  deckReady: boolean
   placed: PlacedSticker[]
   selectedInstanceId: string | null
   activeDrag: ActiveDrag | null
@@ -75,9 +79,8 @@ function nextInstanceId(): string {
 }
 
 export function StickerProvider({ children }: { children: ReactNode }) {
-  const [deck, setDeck] = useState<StickerAsset[]>(() =>
-    buildOrderedDeck(new Set()),
-  )
+  const [deck, setDeck] = useState<StickerAsset[]>([])
+  const [deckReady, setDeckReady] = useState(false)
   const [placed, setPlaced] = useState<PlacedSticker[]>([])
   const [selectedInstanceId, setSelectedInstanceId] = useState<string | null>(
     null,
@@ -93,6 +96,13 @@ export function StickerProvider({ children }: { children: ReactNode }) {
   } | null>(null)
   const deckRef = useRef(deck)
   deckRef.current = deck
+  const deckInitRef = useRef(false)
+
+  const commitDeck = useCallback((next: StickerAsset[]) => {
+    const deckNext = uniqueStickerDeck(next)
+    setDeck(deckNext)
+    writeStoredDeckIds(deckNext.map((s) => s.id))
+  }, [])
 
   useEffect(() => {
     for (const key of LEGACY_STORAGE_KEYS) {
@@ -103,6 +113,20 @@ export function StickerProvider({ children }: { children: ReactNode }) {
       }
     }
   }, [])
+
+  useEffect(() => {
+    if (deckInitRef.current) return
+    deckInitRef.current = true
+
+    const placedIds = new Set<string>()
+    const stored = readStoredDeckIds()
+    const next = stored?.length
+      ? deckFromOrderedIds(stored, placedIds)
+      : createShuffledDeck(placedIds)
+
+    commitDeck(next)
+    setDeckReady(true)
+  }, [commitDeck])
 
   const selectSticker = useCallback((instanceId: string | null) => {
     setSelectedInstanceId(instanceId)
@@ -160,12 +184,12 @@ export function StickerProvider({ children }: { children: ReactNode }) {
     setSelectedInstanceId(instanceId)
 
     if (drag.fromPile) {
-      setDeck((prev) => uniqueStickerDeck(prev.filter((s) => s.id !== drag.asset.id)))
+      commitDeck(deckRef.current.filter((s) => s.id !== drag.asset.id))
     }
 
     dragRef.current = null
     setActiveDrag(null)
-  }, [])
+  }, [commitDeck])
 
   const cancelDrag = useCallback(() => {
     dragRef.current = null
@@ -175,6 +199,7 @@ export function StickerProvider({ children }: { children: ReactNode }) {
   const value = useMemo(
     () => ({
       deck,
+      deckReady,
       placed,
       selectedInstanceId,
       activeDrag,
@@ -187,6 +212,7 @@ export function StickerProvider({ children }: { children: ReactNode }) {
     }),
     [
       deck,
+      deckReady,
       placed,
       selectedInstanceId,
       activeDrag,

@@ -662,26 +662,29 @@
   filter: none;
 }
 
-.sticker-placed__rotate-track,
-.sticker-placed__rotate-scrubber {
+.sticker-placed__rotate-track {
   position: absolute;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
   pointer-events: none;
   flex-shrink: 0;
-}
-
-.sticker-placed__rotate-track {
   z-index: 0;
 }
 
-.sticker-placed--selected .sticker-placed__body > .sticker {
+.sticker-placed__rotator {
   position: relative;
   z-index: 1;
+  display: inline-block;
+  transform-origin: center center;
 }
 
-.sticker-placed__rotate-scrubber {
+.sticker-placed__scrubber-mount {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
   z-index: 2;
 }
 
