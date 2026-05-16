@@ -37,6 +37,7 @@ export interface ActiveDrag {
 interface StickerContextValue {
   deck: StickerAsset[]
   placed: PlacedSticker[]
+  selectedInstanceId: string | null
   activeDrag: ActiveDrag | null
   beginDragFromPile: (
     asset: StickerAsset,
@@ -44,7 +45,11 @@ interface StickerContextValue {
     clientY: number,
     rotation?: number,
   ) => void
-  beginDragPlaced: (instanceId: string, clientX: number, clientY: number) => void
+  selectSticker: (instanceId: string | null) => void
+  updatePlaced: (
+    instanceId: string,
+    patch: Partial<Pick<PlacedSticker, 'x' | 'y' | 'rotation'>>,
+  ) => void
   moveDrag: (clientX: number, clientY: number) => void
   endDrag: (pageX: number, pageY: number) => void
   cancelDrag: () => void
@@ -52,23 +57,12 @@ interface StickerContextValue {
 
 const StickerContext = createContext<StickerContextValue | null>(null)
 
-const STORAGE_KEY = 'joepatbob-stickers-v4'
-
-interface PersistedState {
-  deckIds: string[]
-  placed: PlacedSticker[]
-}
-
-function loadPersisted(): PersistedState | null {
-  if (typeof window === 'undefined') return null
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY)
-    if (!raw) return null
-    return JSON.parse(raw) as PersistedState
-  } catch {
-    return null
-  }
-}
+const LEGACY_STORAGE_KEYS = [
+  'joepatbob-stickers-v1',
+  'joepatbob-stickers-v2',
+  'joepatbob-stickers-v3',
+  'joepatbob-stickers-v4',
+]
 
 function randomRotation(): number {
   return Math.round((Math.random() * 30 - 15) * 10) / 10
@@ -81,8 +75,13 @@ function nextInstanceId(): string {
 }
 
 export function StickerProvider({ children }: { children: ReactNode }) {
-  const [deck, setDeck] = useState<StickerAsset[]>([])
+  const [deck, setDeck] = useState<StickerAsset[]>(() =>
+    buildOrderedDeck(new Set()),
+  )
   const [placed, setPlaced] = useState<PlacedSticker[]>([])
+  const [selectedInstanceId, setSelectedInstanceId] = useState<string | null>(
+    null,
+  )
   const [activeDrag, setActiveDrag] = useState<ActiveDrag | null>(null)
   const dragRef = useRef<{
     instanceId?: string
@@ -92,29 +91,36 @@ export function StickerProvider({ children }: { children: ReactNode }) {
     originX?: number
     originY?: number
   } | null>(null)
-  const hydrated = useRef(false)
   const deckRef = useRef(deck)
   deckRef.current = deck
 
   useEffect(() => {
-    const saved = loadPersisted()
-    const placedStickers = saved?.placed ?? []
-    setPlaced(placedStickers)
-
-    const placedIds = new Set(placedStickers.map((p) => p.assetId))
-    setDeck(buildOrderedDeck(placedIds, saved?.deckIds))
-
-    hydrated.current = true
+    for (const key of LEGACY_STORAGE_KEYS) {
+      try {
+        window.localStorage.removeItem(key)
+      } catch {
+        /* ignore */
+      }
+    }
   }, [])
 
-  useEffect(() => {
-    if (!hydrated.current) return
-    const payload: PersistedState = {
-      deckIds: deck.map((s) => s.id),
-      placed,
-    }
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload))
-  }, [deck, placed])
+  const selectSticker = useCallback((instanceId: string | null) => {
+    setSelectedInstanceId(instanceId)
+  }, [])
+
+  const updatePlaced = useCallback(
+    (
+      instanceId: string,
+      patch: Partial<Pick<PlacedSticker, 'x' | 'y' | 'rotation'>>,
+    ) => {
+      setPlaced((prev) =>
+        prev.map((s) =>
+          s.instanceId === instanceId ? { ...s, ...patch } : s,
+        ),
+      )
+    },
+    [],
+  )
 
   const beginDragFromPile = useCallback(
     (
@@ -124,39 +130,11 @@ export function StickerProvider({ children }: { children: ReactNode }) {
       rotation = randomRotation(),
     ) => {
       if (deckRef.current[0]?.id !== asset.id) return
+      setSelectedInstanceId(null)
       dragRef.current = { fromPile: true, asset, rotation }
       setActiveDrag({ asset, clientX, clientY, rotation, fromPile: true })
     },
     [],
-  )
-
-  const beginDragPlaced = useCallback(
-    (instanceId: string, clientX: number, clientY: number) => {
-      const sticker = placed.find((p) => p.instanceId === instanceId)
-      if (!sticker) return
-      const asset: StickerAsset = {
-        id: sticker.assetId,
-        src: sticker.src,
-        alt: sticker.alt,
-      }
-      dragRef.current = {
-        instanceId,
-        fromPile: false,
-        asset,
-        rotation: sticker.rotation,
-        originX: sticker.x,
-        originY: sticker.y,
-      }
-      setPlaced((prev) => prev.filter((p) => p.instanceId !== instanceId))
-      setActiveDrag({
-        asset,
-        clientX,
-        clientY,
-        rotation: sticker.rotation,
-        fromPile: false,
-      })
-    },
-    [placed],
   )
 
   const moveDrag = useCallback((clientX: number, clientY: number) => {
@@ -167,8 +145,9 @@ export function StickerProvider({ children }: { children: ReactNode }) {
     const drag = dragRef.current
     if (!drag) return
 
+    const instanceId = drag.instanceId ?? nextInstanceId()
     const next: PlacedSticker = {
-      instanceId: drag.instanceId ?? nextInstanceId(),
+      instanceId,
       assetId: drag.asset.id,
       src: drag.asset.src,
       alt: drag.asset.alt,
@@ -178,6 +157,7 @@ export function StickerProvider({ children }: { children: ReactNode }) {
     }
 
     setPlaced((prev) => [...prev, next])
+    setSelectedInstanceId(instanceId)
 
     if (drag.fromPile) {
       setDeck((prev) => uniqueStickerDeck(prev.filter((s) => s.id !== drag.asset.id)))
@@ -188,25 +168,6 @@ export function StickerProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const cancelDrag = useCallback(() => {
-    const drag = dragRef.current
-    if (!drag) return
-
-    if (!drag.fromPile && drag.instanceId) {
-      const { instanceId } = drag
-      setPlaced((prev) => [
-        ...prev,
-        {
-          instanceId,
-          assetId: drag.asset.id,
-          src: drag.asset.src,
-          alt: drag.asset.alt,
-          x: drag.originX ?? 0,
-          y: drag.originY ?? 0,
-          rotation: drag.rotation,
-        },
-      ])
-    }
-
     dragRef.current = null
     setActiveDrag(null)
   }, [])
@@ -215,9 +176,11 @@ export function StickerProvider({ children }: { children: ReactNode }) {
     () => ({
       deck,
       placed,
+      selectedInstanceId,
       activeDrag,
       beginDragFromPile,
-      beginDragPlaced,
+      selectSticker,
+      updatePlaced,
       moveDrag,
       endDrag,
       cancelDrag,
@@ -225,9 +188,11 @@ export function StickerProvider({ children }: { children: ReactNode }) {
     [
       deck,
       placed,
+      selectedInstanceId,
       activeDrag,
       beginDragFromPile,
-      beginDragPlaced,
+      selectSticker,
+      updatePlaced,
       moveDrag,
       endDrag,
       cancelDrag,

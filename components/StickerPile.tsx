@@ -38,7 +38,7 @@ export function StickerPile() {
     <div className="sticker-pile-wrap">
       <p className="sticker-pile__label">Launch swag — grab one</p>
       <p className="sticker-pile__hint">
-        Grab from the top down — each sticker in order. Move placed stickers anytime.
+        Grab from the top down. Tap a sticker to select; drag the ring or dot to rotate.
         {deck.length > 0 && (
           <span className="sticker-pile__count">
             {deck.length} of {STICKER_ASSETS.length} left

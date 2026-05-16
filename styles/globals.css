@@ -621,17 +621,112 @@
   pointer-events: none;
 }
 
-.sticker-layer__placed {
+.sticker-placed {
   position: absolute;
-  margin: 0;
-  padding: 0;
-  border: none;
-  background: transparent;
+  transform: translate(-50%, -50%);
   pointer-events: auto;
   touch-action: none;
-  cursor: grab;
-  transform: translate(-50%, -50%);
   z-index: var(--z-stickers);
+}
+
+.sticker-placed--selected {
+  z-index: calc(var(--z-stickers) + 1);
+}
+
+.sticker-placed__body {
+  position: relative;
+  display: inline-block;
+  line-height: 0;
+  cursor: grab;
+  border: none;
+  background: transparent;
+  padding: 0;
+}
+
+.sticker-placed--selected .sticker-placed__body {
+  cursor: pointer;
+}
+
+/* Accent border hugs sticker alpha (filter on face composite, not a box outline). */
+.sticker--selected .sticker__face {
+  filter:
+    drop-shadow(0 0 0.5px var(--color-accent))
+    drop-shadow(0 0 0.5px var(--color-accent))
+    drop-shadow(0 0 1px var(--color-accent))
+    drop-shadow(0 0 1.5px var(--color-accent))
+    drop-shadow(0 3px 8px rgba(0, 0, 0, 0.12))
+    drop-shadow(0 12px 24px rgba(0, 0, 0, 0.1));
+}
+
+.sticker--selected .sticker__art {
+  filter: none;
+}
+
+.sticker-placed__rotate-track,
+.sticker-placed__rotate-scrubber {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  flex-shrink: 0;
+}
+
+.sticker-placed__rotate-track {
+  z-index: 0;
+}
+
+.sticker-placed--selected .sticker-placed__body > .sticker {
+  position: relative;
+  z-index: 1;
+}
+
+.sticker-placed__rotate-scrubber {
+  z-index: 2;
+}
+
+.sticker-placed__track-svg {
+  display: block;
+  overflow: visible;
+  pointer-events: auto;
+  touch-action: none;
+}
+
+.sticker-placed__track-hit {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 24px;
+  cursor: grab;
+  pointer-events: stroke;
+}
+
+.sticker-placed__track-ring {
+  fill: none;
+  stroke: var(--color-nav-pill-outline);
+  stroke-width: 16px;
+}
+
+.sticker-placed__scrubber-hit {
+  fill: transparent;
+  stroke: none;
+  cursor: grab;
+  pointer-events: all;
+}
+
+.sticker-placed__scrubber {
+  fill: var(--color-accent);
+  stroke: none;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.15));
+}
+
+.sticker-placed__scrubber-center {
+  fill: #fff;
+  stroke: none;
+}
+
+.sticker-placed__track-hit:active,
+.sticker-placed__scrubber-hit:active {
+  cursor: grabbing;
 }
 
 .sticker-layer__drag {
@@ -647,7 +742,13 @@
   z-index: calc(var(--z-stickers) + 1);
 }
 
-.sticker-layer__placed:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 4px;
+.sticker-placed__body:focus-visible {
+  outline: none;
+}
+
+.sticker-placed__body:focus-visible .sticker__face {
+  filter:
+    drop-shadow(0 0 0.5px var(--color-accent))
+    drop-shadow(0 0 1px var(--color-accent))
+    drop-shadow(0 3px 8px rgba(0, 0, 0, 0.1));
 }
