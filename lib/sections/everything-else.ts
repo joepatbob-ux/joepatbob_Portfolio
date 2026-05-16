@@ -9,7 +9,7 @@ export const everythingElse: Section = {
   overviewBody: `Principal Product Designer working at the intersection of hardware and software. Brand-trained. St. Louis-based.
 
 Location: St. Louis, MO · Email: me@joepatbob.com · Patents: 1 awarded · 1 pending`,
-  pullQuote: 'Our job is to do the hard work so users don\'t have to.',
+  pullQuote: 'Our job is to do the hard work\nso users don\'t have to.',
   lessonTitle: 'Direct,\ncollaborative,\nnot precious.',
   lessonBody: `I'm collaborative by nature and direct by preference. I'll push back when I think something is wrong, and I'll document why — but I'm not precious about outcomes. The goal is a better product, not a preserved opinion.
 
@@ -35,9 +35,7 @@ I now design primarily at the intersection of hardware and software — thermost
       id: 'thinking',
       title: 'How I think about design',
       subtitle: 'Form, function, and foolproofing.',
-      body: `"A common mistake that people make when trying to design something completely foolproof is to underestimate the ingenuity of complete fools." — Douglas Adams
-
-I keep that close. Design isn't about imagining an ideal user in an ideal situation. It's about accounting for the full range of people who will actually use what you make — including the ones who will use it in ways you never anticipated.
+      body: `Our job is to do the hard work so users don't have to. I keep that close. Design isn't about imagining an ideal user in an ideal situation. It's about accounting for the full range of people who will actually use what you make — including the ones who will use it in ways you never anticipated.
 
 I think of design as the place where art meets functionality. Form and function aren't in opposition — the best design is where they become indistinguishable.
 
@@ -105,8 +103,7 @@ Inspiring Horizons. Copeland runs an outreach program — volunteering in the co
     },
   ],
   closingQuote: {
-    quote:
-      'A common mistake that people make when trying to design something completely foolproof is to underestimate the ingenuity of complete fools.',
-    attribution: 'Douglas Adams',
+    quote: 'Our job is to do the hard work\nso users don\'t have to.',
+    attribution: 'Joseph Patrick Roberts',
   },
 }
