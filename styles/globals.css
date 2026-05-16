@@ -638,8 +638,14 @@
   cursor: grab;
 }
 
-.sticker-placed__body--with-ring {
-  display: block;
+/* Rotation ring overlays sticker without resizing the hit target. */
+.sticker-placed__ring-stage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 /* Accent border hugs sticker alpha (filter on face composite, not a box outline). */
@@ -671,26 +677,7 @@
   z-index: 1;
   display: inline-block;
   transform-origin: center center;
-}
-
-.sticker-placed__body--with-ring .sticker-placed__rotator {
-  position: absolute;
-  inset: 0;
-  display: block;
-}
-
-.sticker-placed__sticker-center {
-  line-height: 0;
-}
-
-.sticker-placed__body--with-ring .sticker-placed__sticker-center {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(
-    calc(-50% + var(--art-offset-x, 0px)),
-    calc(-50% + var(--art-offset-y, 0px))
-  );
+  transition: transform 0.2s ease;
 }
 
 .sticker-placed__scrubber-mount {
