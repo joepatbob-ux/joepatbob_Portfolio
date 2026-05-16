@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef } from 'react'
+import { PlacedStickerControl } from '@/components/PlacedStickerControl'
 import { Sticker } from '@/components/Sticker'
 import { useStickers } from '@/components/StickerProvider'
 
@@ -15,7 +16,7 @@ export function StickerLayer() {
   const {
     placed,
     activeDrag,
-    beginDragPlaced,
+    selectSticker,
     moveDrag,
     endDrag,
     cancelDrag,
@@ -67,6 +68,22 @@ export function StickerLayer() {
     }
   }, [activeDrag, moveDrag, endDrag, cancelDrag])
 
+  useEffect(() => {
+    const onPointerUp = (e: PointerEvent) => {
+      const target = e.target as HTMLElement
+      if (
+        target.closest(
+          '.sticker-placed, .sticker-pile-wrap, .sticker-pile, .sticker-layer__drag, [data-sticker-rotate]',
+        )
+      ) {
+        return
+      }
+      selectSticker(null)
+    }
+    window.addEventListener('pointerup', onPointerUp)
+    return () => window.removeEventListener('pointerup', onPointerUp)
+  }, [selectSticker])
+
   return (
     <>
       <div
@@ -75,28 +92,7 @@ export function StickerLayer() {
         aria-hidden={placed.length === 0}
       >
         {placed.map((sticker) => (
-          <button
-            key={sticker.instanceId}
-            type="button"
-            className="sticker-layer__placed"
-            style={{
-              left: sticker.x,
-              top: sticker.y,
-            }}
-            aria-label={`Move ${sticker.alt}`}
-            onPointerDown={(e) => {
-              e.preventDefault()
-              beginDragPlaced(sticker.instanceId, e.clientX, e.clientY)
-            }}
-          >
-            <Sticker
-              src={sticker.src}
-              alt={sticker.alt}
-              assetId={sticker.assetId}
-              size="placed"
-              rotation={sticker.rotation}
-            />
-          </button>
+          <PlacedStickerControl key={sticker.instanceId} sticker={sticker} />
         ))}
       </div>
 

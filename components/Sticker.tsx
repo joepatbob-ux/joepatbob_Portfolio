@@ -13,6 +13,7 @@ interface StickerProps {
   size?: 'pile' | 'placed' | 'drag'
   rotation?: number
   elevated?: boolean
+  selected?: boolean
   className?: string
   style?: React.CSSProperties
 }
@@ -24,6 +25,7 @@ export function Sticker({
   size = 'pile',
   rotation = 0,
   elevated = false,
+  selected = false,
   className = '',
   style,
 }: StickerProps) {
@@ -33,7 +35,7 @@ export function Sticker({
 
   return (
     <div
-      className={`sticker ${elevated ? 'sticker--elevated' : ''} ${className}`.trim()}
+      className={`sticker${elevated ? ' sticker--elevated' : ''}${selected ? ' sticker--selected' : ''} ${className}`.trim()}
       style={
         {
           '--sticker-h': `${height}px`,
