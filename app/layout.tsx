@@ -5,6 +5,8 @@ import '../styles/globals.css'
 import { SidebarNav } from '@/components/SidebarNav'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import { HandednessProvider } from '@/components/HandednessProvider'
+import { StickerProvider } from '@/components/StickerProvider'
+import { StickerLayer } from '@/components/StickerLayer'
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ['latin'],
@@ -49,8 +51,11 @@ export default function RootLayout({
       <body>
         <ThemeProvider>
           <HandednessProvider>
-            <SidebarNav />
-            <main className="content-area">{children}</main>
+            <StickerProvider>
+              <SidebarNav />
+              <main className="content-area">{children}</main>
+              <StickerLayer />
+            </StickerProvider>
           </HandednessProvider>
         </ThemeProvider>
       </body>
