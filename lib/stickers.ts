@@ -61,7 +61,7 @@ export function stickerHeight(base: number, id: string): number {
 /** Fan offset for a card in the pile (0 = top, total - 1 = bottom). */
 export function pileStackOffset(indexFromTop: number, total: number): { x: number; y: number } {
   if (total <= 1) return { x: 0, y: 0 }
-  const depth = (total - 1 - indexFromTop) / (total - 1)
+  const depth = indexFromTop / (total - 1)
   return {
     x: Math.round(14 * depth),
     y: Math.round(11 * depth),
