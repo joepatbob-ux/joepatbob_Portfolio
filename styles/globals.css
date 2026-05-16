@@ -596,10 +596,6 @@
   outline-offset: 6px;
 }
 
-.sticker-pile__card--dragging {
-  opacity: 0.35;
-}
-
 .sticker-pile__card:disabled {
   cursor: default;
 }
@@ -626,11 +622,6 @@
   transform: translate(-50%, -50%);
   pointer-events: auto;
   touch-action: none;
-  z-index: var(--z-stickers);
-}
-
-.sticker-placed--selected {
-  z-index: calc(var(--z-stickers) + 1);
 }
 
 .sticker-placed__body {
@@ -769,7 +760,7 @@
   touch-action: none;
   cursor: grabbing;
   transform: translate(-50%, -50%);
-  z-index: calc(var(--z-stickers) + 1);
+  z-index: calc(var(--z-stickers) + 50);
 }
 
 .sticker-placed__body:focus-visible {

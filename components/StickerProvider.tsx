@@ -19,6 +19,9 @@ import {
   type StickerAsset,
 } from '@/lib/stickers'
 
+/** Matches --z-stickers in globals.css */
+export const STICKER_Z_BASE = 105
+
 export interface PlacedSticker {
   instanceId: string
   assetId: string
@@ -27,6 +30,7 @@ export interface PlacedSticker {
   x: number
   y: number
   rotation: number
+  zIndex: number
 }
 
 export interface ActiveDrag {
@@ -70,6 +74,21 @@ const LEGACY_STORAGE_KEYS = [
 
 function randomRotation(): number {
   return Math.round((Math.random() * 30 - 15) * 10) / 10
+}
+
+function stackTopZ(placed: PlacedSticker[]): number {
+  if (placed.length === 0) return STICKER_Z_BASE
+  return Math.max(STICKER_Z_BASE, ...placed.map((s) => s.zIndex))
+}
+
+function withStickerOnTop(
+  placed: PlacedSticker[],
+  instanceId: string,
+  zIndex: number,
+): PlacedSticker[] {
+  return placed.map((s) =>
+    s.instanceId === instanceId ? { ...s, zIndex } : s,
+  )
 }
 
 let instanceCounter = 0
@@ -130,6 +149,11 @@ export function StickerProvider({ children }: { children: ReactNode }) {
 
   const selectSticker = useCallback((instanceId: string | null) => {
     setSelectedInstanceId(instanceId)
+    if (instanceId) {
+      setPlaced((prev) =>
+        withStickerOnTop(prev, instanceId, stackTopZ(prev) + 1),
+      )
+    }
   }, [])
 
   const updatePlaced = useCallback(
@@ -170,17 +194,19 @@ export function StickerProvider({ children }: { children: ReactNode }) {
     if (!drag) return
 
     const instanceId = drag.instanceId ?? nextInstanceId()
-    const next: PlacedSticker = {
-      instanceId,
-      assetId: drag.asset.id,
-      src: drag.asset.src,
-      alt: drag.asset.alt,
-      x: pageX,
-      y: pageY,
-      rotation: drag.rotation,
-    }
-
-    setPlaced((prev) => [...prev, next])
+    setPlaced((prev) => {
+      const next: PlacedSticker = {
+        instanceId,
+        assetId: drag.asset.id,
+        src: drag.asset.src,
+        alt: drag.asset.alt,
+        x: pageX,
+        y: pageY,
+        rotation: drag.rotation,
+        zIndex: stackTopZ(prev) + 1,
+      }
+      return [...prev, next]
+    })
     setSelectedInstanceId(instanceId)
 
     if (drag.fromPile) {

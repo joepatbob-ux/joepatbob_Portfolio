@@ -31,6 +31,7 @@ export function StickerPile() {
 
   const isDraggingTop =
     activeDrag?.fromPile && top && activeDrag.asset.id === top.id
+  const pileCards = isDraggingTop ? visible.slice(1) : visible
 
   const pileSize = STICKER_SIZE_PILE + 48
 
@@ -52,21 +53,21 @@ export function StickerPile() {
         style={{ width: pileSize, height: pileSize }}
         aria-label="Sticker stack"
       >
-        {!deckReady ? null : visible.length === 0 ? (
+        {!deckReady ? null : pileCards.length === 0 ? (
           <p className="sticker-pile__empty">Stack&apos;s empty — refresh to restock.</p>
         ) : (
-          [...visible].reverse().map((asset, reverseIndex) => {
-            const indexFromTop = visible.length - 1 - reverseIndex
+          [...pileCards].reverse().map((asset, reverseIndex) => {
+            const indexFromTop = pileCards.length - 1 - reverseIndex
             const isTop = indexFromTop === 0
-            const layout = pileStackOffset(indexFromTop, visible.length)
+            const layout = pileStackOffset(indexFromTop, pileCards.length)
             const rotation = rotationFor(asset.id)
 
             const cardClass = `sticker-pile__card${
               isTop ? ' sticker-pile__card--top' : ' sticker-pile__card--under'
-            }${isTop && isDraggingTop ? ' sticker-pile__card--dragging' : ''}`
+            }`
 
             const cardStyle = {
-              zIndex: visible.length - indexFromTop,
+              zIndex: pileCards.length - indexFromTop,
               ['--stack-x' as string]: `${layout.x}px`,
               ['--stack-y' as string]: `${layout.y}px`,
             }

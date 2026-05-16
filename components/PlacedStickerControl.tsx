@@ -204,7 +204,7 @@ export function PlacedStickerControl({ sticker }: Props) {
   return (
     <div
       className={`sticker-placed${selected ? ' sticker-placed--selected' : ''}`}
-      style={{ left: sticker.x, top: sticker.y }}
+      style={{ left: sticker.x, top: sticker.y, zIndex: sticker.zIndex }}
       onPointerDown={stopBubble}
     >
       <div
