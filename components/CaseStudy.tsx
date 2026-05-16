@@ -104,6 +104,7 @@ export function CaseStudy({ section, sectionId }: Props) {
           flex: '1 1 280px',
           minWidth: 0,
           maxWidth: '100%',
+          whiteSpace: 'pre-line',
         }}>
           "{section.pullQuote}"
         </blockquote>

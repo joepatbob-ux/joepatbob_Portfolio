@@ -386,6 +386,7 @@
   line-height: 1.45;
   letter-spacing: -0.01em;
   color: var(--color-ink);
+  white-space: pre-line;
 }
 
 .closing-quote__attr {
