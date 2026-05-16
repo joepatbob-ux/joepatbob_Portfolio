@@ -646,7 +646,22 @@
   top: 50%;
   transform: translate(-50%, -50%);
   pointer-events: none;
+  overflow: visible;
+}
+
+.sticker-placed__ring-stage--track {
   z-index: 0;
+}
+
+.sticker-placed__ring-svg {
+  display: block;
+  overflow: visible;
+  touch-action: none;
+  pointer-events: none;
+}
+
+.sticker-placed__ring-stage--track .sticker-placed__track-hit {
+  pointer-events: stroke;
 }
 
 /* Accent border hugs sticker alpha (filter on face composite, not a box outline). */
@@ -681,6 +696,32 @@
   transition: transform 0.2s ease;
 }
 
+.sticker-placed--selected .sticker-placed__rotator {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--ring-size);
+  height: var(--ring-size);
+  margin-left: calc(var(--ring-size) * -0.5);
+  margin-top: calc(var(--ring-size) * -0.5);
+  display: block;
+}
+
+.sticker-placed__sticker-center {
+  display: inline-block;
+  line-height: 0;
+}
+
+.sticker-placed--selected .sticker-placed__sticker-center {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(
+    calc(-50% + var(--art-offset-x, 0px)),
+    calc(-50% + var(--art-offset-y, 0px))
+  );
+}
+
 .sticker-placed__scrubber-mount {
   position: absolute;
   inset: 0;
@@ -692,15 +733,14 @@
   pointer-events: all;
 }
 
-.sticker-placed__track-svg {
-  display: block;
-  overflow: visible;
-  pointer-events: none;
-  touch-action: none;
+.sticker-placed__art {
+  display: inline-block;
+  line-height: 0;
+  transition: transform 0.2s ease;
 }
 
-.sticker-placed__rotate-track .sticker-placed__track-hit {
-  pointer-events: stroke;
+.sticker-placed__art--lifted {
+  transform: translateY(-5px) scale(1.02);
 }
 
 .sticker-placed__track-hit {

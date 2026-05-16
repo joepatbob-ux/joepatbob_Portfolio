@@ -29,6 +29,7 @@ export const STICKER_ASSETS: StickerAsset[] = [
   'bot_sticker4.svg',
   'copeland_sticker.svg',
   'jupiter_sticker.svg',
+  'Kelvin_sticker.svg',
   'kraken_sticker.svg',
   'longdog_sticker.svg',
   'mcenroe_sticker.svg',
