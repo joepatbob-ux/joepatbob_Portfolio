@@ -65,7 +65,7 @@ export function StickerPile() {
             }${isTop && isDraggingTop ? ' sticker-pile__card--dragging' : ''}`
 
             const cardStyle = {
-              zIndex: indexFromTop + 1,
+              zIndex: visible.length - indexFromTop,
               ['--stack-x' as string]: `${layout.x}px`,
               ['--stack-y' as string]: `${layout.y}px`,
             }
