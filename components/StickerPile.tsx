@@ -11,7 +11,7 @@ import {
 } from '@/lib/stickers'
 
 export function StickerPile() {
-  const { deck, activeDrag, beginDragFromPile } = useStickers()
+  const { deck, deckReady, activeDrag, beginDragFromPile } = useStickers()
   const rotationsRef = useRef<Map<string, number>>(new Map())
 
   const visible = deck
@@ -38,7 +38,8 @@ export function StickerPile() {
     <div className="sticker-pile-wrap">
       <p className="sticker-pile__label">Launch swag — grab one</p>
       <p className="sticker-pile__hint">
-        Grab from the top down. Tap a sticker to select; drag the ring or dot to rotate.
+        Random stack — grab from the top down, one at a time. Tap a placed sticker to
+        select; drag the ring or dot to rotate.
         {deck.length > 0 && (
           <span className="sticker-pile__count">
             {deck.length} of {STICKER_ASSETS.length} left
@@ -51,7 +52,7 @@ export function StickerPile() {
         style={{ width: pileSize, height: pileSize }}
         aria-label="Sticker stack"
       >
-        {visible.length === 0 ? (
+        {!deckReady ? null : visible.length === 0 ? (
           <p className="sticker-pile__empty">Stack&apos;s empty — refresh to restock.</p>
         ) : (
           [...visible].reverse().map((asset, reverseIndex) => {
