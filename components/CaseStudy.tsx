@@ -11,11 +11,22 @@ interface Props {
 const padHeader = 'clamp(32px, 5vw, 56px) clamp(16px, 5vw, 72px) clamp(28px, 4vw, 48px)'
 const padBlock = 'clamp(32px, 5vw, 48px) clamp(16px, 5vw, 72px) clamp(36px, 5vw, 56px)'
 
+/** Paper fills the viewport; padding restores the same text column as `.content-area`. */
+const articleFullBleed: React.CSSProperties = {
+  boxSizing: 'border-box',
+  marginLeft: 'calc(-1 * (var(--sidebar-width) + var(--content-pad-x)))',
+  marginRight: 'calc(-1 * var(--content-pad-x))',
+  width: 'calc(100% + var(--sidebar-width) + var(--content-pad-x) * 2)',
+  paddingLeft: 'calc(var(--sidebar-width) + var(--content-pad-x))',
+  paddingRight: 'var(--content-pad-x)',
+}
+
 export function CaseStudy({ section, sectionId }: Props) {
   return (
     <article
       data-section-id={sectionId}
       style={{
+        ...articleFullBleed,
         backgroundColor: 'var(--color-paper)',
         minWidth: 0,
         scrollMarginTop: 24,

@@ -41,6 +41,7 @@
     --color-nav-pill-muted-accent-1: rgba(222, 62, 24, 0.12);
     --color-nav-pill-outline:        rgba(222, 62, 24, 0.42);
     --sidebar-width:    400px;
+    --mobile-nav-bar-height: 0px;
     --gutter:           72px;
     /* Horizontal inset for main column: rules and blocks don’t hug viewport or sidebar */
     --content-pad-x:    24px;
@@ -64,16 +65,24 @@
   }
 
   html {
-    background-color: var(--color-paper);
+    /* Hero canvas; `ThemeProvider` syncs to `resolvedTheme` after hydrate. */
+    background-color: #f4f4f4;
     color: var(--color-ink);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    html {
+      background-color: #060606;
+    }
   }
 
   body {
     margin: 0;
     padding: 0;
     font-family: var(--font-body), system-ui, sans-serif;
+    background-color: transparent;
   }
 
   /* Offset by sidebar + breathing room so dividers don’t touch edges */
@@ -81,7 +90,85 @@
     margin-left: var(--sidebar-width);
     padding-left: var(--content-pad-x);
     padding-right: var(--content-pad-x);
+    padding-top: var(--mobile-nav-bar-height);
     min-width: 0;
+  }
+
+  /* Phone only (max 767px): full-width column + morphing top nav. Tablet / large breakpoints TODO. */
+  @media (max-width: 767px) {
+    :root {
+      --sidebar-width: 0px;
+      --content-pad-x: 16px;
+      --mobile-nav-bar-height: 52px;
+      --gutter: 24px;
+    }
+
+    html {
+      /* Offset anchor scrolling when the compact bar is pinned */
+      scroll-padding-top: calc(var(--mobile-nav-bar-height) + 12px);
+    }
+
+    .content-area {
+      margin-left: 0;
+      /* Hero is full-viewport; morphing nav floats — no permanent top inset */
+      padding-top: 0;
+    }
+
+    [data-chapter-id],
+    article[data-section-id] {
+      scroll-margin-top: calc(var(--mobile-nav-bar-height) + 12px);
+    }
+
+    #hero {
+      scroll-margin-top: 0;
+    }
+  }
+}
+
+/* Hero portrait — desktop/tablet: contain (full figure, letterboxed like original).
+   Phone (≤767px): cover for edge-to-edge; anchor mirrors handedness. */
+.hero-portrait {
+  box-sizing: border-box;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+@media (max-width: 767px) {
+  .hero-portrait {
+    background-size: cover;
+  }
+}
+
+.hero-portrait--right {
+  background-position: right bottom;
+}
+
+.hero-portrait--left {
+  background-position: left bottom;
+}
+
+/* Phone: subtle full-viewport wash over portrait so floating nav copy stays readable (no text-shadow).
+   Light = soft white veil (matches hero paper); dark = low black lift for cream type. */
+.hero-mobile-scrim {
+  display: none;
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  box-sizing: border-box;
+}
+
+@media (max-width: 767px) {
+  .hero-mobile-scrim {
+    display: block;
+  }
+
+  .hero-mobile-scrim--light {
+    background: rgba(255, 255, 255, 0.22);
+  }
+
+  .hero-mobile-scrim--dark {
+    background: rgba(0, 0, 0, 0.2);
   }
 }
 
@@ -222,6 +309,20 @@
 .contact-liquid__btn:focus-visible {
   outline: 2px solid #fff;
   outline-offset: 2px;
+}
+
+/* Contact pill on accent backgrounds (mobile drawer) */
+.contact-liquid--on-accent .contact-liquid__surface {
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+}
+
+.contact-liquid--on-accent .contact-liquid__btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.contact-liquid--on-accent .contact-liquid__btn:focus-visible {
+  outline-color: #fff;
 }
 
 @media (prefers-reduced-motion: reduce) {

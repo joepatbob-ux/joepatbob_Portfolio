@@ -14,6 +14,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { NAV_SECTIONS, sectionIdForChapter } from '@/lib/nav'
 import { ContactButton } from '@/components/ContactButton'
+import { useHandedness } from '@/components/HandednessProvider'
 
 // ── FONT STRINGS (CSS vars: --font-ahg / --font-mono from globals + layout) ─
 const FONT_AHG  = 'var(--font-ahg)'
@@ -30,6 +31,32 @@ const SUBNAV_DELAY_MS = 280
 const BLUR_PX         = 6
 const NAV_TOP_PX      = 40
 const EMAIL_BOTTOM_PX = 40
+
+/** Phone overlay nav; keep in sync with `globals.css` (`max-width: 767px`). Tablet layout TODO. */
+const MOBILE_MAX = '(max-width: 767px)'
+
+const MOBILE_BAR_H = 52
+const MOBILE_MORPH_BOTTOM_PAD = 28
+/** Scroll distance (fraction of viewport) over which the hero nav travels into the top bar */
+const MOBILE_MORPH_SCROLL_RATIO = 0.54
+
+function smoothstep(edge0: number, edge1: number, x: number): number {
+  if (edge1 <= edge0) return x >= edge1 ? 1 : 0
+  const t = Math.min(1, Math.max(0, (x - edge0) / (edge1 - edge0)))
+  return t * t * (3 - 2 * t)
+}
+
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false)
+  useEffect(() => {
+    const mq = window.matchMedia(MOBILE_MAX)
+    const sync = () => setIsMobile(mq.matches)
+    sync()
+    mq.addEventListener('change', sync)
+    return () => mq.removeEventListener('change', sync)
+  }, [])
+  return isMobile
+}
 
 /** Main nav section keywords: orange + opacity dimming when stuck. */
 function navKeywordStyle(opts: {
@@ -136,10 +163,14 @@ function pickActiveSpyTarget(): { chapterId: string | null; sectionId: string | 
 // ── COMPONENT ─────────────────────────────────────────────────────────────────
 export function SidebarNav() {
   const dark = useDarkMode()
+  const isMobile = useIsMobile()
+  const { handedness } = useHandedness()
   const C = {
     ink:     dark ? '#f0eeea' : '#0d0d0d',
     divider: 'var(--color-rule)',
   }
+
+  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false)
 
   const [navIsStuck,          setNavIsStuck]          = useState(false)
   const [dividerVisible,      setDividerVisible]      = useState(false)
@@ -166,6 +197,11 @@ export function SidebarNav() {
   const heroRef       = useRef<HTMLDivElement>(null)
   const navWrapRef    = useRef<HTMLDivElement>(null)
   const contactRef    = useRef<HTMLDivElement>(null)
+  const mobileMorphShellRef = useRef<HTMLDivElement>(null)
+  const mobileExpandedLayerRef = useRef<HTMLDivElement>(null)
+  const mobileExpandedHRef = useRef(MOBILE_BAR_H + 96)
+  const mobileCompactBtnRef = useRef<HTMLButtonElement>(null)
+  const mobileDrawerHostRef = useRef<HTMLDivElement>(null)
   const layoutRef     = useRef({ viewportH: 900, navRestTop: 0, threshold: 648 })
   const stickThresholdRef = useRef(648)
 
@@ -185,6 +221,7 @@ export function SidebarNav() {
   }, [])
 
   useEffect(() => {
+    if (isMobile) return
     measureLayout()
     window.addEventListener('resize', measureLayout)
     const ro = new ResizeObserver(measureLayout)
@@ -194,7 +231,7 @@ export function SidebarNav() {
       window.removeEventListener('resize', measureLayout)
       ro.disconnect()
     }
-  }, [measureLayout])
+  }, [isMobile, measureLayout])
 
   const staggerIn = useCallback((sectionId: string, isFirst = false) => {
     staggerTimers.current.forEach(clearTimeout)
@@ -292,8 +329,119 @@ export function SidebarNav() {
     [staggerIn],
   )
 
+  useEffect(() => {
+    if (!isMobile || !mobileDrawerOpen) return
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = prev
+    }
+  }, [isMobile, mobileDrawerOpen])
+
+  /** Mobile: hero nav travels upward and morphs into the accent bar (scroll-linked, no CSS transition). */
+  useEffect(() => {
+    if (!isMobile) return
+    let rafId = 0
+
+    const accentRgb = { r: 222, g: 62, b: 24 }
+
+    const frame = () => {
+      const y = getScrollTop()
+      const vh = window.innerHeight
+      const threshold = Math.max(96, vh * MOBILE_MORPH_SCROLL_RATIO)
+      const travelT = Math.min(1, Math.max(0, y / threshold))
+
+      if (mobileExpandedLayerRef.current && travelT < 0.14) {
+        const measured = mobileExpandedLayerRef.current.offsetHeight
+        if (measured > MOBILE_BAR_H + 24) {
+          mobileExpandedHRef.current = measured
+        }
+      }
+
+      const H0 = Math.max(mobileExpandedHRef.current, MOBILE_BAR_H + 48)
+      const hMorph = smoothstep(0.38, 1, travelT)
+      const hInterp = H0 + (MOBILE_BAR_H - H0) * hMorph
+
+      const topPx = Math.max(
+        0,
+        (vh - MOBILE_MORPH_BOTTOM_PAD - hInterp) * (1 - travelT),
+      )
+
+      const gutter =
+        16 * (1 - smoothstep(0.82, 0.995, travelT))
+
+      /* Hero copy sits flush on the photo — no frosted panel; accent fills in only as we pin the bar */
+      const tSolid = smoothstep(0.58, 0.9, travelT)
+      const rr = accentRgb.r
+      const gg = accentRgb.g
+      const bb = accentRgb.b
+
+      const shell = mobileMorphShellRef.current
+      if (shell) {
+        shell.style.position = 'fixed'
+        shell.style.left = `${gutter}px`
+        shell.style.right = `${gutter}px`
+        shell.style.top = `${topPx}px`
+        shell.style.width = 'auto'
+        shell.style.height = `${hInterp}px`
+        shell.style.boxSizing = 'border-box'
+        shell.style.borderRadius = '0'
+        shell.style.backgroundColor =
+          tSolid < 0.008 ? 'transparent' : `rgba(${rr},${gg},${bb},${tSolid})`
+        shell.style.boxShadow =
+          travelT >= 0.96 && mobileDrawerOpen
+            ? '0 8px 28px rgba(0,0,0,0.18)'
+            : 'none'
+        shell.style.overflow = 'hidden'
+        shell.style.pointerEvents = 'auto'
+      }
+
+      const expandedOp = 1 - smoothstep(0.18, 0.68, travelT)
+      const expandedLayer = mobileExpandedLayerRef.current
+      if (expandedLayer) {
+        expandedLayer.style.opacity = String(expandedOp)
+        expandedLayer.style.pointerEvents = expandedOp > 0.28 ? 'auto' : 'none'
+      }
+
+      const compactOp = smoothstep(0.48, 0.88, travelT)
+      const compactBtn = mobileCompactBtnRef.current
+      if (compactBtn) {
+        compactBtn.style.opacity = String(compactOp)
+        compactBtn.style.pointerEvents =
+          compactOp > 0.82 ? 'auto' : 'none'
+      }
+
+      const drawerHost = mobileDrawerHostRef.current
+      if (drawerHost) {
+        drawerHost.style.position = 'fixed'
+        drawerHost.style.left = `${gutter}px`
+        drawerHost.style.right = `${gutter}px`
+        drawerHost.style.top = `${topPx + hInterp}px`
+        drawerHost.style.zIndex = '101'
+        drawerHost.style.pointerEvents = mobileDrawerOpen ? 'auto' : 'none'
+      }
+
+      applyScrollSpy()
+
+      rafId = requestAnimationFrame(frame)
+    }
+
+    rafId = requestAnimationFrame(frame)
+    return () => cancelAnimationFrame(rafId)
+  }, [isMobile, applyScrollSpy, mobileDrawerOpen])
+
+  useEffect(() => {
+    if (!isMobile || !mobileDrawerOpen) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMobileDrawerOpen(false)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [isMobile, mobileDrawerOpen])
+
   // Scroll-linked hero blur + nav travel: rAF + direct DOM (not batched React state).
   useEffect(() => {
+    if (isMobile) return
     let rafId = 0
 
     const frame = () => {
@@ -324,7 +472,7 @@ export function SidebarNav() {
     measureLayout()
     rafId = requestAnimationFrame(frame)
     return () => cancelAnimationFrame(rafId)
-  }, [applyStuckState, measureLayout])
+  }, [isMobile, applyStuckState, applyScrollSpy, measureLayout])
 
   const syncScrollAfterNavigate = useCallback(() => {
     applyStuckState(getScrollTop())
@@ -332,6 +480,7 @@ export function SidebarNav() {
   }, [applyStuckState, applyScrollSpy])
 
   const scrollToSection = (id: string) => {
+    setMobileDrawerOpen(false)
     document
       .querySelector(`[data-section-id="${id}"]`)
       ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -347,6 +496,7 @@ export function SidebarNav() {
   }
 
   const scrollToChapter = (chapterId: string) => {
+    setMobileDrawerOpen(false)
     document
       .querySelector(`[data-chapter-id="${chapterId}"]`)
       ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -362,14 +512,362 @@ export function SidebarNav() {
 
   const currentSection = NAV_SECTIONS.find((s) => s.id === activeSection) || NAV_SECTIONS[0]
 
+  const drawerMaxH = `min(72dvh, calc(100dvh - ${MOBILE_BAR_H}px))`
+
+  /** Right-handed (default): hero copy + menus bias toward the trailing edge; swipe hero left→`left`. */
+  const thumbTrailing = handedness === 'right'
+
   return (
     <>
-      {/* Sidebar shell */}
-      <div style={{
-        position: 'fixed', left: 0, top: 0,
-        width: 400, height: '100dvh',
-        zIndex: 100, pointerEvents: 'none',
-      }}>
+      {/* Mobile: hero intro + full nav morph into pinned accent bar + drawer */}
+      {isMobile && (
+        <>
+          {mobileDrawerOpen && (
+            <div
+              role="presentation"
+              onClick={() => setMobileDrawerOpen(false)}
+              style={{
+                position: 'fixed',
+                inset: 0,
+                zIndex: 99,
+                background: 'rgba(0,0,0,0.38)',
+                cursor: 'pointer',
+                pointerEvents: 'auto',
+              }}
+            />
+          )}
+          <nav
+            ref={mobileMorphShellRef}
+            aria-label="Site navigation"
+            style={{
+              position: 'fixed',
+              left: 16,
+              right: 16,
+              top: 'calc(100dvh - 140px)',
+              height: MOBILE_BAR_H,
+              zIndex: 100,
+              overflow: 'hidden',
+              pointerEvents: 'auto',
+              boxSizing: 'border-box',
+            }}
+          >
+            <div
+              ref={mobileExpandedLayerRef}
+              style={{
+                position: 'absolute',
+                left: 0,
+                right: 0,
+                top: 0,
+                paddingTop: 18,
+                paddingBottom: 22,
+                paddingLeft: 'max(16px, env(safe-area-inset-left))',
+                paddingRight: 'max(16px, env(safe-area-inset-right))',
+                boxSizing: 'border-box',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: thumbTrailing ? 'flex-end' : 'flex-start',
+                textAlign: thumbTrailing ? 'right' : 'left',
+              }}
+            >
+              <div
+                style={{
+                  fontFamily: FONT_AHG,
+                  fontWeight: 700,
+                  fontSize: 'clamp(12px, 4.2vw, 28px)',
+                  lineHeight: 1.1,
+                  textTransform: 'uppercase',
+                  color: ACCENT,
+                  marginBottom: 8,
+                  width: 'min(100%, 380px)',
+                }}
+              >
+                Hello, I am
+              </div>
+              <div
+                style={{
+                  fontFamily: FONT_AHG,
+                  fontWeight: 700,
+                  fontSize:
+                    'clamp(36px, min(13vw, calc((42dvh - 100px) / 2.46)), 132px)',
+                  lineHeight: 0.82,
+                  letterSpacing: '-0.02em',
+                  textTransform: 'uppercase',
+                  color: C.ink,
+                  marginBottom: 16,
+                  width: 'min(100%, 380px)',
+                }}
+              >
+                <div>JOSEPH</div>
+                <div>PATRICK</div>
+                <div>
+                  ROBERTS<span style={{ color: ACCENT }}>.</span>
+                </div>
+              </div>
+              <p
+                style={{
+                  fontFamily: FONT_AHG,
+                  fontWeight: 700,
+                  fontSize: 'clamp(18px, 6vw, 24px)',
+                  lineHeight: 1.2,
+                  letterSpacing: '0.02em',
+                  textTransform: 'uppercase',
+                  color: C.ink,
+                  margin: 0,
+                  width: 'min(100%, 380px)',
+                }}
+              >
+                {'I simplify complex systems for '}
+                {NAV_SECTIONS.map((sec, i) => {
+                  const connector =
+                    i === NAV_SECTIONS.length - 2
+                      ? ', and '
+                      : i < NAV_SECTIONS.length - 1
+                        ? ', '
+                        : '.'
+                  return (
+                    <span key={sec.id}>
+                      <button
+                        type="button"
+                        onClick={() => scrollToSection(sec.id)}
+                        style={{
+                          display: 'inline',
+                          margin: 0,
+                          padding: 0,
+                          border: 'none',
+                          background: 'none',
+                          font: 'inherit',
+                          letterSpacing: 'inherit',
+                          textTransform: 'inherit',
+                          lineHeight: 'inherit',
+                          color: ACCENT,
+                          cursor: 'pointer',
+                          verticalAlign: 'baseline',
+                          textAlign: 'inherit',
+                          transition: 'opacity 220ms ease, color 200ms ease',
+                        }}
+                      >
+                        {sec.label}
+                      </button>
+                      {connector}
+                    </span>
+                  )
+                })}
+              </p>
+            </div>
+            <button
+              ref={mobileCompactBtnRef}
+              type="button"
+              aria-expanded={mobileDrawerOpen}
+              aria-controls="mobile-nav-drawer"
+              onClick={() => setMobileDrawerOpen((o) => !o)}
+              style={{
+                position: 'absolute',
+                inset: 0,
+                margin: 0,
+                padding: '12px 14px 12px 16px',
+                border: 'none',
+                background: 'transparent',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+                boxSizing: 'border-box',
+                opacity: 0,
+                pointerEvents: 'none',
+                flexDirection: handedness === 'left' ? 'row-reverse' : 'row',
+              }}
+            >
+              <span
+                style={{
+                  fontFamily: FONT_AHG,
+                  fontWeight: 700,
+                  fontSize: 13,
+                  letterSpacing: '0.04em',
+                  textTransform: 'uppercase',
+                  color: 'rgba(255,255,255,0.92)',
+                  flexShrink: 0,
+                }}
+              >
+                I design for…
+              </span>
+              <span
+                style={{
+                  fontFamily: FONT_AHG,
+                  fontWeight: 700,
+                  fontSize: 13,
+                  letterSpacing: '0.04em',
+                  textTransform: 'uppercase',
+                  color: '#fff',
+                  flex: 1,
+                  minWidth: 0,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  textAlign: thumbTrailing ? 'right' : 'left',
+                }}
+              >
+                {currentSection.label}
+              </span>
+              <span
+                aria-hidden
+                style={{
+                  flexShrink: 0,
+                  color: '#fff',
+                  fontSize: 12,
+                  lineHeight: 1,
+                  transform: mobileDrawerOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                  transition: 'transform 0.28s ease',
+                }}
+              >
+                ▼
+              </span>
+            </button>
+          </nav>
+
+          <div ref={mobileDrawerHostRef}>
+            <div
+              id="mobile-nav-drawer"
+              style={{
+                maxHeight: mobileDrawerOpen ? drawerMaxH : 0,
+                overflow: 'hidden',
+                transition: 'max-height 0.38s cubic-bezier(0.4, 0, 0.2, 1)',
+                background: ACCENT,
+              }}
+            >
+              <div
+                style={{
+                  overflowY: 'auto',
+                  maxHeight: drawerMaxH,
+                  padding: '8px 16px 24px',
+                  boxSizing: 'border-box',
+                  borderTop: '1px solid rgba(255,255,255,0.22)',
+                  textAlign: thumbTrailing ? 'right' : 'left',
+                }}
+              >
+                <p
+                  style={{
+                    fontFamily: FONT_MONO,
+                    fontWeight: 700,
+                    fontSize: 10,
+                    letterSpacing: '0.12em',
+                    textTransform: 'uppercase',
+                    color: 'rgba(255,255,255,0.75)',
+                    margin: '4px 0 12px',
+                  }}
+                >
+                  Sections
+                </p>
+                <div
+                  style={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: 8,
+                    marginBottom: 22,
+                    justifyContent: thumbTrailing ? 'flex-end' : 'flex-start',
+                  }}
+                >
+                  {NAV_SECTIONS.map((sec) => {
+                    const on = activeSection === sec.id
+                    return (
+                      <button
+                        key={sec.id}
+                        type="button"
+                        onClick={() => scrollToSection(sec.id)}
+                        style={{
+                          fontFamily: FONT_AHG,
+                          fontWeight: 700,
+                          fontSize: 12,
+                          letterSpacing: '0.05em',
+                          textTransform: 'uppercase',
+                          padding: '8px 14px',
+                          borderRadius: 9999,
+                          border: on ? '2px solid #fff' : '1px solid rgba(255,255,255,0.45)',
+                          background: on ? 'rgba(255,255,255,0.18)' : 'transparent',
+                          color: '#fff',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        {sec.label}
+                      </button>
+                    )
+                  })}
+                </div>
+                <p
+                  style={{
+                    fontFamily: FONT_MONO,
+                    fontWeight: 700,
+                    fontSize: 10,
+                    letterSpacing: '0.12em',
+                    textTransform: 'uppercase',
+                    color: 'rgba(255,255,255,0.75)',
+                    margin: '0 0 12px',
+                  }}
+                >
+                  In this section
+                </p>
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 6,
+                    marginBottom: 28,
+                    alignItems: thumbTrailing ? 'flex-end' : 'flex-start',
+                  }}
+                >
+                  {currentSection.chapters.map((chapter) => {
+                    const chId = toChapterId(currentSection.id, chapter.id)
+                    const on = activeChapter === chId
+                    return (
+                      <button
+                        key={chapter.id}
+                        type="button"
+                        aria-current={on ? 'true' : undefined}
+                        onClick={() => scrollToChapter(chId)}
+                        style={{
+                          alignSelf: thumbTrailing ? 'flex-end' : 'flex-start',
+                          fontFamily: FONT_MONO,
+                          fontWeight: 700,
+                          fontSize: 11,
+                          letterSpacing: '0.07em',
+                          textTransform: 'uppercase',
+                          lineHeight: 1.45,
+                          padding: '8px 14px',
+                          borderRadius: 9999,
+                          border: 'none',
+                          background: on ? 'rgba(255,255,255,0.22)' : 'rgba(255,255,255,0.08)',
+                          color: '#fff',
+                          cursor: 'pointer',
+                          textAlign: thumbTrailing ? 'right' : 'left',
+                        }}
+                      >
+                        {chapter.label}
+                      </button>
+                    )
+                  })}
+                </div>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: thumbTrailing ? 'flex-end' : 'flex-start',
+                  }}
+                >
+                  <div className="contact-liquid contact-liquid--on-accent">
+                    <ContactButton />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Sidebar shell — hidden on small viewports; kept mounted for scroll/sync refs */}
+      <div hidden={isMobile}>
+        <div style={{
+          position: 'fixed', left: 0, top: 0,
+          width: 400, height: '100dvh',
+          zIndex: 100, pointerEvents: 'none',
+        }}>
         {/* Divider */}
         <div aria-hidden style={{
           position: 'absolute', right: 0, top: 40,
@@ -530,6 +1028,7 @@ export function SidebarNav() {
             </span>
           )
         })}
+      </div>
       </div>
     </>
   )
