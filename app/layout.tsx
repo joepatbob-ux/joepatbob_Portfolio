@@ -4,6 +4,7 @@ import { JetBrains_Mono } from 'next/font/google'
 import '../styles/globals.css'
 import { SidebarNav } from '@/components/SidebarNav'
 import { ThemeProvider } from '@/components/ThemeProvider'
+import { HandednessProvider } from '@/components/HandednessProvider'
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ['latin'],
@@ -42,13 +43,15 @@ export default function RootLayout({
   return (
     <html lang="en" className={jetbrainsMono.variable}>
       <head>
-        <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
-        <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000" />
+        <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f4f4f4" />
+        <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#060606" />
       </head>
       <body>
         <ThemeProvider>
-          <SidebarNav />
-          <main className="content-area">{children}</main>
+          <HandednessProvider>
+            <SidebarNav />
+            <main className="content-area">{children}</main>
+          </HandednessProvider>
         </ThemeProvider>
       </body>
     </html>

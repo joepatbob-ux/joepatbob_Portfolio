@@ -2,8 +2,9 @@
 
 /**
  * Theme preference API for a future light / system / dark control.
- * Today: preference defaults to `system` (only); hero portrait follows
- * `resolvedTheme`. Site colors still come from `prefers-color-scheme` in CSS.
+ * Today: preference defaults to `system` (only); hero portrait and the
+ * document canvas (`<html>` background) follow `resolvedTheme`. Section copy
+ * still uses `prefers-color-scheme` tokens in CSS (`--color-paper`, etc.).
  *
  * When you add a toggle: bind it to `setPreference`. For full manual theming,
  * sync `document.documentElement.dataset` from `resolvedTheme` and mirror
@@ -18,6 +19,7 @@ import {
   useState,
   useSyncExternalStore,
 } from 'react'
+import { HERO_CANVAS_BG } from '@/lib/hero-canvas'
 
 /** Stored preference; `'system'` follows OS light/dark. */
 export type ThemePreference = 'light' | 'dark' | 'system'
@@ -86,6 +88,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   const resolvedTheme: 'light' | 'dark' =
     preference === 'system' ? systemTheme : preference
+
+  useEffect(() => {
+    const bg =
+      resolvedTheme === 'dark' ? HERO_CANVAS_BG.dark : HERO_CANVAS_BG.light
+    document.documentElement.style.backgroundColor = bg
+  }, [resolvedTheme])
 
   const value = useMemo(
     () => ({ preference, resolvedTheme, setPreference }),
