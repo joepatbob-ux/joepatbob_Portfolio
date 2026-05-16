@@ -1,15 +1,123 @@
-// components/StickerPile.tsx
-// STUB — see DESIGN_SPEC.md for full interaction description
-// Build this out with Cursor
-
 'use client'
 
+import { useCallback, useRef } from 'react'
+import { Sticker } from '@/components/Sticker'
+import { useStickers } from '@/components/StickerProvider'
+import {
+  pileStackOffset,
+  randomPileRotation,
+  STICKER_ASSETS,
+  STICKER_SIZE_PILE,
+} from '@/lib/stickers'
+
 export function StickerPile() {
+  const { deck, activeDrag, beginDragFromPile } = useStickers()
+  const rotationsRef = useRef<Map<string, number>>(new Map())
+
+  const visible = deck
+  const top = visible[0]
+
+  const rotationFor = useCallback((id: string) => {
+    const cached = rotationsRef.current.get(id)
+    if (cached !== undefined) return cached
+    const rotation = randomPileRotation()
+    rotationsRef.current.set(id, rotation)
+    return rotation
+  }, [])
+
+  visible.forEach((asset) => {
+    rotationFor(asset.id)
+  })
+
+  const isDraggingTop =
+    activeDrag?.fromPile && top && activeDrag.asset.id === top.id
+
+  const pileSize = STICKER_SIZE_PILE + 48
+
   return (
-    <div style={{ padding: 24, background: 'rgba(0,0,0,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 200 }}>
-      <span style={{ fontFamily: 'monospace', fontSize: 11, color: 'rgba(0,0,0,0.3)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-        [ StickerPile — to be built ]
-      </span>
+    <div className="sticker-pile-wrap">
+      <p className="sticker-pile__label">Launch swag — grab one</p>
+      <p className="sticker-pile__hint">
+        Grab from the top down — each sticker in order. Move placed stickers anytime.
+        {deck.length > 0 && (
+          <span className="sticker-pile__count">
+            {deck.length} of {STICKER_ASSETS.length} left
+          </span>
+        )}
+      </p>
+
+      <div
+        className="sticker-pile"
+        style={{ width: pileSize, height: pileSize }}
+        aria-label="Sticker stack"
+      >
+        {visible.length === 0 ? (
+          <p className="sticker-pile__empty">Stack&apos;s empty — refresh to restock.</p>
+        ) : (
+          [...visible].reverse().map((asset, reverseIndex) => {
+            const indexFromTop = visible.length - 1 - reverseIndex
+            const isTop = indexFromTop === 0
+            const layout = pileStackOffset(indexFromTop, visible.length)
+            const rotation = rotationFor(asset.id)
+
+            const cardClass = `sticker-pile__card${
+              isTop ? ' sticker-pile__card--top' : ' sticker-pile__card--under'
+            }${isTop && isDraggingTop ? ' sticker-pile__card--dragging' : ''}`
+
+            const cardStyle = {
+              zIndex: indexFromTop + 1,
+              ['--stack-x' as string]: `${layout.x}px`,
+              ['--stack-y' as string]: `${layout.y}px`,
+            }
+
+            if (isTop) {
+              return (
+                <button
+                  key={asset.id}
+                  type="button"
+                  className={cardClass}
+                  style={cardStyle}
+                  disabled={Boolean(activeDrag)}
+                  aria-label={`Pick up ${asset.alt}`}
+                  onPointerDown={(e) => {
+                    e.preventDefault()
+                    beginDragFromPile(
+                      asset,
+                      e.clientX,
+                      e.clientY,
+                      rotation,
+                    )
+                  }}
+                >
+                  <Sticker
+                    src={asset.src}
+                    alt={asset.alt}
+                    assetId={asset.id}
+                    rotation={rotation}
+                    elevated
+                  />
+                </button>
+              )
+            }
+
+            return (
+              <div
+                key={asset.id}
+                className={cardClass}
+                style={cardStyle}
+                aria-hidden
+              >
+                <Sticker
+                  src={asset.src}
+                  alt=""
+                  assetId={asset.id}
+                  rotation={rotation}
+                />
+              </div>
+            )
+          })
+        )}
+      </div>
     </div>
   )
 }

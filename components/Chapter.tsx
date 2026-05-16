@@ -2,6 +2,7 @@
 import type { Chapter as ChapterType } from '@/lib/types'
 import { BeforeAfterSlider } from '@/components/BeforeAfterSlider'
 import { SensiLiteProto } from '@/components/SensiLiteProto'
+import { StickerPile } from '@/components/StickerPile'
 
 interface Props {
   chapter: ChapterType
@@ -97,6 +98,11 @@ export function Chapter({ chapter, sectionId, index, isLast }: Props) {
               <div style={{ width: '100%' }}>
                 <SensiLiteProto />
               </div>
+            </div>
+          )}
+          {chapterId === 'everything-else-in-between' && (
+            <div style={{ marginBottom: 28 }}>
+              <StickerPile />
             </div>
           )}
           {chapterId === 'mobile-color' && (

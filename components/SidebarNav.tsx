@@ -417,7 +417,7 @@ export function SidebarNav() {
         drawerHost.style.left = `${gutter}px`
         drawerHost.style.right = `${gutter}px`
         drawerHost.style.top = `${topPx + hInterp}px`
-        drawerHost.style.zIndex = '101'
+        drawerHost.style.zIndex = '110'
         drawerHost.style.pointerEvents = mobileDrawerOpen ? 'auto' : 'none'
       }
 
@@ -529,7 +529,7 @@ export function SidebarNav() {
               style={{
                 position: 'fixed',
                 inset: 0,
-                zIndex: 99,
+                zIndex: 108,
                 background: 'rgba(0,0,0,0.38)',
                 cursor: 'pointer',
                 pointerEvents: 'auto',
