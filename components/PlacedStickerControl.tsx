@@ -4,13 +4,14 @@ import { useLayoutEffect, useRef, useState } from 'react'
 import { Sticker } from '@/components/Sticker'
 import type { PlacedSticker } from '@/components/StickerProvider'
 import { useStickers } from '@/components/StickerProvider'
+import { measureStickerOpticalLayout } from '@/lib/stickerOptical'
 import { STICKER_SIZE_PLACED, stickerHeight } from '@/lib/stickers'
 
 const MOVE_THRESHOLD = 8
 /** Maps pointer atan2 (0° = east) to sticker rotation (0° = dot at top). */
 const POINTER_TO_ROTATION = 90
-/** Negative = track band overlaps sticker edge (sits under art via z-index). */
-const TRACK_INSET_PX = -6
+/** Clearance from furthest opaque edge to inner edge of track stroke. */
+const TRACK_GAP_PX = 8
 const TRACK_STROKE_PX = 16
 const SCRUBBER_R_PX = 14
 const SCRUBBER_CENTER_R_PX = 5
@@ -29,6 +30,8 @@ interface LockedRing {
   trackR: number
   cx: number
   cy: number
+  artOffsetX: number
+  artOffsetY: number
 }
 
 interface Props {
@@ -67,8 +70,10 @@ export function PlacedStickerControl({ sticker }: Props) {
             : 1
         w = h * aspect
       }
-      const stickerOuterR = Math.hypot(w, h) / 2
-      const trackR = stickerOuterR + TRACK_INSET_PX + TRACK_STROKE_PX / 2
+      const optical = measureStickerOpticalLayout(img, w, h)
+      const outerR =
+        optical?.outerRadius ?? Math.hypot(w, h) / 2
+      const trackR = outerR + TRACK_GAP_PX + TRACK_STROKE_PX / 2
       const ringSize = Math.ceil(
         2 * (trackR + TRACK_STROKE_PX / 2 + SCRUBBER_R_PX),
       )
@@ -78,6 +83,8 @@ export function PlacedStickerControl({ sticker }: Props) {
         trackR,
         cx: ringSize / 2,
         cy: ringSize / 2,
+        artOffsetX: optical?.offsetX ?? 0,
+        artOffsetY: optical?.offsetY ?? 0,
       })
     }
 
@@ -209,6 +216,8 @@ export function PlacedStickerControl({ sticker }: Props) {
           selected && ring
             ? ({
                 ['--ring-size' as string]: `${ring.ringSize}px`,
+                ['--art-offset-x' as string]: `${ring.artOffsetX}px`,
+                ['--art-offset-y' as string]: `${ring.artOffsetY}px`,
                 width: ring.ringSize,
                 height: ring.ringSize,
               } as React.CSSProperties)
