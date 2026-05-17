@@ -3,6 +3,7 @@ import type { Chapter as ChapterType } from '@/lib/types'
 import { BeforeAfterSlider } from '@/components/BeforeAfterSlider'
 import { ChapterViewport } from '@/components/ChapterViewport'
 import { SensiLiteChapter } from '@/components/SensiLiteChapter'
+import { EimChapter } from '@/components/EimChapter'
 import { Touch2Chapter } from '@/components/Touch2Chapter'
 import { StickerPile } from '@/components/StickerPile'
 
@@ -25,6 +26,10 @@ export function Chapter({ chapter, sectionId, index, isLast }: Props) {
 
   if (chapterId === 'hardware-touch-2') {
     return <Touch2Chapter chapter={chapter} index={index} isLast={isLast} />
+  }
+
+  if (chapterId === 'hardware-eim') {
+    return <EimChapter index={index} isLast={isLast} />
   }
 
   const num = String(index + 1).padStart(2, '0')
