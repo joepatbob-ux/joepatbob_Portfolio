@@ -1108,3 +1108,326 @@
     transition-delay: 0ms !important;
   }
 }
+
+/* ── Hardware — Touch 2 chapter (mirrors Sensi Lite, carousel right) ──────── */
+
+.touch-2-chapter__viewport {
+  box-sizing: border-box;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 560px;
+  align-items: center;
+  gap: clamp(32px, 4vw, 64px);
+  padding: clamp(32px, 5vw, 56px) clamp(16px, 4vw, 72px) clamp(32px, 5vw, 56px)
+    80px;
+  transition: opacity 300ms ease;
+}
+
+.touch-2-chapter[data-phase='out'] .touch-2-chapter__viewport,
+.touch-2-chapter[data-phase='out'] .touch-2-chapter__footer {
+  opacity: 0;
+}
+
+.touch-2-chapter__stage {
+  width: 100%;
+  max-width: 560px;
+  justify-self: end;
+  opacity: 0;
+  transform: translateY(16px);
+  transition:
+    opacity 700ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 700ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.touch-2-chapter[data-phase='in'] .touch-2-chapter__stage {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.touch-2-chapter__stage .touch2-carousel {
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.touch-2-chapter__copy {
+  min-width: 0;
+  align-self: center;
+}
+
+.touch-2-chapter__copy > * {
+  transition:
+    opacity 500ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 500ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.touch-2-chapter[data-phase='before'] .touch-2-chapter__copy > *,
+.touch-2-chapter[data-phase='out'] .touch-2-chapter__copy > * {
+  opacity: 0;
+  transform: translateY(12px);
+}
+
+.touch-2-chapter[data-phase='in'] .touch-2-chapter__copy > * {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 200ms;
+}
+
+.touch-2-chapter[data-phase='in'] .touch-2-chapter__rule {
+  transition-delay: 280ms;
+}
+
+.touch-2-chapter[data-phase='in'] .touch-2-chapter__body {
+  transition-delay: 360ms;
+}
+
+.touch-2-chapter__headline {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: clamp(28px, 3.2vw, 40px);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--color-ink);
+  text-wrap: balance;
+}
+
+.touch-2-chapter__rule {
+  width: 40px;
+  height: 1px;
+  margin: clamp(18px, 2.5vw, 24px) 0;
+  background-color: var(--color-accent);
+}
+
+.touch-2-chapter__body {
+  margin: 0;
+  max-width: 52ch;
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--color-muted);
+  white-space: pre-line;
+  text-wrap: pretty;
+}
+
+.touch-2-chapter__footer {
+  padding: clamp(24px, 4vw, 40px) clamp(16px, 4vw, 72px)
+    clamp(32px, 4vw, 48px);
+  text-align: center;
+  transition: opacity 300ms ease;
+}
+
+.touch-2-chapter__footer-rule {
+  width: min(100%, 420px);
+  height: 1px;
+  margin: 0 auto clamp(16px, 2vw, 20px);
+  background-color: var(--color-rule);
+}
+
+.touch-2-chapter__footer-meta {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.touch-2-chapter__footer-title {
+  color: var(--color-ink);
+}
+
+.touch-2-chapter__footer-count {
+  color: var(--color-accent);
+}
+
+@media (max-width: 960px) {
+  .touch-2-chapter__viewport {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    min-height: auto;
+    padding: clamp(32px, 5vw, 48px) clamp(16px, 4vw, 32px);
+  }
+
+  .touch-2-chapter__copy {
+    order: 2;
+    text-align: center;
+  }
+
+  .touch-2-chapter__stage {
+    order: 1;
+    max-width: min(560px, 100%);
+    margin: 0 auto;
+    justify-self: center;
+  }
+
+  .touch-2-chapter__body {
+    max-width: none;
+  }
+
+  .touch-2-chapter__rule {
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .touch-2-chapter__stage {
+    transform: none;
+    transition: opacity 0.25s ease;
+  }
+
+  .touch-2-chapter[data-phase='before'] .touch-2-chapter__stage {
+    opacity: 0;
+  }
+
+  .touch-2-chapter__copy > * {
+    transition: opacity 0.25s ease;
+  }
+
+  .touch-2-chapter[data-phase='before'] .touch-2-chapter__copy > *,
+  .touch-2-chapter[data-phase='out'] .touch-2-chapter__copy > * {
+    transform: none;
+  }
+
+  .touch-2-chapter[data-phase='in'] .touch-2-chapter__copy > * {
+    transition-delay: 0ms !important;
+  }
+}
+
+/* ── Touch 2 vertical carousel ────────────────────────────────────────────── */
+
+.touch2-carousel__sr-status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.touch2-carousel {
+  position: relative;
+  /* Figma frame: 330×440, corner radius 40, iOS smoothing 100% */
+  --touch2-slide-w: min(100%, 330px);
+  --touch2-radius: 40px;
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(20px, 2.5vw, 32px);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.touch2-carousel__slides {
+  position: relative;
+  width: var(--touch2-slide-w);
+  aspect-ratio: 330 / 440;
+  margin: 0 auto;
+  isolation: isolate;
+}
+
+.touch2-carousel__slide {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  border-radius: var(--touch2-radius);
+  corner-shape: squircle;
+  overflow: hidden;
+  opacity: 0;
+  z-index: 0;
+  pointer-events: none;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.22);
+  transition: opacity 520ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.touch2-carousel__slide--active {
+  opacity: 1;
+  z-index: 1;
+  pointer-events: auto;
+}
+
+.touch2-carousel__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  user-select: none;
+  pointer-events: none;
+}
+
+.touch2-carousel__dots {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 40px;
+  flex-shrink: 0;
+}
+
+.touch2-carousel__dot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  padding: 6px 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.touch2-carousel__dot::before {
+  content: '';
+  display: block;
+  width: 40px;
+  height: 32px;
+  border-radius: 16px;
+  corner-shape: squircle;
+  background: var(--color-accent);
+  opacity: 0.45;
+  transition:
+    height 320ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 200ms ease;
+}
+
+.touch2-carousel__dot:hover::before {
+  opacity: 0.7;
+}
+
+.touch2-carousel__dot--active::before {
+  height: 80px;
+  border-radius: 20px;
+  opacity: 1;
+}
+
+.touch2-carousel__dot:focus-visible {
+  outline: none;
+}
+
+.touch2-carousel__dot:focus-visible::before {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 4px;
+}
+
+@media (max-width: 640px) {
+  .touch2-carousel {
+    grid-template-columns: minmax(0, 1fr) auto;
+    --touch2-slide-w: min(100%, 330px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .touch2-carousel__slide,
+  .touch2-carousel__dot::before {
+    transition-duration: 0.2s;
+  }
+}
