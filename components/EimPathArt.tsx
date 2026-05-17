@@ -1,6 +1,5 @@
 'use client'
 
-import { EIM_DRAW_EASE } from '@/lib/eimMeanderPath'
 import {
   EIM_PATH_VIEWBOX,
   EIM_TOUCH2_ORIGIN,
@@ -13,9 +12,10 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 
 const SVG_SRC = '/images/Devices/eimpath.svg'
 const PATH_FILL = '#F5431B'
-const GHOST_MS = 200
-const GHOST_OPACITY = 0.08
-const DASH_FADE_MS = 100
+const CYCLE_HOLD_MS = 600
+const DASH_FADE_MIN_MS = 360
+const DASH_FADE_MAX_MS = 520
+const DASH_STAGGER_MIN_MS = 28
 
 type DebugLabel = { order: number; x: number; y: number }
 
@@ -23,36 +23,54 @@ interface Props {
   active?: boolean
   triggerDraw?: boolean
   drawDurationMs?: number
-  showLabel?: boolean
   className?: string
 }
 
 export function EimPathArt({
   active = true,
   triggerDraw = true,
-  drawDurationMs = 1400,
-  showLabel = true,
+  drawDurationMs = 3000,
   className,
 }: Props) {
   const svgHostRef = useRef<HTMLDivElement>(null)
   const dashRefs = useRef<SVGPathElement[]>([])
-  const labelRef = useRef<SVGTextElement | null>(null)
   const [dashDebug, setDashDebug] = useState(false)
   const [dashCount, setDashCount] = useState(0)
   const [debugLabels, setDebugLabels] = useState<DebugLabel[]>([])
-  const [ghostVisible, setGhostVisible] = useState(false)
   const [svgReady, setSvgReady] = useState(false)
 
   useEffect(() => {
     setDashDebug(isEimDashDebugEnabled())
   }, [])
 
-  const resetDashes = useCallback(() => {
-    dashRefs.current.forEach((path) => {
-      path.style.transition = 'none'
-      path.style.opacity = '0'
-    })
+  const getDashGroup = useCallback(() => {
+    const group = svgHostRef.current?.querySelector('.eim-path-art__dashes')
+    return group instanceof SVGGElement ? group : null
   }, [])
+
+  const setDashPhase = useCallback(
+    (phase: 'on' | 'off', instant = false) => {
+      const group = getDashGroup()
+      const root = svgHostRef.current
+      if (!group || !root) return
+
+      if (instant) {
+        root.classList.add('eim-path-art--instant')
+        group.setAttribute('data-phase', phase)
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => root.classList.remove('eim-path-art--instant'))
+        })
+        return
+      }
+
+      group.setAttribute('data-phase', phase)
+    },
+    [getDashGroup],
+  )
+
+  const resetDashes = useCallback(() => {
+    setDashPhase('off', true)
+  }, [setDashPhase])
 
   const measureDebugLabels = useCallback(() => {
     const host = svgHostRef.current
@@ -112,27 +130,14 @@ export function EimPathArt({
         const segments = sortSubpathsByRevealOrder(splitPathSubpaths(d))
         dashRefs.current = []
 
-        const ghostGroup = document.createElementNS(
-          'http://www.w3.org/2000/svg',
-          'g',
-        )
-        ghostGroup.setAttribute('class', 'eim-path-art__ghost-dashes')
-        ghostGroup.setAttribute('opacity', debug ? '0' : '0')
-
         const dashGroup = document.createElementNS(
           'http://www.w3.org/2000/svg',
           'g',
         )
         dashGroup.setAttribute('class', 'eim-path-art__dashes')
+        dashGroup.setAttribute('data-phase', debug ? 'on' : 'off')
 
-        for (const segment of segments) {
-          const ghostDash = document.createElementNS(
-            'http://www.w3.org/2000/svg',
-            'path',
-          )
-          ghostDash.setAttribute('d', segment)
-          ghostDash.setAttribute('fill', PATH_FILL)
-
+        segments.forEach((segment, index) => {
           const dash = document.createElementNS(
             'http://www.w3.org/2000/svg',
             'path',
@@ -140,46 +145,13 @@ export function EimPathArt({
           dash.setAttribute('d', segment)
           dash.setAttribute('fill', PATH_FILL)
           dash.setAttribute('class', 'eim-path-art__dash')
-          dash.style.opacity = debug ? '0.35' : '0'
+          dash.style.setProperty('--dash-index', String(index))
 
-          ghostGroup.appendChild(ghostDash)
           dashGroup.appendChild(dash)
           dashRefs.current.push(dash)
-        }
+        })
 
-        const measurePath = document.createElementNS(
-          'http://www.w3.org/2000/svg',
-          'path',
-        )
-        measurePath.setAttribute('d', segments.join(''))
-        measurePath.setAttribute('fill', 'none')
-        measurePath.setAttribute('stroke', 'none')
-        measurePath.setAttribute('visibility', 'hidden')
-        svg.appendChild(measurePath)
-
-        svg.appendChild(ghostGroup)
         svg.appendChild(dashGroup)
-
-        if (showLabel && !debug) {
-          const label = document.createElementNS(
-            'http://www.w3.org/2000/svg',
-            'text',
-          )
-          label.setAttribute('class', 'eim-meander-line__label')
-          label.setAttribute('text-anchor', 'middle')
-          label.setAttribute('dominant-baseline', 'middle')
-          label.setAttribute('opacity', '0')
-          label.textContent = '900MHz'
-          labelRef.current = label
-          svg.appendChild(label)
-
-          const len = measurePath.getTotalLength()
-          if (len > 0) {
-            const mid = measurePath.getPointAtLength(len * 0.5)
-            label.setAttribute('x', String(mid.x))
-            label.setAttribute('y', String(mid.y))
-          }
-        }
 
         svg.setAttribute('class', 'eim-path-art__svg')
         svg.removeAttribute('width')
@@ -199,7 +171,7 @@ export function EimPathArt({
       cancelled = true
       dashRefs.current = []
     }
-  }, [showLabel])
+  }, [])
 
   useEffect(() => {
     if (!dashDebug || !svgReady) {
@@ -221,53 +193,69 @@ export function EimPathArt({
 
   useEffect(() => {
     if (!svgReady || !active) {
-      setGhostVisible(false)
       resetDashes()
-      labelRef.current?.setAttribute('opacity', '0')
       return
     }
 
-    if (dashDebug) {
-      dashRefs.current.forEach((path) => {
-        path.style.opacity = '0.35'
-      })
-      return
-    }
+    if (dashDebug) return
 
     if (!triggerDraw || dashCount < 1) return
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     if (reduced) {
-      setGhostVisible(true)
-      dashRefs.current.forEach((path) => {
-        path.style.opacity = '1'
-      })
-      labelRef.current?.setAttribute('opacity', '0.55')
+      setDashPhase('on', true)
       return
     }
 
-    resetDashes()
-    setGhostVisible(true)
-    labelRef.current?.setAttribute('opacity', '0')
+    const root = svgHostRef.current
+    if (!root) return
 
-    const staggerMs = Math.max(8, drawDurationMs / dashCount)
+    const staggerMs = Math.max(
+      DASH_STAGGER_MIN_MS,
+      drawDurationMs / dashCount,
+    )
+    const fadeMs = Math.min(
+      DASH_FADE_MAX_MS,
+      Math.max(DASH_FADE_MIN_MS, staggerMs * 3.6),
+    )
+    const phaseDuration =
+      (dashCount - 1) * staggerMs + fadeMs + CYCLE_HOLD_MS
+
+    root.style.setProperty('--dash-stagger', `${staggerMs}ms`)
+    root.style.setProperty('--dash-fade', `${fadeMs}ms`)
+
+    let cancelled = false
     const timers: number[] = []
 
-    dashRefs.current.forEach((path, index) => {
-      const delay = GHOST_MS + index * staggerMs
+    const schedule = (fn: () => void, delay: number) => {
       timers.push(
         window.setTimeout(() => {
-          path.style.transition = `opacity ${DASH_FADE_MS}ms ${EIM_DRAW_EASE}`
-          path.style.opacity = '1'
-
-          if (index === dashRefs.current.length - 1) {
-            labelRef.current?.setAttribute('opacity', '0.55')
-          }
+          if (!cancelled) fn()
         }, delay),
       )
-    })
+    }
+
+    const runTurnOn = (then: () => void) => {
+      setDashPhase('off', true)
+      schedule(() => {
+        setDashPhase('on')
+        schedule(then, phaseDuration)
+      }, 32)
+    }
+
+    const runTurnOff = (then: () => void) => {
+      setDashPhase('off')
+      schedule(then, phaseDuration)
+    }
+
+    const loop = () => {
+      runTurnOn(() => runTurnOff(() => loop()))
+    }
+
+    loop()
 
     return () => {
+      cancelled = true
       timers.forEach((id) => window.clearTimeout(id))
     }
   }, [
@@ -278,16 +266,8 @@ export function EimPathArt({
     drawDurationMs,
     resetDashes,
     dashDebug,
+    setDashPhase,
   ])
-
-  useEffect(() => {
-    if (dashDebug) return
-    const ghost = svgHostRef.current?.querySelector('.eim-path-art__ghost-dashes')
-    if (ghost instanceof SVGGElement) {
-      ghost.style.transition = `opacity ${GHOST_MS}ms ease`
-      ghost.style.opacity = ghostVisible ? String(GHOST_OPACITY) : '0'
-    }
-  }, [ghostVisible, svgReady, dashDebug])
 
   return (
     <div

@@ -6,7 +6,7 @@ import { useChapterPanelOpacity } from '@/lib/useChapterPanelOpacity'
 import { useCallback, useEffect, useState } from 'react'
 
 const CHAPTER_ID = 'hardware-eim'
-const DRAW_MS = 1400
+const DRAW_MS = 3000
 const SCROLL_OUT_MS = 300
 
 const HEADLINE = 'Configuration belongs at the thermostat.'
@@ -42,8 +42,7 @@ export function EimChapter({ index, isLast }: Props) {
       return
     }
 
-    const ghostMs = 200
-    const copyAt = ghostMs + DRAW_MS * 0.5
+    const copyAt = DRAW_MS * 0.45
     const tCopy = window.setTimeout(() => setCopyIn(true), copyAt)
 
     return () => window.clearTimeout(tCopy)
@@ -72,7 +71,6 @@ export function EimChapter({ index, isLast }: Props) {
             active={chapterActive}
             triggerDraw={chapterActive}
             drawDurationMs={DRAW_MS}
-            showLabel
           />
         </div>
 
