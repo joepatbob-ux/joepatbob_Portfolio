@@ -616,7 +616,7 @@ export function SidebarNav() {
                   width: 'min(100%, 380px)',
                 }}
               >
-                {'I simplify complex systems for '}
+                {'I simplify complex systems across '}
                 {NAV_SECTIONS.map((sec, i) => {
                   const connector =
                     i === NAV_SECTIONS.length - 2
@@ -916,7 +916,7 @@ export function SidebarNav() {
           pointerEvents: 'auto',
         }}>
           <p style={{ fontFamily: FONT_AHG, fontWeight: 700, fontSize: 24, lineHeight: 1.2, letterSpacing: '0.02em', textTransform: 'uppercase', color: C.ink, margin: 0 }}>
-            {'I simplify complex systems for '}
+            {'I simplify complex systems across '}
             {NAV_SECTIONS.map((sec, i) => {
               const isActive  = activeSection === sec.id
               const connector = i === NAV_SECTIONS.length - 2 ? ', and ' : i < NAV_SECTIONS.length - 1 ? ', ' : '.'
