@@ -2,6 +2,7 @@
 import type { Section } from '@/lib/types'
 import { CaseStudyOverview } from './CaseStudyOverview'
 import { Chapter } from './Chapter'
+import { ChapterViewport } from './ChapterViewport'
 import { ClosingQuote } from './ClosingQuote'
 
 interface Props {
@@ -31,6 +32,7 @@ export function CaseStudy({ section, sectionId }: Props) {
       }}
     >
       <CaseStudyOverview
+        sectionId={sectionId}
         eyebrow={section.eyebrow}
         headline={section.headline}
         body={section.overviewBody}
@@ -46,11 +48,12 @@ export function CaseStudy({ section, sectionId }: Props) {
         />
       ))}
 
-      <div
-        data-chapter-id={`${sectionId}-lessons`}
+      <ChapterViewport
+        chapterId={`${sectionId}-lessons`}
+        isLast={!section.closingQuote}
+        fillViewport
         style={{
           padding: `clamp(32px, 5vw, 48px) clamp(16px, 5vw, 72px) clamp(48px, 6vw, 72px)`,
-          scrollMarginTop: 24,
           display: 'flex',
           flexWrap: 'wrap',
           gap: 'clamp(32px, 5vw, 64px)',
@@ -87,7 +90,7 @@ export function CaseStudy({ section, sectionId }: Props) {
         >
           {section.lessonBody}
         </p>
-      </div>
+      </ChapterViewport>
 
       {section.closingQuote ? (
         <ClosingQuote

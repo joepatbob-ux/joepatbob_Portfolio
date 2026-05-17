@@ -2,6 +2,7 @@
 import type { Metadata } from 'next'
 import { JetBrains_Mono } from 'next/font/google'
 import '../styles/globals.css'
+import { ChapterNavProvider } from '@/components/ChapterNavProvider'
 import { SidebarNav } from '@/components/SidebarNav'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import { HandednessProvider } from '@/components/HandednessProvider'
@@ -52,8 +53,10 @@ export default function RootLayout({
         <ThemeProvider>
           <HandednessProvider>
             <StickerProvider>
-              <SidebarNav />
-              <main className="content-area">{children}</main>
+              <ChapterNavProvider>
+                <SidebarNav />
+                <main className="content-area">{children}</main>
+              </ChapterNavProvider>
               <StickerLayer />
             </StickerProvider>
           </HandednessProvider>

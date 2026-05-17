@@ -1,6 +1,7 @@
 // components/Chapter.tsx
 import type { Chapter as ChapterType } from '@/lib/types'
 import { BeforeAfterSlider } from '@/components/BeforeAfterSlider'
+import { ChapterViewport } from '@/components/ChapterViewport'
 import { SensiLiteChapter } from '@/components/SensiLiteChapter'
 import { Touch2Chapter } from '@/components/Touch2Chapter'
 import { StickerPile } from '@/components/StickerPile'
@@ -37,14 +38,12 @@ export function Chapter({ chapter, sectionId, index, isLast }: Props) {
   const fullWidthMaxH = 640
 
   return (
-    <section
-      data-chapter-id={chapterId}
+    <ChapterViewport
+      chapterId={chapterId}
+      isLast={isLast}
+      fillViewport
       style={{
         padding: `${padY} ${padX} clamp(32px, 4vw, 56px)`,
-        borderTop: '1px solid var(--color-rule)',
-        borderBottom: isLast ? '1px solid var(--color-rule)' : undefined,
-        minWidth: 0,
-        scrollMarginTop: 24,
       }}
     >
       {/* Title row */}
@@ -181,7 +180,7 @@ export function Chapter({ chapter, sectionId, index, isLast }: Props) {
           )}
         </div>
       )}
-    </section>
+    </ChapterViewport>
   )
 }
 

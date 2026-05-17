@@ -74,6 +74,7 @@
     color: var(--color-ink);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    scroll-snap-type: y mandatory;
   }
 
   @media (prefers-color-scheme: dark) {
@@ -802,20 +803,51 @@
     drop-shadow(0 3px 8px rgba(0, 0, 0, 0.1));
 }
 
-/* Case study overview — full viewport, blur-in on scroll (light / dark tokens) */
+/* Portfolio chapters — slideshow: one sticky slide per viewport, crossfade between */
+#hero,
+.portfolio-chapter-slot--fill {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+.portfolio-chapter-slot--fill {
+  height: 100vh;
+  height: 100dvh;
+  position: relative;
+}
+
+.portfolio-chapter-panel {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-sizing: border-box;
+  will-change: opacity;
+}
+
+.sensi-lite-chapter .portfolio-chapter-panel,
+.touch-2-chapter .portfolio-chapter-panel {
+  justify-content: stretch;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .portfolio-chapter-panel {
+    transition: opacity 0.2s ease !important;
+  }
+}
+
+/* Case study overview */
 .case-study-overview {
   position: relative;
-  box-sizing: border-box;
-  min-height: 100vh;
-  min-height: 100dvh;
-  display: flex;
   align-items: center;
   justify-content: center;
   padding: clamp(32px, 6vw, 72px) clamp(20px, 5vw, 48px);
   background-color: var(--color-paper);
   border-bottom: 1px solid var(--color-rule);
   color-scheme: light dark;
-  transition: background-color 0.35s ease, border-color 0.35s ease;
 }
 
 .case-study-overview__inner {
@@ -823,49 +855,6 @@
   max-width: 680px;
   margin: 0 auto;
   text-align: center;
-}
-
-.case-study-overview__inner > * {
-  transition:
-    opacity 700ms cubic-bezier(0.33, 1, 0.68, 1),
-    filter 700ms cubic-bezier(0.33, 1, 0.68, 1),
-    transform 700ms cubic-bezier(0.33, 1, 0.68, 1),
-    color 0.35s ease;
-}
-
-.case-study-overview[data-phase='before'] .case-study-overview__inner > *,
-.case-study-overview[data-phase='out'] .case-study-overview__inner > * {
-  opacity: 0;
-  filter: blur(12px);
-  transform: translateY(18px);
-}
-
-.case-study-overview[data-phase='in'] .case-study-overview__eyebrow {
-  opacity: 1;
-  filter: blur(0);
-  transform: translateY(0);
-  transition-delay: 0ms;
-}
-
-.case-study-overview[data-phase='in'] .case-study-overview__headline {
-  opacity: 1;
-  filter: blur(0);
-  transform: translateY(0);
-  transition-delay: 80ms;
-}
-
-.case-study-overview[data-phase='in'] .case-study-overview__rule {
-  opacity: 1;
-  filter: blur(0);
-  transform: translateY(0);
-  transition-delay: 160ms;
-}
-
-.case-study-overview[data-phase='in'] .case-study-overview__body {
-  opacity: 1;
-  filter: blur(0);
-  transform: translateY(0);
-  transition-delay: 240ms;
 }
 
 .case-study-overview__eyebrow {
@@ -906,59 +895,21 @@
   white-space: pre-line;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .case-study-overview__inner > * {
-    transition: opacity 0.25s ease, color 0.35s ease;
-  }
-
-  .case-study-overview[data-phase='before'] .case-study-overview__inner > *,
-  .case-study-overview[data-phase='out'] .case-study-overview__inner > * {
-    filter: none;
-    transform: none;
-  }
-
-  .case-study-overview[data-phase='in'] .case-study-overview__inner > * {
-    transition-delay: 0ms !important;
-  }
-}
-
 /* Hardware — Sensi Lite chapter */
 .sensi-lite-chapter__viewport {
   box-sizing: border-box;
-  min-height: 100vh;
-  min-height: 100dvh;
+  flex: 1;
   display: grid;
   grid-template-columns: 560px minmax(0, 1fr);
   align-items: center;
   gap: clamp(32px, 4vw, 64px);
   padding: clamp(32px, 5vw, 56px) 80px clamp(32px, 5vw, 56px)
     clamp(16px, 4vw, 72px);
-  transition: opacity 300ms ease;
-}
-
-.sensi-lite-chapter[data-phase='out'] .sensi-lite-chapter__viewport,
-.sensi-lite-chapter[data-phase='out'] .sensi-lite-chapter__footer {
-  opacity: 0;
 }
 
 .sensi-lite-chapter__stage {
   width: 100%;
   max-width: 560px;
-  transform: perspective(1200px) rotateY(25deg);
-  opacity: 0.4;
-  filter: brightness(0.5);
-  transition:
-    transform 800ms cubic-bezier(0.16, 1, 0.3, 1),
-    opacity 800ms cubic-bezier(0.16, 1, 0.3, 1),
-    filter 800ms cubic-bezier(0.16, 1, 0.3, 1);
-  transform-origin: center center;
-  transform-style: preserve-3d;
-}
-
-.sensi-lite-chapter[data-phase='in'] .sensi-lite-chapter__stage {
-  transform: perspective(1200px) rotateY(0deg);
-  opacity: 1;
-  filter: brightness(1);
 }
 
 .sensi-lite-chapter__stage > div {
@@ -976,32 +927,6 @@
 .sensi-lite-chapter__copy {
   min-width: 0;
   align-self: center;
-}
-
-.sensi-lite-chapter__copy > * {
-  transition:
-    opacity 500ms cubic-bezier(0.16, 1, 0.3, 1),
-    transform 500ms cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.sensi-lite-chapter[data-phase='before'] .sensi-lite-chapter__copy > *,
-.sensi-lite-chapter[data-phase='out'] .sensi-lite-chapter__copy > * {
-  opacity: 0;
-  transform: translateY(12px);
-}
-
-.sensi-lite-chapter[data-phase='in'] .sensi-lite-chapter__copy > * {
-  opacity: 1;
-  transform: translateY(0);
-  transition-delay: 200ms;
-}
-
-.sensi-lite-chapter[data-phase='in'] .sensi-lite-chapter__rule {
-  transition-delay: 280ms;
-}
-
-.sensi-lite-chapter[data-phase='in'] .sensi-lite-chapter__body {
-  transition-delay: 360ms;
 }
 
 .sensi-lite-chapter__headline {
@@ -1084,65 +1009,23 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .sensi-lite-chapter__stage {
-    transform: none;
-    filter: none;
-    transition: opacity 0.25s ease;
-  }
-
-  .sensi-lite-chapter[data-phase='before'] .sensi-lite-chapter__stage {
-    opacity: 0.85;
-  }
-
-  .sensi-lite-chapter__copy > * {
-    transition: opacity 0.25s ease;
-  }
-
-  .sensi-lite-chapter[data-phase='before'] .sensi-lite-chapter__copy > *,
-  .sensi-lite-chapter[data-phase='out'] .sensi-lite-chapter__copy > * {
-    transform: none;
-  }
-
-  .sensi-lite-chapter[data-phase='in'] .sensi-lite-chapter__copy > * {
-    transition-delay: 0ms !important;
-  }
-}
-
 /* ── Hardware — Touch 2 chapter (mirrors Sensi Lite, carousel right) ──────── */
 
 .touch-2-chapter__viewport {
   box-sizing: border-box;
-  min-height: 100vh;
-  min-height: 100dvh;
+  flex: 1;
   display: grid;
   grid-template-columns: minmax(0, 1fr) min(640px, 46vw);
   align-items: center;
   gap: clamp(32px, 4vw, 64px);
   padding: clamp(32px, 5vw, 56px) clamp(16px, 4vw, 72px) clamp(32px, 5vw, 56px)
     80px;
-  transition: opacity 300ms ease;
-}
-
-.touch-2-chapter[data-phase='out'] .touch-2-chapter__viewport,
-.touch-2-chapter[data-phase='out'] .touch-2-chapter__footer {
-  opacity: 0;
 }
 
 .touch-2-chapter__stage {
   width: 100%;
   max-width: min(640px, 46vw);
   justify-self: end;
-  opacity: 0;
-  transform: translateY(16px);
-  transition:
-    opacity 700ms cubic-bezier(0.16, 1, 0.3, 1),
-    transform 700ms cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.touch-2-chapter[data-phase='in'] .touch-2-chapter__stage {
-  opacity: 1;
-  transform: translateY(0);
 }
 
 .touch-2-chapter__stage .touch2-carousel {
@@ -1154,32 +1037,6 @@
 .touch-2-chapter__copy {
   min-width: 0;
   align-self: center;
-}
-
-.touch-2-chapter__copy > * {
-  transition:
-    opacity 500ms cubic-bezier(0.16, 1, 0.3, 1),
-    transform 500ms cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.touch-2-chapter[data-phase='before'] .touch-2-chapter__copy > *,
-.touch-2-chapter[data-phase='out'] .touch-2-chapter__copy > * {
-  opacity: 0;
-  transform: translateY(12px);
-}
-
-.touch-2-chapter[data-phase='in'] .touch-2-chapter__copy > * {
-  opacity: 1;
-  transform: translateY(0);
-  transition-delay: 200ms;
-}
-
-.touch-2-chapter[data-phase='in'] .touch-2-chapter__rule {
-  transition-delay: 280ms;
-}
-
-.touch-2-chapter[data-phase='in'] .touch-2-chapter__body {
-  transition-delay: 360ms;
 }
 
 .touch-2-chapter__headline {
@@ -1215,7 +1072,6 @@
   padding: clamp(24px, 4vw, 40px) clamp(16px, 4vw, 72px)
     clamp(32px, 4vw, 48px);
   text-align: center;
-  transition: opacity 300ms ease;
 }
 
 .touch-2-chapter__footer-rule {
@@ -1247,7 +1103,6 @@
   .touch-2-chapter__viewport {
     grid-template-columns: 1fr;
     grid-template-rows: auto auto;
-    min-height: auto;
     padding: clamp(32px, 5vw, 48px) clamp(16px, 4vw, 32px);
   }
 
@@ -1270,30 +1125,6 @@
   .touch-2-chapter__rule {
     margin-left: auto;
     margin-right: auto;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .touch-2-chapter__stage {
-    transform: none;
-    transition: opacity 0.25s ease;
-  }
-
-  .touch-2-chapter[data-phase='before'] .touch-2-chapter__stage {
-    opacity: 0;
-  }
-
-  .touch-2-chapter__copy > * {
-    transition: opacity 0.25s ease;
-  }
-
-  .touch-2-chapter[data-phase='before'] .touch-2-chapter__copy > *,
-  .touch-2-chapter[data-phase='out'] .touch-2-chapter__copy > * {
-    transform: none;
-  }
-
-  .touch-2-chapter[data-phase='in'] .touch-2-chapter__copy > * {
-    transition-delay: 0ms !important;
   }
 }
 
