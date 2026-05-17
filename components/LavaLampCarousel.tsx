@@ -1,7 +1,12 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { fitSlideFrame, type FrameSize } from '@/lib/touch2CarouselFrame'
 import { TOUCH2_CAROUSEL_IMAGES } from '@/lib/touch2CarouselImages'
+
+const MAX_FRAME_W = 520
+const MAX_FRAME_H = 580
+const DEFAULT_FRAME: FrameSize = { width: 400, height: 520 }
 
 interface Slide {
   src: string
@@ -18,7 +23,43 @@ export function LavaLampCarousel({
   className,
 }: Props) {
   const [index, setIndex] = useState(0)
+  const [naturalSizes, setNaturalSizes] = useState<
+    Record<string, { width: number; height: number }>
+  >({})
   const count = slides.length
+
+  useEffect(() => {
+    let cancelled = false
+
+    slides.forEach((slide) => {
+      const img = new Image()
+      img.decoding = 'async'
+      img.onload = () => {
+        if (cancelled) return
+        setNaturalSizes((prev) => ({
+          ...prev,
+          [slide.src]: {
+            width: img.naturalWidth,
+            height: img.naturalHeight,
+          },
+        }))
+      }
+      img.src = slide.src
+    })
+
+    return () => {
+      cancelled = true
+    }
+  }, [slides])
+
+  const frame = useMemo(() => {
+    const natural = naturalSizes[slides[index]?.src]
+    if (!natural) return DEFAULT_FRAME
+    return fitSlideFrame(natural.width, natural.height, MAX_FRAME_W, MAX_FRAME_H)
+  }, [index, naturalSizes, slides])
+
+  const orientation =
+    frame.width >= frame.height ? 'landscape' : 'portrait'
 
   const go = useCallback(
     (delta: number) => {
@@ -54,7 +95,21 @@ export function LavaLampCarousel({
         Photo {index + 1} of {count}
       </p>
 
-      <div className="touch2-carousel__slides">
+      <div
+        className={[
+          'touch2-carousel__slides',
+          `touch2-carousel__slides--${orientation}`,
+          naturalSizes[slides[index]?.src]
+            ? 'touch2-carousel__slides--ready'
+            : '',
+        ]
+          .filter(Boolean)
+          .join(' ')}
+        style={{
+          width: frame.width,
+          height: frame.height,
+        }}
+      >
         {slides.map((slide, i) => (
           <figure
             key={slide.src}
