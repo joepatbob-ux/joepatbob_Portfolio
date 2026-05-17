@@ -47,13 +47,11 @@ I kept the core menu architecture. I changed the visual language, the interactio
       id: 'eim',
       title: 'EIM',
       subtitle: 'Solving a problem by moving it somewhere better',
-      body: `The Equipment Interface Module supports both indoor and outdoor HVAC equipment. The configuration challenge: how does a contractor communicate equipment type without traveling back and forth between thermostat and unit?
+      body: `The Equipment Interface Module supports both indoor and outdoor HVAC equipment. The challenge: how does a contractor communicate equipment type without traveling back and forth between thermostat and unit?
 
-I moved the configuration to the thermostat. Through a simple pairing flow, the contractor sets location and equipment type once, without leaving. The EIM configures itself accordingly. Contractors noticed immediately.
-
-Patent US 12,608,066 covers the resulting power management behavior: blanking the display and surfacing device state to the mobile app rather than showing an on-device error when power stealing is lost.`,
-      imageAlt: 'Installer wiring EIM during field evaluation',
-      imageSrc: '/images/ch2-eim-installer-wiring.jpg',
+I moved the configuration to the thermostat. Through a simple pairing flow, the contractor sets location and equipment type once, without leaving. The EIM configures itself accordingly. Contractors noticed immediately.`,
+      imageAlt: 'Equipment Interface Module product photo',
+      imageSrc: '/images/Devices/eimpath.svg',
       imageLayout: 'full-width',
       imagePosition: 'left',
     },
