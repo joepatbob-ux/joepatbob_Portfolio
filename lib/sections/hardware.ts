@@ -47,16 +47,13 @@ Patent US 12,608,066 covers the resulting power management behavior: blanking th
       id: 'sensi-lite',
       title: 'Sensi Lite',
       subtitle: 'Physical prototype — 32 segments, three controls, one enclosure.',
-      body: `This is the hardware prototype we used to validate readout density, control affordances, and how the segment display reads on the final black face — before the UI was locked for production.
-
-The most constrained product I've worked on. 32 segments. Three buttons: up, down, and menu/action.
-
-Navigation stayed flat and cyclical. The menu/action button serves triple duty: standard press advances, long press enters homeowner settings, second long press reaches contractor configuration — accessible to the people who need it, invisible to those who don't.
+      body: `The most constrained product I've worked on. Navigation stayed flat and cyclical. The menu/action button serves triple duty: standard press advances, long press enters homeowner settings, second long press reaches contractor configuration — accessible to those who need it, invisible to those who don't.
 
 With flat navigation, sequence is logic. I ordered settings based on conditional dependencies so users answer questions only when they have context.
 
 Two design positions didn't survive stakeholder review. Post-launch data proved them right.`,
-      imageAlt: 'Sensi Lite interactive thermostat prototype',
+      imageAlt: 'Sensi Lite thermostat prototype, three-quarter view on black',
+      imageSrc: '/images/sensi-lite-tilted.png',
       imageLayout: 'full-width',
       imagePosition: 'left',
     },

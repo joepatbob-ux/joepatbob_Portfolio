@@ -1,7 +1,7 @@
 // components/Chapter.tsx
 import type { Chapter as ChapterType } from '@/lib/types'
 import { BeforeAfterSlider } from '@/components/BeforeAfterSlider'
-import { SensiLiteProto } from '@/components/SensiLiteProto'
+import { SensiLiteChapter } from '@/components/SensiLiteChapter'
 import { StickerPile } from '@/components/StickerPile'
 
 interface Props {
@@ -16,6 +16,11 @@ const padX = 'clamp(16px, 4vw, 72px)'
 
 export function Chapter({ chapter, sectionId, index, isLast }: Props) {
   const chapterId = `${sectionId}-${chapter.id}`
+
+  if (chapterId === 'hardware-sensi-lite') {
+    return <SensiLiteChapter body={chapter.body} isLast={isLast} />
+  }
+
   const num = String(index + 1).padStart(2, '0')
   const isFullWidth = chapter.imageLayout === 'full-width'
   const isPortrait = chapter.imageLayout === 'portrait'
@@ -80,26 +85,6 @@ export function Chapter({ chapter, sectionId, index, isLast }: Props) {
       {/* Full-width layout: image above body — intrinsic width, capped height */}
       {isFullWidth && (
         <>
-          {chapterId === 'hardware-sensi-lite' && (
-            <div style={{ marginBottom: 32 }}>
-              <p
-                style={{
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: 11,
-                  fontWeight: 700,
-                  letterSpacing: '0.08em',
-                  textTransform: 'uppercase',
-                  color: 'var(--color-accent)',
-                  marginBottom: 16,
-                }}
-              >
-                Interactive prototype
-              </p>
-              <div style={{ width: '100%' }}>
-                <SensiLiteProto />
-              </div>
-            </div>
-          )}
           {chapterId === 'everything-else-in-between' && (
             <div style={{ marginBottom: 28 }}>
               <StickerPile />
@@ -115,7 +100,7 @@ export function Chapter({ chapter, sectionId, index, isLast }: Props) {
               />
             </div>
           )}
-          {chapterId !== 'hardware-sensi-lite' && chapterId !== 'mobile-color' && (
+          {chapterId !== 'mobile-color' && (
             <ImagePlaceholder
               framing={{
                 imagePosition: chapter.imagePosition,
