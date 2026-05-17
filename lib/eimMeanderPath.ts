@@ -262,3 +262,5 @@ export const EIM_LINE_STROKE = '#C45C00'
 export const EIM_LINE_DASH = '5 13'
 export const EIM_LINE_WIDTH = 3
 export const EIM_DRAW_EASE = 'cubic-bezier(0.16, 1, 0.3, 1)'
+/** Soft illuminate / dim for per-dash opacity on the EIM path. */
+export const EIM_DASH_EASE = 'cubic-bezier(0.22, 1, 0.36, 1)'
