@@ -1,10 +1,8 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
 import type { Chapter as ChapterType } from '@/lib/types'
+import { ChapterViewport } from '@/components/ChapterViewport'
 import { LavaLampCarousel } from '@/components/LavaLampCarousel'
-
-type Phase = 'before' | 'in' | 'out'
 
 interface Props {
   chapter: ChapterType
@@ -13,39 +11,12 @@ interface Props {
 }
 
 export function Touch2Chapter({ chapter, index, isLast }: Props) {
-  const rootRef = useRef<HTMLElement>(null)
-  const [phase, setPhase] = useState<Phase>('before')
-
-  useEffect(() => {
-    const el = rootRef.current
-    if (!el) return
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setPhase('in')
-        } else {
-          setPhase((prev) => (prev === 'before' ? 'before' : 'out'))
-        }
-      },
-      { threshold: 0.2 },
-    )
-
-    observer.observe(el)
-    return () => observer.disconnect()
-  }, [])
-
   return (
-    <section
-      ref={rootRef}
-      data-chapter-id="hardware-touch-2"
+    <ChapterViewport
+      chapterId="hardware-touch-2"
+      isLast={isLast}
       className="touch-2-chapter"
-      data-phase={phase}
-      style={{
-        borderTop: '1px solid var(--color-rule)',
-        borderBottom: isLast ? '1px solid var(--color-rule)' : undefined,
-        scrollMarginTop: 24,
-      }}
+      fillViewport
     >
       <div className="touch-2-chapter__viewport">
         <div className="touch-2-chapter__copy">
@@ -65,6 +36,6 @@ export function Touch2Chapter({ chapter, index, isLast }: Props) {
           {String(index + 1).padStart(2, '0')} — {chapter.title}
         </p>
       </footer>
-    </section>
+    </ChapterViewport>
   )
 }

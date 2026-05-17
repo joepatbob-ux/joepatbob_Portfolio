@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { ChapterViewport } from '@/components/ChapterViewport'
 import { SensiLiteProto } from '@/components/SensiLiteProto'
 
 const INTERACTIVE_ID = 'hardware-sensi-lite-interactive'
@@ -12,47 +12,18 @@ One chance to get it right.`
 const CONTROLS =
   '▲ ▼  adjust setpoint    ●  cycle heat / cool / off'
 
-type Phase = 'before' | 'in' | 'out'
-
 interface Props {
   body: string
   isLast: boolean
 }
 
 export function SensiLiteChapter({ body, isLast }: Props) {
-  const rootRef = useRef<HTMLElement>(null)
-  const [phase, setPhase] = useState<Phase>('before')
-
-  useEffect(() => {
-    const el = rootRef.current
-    if (!el) return
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setPhase('in')
-        } else {
-          setPhase((prev) => (prev === 'before' ? 'before' : 'out'))
-        }
-      },
-      { threshold: 0.2 },
-    )
-
-    observer.observe(el)
-    return () => observer.disconnect()
-  }, [])
-
   return (
-    <section
-      ref={rootRef}
-      data-chapter-id="hardware-sensi-lite"
+    <ChapterViewport
+      chapterId="hardware-sensi-lite"
+      isLast={isLast}
       className="sensi-lite-chapter"
-      data-phase={phase}
-      style={{
-        borderTop: '1px solid var(--color-rule)',
-        borderBottom: isLast ? '1px solid var(--color-rule)' : undefined,
-        scrollMarginTop: 24,
-      }}
+      fillViewport
     >
       <div className="sensi-lite-chapter__viewport">
         <div
@@ -74,6 +45,6 @@ export function SensiLiteChapter({ body, isLast }: Props) {
         <div className="sensi-lite-chapter__footer-rule" aria-hidden />
         <p className="sensi-lite-chapter__controls">{CONTROLS}</p>
       </footer>
-    </section>
+    </ChapterViewport>
   )
 }

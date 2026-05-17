@@ -1,44 +1,21 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
-
-type Phase = 'before' | 'in' | 'out'
+import { ChapterViewport } from '@/components/ChapterViewport'
 
 interface Props {
+  sectionId: string
   eyebrow: string
   headline: string
   body: string
 }
 
-export function CaseStudyOverview({ eyebrow, headline, body }: Props) {
-  const rootRef = useRef<HTMLElement>(null)
-  const [phase, setPhase] = useState<Phase>('before')
-
-  useEffect(() => {
-    const el = rootRef.current
-    if (!el) return
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setPhase('in')
-        } else {
-          setPhase((prev) => (prev === 'before' ? 'before' : 'out'))
-        }
-      },
-      { threshold: 0.2 },
-    )
-
-    observer.observe(el)
-    return () => observer.disconnect()
-  }, [])
-
+export function CaseStudyOverview({ sectionId, eyebrow, headline, body }: Props) {
   return (
-    <section
-      ref={rootRef}
+    <ChapterViewport
+      chapterId={`${sectionId}-overview`}
       className="case-study-overview"
-      data-phase={phase}
-      aria-label="Overview"
+      fillViewport
+      style={{ borderTop: 'none' }}
     >
       <div className="case-study-overview__inner">
         {eyebrow ? (
@@ -48,6 +25,6 @@ export function CaseStudyOverview({ eyebrow, headline, body }: Props) {
         <div className="case-study-overview__rule" aria-hidden />
         <p className="case-study-overview__body">{body}</p>
       </div>
-    </section>
+    </ChapterViewport>
   )
 }

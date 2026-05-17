@@ -14,6 +14,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { NAV_SECTIONS, sectionIdForChapter } from '@/lib/nav'
 import { ContactButton } from '@/components/ContactButton'
+import { useChapterNav } from '@/components/ChapterNavProvider'
 import { useHandedness } from '@/components/HandednessProvider'
 
 // ── FONT STRINGS (CSS vars: --font-ahg / --font-mono from globals + layout) ─
@@ -165,6 +166,7 @@ export function SidebarNav() {
   const dark = useDarkMode()
   const isMobile = useIsMobile()
   const { handedness } = useHandedness()
+  const { navigateToChapter, navigateToSection } = useChapterNav()
   const C = {
     ink:     dark ? '#f0eeea' : '#0d0d0d',
     divider: 'var(--color-rule)',
@@ -481,25 +483,18 @@ export function SidebarNav() {
 
   const scrollToSection = (id: string) => {
     setMobileDrawerOpen(false)
-    document
-      .querySelector(`[data-section-id="${id}"]`)
-      ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     const sec = NAV_SECTIONS.find((s) => s.id === id)
-    if (sec) {
-      const chId = toChapterId(id, sec.chapters[0].id)
-      activeChapterRef.current = chId
-      setActiveChapter(chId)
-    }
     activeSectionRef.current = id
     switchSection(id)
-    syncScrollAfterNavigate()
+    if (sec) {
+      activeChapterRef.current = toChapterId(id, sec.chapters[0].id)
+      setActiveChapter(activeChapterRef.current)
+    }
+    void navigateToSection(id).then(syncScrollAfterNavigate)
   }
 
   const scrollToChapter = (chapterId: string) => {
     setMobileDrawerOpen(false)
-    document
-      .querySelector(`[data-chapter-id="${chapterId}"]`)
-      ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     const sectionId = sectionIdForChapter(chapterId)
     if (sectionId) {
       activeSectionRef.current = sectionId
@@ -507,7 +502,7 @@ export function SidebarNav() {
     }
     activeChapterRef.current = chapterId
     setActiveChapter(chapterId)
-    syncScrollAfterNavigate()
+    void navigateToChapter(chapterId).then(syncScrollAfterNavigate)
   }
 
   const currentSection = NAV_SECTIONS.find((s) => s.id === activeSection) || NAV_SECTIONS[0]
