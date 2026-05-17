@@ -4,11 +4,9 @@ import type { Section } from '../types'
 export const hardware: Section = {
   id: 'hardware',
   label: 'Hardware',
-  eyebrow: 'Case Study — Hardware',
-  headline: 'The interface has to\ndo the hard work.',
-  overviewBody: `Designing for hardware is a different problem than designing for screens. Over several product cycles at Copeland, I led UX across five thermostat products — each with its own constraint profile, audience, and set of tradeoffs. From a 1728px touchscreen to 32 segments and 3 buttons.
-
-I'm a named inventor on US Patent 12,608,066 for power loss management, and have a second patent pending for a custom segment display character set.`,
+  eyebrow: '',
+  headline: 'The interface has to do the hard work.',
+  overviewBody: `Designing for hardware is a different problem than designing for screens. Over several product cycles at Copeland, I led UX across thermostat products — each with its own constraint profile, audience, and set of tradeoffs. From a 1728px touchscreen to 32 segments and 3 buttons. Two patents came out of this work.`,
   pullQuote: 'The interface has to do the hard work so the person using it doesn\'t.',
   lessonTitle: 'What hardware\nteaches you.',
   lessonBody: `Designing for hardware strips away the safety nets. You can't push an update to fix a confusing menu on a shipped thermostat. You can't add a tooltip to a 32-segment display. The decisions you make are the decisions users live with.
