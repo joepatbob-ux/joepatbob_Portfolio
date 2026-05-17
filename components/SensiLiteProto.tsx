@@ -334,7 +334,11 @@ function LiteFrame({
   )
 }
 
-export function SensiLiteProto() {
+export function SensiLiteProto({
+  showControlsLegend = true,
+}: {
+  showControlsLegend?: boolean
+}) {
   const [state, setState] = useState<ThermostatState>({
     mode: 'cool',
     heatTo: 68,
@@ -449,24 +453,41 @@ export function SensiLiteProto() {
         </div>
       </ProtoStage>
 
-      <p
-        style={{
-          marginTop: 16,
-          alignSelf: 'center',
-          fontFamily: 'var(--font-mono, monospace)',
-          fontSize: 9,
-          letterSpacing: '0.08em',
-          textTransform: 'uppercase',
-          color: 'var(--color-muted)',
-          textAlign: 'center',
-          lineHeight: 1.8,
-        }}
-      >
-        <span style={{ display: 'block' }}>▲ ▼ setpoint · ● heat / cool / off</span>
-        <span style={{ display: 'block' }}>
+      {showControlsLegend ? (
+        <p
+          style={{
+            marginTop: 16,
+            alignSelf: 'center',
+            fontFamily: 'var(--font-mono, monospace)',
+            fontSize: 9,
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase',
+            color: 'var(--color-muted)',
+            textAlign: 'center',
+            lineHeight: 1.8,
+          }}
+        >
+          <span style={{ display: 'block' }}>▲ ▼ setpoint · ● heat / cool / off</span>
+          <span style={{ display: 'block' }}>
+            Room {DISPLAY_TEMP}° · Heat {state.heatTo}° · Cool {state.coolTo}° · {DEADBAND}° min gap
+          </span>
+        </p>
+      ) : (
+        <p
+          style={{
+            marginTop: 16,
+            alignSelf: 'center',
+            fontFamily: 'var(--font-mono, monospace)',
+            fontSize: 9,
+            letterSpacing: '0.08em',
+            color: 'var(--color-muted)',
+            textAlign: 'center',
+            lineHeight: 1.8,
+          }}
+        >
           Room {DISPLAY_TEMP}° · Heat {state.heatTo}° · Cool {state.coolTo}° · {DEADBAND}° min gap
-        </span>
-      </p>
+        </p>
+      )}
     </div>
   )
 }
