@@ -1013,6 +1013,7 @@
   letter-spacing: -0.02em;
   color: var(--color-ink);
   text-wrap: balance;
+  white-space: pre-line;
 }
 
 .sensi-lite-chapter__rule {

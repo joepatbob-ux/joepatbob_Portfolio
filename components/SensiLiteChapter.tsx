@@ -5,7 +5,9 @@ import { SensiLiteProto } from '@/components/SensiLiteProto'
 
 const INTERACTIVE_ID = 'hardware-sensi-lite-interactive'
 
-const HEADLINE = '32 segments. Three controls. One enclosure.'
+const HEADLINE = `32 segments.
+Three controls.
+One chance to get it right.`
 
 const CONTROLS =
   '▲ ▼  adjust setpoint    ●  cycle heat / cool / off'
