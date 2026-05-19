@@ -9,9 +9,6 @@ const HEADLINE = `32 segments.
 Three controls.
 One chance to get it right.`
 
-const CONTROLS =
-  '▲ ▼  adjust setpoint    ●  cycle heat / cool / off'
-
 interface Props {
   body: string
   isLast: boolean
@@ -34,17 +31,12 @@ export function SensiLiteChapter({ body, isLast }: Props) {
           <SensiLiteProto showControlsLegend={false} />
         </div>
 
-        <div className="sensi-lite-chapter__copy">
-          <h3 className="sensi-lite-chapter__headline">{HEADLINE}</h3>
-          <div className="sensi-lite-chapter__rule" aria-hidden />
-          <p className="sensi-lite-chapter__body">{body}</p>
+        <div className="sensi-lite-chapter__copy chapter-copy">
+          <h3 className="chapter-copy__headline">{HEADLINE}</h3>
+          <div className="chapter-copy__rule" aria-hidden />
+          <p className="chapter-copy__body">{body}</p>
         </div>
       </div>
-
-      <footer className="sensi-lite-chapter__footer">
-        <div className="sensi-lite-chapter__footer-rule" aria-hidden />
-        <p className="sensi-lite-chapter__controls">{CONTROLS}</p>
-      </footer>
     </ChapterViewport>
   )
 }

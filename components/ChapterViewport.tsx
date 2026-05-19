@@ -33,8 +33,6 @@ export function ChapterViewport({
         .filter(Boolean)
         .join(' ')}
       style={{
-        borderTop: '1px solid var(--color-rule)',
-        borderBottom: isLast ? '1px solid var(--color-rule)' : undefined,
         scrollMarginTop: 0,
         minWidth: 0,
         ...style,

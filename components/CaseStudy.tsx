@@ -4,6 +4,7 @@ import { CaseStudyOverview } from './CaseStudyOverview'
 import { Chapter } from './Chapter'
 import { ChapterViewport } from './ChapterViewport'
 import { ClosingQuote } from './ClosingQuote'
+import { HardwareLessons } from './HardwareLessons'
 
 interface Props {
   section: Section
@@ -43,60 +44,42 @@ export function CaseStudy({ section, sectionId }: Props) {
           key={chapter.id}
           chapter={chapter}
           sectionId={sectionId}
-          index={i}
           isLast={i === section.chapters.length - 1}
         />
       ))}
 
-      <ChapterViewport
-        chapterId={`${sectionId}-lessons`}
-        isLast={!section.closingQuote}
-        fillViewport
-        style={{
-          padding: `clamp(32px, 5vw, 48px) clamp(16px, 5vw, 72px) clamp(48px, 6vw, 72px)`,
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: 'clamp(32px, 5vw, 64px)',
-          alignItems: 'start',
-        }}
-      >
-        <h3
-          style={{
-            fontFamily: 'var(--font-ahg)',
-            fontWeight: 700,
-            fontSize: 28,
-            lineHeight: 1.15,
-            color: 'var(--color-ink)',
-            margin: 0,
-            whiteSpace: 'pre-line',
-            flex: '1 1 260px',
-            minWidth: 0,
-            maxWidth: '100%',
-          }}
+      {sectionId === 'hardware' ? (
+        <HardwareLessons
+          lessonTitle={section.lessonTitle}
+          lessonBody={section.lessonBody}
+          isLast={!section.closingQuote}
+        />
+      ) : (
+        <ChapterViewport
+          chapterId={`${sectionId}-lessons`}
+          isLast={!section.closingQuote}
+          fillViewport
+          className="hardware-lessons"
         >
-          {section.lessonTitle}
-        </h3>
-        <p
-          style={{
-            fontSize: 14,
-            lineHeight: 1.7,
-            color: 'var(--color-muted)',
-            margin: 0,
-            whiteSpace: 'pre-line',
-            flex: '1 1 280px',
-            minWidth: 0,
-            maxWidth: '100%',
-          }}
-        >
-          {section.lessonBody}
-        </p>
-      </ChapterViewport>
+          <div className="hardware-lessons__copy chapter-copy">
+            <h3 className="chapter-copy__headline">{section.lessonTitle}</h3>
+            <p className="chapter-copy__body">{section.lessonBody}</p>
+          </div>
+        </ChapterViewport>
+      )}
 
       {section.closingQuote ? (
-        <ClosingQuote
-          quote={section.closingQuote.quote}
-          attribution={section.closingQuote.attribution}
-        />
+        <ChapterViewport
+          chapterId={`${sectionId}-closing`}
+          isLast
+          fillViewport
+          className="portfolio-chapter-slot--closing"
+        >
+          <ClosingQuote
+            quote={section.closingQuote.quote}
+            attribution={section.closingQuote.attribution}
+          />
+        </ChapterViewport>
       ) : null}
     </article>
   )
