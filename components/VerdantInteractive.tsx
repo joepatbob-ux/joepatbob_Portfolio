@@ -3,6 +3,7 @@
 import { VerdantCharacterKeyboard } from '@/components/VerdantCharacterKeyboard'
 import { VerdantCharacterSvg } from '@/components/VerdantCharacterSvg'
 
+const PCB_PHOTO = '/images/hw-verdant.jpg'
 const HARDWARE_PHOTO = '/images/Touch%202/IMG_0799.jpeg'
 
 interface Props {
@@ -22,7 +23,7 @@ export function VerdantInteractive({ selectedCode, onSelectCode }: Props) {
         </div>
         <div className="verdant-interactive__photos" aria-hidden>
           <img
-            src={HARDWARE_PHOTO}
+            src={PCB_PHOTO}
             alt=""
             className="verdant-interactive__photo verdant-interactive__photo--top"
             decoding="async"
