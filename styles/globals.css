@@ -353,6 +353,7 @@
 }
 
 .hardware-lessons__devices {
+  --lesson-device-max-h: clamp(88px, 12vw, 128px);
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
@@ -376,10 +377,60 @@
 .hardware-lessons__device-art {
   width: 100%;
   height: auto;
-  max-height: clamp(88px, 12vw, 128px);
+  max-height: var(--lesson-device-max-h);
   object-fit: contain;
   object-position: bottom center;
   display: block;
+}
+
+.hardware-lessons__device--family {
+  flex: 1.35 1 0;
+  max-width: min(280px, 36vw);
+  min-width: 140px;
+}
+
+/* Touch 2 + EIM + remote sensor — overlaid product family */
+.eim-touch-family {
+  position: relative;
+  width: 100%;
+  height: var(--lesson-device-max-h);
+  max-height: var(--lesson-device-max-h);
+  margin: 0 auto;
+}
+
+.eim-touch-family__layer {
+  position: absolute;
+  display: block;
+  height: auto;
+  object-fit: contain;
+  object-position: bottom center;
+  pointer-events: none;
+}
+
+.eim-touch-family__eim {
+  left: 0;
+  bottom: 0;
+  width: 58%;
+  max-height: 92%;
+  z-index: 1;
+  opacity: 0.98;
+}
+
+.eim-touch-family__touch2 {
+  left: 22%;
+  bottom: 0;
+  width: 62%;
+  max-height: 100%;
+  z-index: 2;
+}
+
+.eim-touch-family__remote {
+  right: 0;
+  bottom: 0;
+  width: auto;
+  height: calc(var(--lesson-device-max-h) * 2 / 3);
+  max-height: calc(var(--lesson-device-max-h) * 2 / 3);
+  z-index: 3;
 }
 
 /* Sensi Lite — frame + LCD segments (matches chapter prototype layout) */
@@ -387,12 +438,12 @@
   position: relative;
   width: 100%;
   aspect-ratio: 241 / 148;
-  max-height: clamp(88px, 12vw, 128px);
+  max-height: var(--lesson-device-max-h);
   height: auto;
 }
 
 .sensi-lite-lesson-art.hardware-lessons__device-art {
-  max-height: clamp(88px, 12vw, 128px);
+  max-height: var(--lesson-device-max-h);
 }
 
 .sensi-lite-lesson-art__frame {
@@ -473,6 +524,12 @@
   .hardware-lessons__device {
     flex: 0 1 calc(33.333% - 12px);
     max-width: 112px;
+  }
+
+  .hardware-lessons__device--family {
+    flex: 1 1 100%;
+    max-width: min(260px, 88vw);
+    min-width: 0;
   }
 
   .hardware-lessons__copy {

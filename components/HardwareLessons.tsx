@@ -1,6 +1,7 @@
 'use client'
 
 import { ChapterViewport } from '@/components/ChapterViewport'
+import { EimTouchFamilyArt } from '@/components/EimTouchFamilyArt'
 import { SensiLiteLessonArt } from '@/components/SensiLiteLessonArt'
 import { HARDWARE_LESSON_DEVICES } from '@/lib/hardware/lessonDevices'
 
@@ -20,8 +21,20 @@ export function HardwareLessons({ lessonTitle, lessonBody, isLast }: Props) {
     >
       <ul className="hardware-lessons__devices" aria-label="Thermostat product line">
         {HARDWARE_LESSON_DEVICES.map((device) => (
-          <li key={device.id} className="hardware-lessons__device">
-            {device.id === 'lite' ? (
+          <li
+            key={device.id}
+            className={[
+              'hardware-lessons__device',
+              device.id === 'eim-touch-family'
+                ? 'hardware-lessons__device--family'
+                : '',
+            ]
+              .filter(Boolean)
+              .join(' ')}
+          >
+            {device.id === 'eim-touch-family' ? (
+              <EimTouchFamilyArt className="hardware-lessons__device-art" />
+            ) : device.id === 'lite' ? (
               <SensiLiteLessonArt className="hardware-lessons__device-art" />
             ) : (
               <img
