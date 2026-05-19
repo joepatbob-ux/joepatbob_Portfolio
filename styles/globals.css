@@ -1415,45 +1415,56 @@
   align-items: center;
   justify-content: center;
   width: 40px;
-  padding: 6px 0;
+  min-height: 40px;
+  padding: 8px 0;
   border: none;
-  background: transparent;
+  border-radius: 20px;
+  corner-shape: squircle;
+  background-color: transparent;
+  box-shadow: none;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-}
-
-/* Picker pills — same hover ring + active fill as Verdant keyboard / nav pills */
-.touch2-carousel__dot::before {
-  content: '';
-  display: block;
-  width: 40px;
-  height: 32px;
-  border-radius: 16px;
-  corner-shape: squircle;
-  background: transparent;
-  box-shadow: none;
   transition:
-    height 320ms cubic-bezier(0.16, 1, 0.3, 1),
-    border-radius 320ms cubic-bezier(0.16, 1, 0.3, 1),
-    background 180ms ease,
+    min-height 360ms cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 180ms ease,
     box-shadow 180ms ease;
 }
 
-.touch2-carousel__dot:hover::before,
-.touch2-carousel__dot:focus-visible::before {
+.touch2-carousel__dot:hover,
+.touch2-carousel__dot:focus-visible {
   box-shadow: 0 0 0 1px var(--color-nav-pill-outline);
+}
+
+.touch2-carousel__dot--active {
+  min-height: 80px;
+  background-color: var(--color-nav-pill-muted-accent-1);
+}
+
+.touch2-carousel__dot--active:hover,
+.touch2-carousel__dot--active:focus-visible {
+  background-color: var(--color-nav-pill-muted-accent-1);
+  box-shadow: 0 0 0 1px var(--color-nav-pill-outline);
+}
+
+/* Solid accent tick — grows vertically when selected */
+.touch2-carousel__dot::before {
+  content: '';
+  display: block;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background-color: var(--color-accent);
+  transform-origin: center center;
+  transition:
+    width 360ms cubic-bezier(0.16, 1, 0.3, 1),
+    height 360ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-radius 360ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .touch2-carousel__dot--active::before {
-  height: 80px;
-  border-radius: 20px;
-  background: var(--color-nav-pill-muted-accent-1);
-}
-
-.touch2-carousel__dot--active:hover::before,
-.touch2-carousel__dot--active:focus-visible::before {
-  background: var(--color-nav-pill-muted-accent-1);
-  box-shadow: 0 0 0 1px var(--color-nav-pill-outline);
+  width: 8px;
+  height: 56px;
+  border-radius: 4px;
 }
 
 .touch2-carousel__dot:focus-visible {
@@ -1488,8 +1499,17 @@
     transform: none;
   }
 
+  .touch2-carousel__dot,
   .touch2-carousel__dot::before {
-    transition-duration: 0.2s;
+    transition-duration: 0.15s;
+  }
+
+  .touch2-carousel__dot--active {
+    min-height: 80px;
+  }
+
+  .touch2-carousel__dot--active::before {
+    height: 56px;
   }
 }
 
