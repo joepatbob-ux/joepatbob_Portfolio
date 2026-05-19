@@ -6,21 +6,17 @@ export interface HardwareLessonDevice {
   src?: string
 }
 
+/** Composed in {@link EimTouchFamilyArt} — not rendered as separate lineup items. */
+export const EIM_TOUCH_FAMILY_DEVICE_IDS = [
+  'touch-2',
+  'eim',
+  'remote-sensor',
+] as const
+
 export const HARDWARE_LESSON_DEVICES: HardwareLessonDevice[] = [
   {
-    id: 'touch-2',
-    label: 'Sensi Touch 2',
-    src: '/images/Front/Touch%202.svg',
-  },
-  {
-    id: 'eim',
-    label: 'Equipment Interface Module',
-    src: '/images/EIM.svg',
-  },
-  {
-    id: 'remote-sensor',
-    label: 'Remote sensor',
-    src: '/images/Remote%20Sensor.svg',
+    id: 'eim-touch-family',
+    label: 'Sensi Touch 2 system',
   },
   {
     id: 'vx4',
