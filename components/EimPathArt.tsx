@@ -34,6 +34,7 @@ export function EimPathArt({
 }: Props) {
   const svgHostRef = useRef<HTMLDivElement>(null)
   const dashRefs = useRef<SVGPathElement[]>([])
+  const illuminatedRef = useRef(false)
   const [dashDebug, setDashDebug] = useState(false)
   const [dashCount, setDashCount] = useState(0)
   const [debugLabels, setDebugLabels] = useState<DebugLabel[]>([])
@@ -70,6 +71,7 @@ export function EimPathArt({
 
   const resetDashes = useCallback(() => {
     setDashPhase('off', true)
+    illuminatedRef.current = false
   }, [setDashPhase])
 
   const measureDebugLabels = useCallback(() => {
@@ -192,27 +194,14 @@ export function EimPathArt({
   }, [dashDebug, svgReady, dashCount, measureDebugLabels])
 
   useEffect(() => {
-    if (!svgReady || !active) {
-      resetDashes()
-      return
-    }
-
-    if (dashDebug) return
-
-    if (!triggerDraw || dashCount < 1) return
-
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    if (reduced) {
-      setDashPhase('on', true)
-      return
-    }
+    if (!svgReady) return
 
     const root = svgHostRef.current
     if (!root) return
 
     const staggerMs = Math.max(
       DASH_STAGGER_MIN_MS,
-      drawDurationMs / dashCount,
+      drawDurationMs / Math.max(dashCount, 1),
     )
     const fadeMs = Math.min(
       DASH_FADE_MAX_MS,
@@ -236,28 +225,73 @@ export function EimPathArt({
     }
 
     const runTurnOn = (then: () => void) => {
-      setDashPhase('off', true)
+      const group = getDashGroup()
+      const alreadyOff = group?.getAttribute('data-phase') === 'off'
+      if (!alreadyOff) setDashPhase('off', true)
       schedule(() => {
         setDashPhase('on')
+        illuminatedRef.current = true
         schedule(then, phaseDuration)
-      }, 32)
+      }, alreadyOff ? 0 : 32)
     }
 
     const runTurnOff = (then: () => void) => {
+      if (!illuminatedRef.current) {
+        then()
+        return
+      }
       setDashPhase('off')
-      schedule(then, phaseDuration)
+      schedule(() => {
+        illuminatedRef.current = false
+        then()
+      }, phaseDuration)
+    }
+
+    const clearTimers = () => {
+      cancelled = true
+      timers.forEach((id) => window.clearTimeout(id))
+    }
+
+    if (!active) {
+      if (dashDebug) {
+        resetDashes()
+        return clearTimers
+      }
+
+      if (illuminatedRef.current) {
+        runTurnOff(() => resetDashes())
+        return clearTimers
+      }
+
+      resetDashes()
+      return clearTimers
+    }
+
+    if (dashDebug) return clearTimers
+
+    if (!triggerDraw || dashCount < 1) return clearTimers
+
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (reduced) {
+      setDashPhase('on', true)
+      illuminatedRef.current = true
+      return clearTimers
     }
 
     const loop = () => {
-      runTurnOn(() => runTurnOff(() => loop()))
+      if (cancelled || !active) return
+      runTurnOn(() => {
+        if (cancelled || !active) return
+        runTurnOff(() => {
+          if (cancelled || !active) return
+          loop()
+        })
+      })
     }
 
     loop()
 
-    return () => {
-      cancelled = true
-      timers.forEach((id) => window.clearTimeout(id))
-    }
+    return clearTimers
   }, [
     active,
     triggerDraw,
@@ -267,6 +301,7 @@ export function EimPathArt({
     resetDashes,
     dashDebug,
     setDashPhase,
+    getDashGroup,
   ])
 
   return (

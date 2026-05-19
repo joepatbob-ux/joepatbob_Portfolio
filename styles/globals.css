@@ -340,6 +340,146 @@
   }
 }
 
+/* ── Hardware — Lessons (product lineup + copy) ──────────────────────────── */
+
+.hardware-lessons .portfolio-chapter-panel {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: clamp(40px, 6vw, 64px);
+  padding: clamp(32px, 5vw, 48px) clamp(16px, 5vw, 72px) clamp(48px, 6vw, 72px);
+  min-height: 0;
+}
+
+.hardware-lessons__devices {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: clamp(8px, 1.5vw, 20px);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+.hardware-lessons__device {
+  flex: 1 1 0;
+  min-width: 64px;
+  max-width: 180px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.hardware-lessons__device-art {
+  width: 100%;
+  height: auto;
+  max-height: clamp(88px, 12vw, 128px);
+  object-fit: contain;
+  object-position: bottom center;
+  display: block;
+}
+
+/* Sensi Lite — frame + LCD segments (matches chapter prototype layout) */
+.sensi-lite-lesson-art {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 241 / 148;
+  max-height: clamp(88px, 12vw, 128px);
+  height: auto;
+}
+
+.sensi-lite-lesson-art.hardware-lessons__device-art {
+  max-height: clamp(88px, 12vw, 128px);
+}
+
+.sensi-lite-lesson-art__frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: bottom center;
+  pointer-events: none;
+}
+
+.sensi-lite-lesson-art__screen {
+  position: absolute;
+  left: 34.17%;
+  top: 24.49%;
+  width: 31.25%;
+  height: 51.02%;
+  pointer-events: none;
+}
+
+.sensi-lite-lesson-art__screen-base {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+}
+
+.sensi-lite-lesson-art__digit {
+  position: absolute;
+  object-fit: fill;
+}
+
+.sensi-lite-lesson-art__digit--tens {
+  left: 16%;
+  top: 18.67%;
+  width: 33.33%;
+  height: 62.67%;
+}
+
+.sensi-lite-lesson-art__digit--ones {
+  left: 52%;
+  top: 18.67%;
+  width: 33.33%;
+  height: 62.67%;
+}
+
+.sensi-lite-lesson-art__icon {
+  position: absolute;
+  object-fit: fill;
+}
+
+.sensi-lite-lesson-art__icon--cool {
+  left: 87.47%;
+  top: 32.68%;
+  width: 10.24%;
+  height: 11.57%;
+}
+
+.hardware-lessons__copy {
+  display: grid;
+  grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
+  gap: clamp(32px, 5vw, 64px);
+  align-items: start;
+  width: 100%;
+}
+
+.hardware-lessons__copy .chapter-copy__body {
+  max-width: none;
+}
+
+@media (max-width: 720px) {
+  .hardware-lessons__devices {
+    justify-content: center;
+  }
+
+  .hardware-lessons__device {
+    flex: 0 1 calc(33.333% - 12px);
+    max-width: 112px;
+  }
+
+  .hardware-lessons__copy {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ── Closing quote (after lessons, Everything In Between) ───────────────── */
 .closing-quote {
   --closing-mark-gap-below-open: 0;
@@ -347,7 +487,6 @@
   margin: 0;
   padding: clamp(48px, 8vw, 96px) clamp(16px, 5vw, 72px) clamp(56px, 8vw, 96px);
   text-align: center;
-  border-top: 1px solid var(--color-rule);
 }
 
 .closing-quote__mark {
@@ -848,7 +987,6 @@
   justify-content: center;
   padding: clamp(32px, 6vw, 72px) clamp(20px, 5vw, 48px);
   background-color: var(--color-paper);
-  border-bottom: 1px solid var(--color-rule);
   color-scheme: light dark;
 }
 
@@ -897,6 +1035,63 @@
   white-space: pre-line;
 }
 
+/* Shared chapter copy (hardware + standard chapters + lessons) */
+.chapter-copy {
+  min-width: 0;
+}
+
+.chapter-copy__headline {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: clamp(28px, 3.2vw, 40px);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--color-ink);
+  text-wrap: balance;
+  white-space: pre-line;
+}
+
+.chapter-copy__subtitle {
+  margin: clamp(10px, 1.5vw, 14px) 0 0;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-muted);
+  letter-spacing: 0.01em;
+}
+
+.chapter-copy__rule {
+  width: 40px;
+  height: 1px;
+  margin: clamp(16px, 2vw, 22px) 0;
+  background-color: var(--color-accent);
+}
+
+.chapter-copy__body {
+  margin: 0;
+  max-width: 52ch;
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--color-muted);
+  white-space: pre-line;
+  text-wrap: pretty;
+}
+
+.chapter-copy__body--wide {
+  max-width: 860px;
+}
+
+.portfolio-chapter-slot--closing .portfolio-chapter-panel {
+  justify-content: center;
+}
+
+.portfolio-chapter-slot--closing .closing-quote {
+  margin: 0;
+  width: 100%;
+}
+
 /* Hardware — Sensi Lite chapter */
 .sensi-lite-chapter__viewport {
   box-sizing: border-box;
@@ -929,36 +1124,6 @@
 .sensi-lite-chapter__copy {
   min-width: 0;
   align-self: center;
-}
-
-.sensi-lite-chapter__headline {
-  margin: 0;
-  font-family: var(--font-body);
-  font-weight: 600;
-  font-size: clamp(28px, 3.2vw, 40px);
-  line-height: 1.15;
-  letter-spacing: -0.02em;
-  color: var(--color-ink);
-  text-wrap: balance;
-  white-space: pre-line;
-}
-
-.sensi-lite-chapter__rule {
-  width: 40px;
-  height: 1px;
-  margin: clamp(18px, 2.5vw, 24px) 0;
-  background-color: var(--color-accent);
-}
-
-.sensi-lite-chapter__body {
-  margin: 0;
-  max-width: 52ch;
-  font-family: var(--font-body);
-  font-size: 15px;
-  line-height: 1.7;
-  color: var(--color-muted);
-  white-space: pre-line;
-  text-wrap: pretty;
 }
 
 .sensi-lite-chapter__footer {
@@ -1001,11 +1166,11 @@
     text-align: center;
   }
 
-  .sensi-lite-chapter__body {
+  .sensi-lite-chapter__copy .chapter-copy__body {
     max-width: none;
   }
 
-  .sensi-lite-chapter__rule {
+  .sensi-lite-chapter__copy .chapter-copy__rule {
     margin-left: auto;
     margin-right: auto;
   }
@@ -1039,35 +1204,6 @@
 .touch-2-chapter__copy {
   min-width: 0;
   align-self: center;
-}
-
-.touch-2-chapter__headline {
-  margin: 0;
-  font-family: var(--font-body);
-  font-weight: 600;
-  font-size: clamp(28px, 3.2vw, 40px);
-  line-height: 1.15;
-  letter-spacing: -0.02em;
-  color: var(--color-ink);
-  text-wrap: balance;
-}
-
-.touch-2-chapter__rule {
-  width: 40px;
-  height: 1px;
-  margin: clamp(18px, 2.5vw, 24px) 0;
-  background-color: var(--color-accent);
-}
-
-.touch-2-chapter__body {
-  margin: 0;
-  max-width: 52ch;
-  font-family: var(--font-body);
-  font-size: 15px;
-  line-height: 1.7;
-  color: var(--color-muted);
-  white-space: pre-line;
-  text-wrap: pretty;
 }
 
 .touch-2-chapter__footer {
@@ -1120,11 +1256,11 @@
     justify-self: center;
   }
 
-  .touch-2-chapter__body {
+  .touch-2-chapter__copy .chapter-copy__body {
     max-width: none;
   }
 
-  .touch-2-chapter__rule {
+  .touch-2-chapter__copy .chapter-copy__rule {
     margin-left: auto;
     margin-right: auto;
   }
@@ -1229,6 +1365,7 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Picker pills — same hover ring + active fill as Verdant keyboard / nav pills */
 .touch2-carousel__dot::before {
   content: '';
   display: block;
@@ -1236,30 +1373,34 @@
   height: 32px;
   border-radius: 16px;
   corner-shape: squircle;
-  background: var(--color-accent);
-  opacity: 0.45;
+  background: transparent;
+  box-shadow: none;
   transition:
     height 320ms cubic-bezier(0.16, 1, 0.3, 1),
-    opacity 200ms ease;
+    border-radius 320ms cubic-bezier(0.16, 1, 0.3, 1),
+    background 180ms ease,
+    box-shadow 180ms ease;
 }
 
-.touch2-carousel__dot:hover::before {
-  opacity: 0.7;
+.touch2-carousel__dot:hover::before,
+.touch2-carousel__dot:focus-visible::before {
+  box-shadow: 0 0 0 1px var(--color-nav-pill-outline);
 }
 
 .touch2-carousel__dot--active::before {
   height: 80px;
   border-radius: 20px;
-  opacity: 1;
+  background: var(--color-nav-pill-muted-accent-1);
+}
+
+.touch2-carousel__dot--active:hover::before,
+.touch2-carousel__dot--active:focus-visible::before {
+  background: var(--color-nav-pill-muted-accent-1);
+  box-shadow: 0 0 0 1px var(--color-nav-pill-outline);
 }
 
 .touch2-carousel__dot:focus-visible {
   outline: none;
-}
-
-.touch2-carousel__dot:focus-visible::before {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 4px;
 }
 
 @media (max-width: 640px) {
@@ -1477,58 +1618,8 @@
   align-self: center;
 }
 
-.eim-chapter__headline {
-  margin: 0;
-  font-family: var(--font-body);
-  font-weight: 600;
-  font-size: clamp(26px, 2.8vw, 36px);
-  line-height: 1.15;
-  letter-spacing: -0.02em;
-  color: var(--color-ink);
-  text-wrap: balance;
-}
-
-.eim-chapter__subtitle {
-  margin: clamp(10px, 1.5vw, 14px) 0 0;
-  font-family: var(--font-mono);
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--color-muted);
-  letter-spacing: 0.01em;
-}
-
-.eim-chapter__rule {
-  width: 40px;
-  height: 1px;
-  margin: clamp(16px, 2vw, 22px) 0;
-  background-color: var(--color-accent);
-}
-
-.eim-chapter__body {
-  margin: 0;
+.eim-chapter__copy .chapter-copy__body {
   max-width: 46ch;
-  font-family: var(--font-body);
-  font-size: 15px;
-  line-height: 1.7;
-  color: var(--color-muted);
-  white-space: pre-line;
-  text-wrap: pretty;
-}
-
-.eim-chapter__copy {
-  opacity: 0;
-  transition:
-    opacity 500ms cubic-bezier(0.16, 1, 0.3, 1),
-    transform 500ms cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.eim-chapter__reveal--from-right {
-  transform: translateX(16px);
-}
-
-.eim-chapter__copy.eim-chapter__reveal--in {
-  opacity: 1;
-  transform: translate(0, 0);
 }
 
 .eim-chapter__footer {
@@ -1572,24 +1663,17 @@
     text-align: center;
   }
 
-  .eim-chapter__body {
+  .eim-chapter__copy .chapter-copy__body {
     max-width: none;
   }
 
-  .eim-chapter__rule {
+  .eim-chapter__copy .chapter-copy__rule {
     margin-left: auto;
     margin-right: auto;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .eim-chapter__copy,
-  .eim-chapter__copy.eim-chapter__reveal--in {
-    opacity: 1;
-    transform: none;
-    transition: none;
-  }
-
   .eim-path-art__dash {
     transition: none !important;
     filter: none !important;
@@ -1634,39 +1718,37 @@
   padding: 0;
 }
 
-/* Figma frame 210:3572 — display row + keypad; scales with container width */
+/* Figma 210:3572 bento — glyph | photos, full-width keypad (max 480px wide) */
 .verdant-interactive {
   --verdant-display-aspect: 350 / 582;
   --verdant-display-gap: clamp(8px, 2vw, 16px);
-  /* Glyph column width share × aspect → lock photos column to same height */
-  --verdant-glyph-height: calc(
-    (100cqi - var(--verdant-display-gap)) * 1.246 / (1.246 + 0.801) * 582 / 350
-  );
+  --verdant-bento-glyph: 1.246fr; /* 344px */
+  --verdant-bento-photos: 0.801fr; /* 276px */
 
   container-type: inline-size;
   display: grid;
+  grid-template-columns: var(--verdant-bento-glyph) var(--verdant-bento-photos);
   grid-template-rows: auto auto;
+  grid-template-areas:
+    'glyph photos'
+    'keys keys';
   gap: var(--verdant-display-gap);
   width: 100%;
-  max-width: min(100%, 636px);
+  max-width: min(100%, 480px);
   margin: 0 auto;
 }
 
-/* Glyph height is explicit; photos column matches (cannot grow the row) */
+/* Wrapper is structural only; children join the bento grid */
 .verdant-interactive__display-row {
-  display: grid;
-  grid-template-columns: 1.246fr 0.801fr; /* 344px vs 276px at Figma width */
-  align-items: start;
-  gap: var(--verdant-display-gap);
-  width: 100%;
-  min-width: 0;
+  display: contents;
 }
 
 .verdant-interactive__glyph-stage {
+  grid-area: glyph;
   min-width: 0;
+  min-height: 0;
   width: 100%;
-  height: var(--verdant-glyph-height);
-  max-height: var(--verdant-glyph-height);
+  aspect-ratio: var(--verdant-display-aspect);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1701,21 +1783,19 @@
   transition: opacity 100ms ease;
 }
 
-/* Two photos stack within glyph height (each flex: 1) */
+/* Two photos = combined height of glyph cell (each flex: 1) */
 .verdant-interactive__photos {
+  grid-area: photos;
   min-width: 0;
-  height: var(--verdant-glyph-height);
-  max-height: var(--verdant-glyph-height);
+  min-height: 0;
   display: flex;
   flex-direction: column;
   gap: var(--verdant-display-gap);
-  overflow: hidden;
 }
 
 .verdant-interactive__photo {
   flex: 1 1 0;
   min-height: 0;
-  height: 0;
   width: 100%;
   display: block;
   object-fit: cover;
@@ -1725,10 +1805,12 @@
 
 /* Keypad — matches SidebarNav chapter subnav pill styling */
 .verdant-keyboard {
+  grid-area: keys;
   display: flex;
   flex-direction: column;
   gap: 6px;
   width: 100%;
+  min-width: 0;
 }
 
 .verdant-keyboard__row {
@@ -1787,54 +1869,10 @@
 .verdant-chapter__copy {
   min-width: 0;
   align-self: center;
-  opacity: 0;
-  transform: translateX(18px);
-  transition:
-    opacity 520ms cubic-bezier(0.33, 1, 0.68, 1),
-    transform 520ms cubic-bezier(0.33, 1, 0.68, 1);
 }
 
-.verdant-chapter__copy.verdant-chapter__reveal--in {
-  opacity: 1;
-  transform: translate(0, 0);
-}
-
-.verdant-chapter__headline {
-  margin: 0;
-  font-family: var(--font-body);
-  font-weight: 600;
-  font-size: clamp(26px, 2.8vw, 36px);
-  line-height: 1.15;
-  letter-spacing: -0.02em;
-  color: var(--color-ink);
-  text-wrap: balance;
-}
-
-.verdant-chapter__subtitle {
-  margin: clamp(10px, 1.5vw, 14px) 0 0;
-  font-family: var(--font-mono);
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--color-muted);
-  letter-spacing: 0.01em;
-}
-
-.verdant-chapter__rule {
-  width: 40px;
-  height: 1px;
-  margin: clamp(16px, 2vw, 22px) 0;
-  background-color: var(--color-accent);
-}
-
-.verdant-chapter__body {
-  margin: 0;
+.verdant-chapter__copy .chapter-copy__body {
   max-width: 46ch;
-  font-family: var(--font-body);
-  font-size: 15px;
-  line-height: 1.7;
-  color: var(--color-muted);
-  white-space: pre-line;
-  text-wrap: pretty;
 }
 
 .verdant-chapter__footer {
@@ -1863,11 +1901,12 @@
 
 @container (max-width: 520px) {
   .verdant-interactive {
-    --verdant-glyph-height: calc(100cqi * 582 / 350);
-  }
-
-  .verdant-interactive__display-row {
     grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    grid-template-areas:
+      'glyph'
+      'photos'
+      'keys';
   }
 
   .verdant-interactive__glyph-stage {
@@ -1876,6 +1915,7 @@
 
   .verdant-interactive__photos {
     width: 100%;
+    min-height: 0;
   }
 }
 
@@ -1892,7 +1932,8 @@
   }
 
   .verdant-interactive {
-    max-width: none;
+    max-width: min(480px, 100%);
+    margin: 0 auto;
   }
 
   .verdant-chapter__copy {
@@ -1900,19 +1941,12 @@
     max-width: none;
   }
 
-  .verdant-chapter__body {
+  .verdant-chapter__copy .chapter-copy__body {
     max-width: none;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .verdant-chapter__copy,
-  .verdant-chapter__copy.verdant-chapter__reveal--in {
-    opacity: 1;
-    transform: none;
-    transition: none;
-  }
-
   .verdant-character-svg {
     transition: none !important;
   }

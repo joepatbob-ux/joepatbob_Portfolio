@@ -11,14 +11,13 @@ import { StickerPile } from '@/components/StickerPile'
 interface Props {
   chapter: ChapterType
   sectionId: string
-  index: number
   isLast: boolean
 }
 
 const padY = 'clamp(28px, 4vw, 48px)'
 const padX = 'clamp(16px, 4vw, 72px)'
 
-export function Chapter({ chapter, sectionId, index, isLast }: Props) {
+export function Chapter({ chapter, sectionId, isLast }: Props) {
   const chapterId = `${sectionId}-${chapter.id}`
 
   if (chapterId === 'hardware-sensi-lite') {
@@ -26,18 +25,17 @@ export function Chapter({ chapter, sectionId, index, isLast }: Props) {
   }
 
   if (chapterId === 'hardware-touch-2') {
-    return <Touch2Chapter chapter={chapter} index={index} isLast={isLast} />
+    return <Touch2Chapter chapter={chapter} isLast={isLast} />
   }
 
   if (chapterId === 'hardware-eim') {
-    return <EimChapter index={index} isLast={isLast} />
+    return <EimChapter isLast={isLast} />
   }
 
   if (chapterId === 'hardware-verdant') {
-    return <VerdantChapter index={index} isLast={isLast} />
+    return <VerdantChapter isLast={isLast} />
   }
 
-  const num = String(index + 1).padStart(2, '0')
   const isFullWidth = chapter.imageLayout === 'full-width'
   const isPortrait = chapter.imageLayout === 'portrait'
   const imgRight = chapter.imagePosition === 'right'
@@ -56,45 +54,13 @@ export function Chapter({ chapter, sectionId, index, isLast }: Props) {
         padding: `${padY} ${padX} clamp(32px, 4vw, 56px)`,
       }}
     >
-      {/* Title row */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 6 }}>
-        <span style={{
-          fontFamily: 'var(--font-mono)',
-          fontWeight: 700,
-          fontSize: 11,
-          color: 'var(--color-muted)',
-          letterSpacing: '0.06em',
-          flexShrink: 0,
-        }}>
-          {num}
-        </span>
-        <h3
-          style={{
-            fontFamily: 'var(--font-ahg)',
-            fontWeight: 700,
-            fontSize: 'clamp(22px, 2vw, 32px)',
-            lineHeight: 1.1,
-            letterSpacing: '-0.01em',
-            textTransform: 'uppercase',
-            color: 'var(--color-ink)',
-            margin: 0,
-          }}
-        >
-          {chapter.title}
-        </h3>
+      <div className="chapter-copy" style={{ marginBottom: 28 }}>
+        <h3 className="chapter-copy__headline">{chapter.title}</h3>
+        {chapter.subtitle ? (
+          <p className="chapter-copy__subtitle">{chapter.subtitle}</p>
+        ) : null}
+        <div className="chapter-copy__rule" aria-hidden />
       </div>
-
-      {/* Subtitle */}
-      <p style={{
-        fontFamily: 'var(--font-mono)',
-        fontSize: 13,
-        fontWeight: 700,
-        color: 'var(--color-muted)',
-        marginBottom: 28,
-        letterSpacing: '0.01em',
-      }}>
-        {chapter.subtitle}
-      </p>
 
       {/* Full-width layout: image above body — intrinsic width, capped height */}
       {isFullWidth && (
@@ -128,14 +94,7 @@ export function Chapter({ chapter, sectionId, index, isLast }: Props) {
               style={{ marginBottom: 28 }}
             />
           )}
-          <p style={{
-            fontSize: 14,
-            lineHeight: 1.7,
-            color: 'var(--color-muted)',
-            maxWidth: 860,
-            margin: 0,
-            whiteSpace: 'pre-line',
-          }}>
+          <p className="chapter-copy__body chapter-copy__body--wide">
             {chapter.body}
           </p>
         </>
@@ -163,15 +122,10 @@ export function Chapter({ chapter, sectionId, index, isLast }: Props) {
               style={{ flexShrink: 0 }}
             />
           )}
-          <p style={{
-            fontSize: 14,
-            lineHeight: 1.7,
-            color: 'var(--color-muted)',
-            margin: 0,
-            flex: '1 1 240px',
-            minWidth: 0,
-            whiteSpace: 'pre-line',
-          }}>
+          <p
+            className="chapter-copy__body"
+            style={{ flex: '1 1 240px', minWidth: 0 }}
+          >
             {chapter.body}
           </p>
           {imgRight && (

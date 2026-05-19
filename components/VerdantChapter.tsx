@@ -6,8 +6,6 @@ import { useChapterPanelOpacity } from '@/lib/useChapterPanelOpacity'
 import { useCallback, useEffect, useState } from 'react'
 
 const CHAPTER_ID = 'hardware-verdant'
-const SCROLL_OUT_MS = 300
-const COPY_SETTLE_MS = 480
 const DEFAULT_CHAR = 'ALL'
 
 const HEADLINE = 'Designed for distance.'
@@ -20,42 +18,20 @@ The Line Voltage thermostat for the European market pushed further: I replaced a
 To support the Verdant display, I designed a high-density segment character set from scratch — angled slices with flexible geometry that renders numbers with far greater clarity at distance. Pending US patent.`
 
 interface Props {
-  index: number
   isLast: boolean
 }
 
-export function VerdantChapter({ index, isLast }: Props) {
-  const { isActive, opacity: panelOpacity } = useChapterPanelOpacity(CHAPTER_ID)
+export function VerdantChapter({ isLast }: Props) {
+  const { isActive } = useChapterPanelOpacity(CHAPTER_ID)
   const [selectedCode, setSelectedCode] = useState(DEFAULT_CHAR)
-  const [copyIn, setCopyIn] = useState(false)
 
   const reset = useCallback(() => {
-    setCopyIn(false)
     setSelectedCode(DEFAULT_CHAR)
   }, [])
 
   useEffect(() => {
     if (!isActive) reset()
   }, [isActive, reset])
-
-  useEffect(() => {
-    if (!isActive) return
-
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    if (reduced) {
-      setCopyIn(true)
-      return
-    }
-
-    setCopyIn(false)
-    const t = window.setTimeout(() => setCopyIn(true), COPY_SETTLE_MS)
-    return () => window.clearTimeout(t)
-  }, [isActive])
-
-  const scrollOutStyle =
-    panelOpacity < 1
-      ? { transition: `opacity ${SCROLL_OUT_MS}ms ease` }
-      : undefined
 
   return (
     <ChapterViewport
@@ -64,11 +40,7 @@ export function VerdantChapter({ index, isLast }: Props) {
       className="verdant-chapter"
       fillViewport
     >
-      <div
-        className="verdant-chapter__viewport"
-        aria-hidden={!isActive}
-        style={scrollOutStyle}
-      >
+      <div className="verdant-chapter__viewport">
         <div className="verdant-chapter__stage">
           <VerdantInteractive
             selectedCode={selectedCode}
@@ -76,27 +48,13 @@ export function VerdantChapter({ index, isLast }: Props) {
           />
         </div>
 
-        <div
-          className={[
-            'verdant-chapter__copy',
-            copyIn ? 'verdant-chapter__reveal--in verdant-chapter__reveal--from-right' : '',
-          ]
-            .filter(Boolean)
-            .join(' ')}
-        >
-          <h3 className="verdant-chapter__headline">{HEADLINE}</h3>
-          <p className="verdant-chapter__subtitle">{SUBTITLE}</p>
-          <div className="verdant-chapter__rule" aria-hidden />
-          <p className="verdant-chapter__body">{BODY}</p>
+        <div className="verdant-chapter__copy chapter-copy">
+          <h3 className="chapter-copy__headline">{HEADLINE}</h3>
+          <p className="chapter-copy__subtitle">{SUBTITLE}</p>
+          <div className="chapter-copy__rule" aria-hidden />
+          <p className="chapter-copy__body">{BODY}</p>
         </div>
       </div>
-
-      <footer className="verdant-chapter__footer">
-        <div className="verdant-chapter__footer-rule" aria-hidden />
-        <p className="verdant-chapter__footer-meta">
-          {String(index + 1).padStart(2, '0')} — Verdant
-        </p>
-      </footer>
     </ChapterViewport>
   )
 }

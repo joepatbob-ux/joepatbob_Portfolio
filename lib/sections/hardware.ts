@@ -69,19 +69,5 @@ To support the Verdant display, I designed a high-density segment character set 
       imageLayout: 'full-width',
       imagePosition: 'left',
     },
-    {
-      id: 'trane',
-      title: 'Trane',
-      subtitle: 'Designing inside someone else\'s house',
-      body: `The Trane budget-tier thermostat was built under an OEM arrangement. Two stakeholder sets, two priority sets, a product shipping under someone else's name. I designed the complete UI.
-
-The brand stayed Trane's. Working within their visual language surfaced most concretely in iconography — fixed segment displays have no room for ambiguity.
-
-Trane's thermostats include a motion sensor our products don't have. Getting deep into how it worked seeded thinking about how motion sensing could integrate into our own product line.`,
-      imageAlt: 'Trane budget-tier thermostat UI on fixed segment display',
-      imageSrc: '/images/hw-trane.jpg',
-      imageLayout: 'portrait',
-      imagePosition: 'right',
-    },
   ],
 }
