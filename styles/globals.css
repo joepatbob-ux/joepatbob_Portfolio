@@ -1601,12 +1601,14 @@
 
 .verdant-chapter {
   --verdant-label: #000;
-  --verdant-label-muted: color-mix(in srgb, var(--verdant-label) 30%, transparent);
+  /* Mix toward page so off segments read lighter / dimmer than lit */
+  --verdant-label-muted: color-mix(in srgb, var(--verdant-label) 12%, var(--color-paper));
 }
 
 @media (prefers-color-scheme: dark) {
   .verdant-chapter {
     --verdant-label: #fff;
+    --verdant-label-muted: color-mix(in srgb, var(--verdant-label) 12%, var(--color-paper));
   }
 }
 
@@ -1636,6 +1638,10 @@
 .verdant-interactive {
   --verdant-display-aspect: 350 / 582;
   --verdant-display-gap: clamp(8px, 2vw, 16px);
+  /* Glyph column width share × aspect → lock photos column to same height */
+  --verdant-glyph-height: calc(
+    (100cqi - var(--verdant-display-gap)) * 1.246 / (1.246 + 0.801) * 582 / 350
+  );
 
   container-type: inline-size;
   display: grid;
@@ -1646,20 +1652,21 @@
   margin: 0 auto;
 }
 
-/* Glyph column sets height via aspect-ratio; photos column matches that height */
+/* Glyph height is explicit; photos column matches (cannot grow the row) */
 .verdant-interactive__display-row {
-  display: flex;
-  align-items: stretch;
+  display: grid;
+  grid-template-columns: 1.246fr 0.801fr; /* 344px vs 276px at Figma width */
+  align-items: start;
   gap: var(--verdant-display-gap);
   width: 100%;
   min-width: 0;
 }
 
 .verdant-interactive__glyph-stage {
-  flex: 1.246 1 0; /* 344px vs 276px photo column at Figma width */
   min-width: 0;
-  aspect-ratio: var(--verdant-display-aspect);
-  height: auto;
+  width: 100%;
+  height: var(--verdant-glyph-height);
+  max-height: var(--verdant-glyph-height);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1694,18 +1701,21 @@
   transition: opacity 100ms ease;
 }
 
-/* Two photos = combined height of glyph stage (each flex: 1) */
+/* Two photos stack within glyph height (each flex: 1) */
 .verdant-interactive__photos {
-  flex: 0.801 1 0; /* 276/344 */
   min-width: 0;
+  height: var(--verdant-glyph-height);
+  max-height: var(--verdant-glyph-height);
   display: flex;
   flex-direction: column;
   gap: var(--verdant-display-gap);
+  overflow: hidden;
 }
 
 .verdant-interactive__photo {
   flex: 1 1 0;
   min-height: 0;
+  height: 0;
   width: 100%;
   display: block;
   object-fit: cover;
@@ -1852,20 +1862,20 @@
 }
 
 @container (max-width: 520px) {
+  .verdant-interactive {
+    --verdant-glyph-height: calc(100cqi * 582 / 350);
+  }
+
   .verdant-interactive__display-row {
-    flex-direction: column;
-    align-items: stretch;
+    grid-template-columns: 1fr;
   }
 
   .verdant-interactive__glyph-stage {
-    flex: none;
     width: 100%;
   }
 
   .verdant-interactive__photos {
-    flex: none;
     width: 100%;
-    height: calc(100cqi * var(--verdant-display-aspect));
   }
 }
 

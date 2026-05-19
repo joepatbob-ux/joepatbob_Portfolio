@@ -8,7 +8,7 @@ import { useCallback, useEffect, useState } from 'react'
 const CHAPTER_ID = 'hardware-verdant'
 const SCROLL_OUT_MS = 300
 const COPY_SETTLE_MS = 480
-const DEFAULT_CHAR = 'NONE'
+const DEFAULT_CHAR = 'ALL'
 
 const HEADLINE = 'Designed for distance.'
 const SUBTITLE =
