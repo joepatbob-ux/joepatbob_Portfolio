@@ -1,4 +1,4 @@
-/** Keyboard grid codes map to `verdant_charactor_{CODE}.svg` in `/images/verdant_characters/`. */
+/** Keyboard grid codes map to `verdant_charactor_{CODE}.svg` in `/images/Verdant_Segment/`. */
 
 export type VerdantKeyboardKey =
   | { kind: 'char'; label: string; code: string }

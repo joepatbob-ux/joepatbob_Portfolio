@@ -1,8 +1,8 @@
 /**
- * Pre-labeled character SVGs: `/images/verdant_characters/verdant_charactor_{CODE}.svg`
+ * Pre-labeled character SVGs: `/images/Verdant_Segment/verdant_charactor_{CODE}.svg`
  * Keyboard codes map 1:1 to filenames (e.g. `7` → `verdant_charactor_7.svg`, `NONE` → `verdant_charactor_NONE.svg`).
  */
-export const VERDANT_CHARACTERS_BASE = '/images/verdant_characters'
+export const VERDANT_CHARACTERS_BASE = '/images/Verdant_Segment'
 
 export const VERDANT_CHAR_FILE_PREFIX = 'verdant_charactor_'
 
