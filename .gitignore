@@ -9,6 +9,9 @@ out/
 .env
 .env*.local
 
+# typescript
+*.tsbuildinfo
+
 # debug / os
 .DS_Store
 .tmp/
