@@ -4,7 +4,7 @@ import { VerdantCharacterKeyboard } from '@/components/VerdantCharacterKeyboard'
 import { VerdantCharacterSvg } from '@/components/VerdantCharacterSvg'
 
 const PCB_PHOTO = '/images/hw-verdant.jpg'
-const HARDWARE_PHOTO = '/images/Touch%202/IMG_0799.jpeg'
+const DRAWING_PHOTO = '/images/hw-verdant-pcb.jpg'
 
 interface Props {
   selectedCode: string
@@ -29,8 +29,8 @@ export function VerdantInteractive({ selectedCode, onSelectCode }: Props) {
             decoding="async"
           />
           <img
-            src={HARDWARE_PHOTO}
-            alt="Verdant thermostat hardware reference"
+            src={DRAWING_PHOTO}
+            alt=""
             className="verdant-interactive__photo verdant-interactive__photo--bottom"
             decoding="async"
           />
