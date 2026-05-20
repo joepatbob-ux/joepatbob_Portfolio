@@ -5,6 +5,7 @@ import { Chapter } from './Chapter'
 import { ChapterViewport } from './ChapterViewport'
 import { ClosingQuote } from './ClosingQuote'
 import { HardwareLessons } from './HardwareLessons'
+import { SectionLessons } from './SectionLessons'
 
 interface Props {
   section: Section
@@ -55,17 +56,12 @@ export function CaseStudy({ section, sectionId }: Props) {
           isLast={!section.closingQuote}
         />
       ) : (
-        <ChapterViewport
-          chapterId={`${sectionId}-lessons`}
+        <SectionLessons
+          sectionId={sectionId}
+          lessonTitle={section.lessonTitle}
+          lessonBody={section.lessonBody}
           isLast={!section.closingQuote}
-          fillViewport
-          className="hardware-lessons"
-        >
-          <div className="hardware-lessons__copy chapter-copy">
-            <h3 className="chapter-copy__headline">{section.lessonTitle}</h3>
-            <p className="chapter-copy__body">{section.lessonBody}</p>
-          </div>
-        </ChapterViewport>
+        />
       )}
 
       {section.closingQuote ? (

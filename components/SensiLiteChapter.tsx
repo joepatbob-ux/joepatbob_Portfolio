@@ -1,6 +1,6 @@
 'use client'
 
-import { HardwareChapterLayout } from '@/components/hardware/HardwareChapterLayout'
+import { ChapterSlideLayout } from '@/components/chapter-slide/ChapterSlideLayout'
 import { SensiLiteProto } from '@/components/SensiLiteProto'
 import type { Chapter } from '@/lib/types'
 
@@ -11,10 +11,10 @@ interface Props {
 
 export function SensiLiteChapter({ chapter, isLast }: Props) {
   return (
-    <HardwareChapterLayout
+    <ChapterSlideLayout
       chapter={chapter}
       chapterId="hardware-sensi-lite"
-      variant="sensi-lite"
+      modifier="sensi-lite"
       isLast={isLast}
       stageId="hardware-sensi-lite-interactive"
       stageAriaLabel="Sensi Lite interactive prototype"

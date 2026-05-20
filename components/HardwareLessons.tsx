@@ -1,11 +1,9 @@
 'use client'
 
-import { ChapterViewport } from '@/components/ChapterViewport'
-import { HardwareChapterCopy } from '@/components/hardware/HardwareChapterCopy'
+import { SectionLessons } from '@/components/SectionLessons'
 import { EimTouchFamilyArt } from '@/components/EimTouchFamilyArt'
 import { SensiLiteLessonArt } from '@/components/SensiLiteLessonArt'
 import { HARDWARE_LESSON_DEVICES } from '@/lib/hardware/lessonDevices'
-import { useChapterPanelOpacity } from '@/lib/useChapterPanelOpacity'
 
 interface Props {
   lessonTitle: string
@@ -14,51 +12,41 @@ interface Props {
 }
 
 export function HardwareLessons({ lessonTitle, lessonBody, isLast }: Props) {
-  const { isActive } = useChapterPanelOpacity('hardware-lessons')
-
   return (
-    <ChapterViewport
-      chapterId="hardware-lessons"
+    <SectionLessons
+      sectionId="hardware"
+      lessonTitle={lessonTitle}
+      lessonBody={lessonBody}
       isLast={isLast}
-      fillViewport
-      className="hardware-lessons"
     >
-      <ul className="hardware-lessons__devices" aria-label="Thermostat product line">
+      <ul className="section-lessons__devices" aria-label="Thermostat product line">
         {HARDWARE_LESSON_DEVICES.map((device) => (
           <li
             key={device.id}
             className={[
-              'hardware-lessons__device',
+              'section-lessons__device',
               device.id === 'eim-touch-family'
-                ? 'hardware-lessons__device--family'
+                ? 'section-lessons__device--family'
                 : '',
             ]
               .filter(Boolean)
               .join(' ')}
           >
             {device.id === 'eim-touch-family' ? (
-              <EimTouchFamilyArt className="hardware-lessons__device-art" />
+              <EimTouchFamilyArt className="section-lessons__device-art" />
             ) : device.id === 'lite' ? (
-              <SensiLiteLessonArt className="hardware-lessons__device-art" />
+              <SensiLiteLessonArt className="section-lessons__device-art" />
             ) : (
               <img
                 src={device.src}
                 alt=""
-                className="hardware-lessons__device-art"
+                className="section-lessons__device-art"
                 decoding="async"
               />
             )}
           </li>
         ))}
       </ul>
-
-      <HardwareChapterCopy
-        active={isActive}
-        headline={lessonTitle}
-        body={lessonBody}
-        layout="lessons"
-        className="hardware-lessons__copy"
-      />
-    </ChapterViewport>
+    </SectionLessons>
   )
 }

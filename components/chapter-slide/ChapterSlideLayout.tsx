@@ -1,31 +1,30 @@
 'use client'
 
 import { ChapterViewport } from '@/components/ChapterViewport'
-import { HardwareChapterCopy } from '@/components/hardware/HardwareChapterCopy'
+import { ChapterSlideCopy } from '@/components/chapter-slide/ChapterSlideCopy'
 import { useChapterPanelOpacity } from '@/lib/useChapterPanelOpacity'
 import type { Chapter } from '@/lib/types'
 import type { ReactNode } from 'react'
 
-export type HardwareChapterVariant = 'sensi-lite' | 'touch-2' | 'eim' | 'verdant'
-
 interface Props {
   chapter: Chapter
   chapterId: string
-  variant: HardwareChapterVariant
   isLast: boolean
   stage: ReactNode
+  /** BEM modifier, e.g. touch-2, eim, full-width */
+  modifier?: string
   stageId?: string
   stageAriaLabel?: string
-  /** DOM order: stage before copy (default) or copy before stage (Touch 2). */
+  /** DOM order: stage before copy (default) or copy before stage. */
   copyFirst?: boolean
 }
 
-export function HardwareChapterLayout({
+export function ChapterSlideLayout({
   chapter,
   chapterId,
-  variant,
   isLast,
   stage,
+  modifier,
   stageId,
   stageAriaLabel,
   copyFirst = false,
@@ -35,7 +34,7 @@ export function HardwareChapterLayout({
   const stageEl = (
     <div
       id={stageId}
-      className="hardware-chapter__stage"
+      className="chapter-slide__stage"
       aria-label={stageAriaLabel}
     >
       {stage}
@@ -43,22 +42,24 @@ export function HardwareChapterLayout({
   )
 
   const copyEl = (
-    <HardwareChapterCopy
+    <ChapterSlideCopy
       active={isActive}
       headline={chapter.subtitle}
       body={chapter.body}
     />
   )
 
+  const modClass = modifier ? `chapter-slide--${modifier}` : ''
+
   return (
     <ChapterViewport
       chapterId={chapterId}
       isLast={isLast}
-      className={`hardware-chapter hardware-chapter--${variant}`}
+      className={['chapter-slide', modClass].filter(Boolean).join(' ')}
       fillViewport
     >
-      <div className="hardware-chapter__viewport">
-        <div className="hardware-chapter__inner">
+      <div className="chapter-slide__viewport">
+        <div className="chapter-slide__inner">
           {copyFirst ? (
             <>
               {copyEl}

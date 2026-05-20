@@ -1,0 +1,43 @@
+'use client'
+
+import { ChapterViewport } from '@/components/ChapterViewport'
+import { ChapterSlideCopy } from '@/components/chapter-slide/ChapterSlideCopy'
+import { useChapterPanelOpacity } from '@/lib/useChapterPanelOpacity'
+import type { ReactNode } from 'react'
+
+interface Props {
+  sectionId: string
+  lessonTitle: string
+  lessonBody: string
+  isLast: boolean
+  children?: ReactNode
+}
+
+export function SectionLessons({
+  sectionId,
+  lessonTitle,
+  lessonBody,
+  isLast,
+  children,
+}: Props) {
+  const chapterId = `${sectionId}-lessons`
+  const { isActive } = useChapterPanelOpacity(chapterId)
+
+  return (
+    <ChapterViewport
+      chapterId={chapterId}
+      isLast={isLast}
+      fillViewport
+      className="section-lessons"
+    >
+      {children}
+      <ChapterSlideCopy
+        active={isActive}
+        headline={lessonTitle}
+        body={lessonBody}
+        layout="lessons"
+        className="section-lessons__copy"
+      />
+    </ChapterViewport>
+  )
+}

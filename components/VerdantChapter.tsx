@@ -1,6 +1,6 @@
 'use client'
 
-import { HardwareChapterLayout } from '@/components/hardware/HardwareChapterLayout'
+import { ChapterSlideLayout } from '@/components/chapter-slide/ChapterSlideLayout'
 import { VerdantInteractive } from '@/components/VerdantInteractive'
 import { useChapterPanelOpacity } from '@/lib/useChapterPanelOpacity'
 import { useCallback, useEffect, useState } from 'react'
@@ -27,10 +27,10 @@ export function VerdantChapter({ chapter, isLast }: Props) {
   }, [isActive, reset])
 
   return (
-    <HardwareChapterLayout
+    <ChapterSlideLayout
       chapter={chapter}
       chapterId={CHAPTER_ID}
-      variant="verdant"
+      modifier="verdant"
       isLast={isLast}
       stage={
         <VerdantInteractive
