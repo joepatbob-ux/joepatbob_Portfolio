@@ -56,6 +56,7 @@ export function HardwareLessons({ lessonTitle, lessonBody, isLast }: Props) {
         active={isActive}
         headline={lessonTitle}
         body={lessonBody}
+        layout="lessons"
         className="hardware-lessons__copy"
       />
     </ChapterViewport>
