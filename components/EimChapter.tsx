@@ -1,5 +1,6 @@
 'use client'
 
+import { ChapterCopyScroller } from '@/components/ChapterCopyScroller'
 import { ChapterViewport } from '@/components/ChapterViewport'
 import { useChapterNav } from '@/components/ChapterNavProvider'
 import { EimPathArt } from '@/components/EimPathArt'
@@ -8,11 +9,13 @@ import { useChapterPanelOpacity } from '@/lib/useChapterPanelOpacity'
 const CHAPTER_ID = 'hardware-eim'
 const DRAW_MS = 3000
 
-const HEADLINE = 'Configuration belongs at the thermostat.'
-const SUBTITLE = 'Solving a problem by moving it somewhere better'
-const BODY = `The Equipment Interface Module supports both indoor and outdoor HVAC equipment. The challenge: how does a contractor communicate equipment type without traveling back and forth between thermostat and unit?
+const HEADLINE =
+  'The thermostat does the talking so the contractor doesn\'t have to do the walking.'
+const BODY = `Contractors work in awkward places. Furnaces in basements, compressors outside at the unit, thermostat on the wall somewhere in between. The EIM was Copeland's first Equipment Interface Module, a dual-use unit supporting both indoor and outdoor equipment. Standard pairing required walking to the unit to initiate a process, then walking back to the thermostat to complete it, sometimes multiple trips if the timing didn't line up.
 
-I moved the configuration to the thermostat. Through a simple pairing flow, the contractor sets location and equipment type once, without leaving. The EIM configures itself accordingly. Contractors noticed immediately.`
+We started the pairing process automatically at boot, so by the time the contractor reached the thermostat, the EIM was already announcing itself. The entire pairing flow, including assigning the unit as indoor or outdoor, happened at the thermostat in a single pass.
+
+We ran an EIM roadshow: live sessions with contractors, hands-on pairing, open feedback. Contractors who had configured HVAC equipment for years noticed without prompting that something that used to require multiple trips was just done at the thermostat. The configuration didn't go away. The contractor just never had to leave the thermostat to do it.`
 
 interface Props {
   isLast: boolean
@@ -45,10 +48,11 @@ export function EimChapter({ isLast }: Props) {
         </div>
 
         <div className="eim-chapter__copy chapter-copy">
-          <h3 className="chapter-copy__headline">{HEADLINE}</h3>
-          <p className="chapter-copy__subtitle">{SUBTITLE}</p>
-          <div className="chapter-copy__rule" aria-hidden />
-          <p className="chapter-copy__body">{BODY}</p>
+          <ChapterCopyScroller active={isActive}>
+            <h3 className="chapter-copy__headline">{HEADLINE}</h3>
+            <div className="chapter-copy__rule" aria-hidden />
+            <p className="chapter-copy__body">{BODY}</p>
+          </ChapterCopyScroller>
         </div>
       </div>
     </ChapterViewport>
