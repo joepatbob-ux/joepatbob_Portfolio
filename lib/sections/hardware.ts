@@ -6,7 +6,7 @@ export const hardware: Section = {
   label: 'Hardware',
   eyebrow: '',
   headline: 'The interface has to do the hard work.',
-  overviewBody: `Designing for hardware is a different problem than designing for screens. Over several product cycles at Copeland, I led UX across thermostat products — each with its own constraint profile, audience, and set of tradeoffs. From a 1728px touchscreen to 32 segments and 3 buttons. Two patents came out of this work.`,
+  overviewBody: `Designing for hardware is a different problem than designing for screens. Over several product cycles at Copeland, I led UX across thermostat products, each with its own constraint profile, audience, and set of tradeoffs. From a 1728px touchscreen to 32 segments and 3 buttons. Two patents came out of this work.`,
   pullQuote: 'The interface has to do the hard work so the person using it doesn\'t.',
   lessonTitle: 'What hardware teaches you.',
   lessonBody: `Designing for hardware strips away the safety nets. You can't push an update to fix a confusing menu on a shipped thermostat. You can't add a tooltip to a 32-segment display. The decisions you make are the decisions users live with.
