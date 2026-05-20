@@ -5,25 +5,19 @@ import { Sticker } from '@/components/Sticker'
 import type { PlacedSticker } from '@/components/StickerProvider'
 import { useStickers } from '@/components/StickerProvider'
 import { measureStickerOpticalLayout } from '@/lib/stickerOptical'
+import {
+  pointerAngleDeg,
+  roundStickerRotation,
+  shortestAngleDeltaDeg,
+} from '@/lib/stickerRotation'
 import { STICKER_SIZE_PLACED, stickerHeight } from '@/lib/stickers'
 
 const MOVE_THRESHOLD = 8
-/** Maps pointer atan2 (0° = east) to sticker rotation (0° = dot at top). */
-const POINTER_TO_ROTATION = 90
-/** Clearance from furthest opaque edge to inner edge of track stroke. */
 const TRACK_GAP_PX = 8
 const TRACK_STROKE_PX = 16
 const SCRUBBER_R_PX = 14
 const SCRUBBER_CENTER_R_PX = 5
 const SCRUBBER_HIT_R_PX = 28
-
-function pointerAngleDeg(cx: number, cy: number, px: number, py: number): number {
-  return (Math.atan2(py - cy, px - cx) * 180) / Math.PI
-}
-
-function rotationFromPointer(cx: number, cy: number, px: number, py: number): number {
-  return pointerAngleDeg(cx, cy, px, py) + POINTER_TO_ROTATION
-}
 
 interface LockedRing {
   ringSize: number
@@ -46,7 +40,10 @@ export function PlacedStickerControl({ sticker }: Props) {
   const stickerRef = useRef(sticker)
   stickerRef.current = sticker
 
+  const rootRef = useRef<HTMLDivElement>(null)
   const bodyRef = useRef<HTMLDivElement>(null)
+  const rotatorRef = useRef<HTMLDivElement>(null)
+  const rotatingRef = useRef(false)
   const [lockedRing, setLockedRing] = useState<LockedRing | null>(null)
 
   useLayoutEffect(() => {
@@ -72,8 +69,7 @@ export function PlacedStickerControl({ sticker }: Props) {
         w = h * aspect
       }
       const optical = measureStickerOpticalLayout(img, w, h)
-      const outerR =
-        optical?.outerRadius ?? Math.hypot(w, h) / 2
+      const outerR = optical?.outerRadius ?? Math.hypot(w, h) / 2
       const trackR = outerR + TRACK_GAP_PX + TRACK_STROKE_PX / 2
       const ringSize = Math.ceil(
         2 * (trackR + TRACK_STROKE_PX / 2 + SCRUBBER_R_PX),
@@ -101,6 +97,17 @@ export function PlacedStickerControl({ sticker }: Props) {
     }
   }, [selected, sticker.instanceId, sticker.assetId])
 
+  useLayoutEffect(() => {
+    if (rotatingRef.current || !rotatorRef.current) return
+    rotatorRef.current.style.transform = `rotate(${sticker.rotation}deg)`
+  }, [sticker.rotation])
+
+  const applyLiveRotation = (deg: number) => {
+    if (rotatorRef.current) {
+      rotatorRef.current.style.transform = `rotate(${deg}deg)`
+    }
+  }
+
   const stopBubble = (e: React.PointerEvent) => {
     e.stopPropagation()
   }
@@ -115,24 +122,24 @@ export function PlacedStickerControl({ sticker }: Props) {
     const s = stickerRef.current
     const offX = lockedRing?.artOffsetX ?? 0
     const offY = lockedRing?.artOffsetY ?? 0
-    const startRotation = rotationFromPointer(
-      s.x - offX,
-      s.y - offY,
-      e.pageX,
-      e.pageY,
-    )
-    const angleOffset = startRotation - s.rotation
+    const pivotX = s.x - offX
+    const pivotY = s.y - offY
+
+    rotatingRef.current = true
+    rootRef.current?.classList.add('sticker-placed--rotating')
+
+    let rotation = s.rotation
+    let lastPointerAngle = pointerAngleDeg(pivotX, pivotY, e.pageX, e.pageY)
+    applyLiveRotation(rotation)
 
     target.setPointerCapture(pointerId)
 
     const onMove = (ev: PointerEvent) => {
       if (ev.pointerId !== pointerId) return
-      const cur = stickerRef.current
-      const next =
-        rotationFromPointer(cur.x - offX, cur.y - offY, ev.pageX, ev.pageY) -
-        angleOffset
-      const rotation = Math.round(next * 10) / 10
-      updatePlaced(cur.instanceId, { rotation })
+      const angle = pointerAngleDeg(pivotX, pivotY, ev.pageX, ev.pageY)
+      rotation += shortestAngleDeltaDeg(lastPointerAngle, angle)
+      lastPointerAngle = angle
+      applyLiveRotation(rotation)
     }
 
     const onUp = (ev: PointerEvent) => {
@@ -143,6 +150,13 @@ export function PlacedStickerControl({ sticker }: Props) {
       target.removeEventListener('pointermove', onMove)
       target.removeEventListener('pointerup', onUp)
       target.removeEventListener('pointercancel', onUp)
+
+      rotatingRef.current = false
+      rootRef.current?.classList.remove('sticker-placed--rotating')
+
+      const final = roundStickerRotation(rotation)
+      applyLiveRotation(final)
+      updatePlaced(stickerRef.current.instanceId, { rotation: final })
     }
 
     target.addEventListener('pointermove', onMove)
@@ -224,10 +238,10 @@ export function PlacedStickerControl({ sticker }: Props) {
           ['--art-offset-y' as string]: `${ring.artOffsetY}px`,
         } as React.CSSProperties)
       : undefined
-  const rotatorTransform = `rotate(${sticker.rotation}deg)`
 
   return (
     <div
+      ref={rootRef}
       className={`sticker-placed${selected ? ' sticker-placed--selected' : ''}`}
       style={{ left: sticker.x, top: sticker.y, zIndex: sticker.zIndex }}
       onPointerDown={stopBubble}
@@ -283,8 +297,9 @@ export function PlacedStickerControl({ sticker }: Props) {
           </div>
         )}
         <div
+          ref={rotatorRef}
           className="sticker-placed__rotator"
-          style={{ transform: rotatorTransform }}
+          style={{ transform: `rotate(${sticker.rotation}deg)` }}
         >
           <div className="sticker-placed__sticker-center">
             <div
