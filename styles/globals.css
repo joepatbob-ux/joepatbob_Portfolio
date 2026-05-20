@@ -907,6 +907,12 @@
   display: inline-block;
   transform-origin: center center;
   transition: transform 0.2s ease;
+  will-change: transform;
+}
+
+/* Live pointer rotation — no CSS transition fighting drag updates */
+.sticker-placed--rotating .sticker-placed__rotator {
+  transition: none;
 }
 
 .sticker-placed--selected .sticker-placed__rotator {
@@ -950,6 +956,10 @@
   display: inline-block;
   line-height: 0;
   transition: transform 0.2s ease;
+}
+
+.sticker-placed--rotating .sticker-placed__art {
+  transition: none;
 }
 
 .sticker-placed__art--lifted {
