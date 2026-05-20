@@ -1,7 +1,9 @@
 'use client'
 
+import { ChapterCopyScroller } from '@/components/ChapterCopyScroller'
 import { ChapterViewport } from '@/components/ChapterViewport'
 import { SensiLiteProto } from '@/components/SensiLiteProto'
+import { useChapterPanelOpacity } from '@/lib/useChapterPanelOpacity'
 
 const INTERACTIVE_ID = 'hardware-sensi-lite-interactive'
 
@@ -15,6 +17,8 @@ interface Props {
 }
 
 export function SensiLiteChapter({ body, isLast }: Props) {
+  const { isActive } = useChapterPanelOpacity('hardware-sensi-lite')
+
   return (
     <ChapterViewport
       chapterId="hardware-sensi-lite"
@@ -32,9 +36,11 @@ export function SensiLiteChapter({ body, isLast }: Props) {
         </div>
 
         <div className="sensi-lite-chapter__copy chapter-copy">
-          <h3 className="chapter-copy__headline">{HEADLINE}</h3>
-          <div className="chapter-copy__rule" aria-hidden />
-          <p className="chapter-copy__body">{body}</p>
+          <ChapterCopyScroller active={isActive}>
+            <h3 className="chapter-copy__headline">{HEADLINE}</h3>
+            <div className="chapter-copy__rule" aria-hidden />
+            <p className="chapter-copy__body">{body}</p>
+          </ChapterCopyScroller>
         </div>
       </div>
     </ChapterViewport>
