@@ -1,5 +1,6 @@
 'use client'
 
+import { Touch2CarouselDots } from '@/components/touch2/Touch2CarouselDots'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { fitSlideFrame, type FrameSize } from '@/lib/touch2CarouselFrame'
 import { TOUCH2_CAROUSEL_IMAGES } from '@/lib/touch2CarouselImages'
@@ -18,7 +19,7 @@ interface Props {
   className?: string
 }
 
-export function LavaLampCarousel({
+export function Touch2Carousel({
   slides = TOUCH2_CAROUSEL_IMAGES,
   className,
 }: Props) {
@@ -133,24 +134,12 @@ export function LavaLampCarousel({
         ))}
       </div>
 
-      <div className="touch2-carousel__dots" role="tablist" aria-label="Choose photo">
-        {slides.map((slide, i) => (
-          <button
-            key={slide.src}
-            type="button"
-            role="tab"
-            aria-selected={i === index}
-            aria-label={`Photo ${i + 1} of ${count}`}
-            className={[
-              'touch2-carousel__dot',
-              i === index ? 'touch2-carousel__dot--active' : '',
-            ]
-              .filter(Boolean)
-              .join(' ')}
-            onClick={() => setIndex(i)}
-          />
-        ))}
-      </div>
+      <Touch2CarouselDots
+        count={count}
+        activeIndex={index}
+        slideKeys={slides.map((slide) => slide.src)}
+        onSelect={setIndex}
+      />
     </div>
   )
 }
