@@ -2,7 +2,7 @@
 
 import { useChapterNav } from '@/components/ChapterNavProvider'
 import { EimPathArt } from '@/components/EimPathArt'
-import { HardwareChapterLayout } from '@/components/hardware/HardwareChapterLayout'
+import { ChapterSlideLayout } from '@/components/chapter-slide/ChapterSlideLayout'
 import { useChapterPanelOpacity } from '@/lib/useChapterPanelOpacity'
 import type { Chapter } from '@/lib/types'
 
@@ -24,10 +24,10 @@ export function EimChapter({ chapter, isLast }: Props) {
   const pathActive = isActive || isEnteringOnOffCycle
 
   return (
-    <HardwareChapterLayout
+    <ChapterSlideLayout
       chapter={chapter}
       chapterId={CHAPTER_ID}
-      variant="eim"
+      modifier="eim"
       isLast={isLast}
       stage={
         <EimPathArt

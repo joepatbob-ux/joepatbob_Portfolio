@@ -1,6 +1,6 @@
 'use client'
 
-import { HardwareChapterLayout } from '@/components/hardware/HardwareChapterLayout'
+import { ChapterSlideLayout } from '@/components/chapter-slide/ChapterSlideLayout'
 import { LavaLampCarousel } from '@/components/LavaLampCarousel'
 import type { Chapter } from '@/lib/types'
 
@@ -11,10 +11,10 @@ interface Props {
 
 export function Touch2Chapter({ chapter, isLast }: Props) {
   return (
-    <HardwareChapterLayout
+    <ChapterSlideLayout
       chapter={chapter}
       chapterId="hardware-touch-2"
-      variant="touch-2"
+      modifier="touch-2"
       isLast={isLast}
       copyFirst
       stage={<LavaLampCarousel />}

@@ -342,7 +342,7 @@
 
 /* ── Hardware — Lessons (product lineup + copy) ──────────────────────────── */
 
-.hardware-lessons .portfolio-chapter-panel {
+.section-lessons .portfolio-chapter-panel {
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -353,7 +353,7 @@
   min-height: 0;
 }
 
-.hardware-lessons__devices {
+.section-lessons__devices {
   --lesson-device-max-h: clamp(88px, 12vw, 128px);
   display: flex;
   flex-wrap: wrap;
@@ -366,7 +366,7 @@
   width: 100%;
 }
 
-.hardware-lessons__device {
+.section-lessons__device {
   flex: 1 1 0;
   min-width: 64px;
   max-width: 180px;
@@ -375,7 +375,7 @@
   justify-content: center;
 }
 
-.hardware-lessons__device-art {
+.section-lessons__device-art {
   width: 100%;
   height: auto;
   max-height: var(--lesson-device-max-h);
@@ -384,7 +384,7 @@
   display: block;
 }
 
-.hardware-lessons__device--family {
+.section-lessons__device--family {
   flex: 1.35 1 0;
   max-width: min(280px, 36vw);
   min-width: 140px;
@@ -443,7 +443,7 @@
   height: auto;
 }
 
-.sensi-lite-lesson-art.hardware-lessons__device-art {
+.sensi-lite-lesson-art.section-lessons__device-art {
   max-height: var(--lesson-device-max-h);
 }
 
@@ -505,17 +505,27 @@
   height: 11.57%;
 }
 
-.hardware-lessons__copy {
+.section-lessons__copy {
   flex: 0 1 auto;
   width: 100%;
   max-width: min(640px, 100%);
 }
 
-.hardware-lessons__copy.hardware-chapter__copy--lessons .hardware-chapter__body {
+.section-lessons__copy.chapter-slide__copy--lessons .chapter-slide__body {
   grid-template-columns: 1fr;
 }
 
-.hardware-lessons__copy .chapter-copy__body {
+.section-lessons__copy .chapter-copy__headline {
+  text-align: center;
+  white-space: pre-line;
+}
+
+.section-lessons__copy .chapter-copy__rule {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.section-lessons__copy .chapter-copy__body {
   max-width: min(52ch, 100%);
   margin-left: auto;
   margin-right: auto;
@@ -527,16 +537,16 @@
 }
 
 @media (max-width: 720px) {
-  .hardware-lessons__devices {
+  .section-lessons__devices {
     justify-content: center;
   }
 
-  .hardware-lessons__device {
+  .section-lessons__device {
     flex: 0 1 calc(33.333% - 12px);
     max-width: 112px;
   }
 
-  .hardware-lessons__device--family {
+  .section-lessons__device--family {
     flex: 1 1 100%;
     max-width: min(260px, 88vw);
     min-width: 0;
@@ -1030,7 +1040,7 @@
   will-change: opacity;
 }
 
-.hardware-chapter .portfolio-chapter-panel {
+.chapter-slide .portfolio-chapter-panel {
   justify-content: center;
 }
 
@@ -1168,15 +1178,15 @@
   width: 100%;
 }
 
-/* Hardware chapters — section grid: 3 / 2 / 1 columns (lib/hardware/breakpoints.ts) */
-.hardware-chapter {
-  --hw-stage-max: min(480px, 42vw);
-  --hw-copy-max-h: min(70dvh, 100%);
-  --hw-inner-max: min(1120px, 100%);
-  --hw-section-gap: clamp(28px, 4vw, 56px);
+/* Case study chapter slides — section grid: 3 / 2 / 1 columns (lib/chapter-slide/breakpoints.ts) */
+.chapter-slide {
+  --cs-stage-max: min(480px, 42vw);
+  --cs-copy-max-h: min(70dvh, 100%);
+  --cs-inner-max: min(1120px, 100%);
+  --cs-section-gap: clamp(28px, 4vw, 56px);
 }
 
-.hardware-chapter__viewport {
+.chapter-slide__viewport {
   box-sizing: border-box;
   flex: 1;
   min-height: 0;
@@ -1188,117 +1198,117 @@
 }
 
 /* Tablet+: 2-column section (stage | context) */
-.hardware-chapter__inner {
+.chapter-slide__inner {
   box-sizing: border-box;
   width: 100%;
-  max-width: var(--hw-inner-max);
+  max-width: var(--cs-inner-max);
   min-height: 0;
   max-height: min(88dvh, 100%);
   display: grid;
-  grid-template-columns: var(--hw-stage-max) minmax(0, 1fr);
+  grid-template-columns: var(--cs-stage-max) minmax(0, 1fr);
   align-items: center;
-  gap: var(--hw-section-gap);
+  gap: var(--cs-section-gap);
 }
 
-.hardware-chapter__stage {
+.chapter-slide__stage {
   grid-column: 1;
   grid-row: 1;
   align-self: center;
 }
 
-.hardware-chapter__copy {
+.chapter-slide__copy {
   grid-column: 2;
   grid-row: 1;
 }
 
-.hardware-chapter--touch-2 .hardware-chapter__stage {
+.chapter-slide--touch-2 .chapter-slide__stage {
   grid-column: 2;
 }
 
-.hardware-chapter--touch-2 .hardware-chapter__copy {
+.chapter-slide--touch-2 .chapter-slide__copy {
   grid-column: 1;
 }
 
 /* Wide: 3-column section (stage | context | context) */
 @media (min-width: 1200px) {
-  .hardware-chapter {
-    --hw-inner-max: min(1280px, 100%);
+  .chapter-slide {
+    --cs-inner-max: min(1280px, 100%);
   }
 
-  .hardware-chapter__inner {
-    grid-template-columns: var(--hw-stage-max) minmax(0, 1fr) minmax(0, 1fr);
+  .chapter-slide__inner {
+    grid-template-columns: var(--cs-stage-max) minmax(0, 1fr) minmax(0, 1fr);
   }
 
-  .hardware-chapter:not(.hardware-chapter--touch-2) .hardware-chapter__copy {
+  .chapter-slide:not(.chapter-slide--touch-2) .chapter-slide__copy {
     grid-column: 2 / 4;
   }
 
-  .hardware-chapter--touch-2 .hardware-chapter__inner {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) var(--hw-stage-max);
+  .chapter-slide--touch-2 .chapter-slide__inner {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) var(--cs-stage-max);
   }
 
-  .hardware-chapter--touch-2 .hardware-chapter__copy {
+  .chapter-slide--touch-2 .chapter-slide__copy {
     grid-column: 1 / 3;
   }
 
-  .hardware-chapter--touch-2 .hardware-chapter__stage {
+  .chapter-slide--touch-2 .chapter-slide__stage {
     grid-column: 3;
   }
 }
 
-.hardware-chapter__stage {
+.chapter-slide__stage {
   min-width: 0;
   width: 100%;
-  max-width: var(--hw-stage-max);
+  max-width: var(--cs-stage-max);
   justify-self: center;
 }
 
-.hardware-chapter__stage .touch2-carousel,
-.hardware-chapter__stage .verdant-interactive,
-.hardware-chapter__stage .eim-path-art {
+.chapter-slide__stage .touch2-carousel,
+.chapter-slide__stage .verdant-interactive,
+.chapter-slide__stage .eim-path-art {
   width: 100%;
-  max-width: var(--hw-stage-max);
+  max-width: var(--cs-stage-max);
   margin-left: auto;
   margin-right: auto;
 }
 
-.hardware-chapter--verdant .hardware-chapter__stage {
+.chapter-slide--verdant .chapter-slide__stage {
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.hardware-chapter--sensi-lite .hardware-chapter__stage > div {
+.chapter-slide--sensi-lite .chapter-slide__stage > div {
   width: 100%;
-  max-width: var(--hw-stage-max);
+  max-width: var(--cs-stage-max);
   margin: 0 auto;
 }
 
-.hardware-chapter--sensi-lite .hardware-chapter__stage > div > div {
-  max-width: var(--hw-stage-max) !important;
+.chapter-slide--sensi-lite .chapter-slide__stage > div > div {
+  max-width: var(--cs-stage-max) !important;
   margin-left: auto;
   margin-right: auto;
 }
 
-.hardware-chapter__copy {
+.chapter-slide__copy {
   min-width: 0;
   min-height: 0;
-  max-height: var(--hw-copy-max-h);
+  max-height: var(--cs-copy-max-h);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   align-self: center;
 }
 
-.hardware-chapter__copy .chapter-copy-scroller {
+.chapter-slide__copy .chapter-copy-scroller {
   flex: 1 1 auto;
   min-height: 0;
-  max-height: var(--hw-copy-max-h);
+  max-height: var(--cs-copy-max-h);
   overflow-y: auto;
 }
 
 /* Context body: 2 grid columns inside the 3-column section on wide */
-.hardware-chapter__body {
+.chapter-slide__body {
   margin: 0;
   display: grid;
   grid-template-columns: 1fr;
@@ -1307,12 +1317,12 @@
 }
 
 @media (min-width: 1200px) {
-  .hardware-chapter__copy:not(.hardware-chapter__copy--lessons) .hardware-chapter__body {
+  .chapter-slide__copy:not(.chapter-slide__copy--lessons) .chapter-slide__body {
     grid-template-columns: 1fr 1fr;
   }
 }
 
-.hardware-chapter__copy:not(.hardware-chapter__copy--lessons) .chapter-copy__body {
+.chapter-slide__copy:not(.chapter-slide__copy--lessons) .chapter-copy__body {
   max-width: 46ch;
   font-size: 14px;
   line-height: 1.65;
@@ -1321,11 +1331,11 @@
 
 /* Mobile: single-column section, stage above copy */
 @media (max-width: 767px) {
-  .hardware-chapter__viewport {
+  .chapter-slide__viewport {
     padding: clamp(24px, 4vw, 40px) clamp(16px, 4vw, 32px);
   }
 
-  .hardware-chapter__inner {
+  .chapter-slide__inner {
     grid-template-columns: 1fr;
     grid-template-rows: auto minmax(0, 1fr);
     align-items: stretch;
@@ -1333,15 +1343,15 @@
     max-height: min(92dvh, 100%);
   }
 
-  .hardware-chapter__stage,
-  .hardware-chapter--touch-2 .hardware-chapter__stage {
+  .chapter-slide__stage,
+  .chapter-slide--touch-2 .chapter-slide__stage {
     grid-column: 1;
     grid-row: 1;
     order: 1;
   }
 
-  .hardware-chapter__copy,
-  .hardware-chapter--touch-2 .hardware-chapter__copy {
+  .chapter-slide__copy,
+  .chapter-slide--touch-2 .chapter-slide__copy {
     grid-column: 1;
     grid-row: 2;
     order: 2;
@@ -1351,44 +1361,106 @@
     max-height: none;
   }
 
-  .hardware-chapter__copy .chapter-copy-scroller {
+  .chapter-slide__copy .chapter-copy-scroller {
     flex: 1 1 0;
     max-height: none;
   }
 
-  .hardware-chapter__stage {
+  .chapter-slide__stage {
     max-width: min(480px, 100%);
     margin: 0 auto;
     justify-self: center;
   }
 
   /* EIM path art is tall; cap stage so copy keeps scroll room */
-  .hardware-chapter--eim .hardware-chapter__stage {
+  .chapter-slide--eim .chapter-slide__stage {
     max-width: min(72vw, 280px);
   }
 
-  .hardware-chapter:not(.hardware-lessons) .hardware-chapter__copy {
+  .chapter-slide:not(.section-lessons) .chapter-slide__copy {
     text-align: left;
   }
 
-  .hardware-chapter:not(.hardware-lessons) .chapter-copy__headline {
+  .chapter-slide:not(.section-lessons) .chapter-copy__headline {
     text-align: center;
   }
 
-  .hardware-chapter:not(.hardware-lessons) .chapter-copy__rule {
+  .chapter-slide:not(.section-lessons) .chapter-copy__rule {
     margin-left: auto;
     margin-right: auto;
   }
 
-  .hardware-chapter:not(.hardware-lessons) .chapter-copy__body {
+  .chapter-slide:not(.section-lessons) .chapter-copy__body {
     max-width: 42ch;
     margin-left: auto;
     margin-right: auto;
   }
 
-  .hardware-chapter__body {
+  .chapter-slide__body {
     grid-template-columns: 1fr;
   }
+}
+
+/* Standard chapter stage media (mobile, web-apps, everything-else) */
+.chapter-slide__stage .chapter-stage-media {
+  width: 100%;
+  max-width: var(--cs-stage-max);
+  margin: 0 auto;
+}
+
+.chapter-slide__stage .chapter-stage-media--intrinsic img {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  max-height: min(640px, 52dvh);
+  object-fit: contain;
+}
+
+.chapter-slide__stage .chapter-stage-media--cover img {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  max-height: min(560px, 50dvh);
+  object-fit: cover;
+}
+
+.chapter-slide__stage .chapter-stage-media--placeholder {
+  position: relative;
+  width: 100%;
+  max-width: var(--cs-stage-max);
+  background-color: rgba(0, 0, 0, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.chapter-slide__stage .chapter-stage-media--placeholder svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.chapter-slide__stage .chapter-stage-media--placeholder span {
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.25);
+  text-align: center;
+  padding: 12px;
+}
+
+.chapter-slide__stage .before-after-slider,
+.chapter-slide__stage .sticker-pile-wrap {
+  width: 100%;
+  max-width: var(--cs-stage-max);
+  margin: 0 auto;
 }
 
 /* ── Touch 2 vertical carousel ────────────────────────────────────────────── */
@@ -1585,7 +1657,7 @@
 
 .eim-path-art {
   width: 100%;
-  max-width: min(420px, var(--hw-stage-max, 420px));
+  max-width: min(420px, var(--cs-stage-max, 420px));
   margin: 0 auto;
   aspect-ratio: 379 / 374;
   --dash-stagger: 42ms;
@@ -1750,13 +1822,13 @@
 
 /* ── Verdant interactive (hardware-verdant stage) ───────────────────────────── */
 
-.hardware-chapter--verdant {
+.chapter-slide--verdant {
   --verdant-label: #000;
   --verdant-label-muted: color-mix(in srgb, var(--verdant-label) 12%, var(--color-paper));
 }
 
 @media (prefers-color-scheme: dark) {
-  .hardware-chapter--verdant {
+  .chapter-slide--verdant {
     --verdant-label: #fff;
     --verdant-label-muted: color-mix(in srgb, var(--verdant-label) 12%, var(--color-paper));
   }
