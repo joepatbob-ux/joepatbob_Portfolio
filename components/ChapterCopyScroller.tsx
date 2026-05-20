@@ -28,16 +28,30 @@ export function ChapterCopyScroller({
     if (!el) return
 
     const onWheel = (e: WheelEvent) => {
-      if (!active || el.scrollHeight <= el.clientHeight + 1) return
+      if (!active) return
 
       const { scrollTop, scrollHeight, clientHeight } = el
+      if (scrollHeight <= clientHeight + 1) return
+
+      let delta = e.deltaY
+      if (e.deltaMode === WheelEvent.DOM_DELTA_LINE) {
+        delta *= 16
+      } else if (e.deltaMode === WheelEvent.DOM_DELTA_PAGE) {
+        delta *= clientHeight
+      }
+
       const atTop = scrollTop <= 0
       const atBottom = scrollTop + clientHeight >= scrollHeight - 1
 
-      if ((e.deltaY > 0 && !atBottom) || (e.deltaY < 0 && !atTop)) {
-        e.preventDefault()
-        e.stopPropagation()
-      }
+      if (delta > 0 && atBottom) return
+      if (delta < 0 && atTop) return
+
+      e.preventDefault()
+      e.stopPropagation()
+      el.scrollTop = Math.max(
+        0,
+        Math.min(scrollTop + delta, scrollHeight - clientHeight),
+      )
     }
 
     el.addEventListener('wheel', onWheel, { passive: false })
