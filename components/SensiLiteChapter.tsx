@@ -1,48 +1,24 @@
 'use client'
 
-import { ChapterCopyScroller } from '@/components/ChapterCopyScroller'
-import { ChapterViewport } from '@/components/ChapterViewport'
+import { HardwareChapterLayout } from '@/components/hardware/HardwareChapterLayout'
 import { SensiLiteProto } from '@/components/SensiLiteProto'
-import { useChapterPanelOpacity } from '@/lib/useChapterPanelOpacity'
-
-const INTERACTIVE_ID = 'hardware-sensi-lite-interactive'
-
-const HEADLINE = `32 segments.
-Three controls.
-One chance to get it right.`
+import type { Chapter } from '@/lib/types'
 
 interface Props {
-  body: string
+  chapter: Chapter
   isLast: boolean
 }
 
-export function SensiLiteChapter({ body, isLast }: Props) {
-  const { isActive } = useChapterPanelOpacity('hardware-sensi-lite')
-
+export function SensiLiteChapter({ chapter, isLast }: Props) {
   return (
-    <ChapterViewport
+    <HardwareChapterLayout
+      chapter={chapter}
       chapterId="hardware-sensi-lite"
+      variant="sensi-lite"
       isLast={isLast}
-      className="sensi-lite-chapter"
-      fillViewport
-    >
-      <div className="sensi-lite-chapter__viewport">
-        <div
-          id={INTERACTIVE_ID}
-          className="sensi-lite-chapter__stage"
-          aria-label="Sensi Lite interactive prototype"
-        >
-          <SensiLiteProto showControlsLegend={false} />
-        </div>
-
-        <div className="sensi-lite-chapter__copy chapter-copy">
-          <ChapterCopyScroller active={isActive}>
-            <h3 className="chapter-copy__headline">{HEADLINE}</h3>
-            <div className="chapter-copy__rule" aria-hidden />
-            <p className="chapter-copy__body">{body}</p>
-          </ChapterCopyScroller>
-        </div>
-      </div>
-    </ChapterViewport>
+      stageId="hardware-sensi-lite-interactive"
+      stageAriaLabel="Sensi Lite interactive prototype"
+      stage={<SensiLiteProto showControlsLegend={false} />}
+    />
   )
 }

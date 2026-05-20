@@ -1,4 +1,5 @@
 // lib/sections/hardware.ts
+// Chapter copy: `title` = nav label; `subtitle` = on-slide headline; `body` = scrollable copy.
 import type { Section } from '../types'
 
 export const hardware: Section = {
@@ -18,7 +19,9 @@ It also makes everything else feel a little more spacious.`,
     {
       id: 'sensi-lite',
       title: 'Sensi Lite',
-      subtitle: 'Physical prototype — 32 segments, three controls, one enclosure.',
+      subtitle: `32 segments.
+Three controls.
+One chance to get it right.`,
       body: `That's the full constraint profile. Navigation stayed flat and cyclical. The menu/action button serves triple duty: standard press moves you forward, long press gets you into homeowner settings, another long press gets you into contractor territory — the people who need it know to look, everyone else never thinks to.
 
 In a flat menu, order does the work that hierarchy can't. I ordered settings based on conditional dependencies so users answer questions only when they have context.
