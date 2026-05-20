@@ -1,9 +1,11 @@
 'use client'
 
 import { ChapterViewport } from '@/components/ChapterViewport'
+import { HardwareChapterCopy } from '@/components/hardware/HardwareChapterCopy'
 import { EimTouchFamilyArt } from '@/components/EimTouchFamilyArt'
 import { SensiLiteLessonArt } from '@/components/SensiLiteLessonArt'
 import { HARDWARE_LESSON_DEVICES } from '@/lib/hardware/lessonDevices'
+import { useChapterPanelOpacity } from '@/lib/useChapterPanelOpacity'
 
 interface Props {
   lessonTitle: string
@@ -12,6 +14,8 @@ interface Props {
 }
 
 export function HardwareLessons({ lessonTitle, lessonBody, isLast }: Props) {
+  const { isActive } = useChapterPanelOpacity('hardware-lessons')
+
   return (
     <ChapterViewport
       chapterId="hardware-lessons"
@@ -48,10 +52,12 @@ export function HardwareLessons({ lessonTitle, lessonBody, isLast }: Props) {
         ))}
       </ul>
 
-      <div className="hardware-lessons__copy chapter-copy">
-        <h3 className="chapter-copy__headline">{lessonTitle}</h3>
-        <p className="chapter-copy__body">{lessonBody}</p>
-      </div>
+      <HardwareChapterCopy
+        active={isActive}
+        headline={lessonTitle}
+        body={lessonBody}
+        className="hardware-lessons__copy"
+      />
     </ChapterViewport>
   )
 }

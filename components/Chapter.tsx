@@ -20,20 +20,17 @@ const padX = 'clamp(16px, 4vw, 72px)'
 export function Chapter({ chapter, sectionId, isLast }: Props) {
   const chapterId = `${sectionId}-${chapter.id}`
 
-  if (chapterId === 'hardware-sensi-lite') {
-    return <SensiLiteChapter body={chapter.body} isLast={isLast} />
-  }
-
-  if (chapterId === 'hardware-touch-2') {
-    return <Touch2Chapter chapter={chapter} isLast={isLast} />
-  }
-
-  if (chapterId === 'hardware-eim') {
-    return <EimChapter isLast={isLast} />
-  }
-
-  if (chapterId === 'hardware-verdant') {
-    return <VerdantChapter isLast={isLast} />
+  if (chapterId.startsWith('hardware-')) {
+    switch (chapterId) {
+      case 'hardware-sensi-lite':
+        return <SensiLiteChapter chapter={chapter} isLast={isLast} />
+      case 'hardware-touch-2':
+        return <Touch2Chapter chapter={chapter} isLast={isLast} />
+      case 'hardware-eim':
+        return <EimChapter chapter={chapter} isLast={isLast} />
+      case 'hardware-verdant':
+        return <VerdantChapter chapter={chapter} isLast={isLast} />
+    }
   }
 
   const isFullWidth = chapter.imageLayout === 'full-width'
