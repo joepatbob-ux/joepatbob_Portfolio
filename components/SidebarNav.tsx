@@ -12,6 +12,8 @@
 'use client'
 
 import { useEffect, useRef, useState, useCallback } from 'react'
+import { pickHardwareChapterFromScroll } from '@/lib/hardware/chapters'
+import { HardwareMobileNav } from '@/components/HardwareMobileNav'
 import { applySidebarHeroNameFade, isInHeroScrollZone } from '@/lib/heroScroll'
 import { NAV_SECTIONS, sectionIdForChapter } from '@/lib/nav'
 import { scheduleScrollFrame } from '@/lib/scrollFrame'
@@ -283,6 +285,25 @@ export function SidebarNav() {
   }, [activeChapter])
 
   const applyScrollSpy = useCallback(() => {
+    const hardwareArticle = document.querySelector('[data-section-id="hardware"]')
+    if (hardwareArticle) {
+      const rect = hardwareArticle.getBoundingClientRect()
+      const vh = window.innerHeight
+      if (rect.top < vh * 0.85 && rect.bottom > vh * 0.15) {
+        const chapterId = pickHardwareChapterFromScroll()
+        if (activeChapterRef.current !== chapterId) {
+          activeChapterRef.current = chapterId
+          setActiveChapter(chapterId)
+        }
+        if (activeSectionRef.current !== 'hardware') {
+          activeSectionRef.current = 'hardware'
+          setActiveSection('hardware')
+          if (subNavVisibleRef.current) staggerOut(() => staggerIn('hardware'))
+        }
+        return
+      }
+    }
+
     const { chapterId, sectionId } = pickActiveSpyTarget()
     if (!sectionId) return
 
@@ -421,7 +442,7 @@ export function SidebarNav() {
         drawerHost.style.pointerEvents = mobileDrawerOpen ? 'auto' : 'none'
       }
 
-      if (travelT > 0.42 && !isInHeroScrollZone()) applyScrollSpy()
+      if (!isInHeroScrollZone()) applyScrollSpy()
     })
   }, [isMobile, applyScrollSpy, mobileDrawerOpen])
 
@@ -843,14 +864,21 @@ export function SidebarNav() {
 
       {/* Sidebar shell — hidden on small viewports; kept mounted for scroll/sync refs */}
       <div hidden={isMobile}>
-        <div style={{
-          position: 'fixed', left: 0, top: 0,
-          width: 400, height: '100dvh',
-          zIndex: 100, pointerEvents: 'none',
-        }}>
+        <div
+          className="sidebar-shell--fixed"
+          style={{
+            position: 'fixed',
+            left: 0,
+            top: 0,
+            width: 'var(--sidebar-width)',
+            height: '100dvh',
+            zIndex: 100,
+            pointerEvents: 'none',
+          }}
+        >
         {/* Divider */}
         <div aria-hidden style={{
-          position: 'absolute', right: 0, top: 40,
+          position: 'absolute', right: 'var(--sidebar-pad-right)', top: 40,
           width: 1, height: 'calc(100% - 80px)',
           background: C.divider,
           opacity: dividerVisible ? 1 : 0,
@@ -861,7 +889,7 @@ export function SidebarNav() {
         {/* Hero name — opacity/blur driven by scroll frame */}
         <div ref={heroRef} className="sidebar-hero-name" aria-hidden style={{
           position: 'absolute', top: 40, left: 40,
-          width: 'min(42vw, calc(var(--sidebar-width) - 80px))',
+          width: 'min(42vw, calc(var(--sidebar-width) - 40px - var(--sidebar-pad-right)))',
           opacity: 1,
           filter: 'blur(0px)',
           transition: 'none',
@@ -891,7 +919,7 @@ export function SidebarNav() {
           position: 'absolute',
           top: layoutRef.current.navRestTop,
           left: 40,
-          right: 40,
+          right: 'calc(40px + var(--sidebar-pad-right))',
           transition: 'none',
           pointerEvents: 'auto',
         }}>
@@ -947,17 +975,34 @@ export function SidebarNav() {
         >
           <ContactButton />
         </div>
+        </div>
       </div>
 
-      {/* Sub nav — viewport center */}
-      <div aria-label="Chapter navigation" style={{
-        position: 'fixed', left: 40, top: '50vh',
-        transform: 'translateY(-50%)',
-        display: 'flex', flexDirection: 'column', gap: 6,
-        width: 'min(300px, calc(var(--sidebar-width) - 80px))',
-        zIndex: 101,
-        pointerEvents: subNavVisible ? 'auto' : 'none',
-      }}>
+      {isMobile ? (
+        <HardwareMobileNav
+          activeChapterId={activeChapter ?? 'hardware-overview'}
+          onSelect={scrollToChapter}
+        />
+      ) : null}
+
+      {/* Sub nav — viewport center (desktop only; shell stays mounted when hidden) */}
+      <div hidden={isMobile}>
+      <div
+        className="sidebar-subnav--fixed"
+        aria-label="Chapter navigation"
+        style={{
+          position: 'fixed',
+          left: 40,
+          top: '50vh',
+          transform: 'translateY(-50%)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 6,
+          width: 'min(300px, calc(var(--sidebar-width) - 40px - var(--sidebar-pad-right)))',
+          zIndex: 101,
+          pointerEvents: subNavVisible ? 'auto' : 'none',
+        }}
+      >
         {currentSection.chapters.map((chapter, i) => {
           const chId      = toChapterId(currentSection.id, chapter.id)
           const isActive  = activeChapter === chId

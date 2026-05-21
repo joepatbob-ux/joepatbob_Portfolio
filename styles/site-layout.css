@@ -1,0 +1,48 @@
+/* Site shell — cinema frame, sidebar right padding, panel offsets */
+
+:root {
+  --sidebar-pad-right: clamp(12px, 1.5vw, 32px);
+  --hardware-mobile-bar-height: 52px;
+  --site-frame-max: 1400px;
+}
+
+.site-frame {
+  position: relative;
+  width: 100%;
+  min-height: 100dvh;
+}
+
+/* Sidebar: viewport-left pin — transparent so hero canvas shows through on the left */
+.sidebar-shell--fixed {
+  left: 0 !important;
+  padding-right: var(--sidebar-pad-right);
+  box-sizing: border-box;
+  background-color: transparent;
+}
+
+.sidebar-subnav--fixed {
+  left: 40px !important;
+  box-sizing: border-box;
+}
+
+/* Ultra-wide: cap content column width; sidebar stays browser-left */
+@media (min-width: 2560px) {
+  .content-area {
+    max-width: calc(
+      var(--site-frame-max) - var(--sidebar-width) - 2 * var(--content-pad-x)
+    );
+  }
+}
+
+/* Mobile: no scroll snap — normal scroll */
+@media (max-width: 767px) {
+  html {
+    scroll-snap-type: none;
+  }
+
+  #hero,
+  .portfolio-chapter-slot--fill {
+    scroll-snap-align: none;
+    scroll-snap-stop: normal;
+  }
+}

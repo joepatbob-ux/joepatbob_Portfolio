@@ -28,16 +28,33 @@ export function SectionLessons({
       chapterId={chapterId}
       isLast={isLast}
       fillViewport
-      className="section-lessons"
+      className={[
+        'section-lessons',
+        sectionId === 'hardware' ? 'hardware-slideshow' : '',
+      ]
+        .filter(Boolean)
+        .join(' ')}
     >
       {children}
-      <ChapterSlideCopy
-        active={isActive}
-        headline={lessonTitle}
-        body={lessonBody}
-        layout="lessons"
-        className="section-lessons__copy"
-      />
+      {sectionId === 'hardware' ? (
+        <div className="chapter-slide__viewport">
+          <ChapterSlideCopy
+            active={isActive}
+            headline={lessonTitle}
+            body={lessonBody}
+            layout="lessons"
+            className="section-lessons__copy chapter-slide__copy"
+          />
+        </div>
+      ) : (
+        <ChapterSlideCopy
+          active={isActive}
+          headline={lessonTitle}
+          body={lessonBody}
+          layout="lessons"
+          className="section-lessons__copy"
+        />
+      )}
     </ChapterViewport>
   )
 }

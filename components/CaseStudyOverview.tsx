@@ -18,7 +18,12 @@ export function CaseStudyOverview({
   return (
     <ChapterViewport
       chapterId={`${sectionId}-overview`}
-      className="case-study-overview"
+      className={[
+        'case-study-overview',
+        sectionId === 'hardware' ? 'hardware-slideshow' : '',
+      ]
+        .filter(Boolean)
+        .join(' ')}
       fillViewport
       style={{ borderTop: 'none' }}
     >

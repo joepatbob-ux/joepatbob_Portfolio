@@ -6,7 +6,7 @@
   height: 100dvh;
   min-height: 100dvh;
   max-height: 100dvh;
-  background-color: transparent;
+  background-color: var(--color-hero-canvas);
   margin-left: calc(-1 * (var(--sidebar-width) + var(--content-pad-x)));
   margin-right: calc(-1 * var(--content-pad-x));
   width: 100vw;
@@ -74,6 +74,8 @@
 
 /* Sidebar hero name — opacity/blur set from scroll frame (not CSS transition) */
 .sidebar-hero-name {
+  box-sizing: border-box;
+  padding-right: 8px;
   will-change: opacity, filter;
 }
 

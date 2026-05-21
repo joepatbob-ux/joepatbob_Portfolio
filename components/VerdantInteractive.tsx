@@ -2,43 +2,70 @@
 
 import { VerdantCharacterKeyboard } from '@/components/VerdantCharacterKeyboard'
 import { VerdantCharacterSvg } from '@/components/VerdantCharacterSvg'
-
-const PCB_PHOTO = '/images/hw-verdant.jpg'
-const DRAWING_PHOTO = '/images/hw-verdant-pcb.jpg'
+import {
+  VERDANT_BOARD_IMAGE,
+  VERDANT_DEFAULT_SELECTION,
+  VERDANT_SKETCH_IMAGE,
+  type VerdantSelection,
+} from '@/lib/verdant/selection'
+import { useCallback, useEffect, useState } from 'react'
 
 interface Props {
-  selectedCode: string
-  onSelectCode: (code: string) => void
+  isActive?: boolean
 }
 
-export function VerdantInteractive({ selectedCode, onSelectCode }: Props) {
+export function VerdantInteractive({ isActive = true }: Props) {
+  const [selection, setSelection] = useState<VerdantSelection>(
+    VERDANT_DEFAULT_SELECTION,
+  )
+
+  const reset = useCallback(() => {
+    setSelection(VERDANT_DEFAULT_SELECTION)
+  }, [])
+
+  useEffect(() => {
+    if (!isActive) reset()
+  }, [isActive, reset])
+
+  const previewKind =
+    selection.kind === 'character' ? 'segments' : selection.kind
+
   return (
     <div className="verdant-interactive">
-      <div className="verdant-interactive__display-row">
-        <div className="verdant-interactive__glyph-stage" aria-live="polite">
+      <div
+        className="verdant-interactive__glyph-stage"
+        aria-live="polite"
+        data-preview={previewKind}
+      >
+        {selection.kind === 'character' ? (
           <VerdantCharacterSvg
-            code={selectedCode}
+            code={selection.code}
             className="verdant-interactive__glyph"
           />
-        </div>
-        <div className="verdant-interactive__photos" aria-hidden>
+        ) : (
           <img
-            src={PCB_PHOTO}
-            alt=""
-            className="verdant-interactive__photo verdant-interactive__photo--top"
+            src={
+              selection.kind === 'sketch'
+                ? VERDANT_SKETCH_IMAGE
+                : VERDANT_BOARD_IMAGE
+            }
+            alt={
+              selection.kind === 'sketch'
+                ? 'Verdant custom segment character set sketch'
+                : 'Verdant display PCB board'
+            }
+            className="verdant-interactive__stage-photo"
             decoding="async"
           />
-          <img
-            src={DRAWING_PHOTO}
-            alt=""
-            className="verdant-interactive__photo verdant-interactive__photo--bottom"
-            decoding="async"
-          />
-        </div>
+        )}
       </div>
       <VerdantCharacterKeyboard
-        selectedCode={selectedCode}
-        onSelect={onSelectCode}
+        selection={selection}
+        onSelectCharacter={(code) =>
+          setSelection({ kind: 'character', code })
+        }
+        onSelectSketch={() => setSelection({ kind: 'sketch' })}
+        onSelectBoard={() => setSelection({ kind: 'board' })}
       />
     </div>
   )
