@@ -1,0 +1,315 @@
+/* Case study chapter slides — section grid: 3 / 2 / 1 columns (lib/chapter-slide/breakpoints.ts) */
+.chapter-slide {
+  --cs-stage-max: min(480px, 42vw);
+  --cs-copy-max-h: min(70dvh, 100%);
+  --cs-inner-max: min(1120px, 100%);
+  --cs-section-gap: clamp(28px, 4vw, 56px);
+}
+
+.chapter-slide__viewport {
+  box-sizing: border-box;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(24px, 4vw, 48px) clamp(16px, 4vw, 72px);
+}
+
+/* Tablet+: 2-column section (stage | context) */
+.chapter-slide__inner {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: var(--cs-inner-max);
+  min-height: 0;
+  max-height: min(88dvh, 100%);
+  display: grid;
+  grid-template-columns: var(--cs-stage-max) minmax(0, 1fr);
+  align-items: center;
+  gap: var(--cs-section-gap);
+}
+
+.chapter-slide__stage {
+  grid-column: 1;
+  grid-row: 1;
+  align-self: center;
+}
+
+.chapter-slide__copy {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.chapter-slide--touch-2 .chapter-slide__stage {
+  grid-column: 2;
+}
+
+.chapter-slide--touch-2 .chapter-slide__copy {
+  grid-column: 1;
+}
+
+/* Wide: 3-column section (stage | context | context) */
+@media (min-width: 1200px) {
+  .chapter-slide {
+    --cs-inner-max: min(1280px, 100%);
+  }
+
+  .chapter-slide__inner {
+    grid-template-columns: var(--cs-stage-max) minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .chapter-slide:not(.chapter-slide--touch-2) .chapter-slide__copy {
+    grid-column: 2 / 4;
+  }
+
+  .chapter-slide--touch-2 .chapter-slide__inner {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) var(--cs-stage-max);
+  }
+
+  .chapter-slide--touch-2 .chapter-slide__copy {
+    grid-column: 1 / 3;
+  }
+
+  .chapter-slide--touch-2 .chapter-slide__stage {
+    grid-column: 3;
+  }
+}
+
+.chapter-slide__stage {
+  min-width: 0;
+  width: 100%;
+  max-width: var(--cs-stage-max);
+  justify-self: center;
+}
+
+.chapter-slide__stage .touch2-carousel,
+.chapter-slide__stage .verdant-interactive,
+.chapter-slide__stage .eim-path-art {
+  width: 100%;
+  max-width: var(--cs-stage-max);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.chapter-slide--verdant .chapter-slide__stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chapter-slide--sensi-lite .chapter-slide__stage > div {
+  width: 100%;
+  max-width: var(--cs-stage-max);
+  margin: 0 auto;
+}
+
+.chapter-slide--sensi-lite .chapter-slide__stage > div > div {
+  max-width: var(--cs-stage-max) !important;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.chapter-slide__copy {
+  min-width: 0;
+  min-height: 0;
+  max-height: var(--cs-copy-max-h);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  align-self: center;
+}
+
+.chapter-slide__copy .chapter-copy-scroller {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: var(--cs-copy-max-h);
+  overflow-y: auto;
+}
+
+/* Context body: 2 grid columns inside the 3-column section on wide */
+.chapter-slide__body {
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(1rem, 2.5vw, 1.5rem);
+  align-content: start;
+}
+
+@media (min-width: 1200px) {
+  .chapter-slide__copy:not(.chapter-slide__copy--lessons) .chapter-slide__body {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.chapter-slide__copy:not(.chapter-slide__copy--lessons) .chapter-copy__body {
+  max-width: 46ch;
+  font-size: 14px;
+  line-height: 1.65;
+  margin: 0;
+}
+
+/* Mobile: single-column section, stage above copy */
+@media (max-width: 767px) {
+  .chapter-slide__viewport {
+    padding: clamp(24px, 4vw, 40px) clamp(16px, 4vw, 32px);
+  }
+
+  .chapter-slide__inner {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(0, 1fr);
+    align-items: stretch;
+    height: min(92dvh, 100%);
+    max-height: min(92dvh, 100%);
+  }
+
+  .chapter-slide__stage,
+  .chapter-slide--touch-2 .chapter-slide__stage {
+    grid-column: 1;
+    grid-row: 1;
+    order: 1;
+  }
+
+  .chapter-slide__copy,
+  .chapter-slide--touch-2 .chapter-slide__copy {
+    grid-column: 1;
+    grid-row: 2;
+    order: 2;
+    align-self: stretch;
+    height: 100%;
+    min-height: 0;
+    max-height: none;
+  }
+
+  .chapter-slide__copy .chapter-copy-scroller {
+    flex: 1 1 0;
+    max-height: none;
+  }
+
+  .chapter-slide__stage {
+    max-width: min(480px, 100%);
+    margin: 0 auto;
+    justify-self: center;
+  }
+
+  /* EIM path art is tall; cap stage so copy keeps scroll room */
+  .chapter-slide--eim .chapter-slide__stage {
+    max-width: min(72vw, 280px);
+  }
+
+  .chapter-slide:not(.section-lessons) .chapter-slide__copy {
+    text-align: left;
+  }
+
+  .chapter-slide:not(.section-lessons) .chapter-copy__headline {
+    text-align: center;
+  }
+
+  .chapter-slide:not(.section-lessons) .chapter-copy__rule {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .chapter-slide:not(.section-lessons) .chapter-copy__body {
+    max-width: 42ch;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .chapter-slide__body {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Standard chapter stage media (mobile, web-apps, everything-else) */
+.chapter-slide__stage .chapter-stage-media {
+  width: 100%;
+  max-width: var(--cs-stage-max);
+  margin: 0 auto;
+}
+
+.chapter-slide__stage .chapter-stage-media--intrinsic img {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  max-height: min(640px, 52dvh);
+  object-fit: contain;
+}
+
+.chapter-slide__stage .chapter-stage-media--cover img {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  max-height: min(560px, 50dvh);
+  object-fit: cover;
+}
+
+.chapter-slide__stage .chapter-stage-media--placeholder {
+  position: relative;
+  width: 100%;
+  max-width: var(--cs-stage-max);
+  background-color: rgba(0, 0, 0, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.chapter-slide__stage .chapter-stage-media--placeholder svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.chapter-slide__stage .chapter-stage-media--placeholder span {
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.25);
+  text-align: center;
+  padding: 12px;
+}
+
+.chapter-slide__stage .before-after-slider,
+.chapter-slide__stage .sticker-pile-wrap {
+  width: 100%;
+  max-width: var(--cs-stage-max);
+  margin: 0 auto;
+}
+
+/* Full-width image chapters: stage stacked above copy at all breakpoints */
+.chapter-slide--full-width .chapter-slide__inner {
+  grid-template-columns: 1fr;
+  grid-template-rows: auto minmax(0, 1fr);
+  align-items: stretch;
+}
+
+.chapter-slide--full-width .chapter-slide__stage,
+.chapter-slide--full-width .chapter-slide__copy {
+  grid-column: 1;
+}
+
+.chapter-slide--full-width .chapter-slide__stage {
+  grid-row: 1;
+  max-width: min(640px, 100%);
+}
+
+.chapter-slide--full-width .chapter-slide__copy {
+  grid-row: 2;
+}
+
+@media (min-width: 1200px) {
+  .chapter-slide--full-width .chapter-slide__inner {
+    grid-template-columns: 1fr;
+  }
+
+  .chapter-slide--full-width .chapter-slide__copy {
+    grid-column: 1;
+  }
+}

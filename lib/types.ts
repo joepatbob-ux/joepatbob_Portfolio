@@ -17,7 +17,6 @@ export interface Section {
   eyebrow: string
   headline: string
   overviewBody: string
-  pullQuote: string
   lessonTitle: string
   lessonBody: string
   chapters: Chapter[]

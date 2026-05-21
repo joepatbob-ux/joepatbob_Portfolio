@@ -8,7 +8,6 @@ export const hardware: Section = {
   eyebrow: '',
   headline: 'The interface has to do the hard work.',
   overviewBody: `Designing for hardware is a different problem than designing for screens. Over several product cycles at Copeland, I led UX across thermostat products, each with its own constraint profile, audience, and set of tradeoffs. From a 1728px touchscreen to 32 segments and 3 buttons. Two patents came out of this work.`,
-  pullQuote: 'The interface has to do the hard work so the person using it doesn\'t.',
   lessonTitle: '',
   lessonBody: `Hardware has a way of making you better at everything else. The constraints are real and they don't negotiate. In that way it's not unlike print design — the canvas is fixed, so every decision has to earn its place. You can't hide behind iteration when the postcard is already in the mail. What hardware adds on top of that is physics. The real world is an active participant. A display has to work for someone reading it from across a hotel room. A button has to be findable without looking. The product doesn't live on a screen, it lives in a space with the person using it. Learning to design inside that is clarifying in a way that's hard to replicate anywhere else.`,
   chapters: [

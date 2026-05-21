@@ -1,36 +1,44 @@
 'use client'
 
-import {
-  CHAPTER_NAV_FADE_MS,
-  useChapterNav,
-} from '@/components/ChapterNavProvider'
+import { CHAPTER_NAV_FADE_MS, useChapterNav } from '@/components/ChapterNavProvider'
+import { SCROLL_BLUR_PX, blurOutFromReveal } from '@/lib/scrollBlur'
 
 const SCROLL_EASE = 'cubic-bezier(0.16, 1, 0.3, 1)'
 
 export function useChapterPanelOpacity(chapterId: string) {
-  const { phase, targetId, activeSlideId } = useChapterNav()
+  const { phase, targetId, activeSlideId, reveals } = useChapterNav()
 
-  let opacity = 0
-  let isActive = false
+  const scrollReveal = reveals[chapterId] ?? 0
+
+  let reveal = scrollReveal
+  let isActive = scrollReveal > 0.5
 
   if (phase === 'out') {
-    opacity = 0
+    reveal = 0
+    isActive = false
   } else if (phase === 'in') {
-    opacity = chapterId === targetId ? 1 : 0
-    isActive = chapterId === targetId
-  } else {
-    isActive = chapterId === activeSlideId
-    opacity = isActive ? 1 : 0
+    const entering = chapterId === targetId
+    reveal = entering ? 1 : 0
+    isActive = entering
+  } else if (activeSlideId === chapterId) {
+    isActive = scrollReveal > 0.25
   }
+
+  const { opacity, filter } = blurOutFromReveal(reveal, SCROLL_BLUR_PX)
+  const transitioning = phase === 'out' || phase === 'in'
 
   return {
     opacity,
     isActive,
     style: {
       opacity,
-      zIndex: isActive ? 2 : 0,
+      filter,
+      /* Stay below --z-stickers (105); only order panels relative to each other */
+      zIndex: opacity > 0.08 ? Math.round(1 + scrollReveal) : 0,
       pointerEvents: isActive ? 'auto' : 'none',
-      transition: `opacity ${CHAPTER_NAV_FADE_MS}ms ${SCROLL_EASE}`,
+      transition: transitioning
+        ? `opacity ${CHAPTER_NAV_FADE_MS}ms ${SCROLL_EASE}, filter ${CHAPTER_NAV_FADE_MS}ms ${SCROLL_EASE}`
+        : 'none',
     } as const,
   }
 }

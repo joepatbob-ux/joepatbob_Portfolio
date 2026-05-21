@@ -9,7 +9,6 @@ export const everythingElse: Section = {
   overviewBody: `Principal Product Designer working at the intersection of hardware and software. Brand-trained. St. Louis-based.
 
 Location: St. Louis, MO · Email: me@joepatbob.com · Patents: 1 awarded · 1 pending`,
-  pullQuote: 'Our job is to do the hard work\nso users don\'t have to.',
   lessonTitle: 'Direct,\ncollaborative,\nnot precious.',
   lessonBody: `I'm collaborative by nature and direct by preference. I'll push back when I think something is wrong, and I'll document why — but I'm not precious about outcomes. The goal is a better product, not a preserved opinion.
 

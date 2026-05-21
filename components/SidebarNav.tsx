@@ -12,7 +12,9 @@
 'use client'
 
 import { useEffect, useRef, useState, useCallback } from 'react'
+import { applyHeroViewportFade, isInHeroScrollZone } from '@/lib/heroScroll'
 import { NAV_SECTIONS, sectionIdForChapter } from '@/lib/nav'
+import { scheduleScrollFrame } from '@/lib/scrollFrame'
 import { ContactButton } from '@/components/ContactButton'
 import { useChapterNav } from '@/components/ChapterNavProvider'
 import { useHandedness } from '@/components/HandednessProvider'
@@ -343,13 +345,13 @@ export function SidebarNav() {
   /** Mobile: hero nav travels upward and morphs into the accent bar (scroll-linked, no CSS transition). */
   useEffect(() => {
     if (!isMobile) return
-    let rafId = 0
 
     const accentRgb = { r: 222, g: 62, b: 24 }
 
-    const frame = () => {
+    return scheduleScrollFrame(() => {
       const y = getScrollTop()
       const vh = window.innerHeight
+      applyHeroViewportFade(y, vh)
       const threshold = Math.max(96, vh * MOBILE_MORPH_SCROLL_RATIO)
       const travelT = Math.min(1, Math.max(0, y / threshold))
 
@@ -369,10 +371,8 @@ export function SidebarNav() {
         (vh - MOBILE_MORPH_BOTTOM_PAD - hInterp) * (1 - travelT),
       )
 
-      const gutter =
-        16 * (1 - smoothstep(0.82, 0.995, travelT))
+      const gutter = 16 * (1 - smoothstep(0.82, 0.995, travelT))
 
-      /* Hero copy sits flush on the photo — no frosted panel; accent fills in only as we pin the bar */
       const tSolid = smoothstep(0.58, 0.9, travelT)
       const rr = accentRgb.r
       const gg = accentRgb.g
@@ -409,8 +409,7 @@ export function SidebarNav() {
       const compactBtn = mobileCompactBtnRef.current
       if (compactBtn) {
         compactBtn.style.opacity = String(compactOp)
-        compactBtn.style.pointerEvents =
-          compactOp > 0.82 ? 'auto' : 'none'
+        compactBtn.style.pointerEvents = compactOp > 0.82 ? 'auto' : 'none'
       }
 
       const drawerHost = mobileDrawerHostRef.current
@@ -423,13 +422,8 @@ export function SidebarNav() {
         drawerHost.style.pointerEvents = mobileDrawerOpen ? 'auto' : 'none'
       }
 
-      applyScrollSpy()
-
-      rafId = requestAnimationFrame(frame)
-    }
-
-    rafId = requestAnimationFrame(frame)
-    return () => cancelAnimationFrame(rafId)
+      if (travelT > 0.42 && !isInHeroScrollZone()) applyScrollSpy()
+    })
   }, [isMobile, applyScrollSpy, mobileDrawerOpen])
 
   useEffect(() => {
@@ -441,15 +435,18 @@ export function SidebarNav() {
     return () => window.removeEventListener('keydown', onKey)
   }, [isMobile, mobileDrawerOpen])
 
-  // Scroll-linked hero blur + nav travel: rAF + direct DOM (not batched React state).
+  // Scroll-linked hero blur + nav travel — one shared scroll frame (no idle rAF loop).
   useEffect(() => {
     if (isMobile) return
-    let rafId = 0
 
-    const frame = () => {
+    measureLayout()
+
+    return scheduleScrollFrame(() => {
       const y = getScrollTop()
       const { viewportH, navRestTop, threshold } = layoutRef.current
       const safeThreshold = threshold > 0 ? threshold : 1
+
+      applyHeroViewportFade(y, viewportH)
 
       const heroProgress = Math.min(1, Math.max(0, (y - 20) / (viewportH * 0.6)))
       const travelT = Math.min(1, y / safeThreshold)
@@ -459,8 +456,11 @@ export function SidebarNav() {
           : navRestTop + (NAV_TOP_PX - navRestTop) * travelT
 
       if (heroRef.current) {
-        heroRef.current.style.opacity = String(1 - heroProgress)
-        heroRef.current.style.filter = `blur(${heroProgress * BLUR_PX}px)`
+        const nameReveal = 1 - heroProgress
+        const nameBlur = heroProgress < 0.02 ? 0 : heroProgress * BLUR_PX
+        heroRef.current.style.opacity = String(nameReveal)
+        heroRef.current.style.filter =
+          nameBlur > 0 ? `blur(${nameBlur}px)` : 'none'
       }
       if (navWrapRef.current) {
         navWrapRef.current.style.top = `${navTop}px`
@@ -468,12 +468,7 @@ export function SidebarNav() {
 
       applyStuckState(y)
       if (prevStuck.current) applyScrollSpy()
-      rafId = requestAnimationFrame(frame)
-    }
-
-    measureLayout()
-    rafId = requestAnimationFrame(frame)
-    return () => cancelAnimationFrame(rafId)
+    })
   }, [isMobile, applyStuckState, applyScrollSpy, measureLayout])
 
   const syncScrollAfterNavigate = useCallback(() => {
@@ -873,8 +868,8 @@ export function SidebarNav() {
           transition: 'opacity 600ms ease, filter 600ms ease',
         }} />
 
-        {/* Hero name — opacity/blur driven by scroll rAF */}
-        <div ref={heroRef} aria-hidden style={{
+        {/* Hero name — opacity/blur driven by scroll frame */}
+        <div ref={heroRef} className="sidebar-hero-name" aria-hidden style={{
           position: 'absolute', top: 40, left: 40,
           width: 'min(42vw, calc(var(--sidebar-width) - 80px))',
           opacity: 1,

@@ -13,6 +13,11 @@ interface Props {
   stage?: ReactNode
 }
 
+function slideModifier(chapter: Chapter): string {
+  if (chapter.imageLayout === 'full-width') return 'full-width'
+  return chapter.id
+}
+
 export function StudyChapter({ chapter, sectionId, isLast, stage }: Props) {
   const chapterId = `${sectionId}-${chapter.id}`
   const copyFirst =
@@ -23,7 +28,7 @@ export function StudyChapter({ chapter, sectionId, isLast, stage }: Props) {
       chapter={chapter}
       chapterId={chapterId}
       isLast={isLast}
-      modifier={chapter.id}
+      modifier={slideModifier(chapter)}
       copyFirst={copyFirst}
       stage={stage ?? <ChapterStageMedia chapter={chapter} />}
     />

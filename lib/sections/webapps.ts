@@ -9,7 +9,6 @@ export const webApps: Section = {
   overviewBody: `Building Kelvin — a design system for four products, two domains, and a user base that can't afford mistakes.
 
 Role: Principal Product Designer · Design System: Kelvin · Products: Sensi MTM · Verdant Thermostat Manager · Copeland Connect+ · Copeland TempTrak 6 · Status: Active — parallel track rollout with positive customer validation`,
-  pullQuote: "It's okay to move the cheese, as long as you put it somewhere better.",
   lessonTitle: 'What comes next.',
   lessonBody: `Kelvin is a foundation, not a finish line. As parallel track validation continues, the rollout will expand to more complex workflows — eventually including the SOP-critical flows in TempTrak that require the most careful transition planning.
 

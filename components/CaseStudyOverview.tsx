@@ -9,7 +9,12 @@ interface Props {
   body: string
 }
 
-export function CaseStudyOverview({ sectionId, eyebrow, headline, body }: Props) {
+export function CaseStudyOverview({
+  sectionId,
+  eyebrow,
+  headline,
+  body,
+}: Props) {
   return (
     <ChapterViewport
       chapterId={`${sectionId}-overview`}
@@ -18,11 +23,13 @@ export function CaseStudyOverview({ sectionId, eyebrow, headline, body }: Props)
       style={{ borderTop: 'none' }}
     >
       <div className="case-study-overview__inner">
-        {eyebrow ? (
-          <p className="case-study-overview__eyebrow">{eyebrow}</p>
-        ) : null}
-        <h2 className="case-study-overview__headline">{headline}</h2>
-        <div className="case-study-overview__rule" aria-hidden />
+        <header className="case-study-overview__header">
+          {eyebrow ? (
+            <p className="case-study-overview__eyebrow">{eyebrow}</p>
+          ) : null}
+          <h2 className="case-study-overview__headline">{headline}</h2>
+          <div className="case-study-overview__rule" aria-hidden />
+        </header>
         <p className="case-study-overview__body">{body}</p>
       </div>
     </ChapterViewport>
