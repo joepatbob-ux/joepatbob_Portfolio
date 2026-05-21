@@ -10,7 +10,9 @@ export const hardware: Section = {
   overviewBody: `Designing for hardware is a different problem than designing for screens. Over several product cycles at Copeland, I led UX across thermostat products, each with its own constraint profile, audience, and set of tradeoffs. From a 1728px touchscreen to 32 segments and 3 buttons. Two patents came out of this work.`,
   lessonTitle: 'What hardware teaches you.',
   lessonBody: `Designing for hardware strips away the safety nets. You can't push an update to fix a confusing menu on a shipped thermostat. You can't add a tooltip to a 32-segment display. The decisions you make are the decisions users live with.
+
 That pressure is clarifying... it makes you more deliberate, more rigorous, more honest about the difference between what you prefer and what actually works.
+
 Hardware has a way of making you better at everything else. The constraints are real and they don't negotiate. In that way it's not unlike print design. The canvas is fixed, so every decision has to earn its place. You can't hide behind iteration when the postcard is already in the mail. What hardware adds on top of that is physics. The real world is an active participant. A display has to work for someone reading it from across a hotel room. A button has to be findable without looking. The product doesn't live on a screen, it lives in a space with the person using it. Learning to design inside that is clarifying in a way that's hard to replicate anywhere else.`,
   chapters: [
     {
@@ -20,9 +22,13 @@ Hardware has a way of making you better at everything else. The constraints are 
 Three controls.
 One chance to get it right.`,
       body: `That's the full constraint profile. Navigation stayed flat and cyclical. The menu/action button serves triple duty: standard press moves you forward, long press gets you into homeowner settings, another long press gets you into contractor territory. The people who need it know to look, everyone else never thinks to.
+
 In a flat menu, order does the work that hierarchy can't. I ordered settings based on conditional dependencies so users answer questions only when they have context.
+
 One decision that didn't survive stakeholder review: I wanted the menu button on the opposite side of the display from the up/down controls. The buttons are capacitive with no tactile click, so physical separation reduces accidental triggers. Stakeholders pushed back. Grouping the menu button between up/down was simpler to engineer and matched layouts from previous models that used physical buttons. We ran paper user tests. Favorability difference was negligible. We went with the option that reduced engineering complications.
+
 Post-launch, we started seeing field reports of mis-taps. With the layout fixed, adjusted the tap sensitivity in firmware until the buttons behaved the way the layout should have.
+
 One constraint runs beneath all of it: Sensi Lite runs on power-stealing from a 2-wire system, no common wire, no stable supply. When power drops below threshold, the device sheds capability in sequence. The display goes dark. A blank screen with no explanation looks like a dead device. The solution: the device notifies the cloud before Wi-Fi goes down, which pushes an alert to the homeowner's phone. The screen is dark, but the app already told you why. US Patent 12,608,066.`,
       imageAlt: 'Sensi Lite thermostat prototype, three-quarter view on black',
       imageSrc: '/images/sensi-lite-tilted.png',

@@ -54,8 +54,10 @@ export default function RootLayout({
           <HandednessProvider>
             <StickerProvider>
               <ChapterNavProvider>
-                <SidebarNav />
-                <main className="content-area">{children}</main>
+                <div className="site-frame">
+                  <SidebarNav />
+                  <main className="content-area">{children}</main>
+                </div>
               </ChapterNavProvider>
               <StickerLayer />
             </StickerProvider>

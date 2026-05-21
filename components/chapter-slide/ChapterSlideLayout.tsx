@@ -50,12 +50,19 @@ export function ChapterSlideLayout({
   )
 
   const modClass = modifier ? `chapter-slide--${modifier}` : ''
+  const hardwareSlideshow = chapterId.startsWith('hardware-')
 
   return (
     <ChapterViewport
       chapterId={chapterId}
       isLast={isLast}
-      className={['chapter-slide', modClass].filter(Boolean).join(' ')}
+      className={[
+        'chapter-slide',
+        modClass,
+        hardwareSlideshow ? 'hardware-slideshow' : '',
+      ]
+        .filter(Boolean)
+        .join(' ')}
       fillViewport
     >
       <div className="chapter-slide__viewport">

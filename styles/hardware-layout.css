@@ -1,0 +1,412 @@
+/* Hardware case study — slideshow layout only (scoped via .hardware-slideshow) */
+
+.hardware-slideshow {
+  --hw-pad: clamp(28px, 3vw, 56px);
+  --hw-gap: clamp(24px, 2.5vw, 48px);
+  --hw-copy-gap: 0.85rem;
+  --hw-stage-min-w: clamp(200px, 24vw, 280px);
+  --hw-stage-max-w: 560px;
+  --hw-copy-min-w: 28ch;
+  --hw-copy-max-w: 65ch;
+  --hw-band-max-w: calc(
+    var(--hw-stage-max-w) + var(--hw-copy-max-w) + var(--hw-gap)
+  );
+}
+
+.hardware-slideshow.portfolio-chapter-slot--fill,
+[data-section-id='hardware'] .portfolio-chapter-slot--fill {
+  height: 100vh;
+  height: 100dvh;
+}
+
+.hardware-slideshow .portfolio-chapter-panel,
+[data-section-id='hardware'] .portfolio-chapter-slot--fill .portfolio-chapter-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: stretch;
+}
+
+/* Desktop + tablet (768+): centered band, custom padding */
+@media (min-width: 768px) {
+  .hardware-slideshow .chapter-slide__viewport,
+  .case-study-overview.hardware-slideshow .portfolio-chapter-panel,
+  .section-lessons.hardware-slideshow .portfolio-chapter-panel {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--hw-pad);
+    box-sizing: border-box;
+  }
+
+  .hardware-slideshow .chapter-slide__inner {
+    display: flex !important;
+    grid-template-columns: unset !important;
+    grid-template-rows: unset !important;
+    grid-column: unset !important;
+    grid-row: unset !important;
+    width: 100%;
+    max-width: min(var(--hw-band-max-w), 100%) !important;
+    max-height: 100% !important;
+    margin-inline: auto;
+    box-sizing: border-box;
+    align-items: flex-start;
+    justify-content: center;
+    gap: var(--hw-gap);
+  }
+
+  .hardware-slideshow .chapter-slide__stage,
+  .hardware-slideshow .chapter-slide__copy {
+    grid-column: unset !important;
+    grid-row: unset !important;
+    position: relative;
+    align-self: flex-start;
+  }
+
+  .hardware-slideshow .chapter-slide__stage {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 1 auto;
+    min-width: var(--hw-stage-min-w);
+    max-width: var(--hw-stage-max-w);
+    min-height: 0;
+    height: auto;
+  }
+
+  .hardware-slideshow .chapter-slide__stage .touch2-carousel,
+  .hardware-slideshow .chapter-slide__stage .verdant-interactive,
+  .hardware-slideshow .chapter-slide__stage .eim-path-art,
+  .hardware-slideshow .chapter-slide__stage .chapter-stage-media,
+  .hardware-slideshow .chapter-slide__stage .before-after-slider,
+  .hardware-slideshow.chapter-slide--sensi-lite .chapter-slide__stage > div,
+  .hardware-slideshow.chapter-slide--sensi-lite .chapter-slide__stage > div > div {
+    width: 100%;
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .hardware-slideshow .chapter-slide__copy {
+    flex: 0 0 auto;
+    width: min(var(--hw-copy-max-w), 100%);
+    min-width: min(var(--hw-copy-min-w), 100%);
+    max-width: var(--hw-copy-max-w);
+    max-height: min(72dvh, calc(100dvh - var(--hw-pad) * 2));
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+
+  .hardware-slideshow .chapter-slide__copy .chapter-copy-scroller {
+    min-height: 0;
+    max-height: min(68dvh, calc(100dvh - var(--hw-pad) * 2 - 4rem));
+  }
+
+  .hardware-slideshow .chapter-copy__rule {
+    margin: 12px 0;
+  }
+
+  /* Single-column copy — beats chapter-slide 2-col body at 1200px+ */
+  .hardware-slideshow
+    .chapter-slide__copy:not(.chapter-slide__copy--lessons)
+    .chapter-slide__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--hw-copy-gap);
+    grid-template-columns: unset !important;
+  }
+
+  .hardware-slideshow
+    .chapter-slide__copy:not(.chapter-slide__copy--lessons)
+    .chapter-copy__body {
+    max-width: var(--hw-copy-max-w);
+  }
+
+  .case-study-overview.hardware-slideshow .portfolio-chapter-panel {
+    justify-content: center;
+    align-items: center;
+  }
+
+  .case-study-overview.hardware-slideshow .case-study-overview__inner {
+    width: 100%;
+    max-width: min(72ch, 100%);
+    margin-inline: auto;
+    gap: clamp(20px, 3vw, 32px);
+  }
+
+  .case-study-overview.hardware-slideshow .case-study-overview__body {
+    column-count: 1;
+    max-width: 72ch;
+  }
+
+  .section-lessons.hardware-slideshow .portfolio-chapter-panel {
+    justify-content: center;
+    gap: clamp(20px, 2.5vw, 36px);
+    padding: var(--hw-pad);
+  }
+
+  .hardware-slideshow .chapter-slide__copy--lessons .chapter-slide__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--hw-copy-gap);
+    grid-template-columns: unset !important;
+  }
+}
+
+/* Desktop (1025+): image | text side by side */
+@media (min-width: 1025px) {
+  .hardware-slideshow .chapter-slide__inner {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+
+  .hardware-slideshow .chapter-slide__stage {
+    flex: 1 1 auto;
+    min-width: var(--hw-stage-min-w);
+    max-width: min(
+      var(--hw-stage-max-w),
+      calc(100% - var(--hw-copy-min-w) - var(--hw-gap))
+    );
+    width: auto;
+  }
+
+  .hardware-slideshow .chapter-slide__copy {
+    flex: 0 0 auto;
+    width: min(var(--hw-copy-max-w), 100%);
+    min-width: min(var(--hw-copy-min-w), 100%);
+    max-width: var(--hw-copy-max-w);
+  }
+
+  .hardware-slideshow.chapter-slide--touch-2 .chapter-slide__copy {
+    order: 1;
+  }
+
+  .hardware-slideshow.chapter-slide--touch-2 .chapter-slide__stage {
+    order: 2;
+  }
+}
+
+/* Tablet (768–1024): single column, image above text */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .hardware-slideshow .chapter-slide__inner {
+    flex-direction: column;
+    align-items: center;
+    max-width: min(var(--hw-stage-max-w), 100%);
+  }
+
+  .hardware-slideshow .chapter-slide__stage,
+  .hardware-slideshow.chapter-slide--touch-2 .chapter-slide__stage {
+    order: 1;
+    flex: 0 0 auto;
+    width: 100%;
+    max-width: var(--hw-stage-max-w);
+    min-width: min(var(--hw-stage-min-w), 100%);
+    min-height: 0;
+  }
+
+  .hardware-slideshow .chapter-slide__copy,
+  .hardware-slideshow.chapter-slide--touch-2 .chapter-slide__copy {
+    order: 2;
+    flex: 0 0 auto;
+    width: 100%;
+    min-width: min(var(--hw-copy-min-w), 100%);
+    max-width: var(--hw-copy-max-w);
+    margin-inline: auto;
+  }
+}
+
+/* Mobile: normal scroll, no snap */
+@media (max-width: 767px) {
+  body.hardware-mobile-chapters nav[aria-label='Site navigation'] {
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  [data-section-id='hardware'] .portfolio-chapter-slot--fill,
+  .hardware-slideshow.portfolio-chapter-slot--fill {
+    height: auto;
+    min-height: 0;
+    scroll-snap-align: none;
+    scroll-snap-stop: normal;
+  }
+
+  [data-section-id='hardware'] .portfolio-chapter-slot--fill .portfolio-chapter-panel,
+  .hardware-slideshow.portfolio-chapter-slot--fill .portfolio-chapter-panel {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: min(100dvh, 100vh);
+    overflow: visible;
+    opacity: 1 !important;
+    filter: none !important;
+    pointer-events: auto;
+  }
+
+  .hardware-slideshow .chapter-slide__viewport {
+    padding: 0;
+    align-items: stretch;
+    justify-content: flex-start;
+  }
+
+  .hardware-slideshow .chapter-slide__inner {
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: clamp(20px, 5vw, 32px);
+    max-height: none !important;
+  }
+
+  .hardware-slideshow .chapter-slide__stage,
+  .hardware-slideshow.chapter-slide--touch-2 .chapter-slide__stage {
+    order: 1;
+    flex: none;
+    width: 100vw;
+    max-width: 100vw;
+    min-width: 0;
+    min-height: 0;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+  }
+
+  .hardware-slideshow .chapter-slide__copy,
+  .hardware-slideshow.chapter-slide--touch-2 .chapter-slide__copy {
+    order: 2;
+    flex: none;
+    width: 100%;
+    max-width: none;
+    padding-inline: 24px;
+    box-sizing: border-box;
+  }
+
+  .hardware-slideshow.case-study-overview .portfolio-chapter-panel {
+    padding-inline: 24px;
+    padding-top: calc(var(--hardware-mobile-bar-height) + 24px);
+  }
+
+  .hardware-slideshow .case-study-overview__inner,
+  .hardware-slideshow.section-lessons .chapter-slide__viewport {
+    padding-inline: 24px;
+  }
+
+  .hardware-slideshow.section-lessons .chapter-slide__viewport {
+    padding-top: calc(var(--hardware-mobile-bar-height) + 16px);
+  }
+}
+
+/* Mobile hardware chapter bar */
+.hardware-mobile-nav {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .hardware-mobile-nav {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 111;
+    height: var(--hardware-mobile-bar-height);
+    box-sizing: border-box;
+    background-color: var(--color-paper);
+    border-bottom: 1px solid var(--color-rule);
+    pointer-events: auto;
+  }
+
+  .hardware-mobile-nav__bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 100%;
+    padding: 0 16px;
+    box-sizing: border-box;
+  }
+
+  .hardware-mobile-nav__menu {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: var(--color-ink);
+    cursor: pointer;
+  }
+
+  .hardware-mobile-nav__menu-icon {
+    display: block;
+    width: 20px;
+    height: 2px;
+    background: currentColor;
+    box-shadow: 0 -6px 0 currentColor, 0 6px 0 currentColor;
+  }
+
+  .hardware-mobile-nav__title {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    line-height: 1.4;
+    color: var(--color-accent);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .hardware-mobile-nav__dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin: 0;
+    padding: 8px 0 12px;
+    list-style: none;
+    background-color: var(--color-paper);
+    border-bottom: 1px solid var(--color-rule);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+  }
+
+  .hardware-mobile-nav__link {
+    display: inline-flex;
+    align-self: flex-start;
+    align-items: center;
+    margin: 4px 16px;
+    padding: 5px 14px;
+    border: none;
+    border-radius: 9999px;
+    background: transparent;
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    line-height: 1.5;
+    color: var(--color-accent);
+    text-align: left;
+  }
+
+  .hardware-mobile-nav__link[aria-current='true'] {
+    background: var(--color-nav-pill-muted-accent-1);
+  }
+
+  .hardware-mobile-nav__link:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+}
