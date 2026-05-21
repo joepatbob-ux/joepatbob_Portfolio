@@ -8,8 +8,10 @@ export const hardware: Section = {
   eyebrow: '',
   headline: 'The interface has to do the hard work.',
   overviewBody: `Designing for hardware is a different problem than designing for screens. Over several product cycles at Copeland, I led UX across thermostat products, each with its own constraint profile, audience, and set of tradeoffs. From a 1728px touchscreen to 32 segments and 3 buttons. Two patents came out of this work.`,
-  lessonTitle: '',
-  lessonBody: `Hardware has a way of making you better at everything else. The constraints are real and they don't negotiate. In that way it's not unlike print design — the canvas is fixed, so every decision has to earn its place. You can't hide behind iteration when the postcard is already in the mail. What hardware adds on top of that is physics. The real world is an active participant. A display has to work for someone reading it from across a hotel room. A button has to be findable without looking. The product doesn't live on a screen, it lives in a space with the person using it. Learning to design inside that is clarifying in a way that's hard to replicate anywhere else.`,
+  lessonTitle: 'What hardware teaches you.',
+  lessonBody: `Designing for hardware strips away the safety nets. You can't push an update to fix a confusing menu on a shipped thermostat. You can't add a tooltip to a 32-segment display. The decisions you make are the decisions users live with.
+That pressure is clarifying... it makes you more deliberate, more rigorous, more honest about the difference between what you prefer and what actually works.
+Hardware has a way of making you better at everything else. The constraints are real and they don't negotiate. In that way it's not unlike print design. The canvas is fixed, so every decision has to earn its place. You can't hide behind iteration when the postcard is already in the mail. What hardware adds on top of that is physics. The real world is an active participant. A display has to work for someone reading it from across a hotel room. A button has to be findable without looking. The product doesn't live on a screen, it lives in a space with the person using it. Learning to design inside that is clarifying in a way that's hard to replicate anywhere else.`,
   chapters: [
     {
       id: 'sensi-lite',
@@ -17,15 +19,11 @@ export const hardware: Section = {
       subtitle: `32 segments.
 Three controls.
 One chance to get it right.`,
-      body: `That's the full constraint profile. Navigation stayed flat and cyclical. The menu/action button serves triple duty: standard press moves you forward, long press gets you into homeowner settings, another long press gets you into contractor territory — the people who need it know to look, everyone else never thinks to.
-
+      body: `That's the full constraint profile. Navigation stayed flat and cyclical. The menu/action button serves triple duty: standard press moves you forward, long press gets you into homeowner settings, another long press gets you into contractor territory. The people who need it know to look, everyone else never thinks to.
 In a flat menu, order does the work that hierarchy can't. I ordered settings based on conditional dependencies so users answer questions only when they have context.
-
 One decision that didn't survive stakeholder review: I wanted the menu button on the opposite side of the display from the up/down controls. The buttons are capacitive with no tactile click, so physical separation reduces accidental triggers. Stakeholders pushed back. Grouping the menu button between up/down was simpler to engineer and matched layouts from previous models that used physical buttons. We ran paper user tests. Favorability difference was negligible. We went with the option that reduced engineering complications.
-
 Post-launch, we started seeing field reports of mis-taps. With the layout fixed, adjusted the tap sensitivity in firmware until the buttons behaved the way the layout should have.
-
-One constraint runs beneath all of it: Sensi Lite runs on power-stealing from a 2-wire system — no common wire, no stable supply. When power drops below threshold, the device sheds capability in sequence. The display goes dark. A blank screen with no explanation looks like a dead device. The solution: the device notifies the cloud before Wi-Fi goes down, which pushes an alert to the homeowner's phone. The screen is dark, but the app already told you why. US Patent 12,608,066.`,
+One constraint runs beneath all of it: Sensi Lite runs on power-stealing from a 2-wire system, no common wire, no stable supply. When power drops below threshold, the device sheds capability in sequence. The display goes dark. A blank screen with no explanation looks like a dead device. The solution: the device notifies the cloud before Wi-Fi goes down, which pushes an alert to the homeowner's phone. The screen is dark, but the app already told you why. US Patent 12,608,066.`,
       imageAlt: 'Sensi Lite thermostat prototype, three-quarter view on black',
       imageSrc: '/images/sensi-lite-tilted.png',
       imageLayout: 'full-width',
@@ -37,9 +35,9 @@ One constraint runs beneath all of it: Sensi Lite runs on power-stealing from a 
       subtitle: 'Inheriting a touchscreen that didn\'t know it was a touchscreen.',
       body: `The original Touch thermostat was designed to work like the fixed segment display next to it in the product line: mode, fan, and schedule buttons along the bottom, up/down and menu controls to the right. Treating a touchscreen like a high-res segment display misses the point of having one.
 
-When I came onto Touch 2, the first thing I changed was the interaction model. Mode and fan controls collapsed into a single quick-action — because that's the actual behavior: users change mode and fan together, or in immediate sequence. Separating them into discrete buttons was a holdover from hardware constraints that no longer applied. I also unified the menu structure so the purpose of each screen was obvious without digging around.
+When I came onto Touch 2, the first thing I changed was the interaction model. Mode and fan controls collapsed into a single quick-action, because that's the actual behavior: users change mode and fan together, or in immediate sequence. Separating them into discrete buttons was a holdover from hardware constraints that no longer applied. I also unified the menu structure so the purpose of each screen was obvious without digging around.
 
-The longer payoff came from a decision that wasn't on the feature list. When we added a 900MHz radio for remote sensor support, we didn't know what future accessories would follow. So I designed the pairing flow to be simple and repeatable — familiar enough that firmware could reuse the pattern and users would recognize it regardless of which accessory was being added. The EIM came later. The pairing flow fit cleanly without rework, even though the EIM is exclusively contractor-facing and the remote sensor is homeowner-facing — same pattern, two very different people on either end of it.`,
+The longer payoff came from a decision that wasn't on the feature list. When we added a 900MHz radio for remote sensor support, we didn't know what future accessories would follow. So I designed the pairing flow to be simple and repeatable, familiar enough that firmware could reuse the pattern and users would recognize it regardless of which accessory was being added. The EIM came later. The pairing flow fit cleanly without rework, even though the EIM is exclusively contractor-facing and the remote sensor is homeowner-facing, same pattern, two very different people on either end of it.`,
       imageAlt: 'ID evaluation session with Touch 2 prototypes on a table',
       imageSrc: '/images/hw-touch2.jpg',
       imageLayout: 'portrait',
