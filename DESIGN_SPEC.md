@@ -114,10 +114,8 @@ Case Study — {label}    ← JetBrains Mono, 11px, muted, uppercase
 Border bottom rule.
 
 ### Overview
-Two-column grid: `380px | 1fr`, gap 64px
-- Left: "Overview" label (AHG 22px) + body text (14px, muted, pre-line)
-- Right: pull quote (AHG 28px, color rgba(13,13,13,0.45))
-Border bottom rule.
+Centered header: eyebrow (optional) + headline + accent rule.
+Body below (muted, pre-line); two columns on wide viewports (≥1200px).
 
 ### Chapters
 Each chapter has `data-chapter-id="{sectionId}-{chapterId}"`.

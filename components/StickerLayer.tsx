@@ -4,6 +4,11 @@ import { useCallback, useEffect, useRef } from 'react'
 import { PlacedStickerControl } from '@/components/PlacedStickerControl'
 import { Sticker } from '@/components/Sticker'
 import { useStickers } from '@/components/StickerProvider'
+import {
+  applyStickerLayerReveal,
+  bindStickerLayerElement,
+} from '@/lib/stickerScroll'
+import { flushScrollFrame, scheduleScrollFrame } from '@/lib/scrollFrame'
 
 function documentHeight(): number {
   return Math.max(
@@ -23,6 +28,8 @@ export function StickerLayer() {
   } = useStickers()
 
   const layerRef = useRef<HTMLDivElement>(null)
+  const selectStickerRef = useRef(selectSticker)
+  selectStickerRef.current = selectSticker
 
   const syncLayerHeight = useCallback(() => {
     const el = layerRef.current
@@ -31,16 +38,24 @@ export function StickerLayer() {
   }, [])
 
   useEffect(() => {
+    bindStickerLayerElement(layerRef.current)
     syncLayerHeight()
-    window.addEventListener('resize', syncLayerHeight)
-    const observer = new ResizeObserver(syncLayerHeight)
-    observer.observe(document.body)
-    observer.observe(document.documentElement)
-    return () => {
-      window.removeEventListener('resize', syncLayerHeight)
-      observer.disconnect()
-    }
-  }, [syncLayerHeight, placed.length])
+    return () => bindStickerLayerElement(null)
+  }, [syncLayerHeight])
+
+  useEffect(() => {
+    syncLayerHeight()
+    flushScrollFrame()
+  }, [placed.length, syncLayerHeight])
+
+  useEffect(() => {
+    return scheduleScrollFrame(() => {
+      syncLayerHeight()
+      applyStickerLayerReveal(() => {
+        if (!activeDrag) selectStickerRef.current(null)
+      })
+    })
+  }, [syncLayerHeight, activeDrag])
 
   useEffect(() => {
     if (!activeDrag) return
@@ -68,7 +83,6 @@ export function StickerLayer() {
     }
   }, [activeDrag, moveDrag, endDrag, cancelDrag])
 
-  // Deselect on press outside stickers (not release — avoids deselect after drag/rotate).
   useEffect(() => {
     const onPointerDown = (e: PointerEvent) => {
       if (activeDrag) return
