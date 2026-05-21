@@ -3,6 +3,7 @@
 type FrameCallback = () => void
 
 const callbacks = new Set<FrameCallback>()
+const syncCallbacks = new Set<FrameCallback>()
 let rafId = 0
 let listening = false
 
@@ -14,6 +15,9 @@ function runFrame() {
 }
 
 function onScrollOrResize() {
+  syncCallbacks.forEach((cb) => {
+    cb()
+  })
   if (rafId) return
   rafId = requestAnimationFrame(runFrame)
 }
@@ -32,6 +36,15 @@ export function scheduleScrollFrame(callback: FrameCallback): () => void {
   ensureListening()
   return () => {
     callbacks.delete(callback)
+  }
+}
+
+/** Runs synchronously on each scroll/resize (before rAF) — for hero bg/transform sync. */
+export function scheduleScrollFrameSync(callback: FrameCallback): () => void {
+  syncCallbacks.add(callback)
+  ensureListening()
+  return () => {
+    syncCallbacks.delete(callback)
   }
 }
 

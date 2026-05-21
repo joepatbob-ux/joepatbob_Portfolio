@@ -1,36 +1,42 @@
-import { blurOutFromReveal } from '@/lib/scrollBlur'
+import { easeChapterReveal } from '@/lib/chapterSlideshow'
 
-/** True while the viewport is still in the hero band (skip chapter slideshow work). */
+/**
+ * True while the hero spacer still intersects the viewport (canvas + portrait
+ * stay locked; chapter panels stay hidden until the hero has fully scrolled away).
+ */
 export function isInHeroScrollZone(): boolean {
   if (typeof window === 'undefined') return false
 
-  const firstSection = document.querySelector<HTMLElement>('[data-section-id]')
-  if (!firstSection) return false
+  const hero = document.getElementById('hero')
+  if (!hero) return window.scrollY < window.innerHeight
 
-  const sectionTop =
-    firstSection.getBoundingClientRect().top + window.scrollY
-  const releaseY = sectionTop - window.innerHeight * 0.35
-
-  return window.scrollY < releaseY
+  return hero.getBoundingClientRect().bottom > 0
 }
 
-const HERO_BLUR_PX = 10
+const HERO_NAME_FADE_VH = 0.62
 
-/** Blur + fade the hero portrait on scroll (stays in frame). */
-export function applyHeroViewportFade(scrollY: number, viewportH: number): void {
-  const hero = document.getElementById('hero')
-  if (!hero) return
+function sidebarNameFadeProgress(scrollY: number, viewportH: number): number {
+  const linear = Math.min(
+    1,
+    Math.max(0, (scrollY - 20) / (viewportH * HERO_NAME_FADE_VH)),
+  )
+  return easeChapterReveal(linear)
+}
 
-  const progress = Math.min(1, Math.max(0, (scrollY - 16) / (viewportH * 0.55)))
-  const reveal = 1 - progress
-  const { opacity, filter } = blurOutFromReveal(reveal, HERO_BLUR_PX)
+/** Sidebar “Hello, I am” block — fade/blur on scroll (hero portrait stays sharp). */
+export function applySidebarHeroNameFade(
+  el: HTMLElement | null,
+  scrollY: number,
+  viewportH: number,
+  blurPx: number,
+): void {
+  if (!el) return
 
-  hero.style.opacity = String(opacity)
-  hero.style.filter = filter
-  hero.style.pointerEvents = opacity > 0.12 ? 'auto' : 'none'
+  const fadeOut = sidebarNameFadeProgress(scrollY, viewportH)
+  const reveal = 1 - fadeOut
+  const blur = fadeOut < 0.02 ? 0 : fadeOut * blurPx
 
-  const portrait = hero.querySelector<HTMLElement>('.hero-portrait')
-  if (portrait) {
-    portrait.style.filter = 'none'
-  }
+  el.style.opacity = String(reveal)
+  el.style.filter = blur > 0 ? `blur(${blur}px)` : 'none'
+  el.style.transform = 'none'
 }

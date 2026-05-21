@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useRef } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { useTheme } from '@/components/ThemeProvider'
 import { useHandedness } from '@/components/HandednessProvider'
 
@@ -17,6 +17,20 @@ export function Hero() {
     resolvedTheme === 'dark' ? PORTRAIT_DARK : PORTRAIT_LIGHT
 
   const touchStartRef = useRef<{ x: number; y: number } | null>(null)
+
+  useEffect(() => {
+    const hero = document.getElementById('hero')
+    if (!hero) return
+    const portrait = hero.querySelector<HTMLElement>('.hero-portrait')
+    const pin = hero.querySelector<HTMLElement>('.hero-pin')
+    portrait?.style.removeProperty('opacity')
+    portrait?.style.removeProperty('filter')
+    portrait?.style.removeProperty('transform')
+    portrait?.style.removeProperty('object-position')
+    pin?.style.removeProperty('opacity')
+    pin?.style.removeProperty('filter')
+    pin?.style.removeProperty('transform')
+  }, [])
 
   const onHeroTouchStart = useCallback((e: React.TouchEvent) => {
     if (typeof window === 'undefined' || window.innerWidth > MOBILE_MAX_W) return
@@ -49,19 +63,21 @@ export function Hero() {
       onTouchStart={onHeroTouchStart}
       onTouchEnd={onHeroTouchEnd}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        className="hero-portrait"
-        src={portraitSrc}
-        alt="Joseph Patrick Roberts"
-        decoding="async"
-        fetchPriority="high"
-        draggable={false}
-      />
-      <div
-        className={`hero-mobile-scrim hero-mobile-scrim--${resolvedTheme}`}
-        aria-hidden
-      />
+      <div className="hero-pin">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          className="hero-portrait"
+          src={portraitSrc}
+          alt="Joseph Patrick Roberts"
+          decoding="async"
+          fetchPriority="high"
+          draggable={false}
+        />
+        <div
+          className={`hero-mobile-scrim hero-mobile-scrim--${resolvedTheme}`}
+          aria-hidden
+        />
+      </div>
     </section>
   )
 }

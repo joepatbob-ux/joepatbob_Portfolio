@@ -31,6 +31,7 @@
 @layer base {
   :root {
     --color-ink:        #0d0d0d;
+    --color-hero-canvas: #f4f4f4;
     --color-paper:      #f0f0f0;
     /* Base accent: slightly darker than legacy #F2411B for better contrast (incl. white UI text on pill). */
     --color-accent:     #DE3E18;
@@ -63,6 +64,7 @@
   @media (prefers-color-scheme: dark) {
     :root {
       --color-ink:        #f0eeea;
+      --color-hero-canvas: #040404;
       --color-paper:      #101010;
       --color-rule:       rgba(255, 255, 255, 0.12);
       /* Stronger than 0.45 — readable cream on near-black */
@@ -75,18 +77,12 @@
   }
 
   html {
-    /* Hero canvas; `ThemeProvider` syncs to `resolvedTheme` after hydrate. */
-    background-color: #f4f4f4;
+    /* Page canvas; hero band uses `--color-hero-canvas` on `.hero-pin` only. */
+    background-color: var(--color-paper);
     color: var(--color-ink);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     scroll-snap-type: y mandatory;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    html {
-      background-color: #060606;
-    }
   }
 
   body {

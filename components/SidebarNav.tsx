@@ -12,7 +12,7 @@
 'use client'
 
 import { useEffect, useRef, useState, useCallback } from 'react'
-import { applyHeroViewportFade, isInHeroScrollZone } from '@/lib/heroScroll'
+import { applySidebarHeroNameFade, isInHeroScrollZone } from '@/lib/heroScroll'
 import { NAV_SECTIONS, sectionIdForChapter } from '@/lib/nav'
 import { scheduleScrollFrame } from '@/lib/scrollFrame'
 import { ContactButton } from '@/components/ContactButton'
@@ -351,7 +351,6 @@ export function SidebarNav() {
     return scheduleScrollFrame(() => {
       const y = getScrollTop()
       const vh = window.innerHeight
-      applyHeroViewportFade(y, vh)
       const threshold = Math.max(96, vh * MOBILE_MORPH_SCROLL_RATIO)
       const travelT = Math.min(1, Math.max(0, y / threshold))
 
@@ -435,7 +434,7 @@ export function SidebarNav() {
     return () => window.removeEventListener('keydown', onKey)
   }, [isMobile, mobileDrawerOpen])
 
-  // Scroll-linked hero blur + nav travel — one shared scroll frame (no idle rAF loop).
+  // Scroll-linked sidebar hero name + nav travel — one shared scroll frame (no idle rAF loop).
   useEffect(() => {
     if (isMobile) return
 
@@ -446,22 +445,13 @@ export function SidebarNav() {
       const { viewportH, navRestTop, threshold } = layoutRef.current
       const safeThreshold = threshold > 0 ? threshold : 1
 
-      applyHeroViewportFade(y, viewportH)
+      applySidebarHeroNameFade(heroRef.current, y, viewportH, BLUR_PX)
 
-      const heroProgress = Math.min(1, Math.max(0, (y - 20) / (viewportH * 0.6)))
       const travelT = Math.min(1, y / safeThreshold)
       const navTop =
         y >= safeThreshold
           ? NAV_TOP_PX
           : navRestTop + (NAV_TOP_PX - navRestTop) * travelT
-
-      if (heroRef.current) {
-        const nameReveal = 1 - heroProgress
-        const nameBlur = heroProgress < 0.02 ? 0 : heroProgress * BLUR_PX
-        heroRef.current.style.opacity = String(nameReveal)
-        heroRef.current.style.filter =
-          nameBlur > 0 ? `blur(${nameBlur}px)` : 'none'
-      }
       if (navWrapRef.current) {
         navWrapRef.current.style.top = `${navTop}px`
       }
