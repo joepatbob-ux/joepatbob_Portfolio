@@ -47,7 +47,7 @@ export default function RootLayout({
     <html lang="en" className={jetbrainsMono.variable}>
       <head>
         <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f4f4f4" />
-        <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#060606" />
+        <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#040404" />
       </head>
       <body>
         <ThemeProvider>

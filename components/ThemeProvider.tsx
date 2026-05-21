@@ -2,8 +2,8 @@
 
 /**
  * Theme preference API for a future light / system / dark control.
- * Today: preference defaults to `system` (only); hero portrait and the
- * document canvas (`<html>` background) follow `resolvedTheme`. Section copy
+ * Today: preference defaults to `system` (only); hero portrait and `.hero-pin`
+ * use `HERO_CANVAS_BG`. `<html>` uses `--color-paper`. Section copy
  * still uses `prefers-color-scheme` tokens in CSS (`--color-paper`, etc.).
  *
  * When you add a toggle: bind it to `setPreference`. For full manual theming,
@@ -90,9 +90,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     preference === 'system' ? systemTheme : preference
 
   useEffect(() => {
-    const bg =
+    const heroCanvas =
       resolvedTheme === 'dark' ? HERO_CANVAS_BG.dark : HERO_CANVAS_BG.light
-    document.documentElement.style.backgroundColor = bg
+    document.documentElement.style.backgroundColor = ''
+    document.documentElement.style.setProperty('--color-hero-canvas', heroCanvas)
   }, [resolvedTheme])
 
   const value = useMemo(
