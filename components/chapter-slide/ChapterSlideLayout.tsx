@@ -2,7 +2,7 @@
 
 import { ChapterViewport } from '@/components/ChapterViewport'
 import { ChapterSlideCopy } from '@/components/chapter-slide/ChapterSlideCopy'
-import { useChapterPanelOpacity } from '@/lib/useChapterPanelOpacity'
+import { useCopyScrollActive } from '@/lib/useCopyScrollActive'
 import type { Chapter } from '@/lib/types'
 import type { ReactNode } from 'react'
 
@@ -29,7 +29,7 @@ export function ChapterSlideLayout({
   stageAriaLabel,
   copyFirst = false,
 }: Props) {
-  const { isActive } = useChapterPanelOpacity(chapterId)
+  const copyScrollActive = useCopyScrollActive(chapterId)
 
   const stageEl = (
     <div
@@ -43,7 +43,7 @@ export function ChapterSlideLayout({
 
   const copyEl = (
     <ChapterSlideCopy
-      active={isActive}
+      active={copyScrollActive}
       headline={chapter.subtitle}
       body={chapter.body}
     />

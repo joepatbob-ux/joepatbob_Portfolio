@@ -20,7 +20,9 @@ export function pickHardwareChapterFromScroll(): string {
   let bestDist = Infinity
 
   for (const ch of HARDWARE_SCROLL_CHAPTERS) {
-    const el = document.querySelector<HTMLElement>(`[data-chapter-id="${ch.id}"]`)
+    const el = document.querySelector<HTMLElement>(
+      `.portfolio-chapter-slot[data-chapter-id="${ch.id}"]`,
+    )
     if (!el) continue
     const rect = el.getBoundingClientRect()
     const mid = rect.top + window.scrollY + rect.height / 2
