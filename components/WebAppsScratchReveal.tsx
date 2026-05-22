@@ -5,6 +5,7 @@ import {
   COIN_BRUSH_PX,
   createBeforeCoverDataUrls,
   createCoinBrushDataUrl,
+  loadScratchFrontImage,
   SCRATCH_CARD_PX,
   SCRATCH_QUAD_PX,
 } from '@/lib/webAppsScratchAssets'
@@ -52,6 +53,7 @@ function QuadrantReveal({
 
 export function WebAppsScratchReveal() {
   const scratchRefs = useRef<(ScratchCardRef | null)[]>([])
+  const cardWrapRef = useRef<HTMLDivElement>(null)
   const [covers, setCovers] = useState<string[] | null>(null)
   const [coinBrush, setCoinBrush] = useState<string | null>(null)
   const [completed, setCompleted] = useState<boolean[]>(
@@ -64,8 +66,23 @@ export function WebAppsScratchReveal() {
   const revealedCount = completed.filter(Boolean).length
 
   useEffect(() => {
-    setCovers(createBeforeCoverDataUrls())
-    setCoinBrush(createCoinBrushDataUrl())
+    let cancelled = false
+
+    loadScratchFrontImage()
+      .then((scratchFront) => {
+        if (cancelled) return
+        setCovers(createBeforeCoverDataUrls(scratchFront))
+        setCoinBrush(createCoinBrushDataUrl())
+      })
+      .catch(() => {
+        if (cancelled) return
+        setCovers(createBeforeCoverDataUrls(null))
+        setCoinBrush(createCoinBrushDataUrl())
+      })
+
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   const markComplete = useCallback((index: number) => {
@@ -85,9 +102,20 @@ export function WebAppsScratchReveal() {
     setShowReset(false)
   }, [])
 
-  const trackCoin = useCallback((_percent: number, _pos: unknown, global: { x: number; y: number }) => {
-    setCoinPos({ x: global.x, y: global.y })
+  /** Card-local coords — `position:fixed` breaks under chapter panel `filter`. */
+  const updateCoinPos = useCallback((clientX: number, clientY: number) => {
+    const wrap = cardWrapRef.current
+    if (!wrap) return
+    const rect = wrap.getBoundingClientRect()
+    setCoinPos({ x: clientX - rect.left, y: clientY - rect.top })
   }, [])
+
+  const trackCoin = useCallback(
+    (_percent: number, _pos: unknown, global: { x: number; y: number }) => {
+      updateCoinPos(global.x, global.y)
+    },
+    [updateCoinPos],
+  )
 
   const ready = Boolean(covers?.length === QUAD_COUNT && coinBrush)
 
@@ -98,10 +126,12 @@ export function WebAppsScratchReveal() {
       aria-label="Scratch card with four product panels. Scratch each to reveal the unified Kelvin design system."
     >
       <div
+        ref={cardWrapRef}
         className={`web-apps-scratch__card-wrap${hovering ? ' web-apps-scratch__card-wrap--hover' : ''}`}
+        style={{ ['--scratch-coin-size' as string]: `${COIN_BRUSH_PX}px` }}
         onPointerEnter={() => setHovering(true)}
         onPointerLeave={() => setHovering(false)}
-        onPointerMove={(e) => setCoinPos({ x: e.clientX, y: e.clientY })}
+        onPointerMove={(e) => updateCoinPos(e.clientX, e.clientY)}
       >
         {hovering && (
           <div
