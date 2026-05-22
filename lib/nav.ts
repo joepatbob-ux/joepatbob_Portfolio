@@ -8,13 +8,19 @@ import type { NavSection, Section } from './types'
 const LESSONS_CHAPTER = { id: 'lessons', label: 'Lessons' } as const
 
 function sectionToNav(section: Section): NavSection {
+  const chapters: NavSection['chapters'] = []
+  for (const ch of section.chapters) {
+    chapters.push({ id: ch.id, label: ch.title })
+    if (section.id === 'web-apps' && ch.id === 'problem') {
+      chapters.push({ id: 'scratch-reveal', label: 'One system' })
+    }
+  }
+  chapters.push({ ...LESSONS_CHAPTER })
+
   return {
     id: section.id,
     label: section.label,
-    chapters: [
-      ...section.chapters.map((ch) => ({ id: ch.id, label: ch.title })),
-      { ...LESSONS_CHAPTER },
-    ],
+    chapters,
   }
 }
 

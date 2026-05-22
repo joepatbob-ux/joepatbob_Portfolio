@@ -1,10 +1,12 @@
 // components/CaseStudy.tsx
 import type { Section } from '@/lib/types'
+import { Fragment } from 'react'
 import { CaseStudyOverview } from './CaseStudyOverview'
 import { Chapter } from './Chapter'
 import { ChapterViewport } from './ChapterViewport'
 import { ClosingQuote } from './ClosingQuote'
 import { SectionLessons } from './SectionLessons'
+import { WebAppsScratchReveal } from './WebAppsScratchReveal'
 
 interface Props {
   section: Section
@@ -40,12 +42,22 @@ export function CaseStudy({ section, sectionId }: Props) {
       />
 
       {section.chapters.map((chapter, i) => (
-        <Chapter
-          key={chapter.id}
-          chapter={chapter}
-          sectionId={sectionId}
-          isLast={i === section.chapters.length - 1}
-        />
+        <Fragment key={chapter.id}>
+          <Chapter
+            chapter={chapter}
+            sectionId={sectionId}
+            isLast={i === section.chapters.length - 1}
+          />
+          {sectionId === 'web-apps' && chapter.id === 'problem' ? (
+            <ChapterViewport
+              chapterId={`${sectionId}-scratch-reveal`}
+              fillViewport
+              className="web-apps-scratch-slot"
+            >
+              <WebAppsScratchReveal />
+            </ChapterViewport>
+          ) : null}
+        </Fragment>
       ))}
 
       <SectionLessons
