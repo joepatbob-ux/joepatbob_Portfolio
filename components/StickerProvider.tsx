@@ -11,6 +11,11 @@ import {
   type ReactNode,
 } from 'react'
 import {
+  nearestChapterIdForDocY,
+  pickActiveSlideId,
+} from '@/lib/chapterSlideshow'
+import { flushScrollFrame } from '@/lib/scrollFrame'
+import {
   createShuffledDeck,
   deckFromOrderedIds,
   readStoredDeckIds,
@@ -27,10 +32,12 @@ export interface PlacedSticker {
   assetId: string
   src: string
   alt: string
+  /** Viewport (client) coordinates of sticker center — matches drag ghost. */
   x: number
   y: number
   rotation: number
   zIndex: number
+  chapterId: string
 }
 
 export interface ActiveDrag {
@@ -59,7 +66,7 @@ interface StickerContextValue {
     patch: Partial<Pick<PlacedSticker, 'x' | 'y' | 'rotation'>>,
   ) => void
   moveDrag: (clientX: number, clientY: number) => void
-  endDrag: (pageX: number, pageY: number) => void
+  endDrag: () => void
   cancelDrag: () => void
 }
 
@@ -110,12 +117,19 @@ export function StickerProvider({ children }: { children: ReactNode }) {
     fromPile: boolean
     asset: StickerAsset
     rotation: number
-    originX?: number
-    originY?: number
   } | null>(null)
+  /** Last pointer position during drag (pointerup coords can be wrong with capture). */
+  const dragPointerRef = useRef({ x: 0, y: 0 })
+  const activeDragRef = useRef<ActiveDrag | null>(null)
   const deckRef = useRef(deck)
   deckRef.current = deck
   const deckInitRef = useRef(false)
+  const dragListenersRef = useRef<(() => void) | null>(null)
+
+  const removeDragListeners = useCallback(() => {
+    dragListenersRef.current?.()
+    dragListenersRef.current = null
+  }, [])
 
   const commitDeck = useCallback((next: StickerAsset[]) => {
     const deckNext = uniqueStickerDeck(next)
@@ -170,40 +184,31 @@ export function StickerProvider({ children }: { children: ReactNode }) {
     [],
   )
 
-  const beginDragFromPile = useCallback(
-    (
-      asset: StickerAsset,
-      clientX: number,
-      clientY: number,
-      rotation = randomRotation(),
-    ) => {
-      if (deckRef.current[0]?.id !== asset.id) return
-      setSelectedInstanceId(null)
-      dragRef.current = { fromPile: true, asset, rotation }
-      setActiveDrag({ asset, clientX, clientY, rotation, fromPile: true })
-    },
-    [],
-  )
-
-  const moveDrag = useCallback((clientX: number, clientY: number) => {
-    setActiveDrag((prev) => (prev ? { ...prev, clientX, clientY } : null))
-  }, [])
-
-  const endDrag = useCallback((pageX: number, pageY: number) => {
+  const endDrag = useCallback(() => {
     const drag = dragRef.current
     if (!drag) return
 
+    removeDragListeners()
+
+    const live = activeDragRef.current
+    const x = live?.clientX ?? dragPointerRef.current.x
+    const y = live?.clientY ?? dragPointerRef.current.y
     const instanceId = drag.instanceId ?? nextInstanceId()
+    const pageY = y + window.scrollY
+    const chapterId =
+      pickActiveSlideId() ?? nearestChapterIdForDocY(pageY) ?? ''
+
     setPlaced((prev) => {
       const next: PlacedSticker = {
         instanceId,
         assetId: drag.asset.id,
         src: drag.asset.src,
         alt: drag.asset.alt,
-        x: pageX,
-        y: pageY,
+        x,
+        y,
         rotation: drag.rotation,
         zIndex: stackTopZ(prev) + 1,
+        chapterId,
       }
       return [...prev, next]
     })
@@ -214,13 +219,84 @@ export function StickerProvider({ children }: { children: ReactNode }) {
     }
 
     dragRef.current = null
+    activeDragRef.current = null
     setActiveDrag(null)
-  }, [commitDeck])
+    requestAnimationFrame(() => flushScrollFrame())
+  }, [commitDeck, removeDragListeners])
 
   const cancelDrag = useCallback(() => {
+    removeDragListeners()
     dragRef.current = null
+    activeDragRef.current = null
     setActiveDrag(null)
+  }, [removeDragListeners])
+
+  const moveDrag = useCallback((clientX: number, clientY: number) => {
+    dragPointerRef.current = { x: clientX, y: clientY }
+    setActiveDrag((prev) => {
+      if (!prev) return null
+      const next = { ...prev, clientX, clientY }
+      activeDragRef.current = next
+      return next
+    })
   }, [])
+
+  const installDragListeners = useCallback(() => {
+    removeDragListeners()
+
+    const onMove = (e: PointerEvent) => {
+      moveDrag(e.clientX, e.clientY)
+    }
+
+    const onUp = (e: PointerEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+      endDrag()
+    }
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') cancelDrag()
+    }
+
+    window.addEventListener('pointermove', onMove)
+    window.addEventListener('pointerup', onUp, true)
+    window.addEventListener('pointercancel', onUp, true)
+    window.addEventListener('keydown', onKey)
+
+    dragListenersRef.current = () => {
+      window.removeEventListener('pointermove', onMove)
+      window.removeEventListener('pointerup', onUp, true)
+      window.removeEventListener('pointercancel', onUp, true)
+      window.removeEventListener('keydown', onKey)
+    }
+  }, [moveDrag, endDrag, cancelDrag, removeDragListeners])
+
+  const beginDragFromPile = useCallback(
+    (
+      asset: StickerAsset,
+      clientX: number,
+      clientY: number,
+      rotation = randomRotation(),
+    ) => {
+      if (deckRef.current[0]?.id !== asset.id) return
+      setSelectedInstanceId(null)
+      dragPointerRef.current = { x: clientX, y: clientY }
+      dragRef.current = { fromPile: true, asset, rotation }
+      const drag: ActiveDrag = {
+        asset,
+        clientX,
+        clientY,
+        rotation,
+        fromPile: true,
+      }
+      activeDragRef.current = drag
+      setActiveDrag(drag)
+      installDragListeners()
+    },
+    [installDragListeners],
+  )
+
+  useEffect(() => () => removeDragListeners(), [removeDragListeners])
 
   const value = useMemo(
     () => ({

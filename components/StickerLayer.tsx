@@ -1,87 +1,30 @@
 'use client'
 
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { PlacedStickerControl } from '@/components/PlacedStickerControl'
 import { Sticker } from '@/components/Sticker'
 import { useStickers } from '@/components/StickerProvider'
-import {
-  applyStickerLayerReveal,
-  bindStickerLayerElement,
-} from '@/lib/stickerScroll'
-import { flushScrollFrame, scheduleScrollFrame } from '@/lib/scrollFrame'
-
-function documentHeight(): number {
-  return Math.max(
-    document.documentElement.scrollHeight,
-    document.body.scrollHeight,
-  )
-}
+import { bindStickerLayerElement } from '@/lib/stickerScroll'
+import { flushScrollFrame } from '@/lib/scrollFrame'
 
 export function StickerLayer() {
-  const {
-    placed,
-    activeDrag,
-    selectSticker,
-    moveDrag,
-    endDrag,
-    cancelDrag,
-  } = useStickers()
+  const { placed, activeDrag, selectSticker } = useStickers()
+  const [mounted, setMounted] = useState(false)
 
-  const layerRef = useRef<HTMLDivElement>(null)
-  const selectStickerRef = useRef(selectSticker)
-  selectStickerRef.current = selectSticker
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
-  const syncLayerHeight = useCallback(() => {
-    const el = layerRef.current
-    if (!el) return
-    el.style.height = `${documentHeight()}px`
+  const onLayerRef = useCallback((el: HTMLDivElement | null) => {
+    bindStickerLayerElement(el)
   }, [])
 
   useEffect(() => {
-    bindStickerLayerElement(layerRef.current)
-    syncLayerHeight()
-    return () => bindStickerLayerElement(null)
-  }, [syncLayerHeight])
-
-  useEffect(() => {
-    syncLayerHeight()
+    if (!mounted) return
     flushScrollFrame()
-  }, [placed.length, syncLayerHeight])
-
-  useEffect(() => {
-    return scheduleScrollFrame(() => {
-      syncLayerHeight()
-      applyStickerLayerReveal(() => {
-        if (!activeDrag) selectStickerRef.current(null)
-      })
-    })
-  }, [syncLayerHeight, activeDrag])
-
-  useEffect(() => {
-    if (!activeDrag) return
-
-    const onPointerMove = (e: PointerEvent) => {
-      moveDrag(e.clientX, e.clientY)
-    }
-
-    const onPointerUp = (e: PointerEvent) => {
-      endDrag(e.pageX, e.pageY)
-    }
-
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') cancelDrag()
-    }
-
-    window.addEventListener('pointermove', onPointerMove)
-    window.addEventListener('pointerup', onPointerUp)
-    window.addEventListener('keydown', onKeyDown)
-
-    return () => {
-      window.removeEventListener('pointermove', onPointerMove)
-      window.removeEventListener('pointerup', onPointerUp)
-      window.removeEventListener('keydown', onKeyDown)
-    }
-  }, [activeDrag, moveDrag, endDrag, cancelDrag])
+    requestAnimationFrame(() => flushScrollFrame())
+  }, [mounted, placed.length])
 
   useEffect(() => {
     const onPointerDown = (e: PointerEvent) => {
@@ -100,10 +43,12 @@ export function StickerLayer() {
     return () => window.removeEventListener('pointerdown', onPointerDown, true)
   }, [selectSticker, activeDrag])
 
-  return (
+  if (!mounted) return null
+
+  return createPortal(
     <>
       <div
-        ref={layerRef}
+        ref={onLayerRef}
         className="sticker-layer"
         aria-hidden={placed.length === 0}
       >
@@ -119,18 +64,17 @@ export function StickerLayer() {
             left: activeDrag.clientX,
             top: activeDrag.clientY,
           }}
-          aria-hidden
         >
           <Sticker
             src={activeDrag.asset.src}
             alt={activeDrag.asset.alt}
             assetId={activeDrag.asset.id}
-            size="drag"
+            size="placed"
             rotation={activeDrag.rotation}
-            elevated
           />
         </div>
       )}
-    </>
+    </>,
+    document.body,
   )
 }
