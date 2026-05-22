@@ -83,7 +83,6 @@ export function StickerPile() {
                   aria-label={`Pick up ${asset.alt}`}
                   onPointerDown={(e) => {
                     if (e.button !== 0) return
-                    e.preventDefault()
                     beginDragFromPile(
                       asset,
                       e.clientX,

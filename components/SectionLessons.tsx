@@ -2,7 +2,7 @@
 
 import { ChapterViewport } from '@/components/ChapterViewport'
 import { ChapterSlideCopy } from '@/components/chapter-slide/ChapterSlideCopy'
-import { useChapterPanelOpacity } from '@/lib/useChapterPanelOpacity'
+import { useCopyScrollActive } from '@/lib/useCopyScrollActive'
 import type { ReactNode } from 'react'
 
 interface Props {
@@ -21,7 +21,7 @@ export function SectionLessons({
   children,
 }: Props) {
   const chapterId = `${sectionId}-lessons`
-  const { isActive } = useChapterPanelOpacity(chapterId)
+  const copyScrollActive = useCopyScrollActive(chapterId)
 
   return (
     <ChapterViewport
@@ -39,7 +39,7 @@ export function SectionLessons({
       {sectionId === 'hardware' ? (
         <div className="chapter-slide__viewport">
           <ChapterSlideCopy
-            active={isActive}
+            active={copyScrollActive}
             headline={lessonTitle}
             body={lessonBody}
             layout="lessons"
@@ -48,7 +48,7 @@ export function SectionLessons({
         </div>
       ) : (
         <ChapterSlideCopy
-          active={isActive}
+          active={copyScrollActive}
           headline={lessonTitle}
           body={lessonBody}
           layout="lessons"

@@ -783,8 +783,6 @@
 .sticker-layer {
   position: fixed;
   inset: 0;
-  width: 100%;
-  height: 100%;
   z-index: var(--z-stickers);
   pointer-events: none;
   overflow: visible;
@@ -793,10 +791,28 @@
 .sticker-placed {
   position: fixed;
   transform: translate(-50%, -50%);
+  /* pointer-events: none — wheel passes through; selected state re-enables in JS */
+  pointer-events: none;
+  touch-action: pan-y;
+}
+
+.sticker-placed--selected {
   pointer-events: auto;
+}
+
+.sticker-placed--dragging,
+.sticker-placed--rotating {
   touch-action: none;
-  opacity: 1;
-  visibility: visible;
+}
+
+.sticker-placed .sticker {
+  touch-action: pan-y;
+  pointer-events: none;
+}
+
+.sticker-placed--dragging .sticker,
+.sticker-placed--rotating .sticker {
+  touch-action: none;
 }
 
 .sticker-placed__body {
@@ -834,8 +850,14 @@
   pointer-events: none;
 }
 
-.sticker-placed__ring-stage--track .sticker-placed__track-hit {
+.sticker-placed--selected
+  .sticker-placed__ring-stage--track
+  .sticker-placed__track-hit {
   pointer-events: stroke;
+}
+
+.sticker-placed--selected .sticker-placed__scrubber-hit {
+  pointer-events: all;
 }
 
 /* Accent border hugs sticker alpha (filter on face composite, not a box outline). */
@@ -869,6 +891,7 @@
   transform-origin: center center;
   transition: transform 0.2s ease;
   will-change: transform;
+  pointer-events: none;
 }
 
 /* Live pointer rotation — no CSS transition fighting drag updates */
@@ -910,12 +933,19 @@
 }
 
 .sticker-placed__scrubber-mount .sticker-placed__scrubber-hit {
+  pointer-events: none;
+}
+
+.sticker-placed--selected
+  .sticker-placed__scrubber-mount
+  .sticker-placed__scrubber-hit {
   pointer-events: all;
 }
 
 .sticker-placed__art {
   display: inline-block;
   line-height: 0;
+  pointer-events: none;
   transition: transform 0.2s ease;
 }
 
@@ -932,6 +962,7 @@
   stroke: transparent;
   stroke-width: 24px;
   cursor: grab;
+  pointer-events: none;
 }
 
 .sticker-placed__track-ring {
@@ -1102,7 +1133,7 @@
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  overscroll-behavior-y: contain;
+  overscroll-behavior-y: auto;
   -webkit-overflow-scrolling: touch;
   scrollbar-gutter: stable;
   outline: none;

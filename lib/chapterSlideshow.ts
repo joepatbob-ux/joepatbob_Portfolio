@@ -1,5 +1,14 @@
+/** Real snap slides only — excludes placed stickers (they use data-sticker-chapter-id). */
+export const CHAPTER_SLOT_SELECTOR = '.portfolio-chapter-slot[data-chapter-id]'
+
 let publishedRevealMap: Record<string, number> = {}
 let publishedActiveSlideId: string | null = null
+
+function chapterSlots(): HTMLElement[] {
+  return Array.from(
+    document.querySelectorAll<HTMLElement>(CHAPTER_SLOT_SELECTOR),
+  )
+}
 
 /** Latest scroll reveal map (one compute per frame from scroll orchestration). */
 export function publishChapterRevealMap(map: Record<string, number>): void {
@@ -21,11 +30,10 @@ export function chapterRevealForId(chapterId: string): number {
 
 /** Chapter slide whose document center is closest to this Y (page coordinates). */
 export function nearestChapterIdForDocY(docY: number): string | null {
-  const slots = document.querySelectorAll<HTMLElement>('[data-chapter-id]')
   let bestId: string | null = null
   let bestDist = Infinity
 
-  slots.forEach((el) => {
+  chapterSlots().forEach((el) => {
     const id = el.dataset.chapterId
     if (!id) return
     const rect = el.getBoundingClientRect()
@@ -49,7 +57,7 @@ export function easeChapterReveal(t: number): number {
 type SlideAnchor = { id: string; centerY: number }
 
 function slideAnchors(): SlideAnchor[] {
-  return Array.from(document.querySelectorAll<HTMLElement>('[data-chapter-id]'))
+  return chapterSlots()
     .map((el) => {
       const id = el.dataset.chapterId
       if (!id) return null
@@ -116,7 +124,7 @@ export function computeChapterRevealMap(): Record<string, number> {
 
 /** Closest chapter slide to the viewport center (slideshow active index). */
 export function pickActiveSlideId(): string | null {
-  const slots = document.querySelectorAll<HTMLElement>('[data-chapter-id]')
+  const slots = chapterSlots()
   if (!slots.length) return null
 
   const vh = window.innerHeight

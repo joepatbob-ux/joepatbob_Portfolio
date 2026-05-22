@@ -127,7 +127,7 @@ function pickActiveSpyTarget(): { chapterId: string | null; sectionId: string | 
 
   let bestChapterId: string | null = null
   let bestChapterScore = 0
-  document.querySelectorAll<HTMLElement>('[data-chapter-id]').forEach((el) => {
+  document.querySelectorAll<HTMLElement>('.portfolio-chapter-slot[data-chapter-id]').forEach((el) => {
     const id = el.dataset.chapterId
     if (!id) return
     const score = visibleBandScore(el.getBoundingClientRect(), vh)

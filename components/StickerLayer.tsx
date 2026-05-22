@@ -6,10 +6,12 @@ import { PlacedStickerControl } from '@/components/PlacedStickerControl'
 import { Sticker } from '@/components/Sticker'
 import { useStickers } from '@/components/StickerProvider'
 import { bindStickerLayerElement } from '@/lib/stickerScroll'
+import { stickerInstanceAtPoint } from '@/lib/stickerHitTest'
 import { flushScrollFrame } from '@/lib/scrollFrame'
 
 export function StickerLayer() {
-  const { placed, activeDrag, selectSticker } = useStickers()
+  const { placed, activeDrag, selectSticker, dispatchPlacedPointer } =
+    useStickers()
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -23,7 +25,6 @@ export function StickerLayer() {
   useEffect(() => {
     if (!mounted) return
     flushScrollFrame()
-    requestAnimationFrame(() => flushScrollFrame())
   }, [mounted, placed.length])
 
   useEffect(() => {
@@ -31,17 +32,28 @@ export function StickerLayer() {
       if (activeDrag) return
       const target = e.target as HTMLElement
       if (
-        target.closest(
-          '.sticker-placed, .sticker-pile-wrap, .sticker-pile, .sticker-layer__drag',
-        )
+        target.closest('.sticker-pile-wrap, .sticker-pile, .sticker-layer__drag')
       ) {
         return
       }
+
+      const placedRoot = target.closest(
+        '[data-sticker-instance]',
+      ) as HTMLElement | null
+      const instanceId =
+        placedRoot?.dataset.stickerInstance ??
+        stickerInstanceAtPoint(e.clientX, e.clientY)
+      if (instanceId) {
+        dispatchPlacedPointer(instanceId, e)
+        e.stopPropagation()
+        return
+      }
+
       selectSticker(null)
     }
     window.addEventListener('pointerdown', onPointerDown, true)
     return () => window.removeEventListener('pointerdown', onPointerDown, true)
-  }, [selectSticker, activeDrag])
+  }, [selectSticker, activeDrag, dispatchPlacedPointer])
 
   if (!mounted) return null
 

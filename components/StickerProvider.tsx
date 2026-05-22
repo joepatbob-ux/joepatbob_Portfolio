@@ -32,7 +32,7 @@ export interface PlacedSticker {
   assetId: string
   src: string
   alt: string
-  /** Viewport (client) coordinates of sticker center — matches drag ghost. */
+  /** Viewport (client) coordinates — fixed on screen while scrolling chapters. */
   x: number
   y: number
   rotation: number
@@ -68,6 +68,11 @@ interface StickerContextValue {
   moveDrag: (clientX: number, clientY: number) => void
   endDrag: () => void
   cancelDrag: () => void
+  registerPlacedPointer: (
+    instanceId: string,
+    handler: ((e: PointerEvent) => void) | null,
+  ) => void
+  dispatchPlacedPointer: (instanceId: string, e: PointerEvent) => void
 }
 
 const StickerContext = createContext<StickerContextValue | null>(null)
@@ -125,6 +130,9 @@ export function StickerProvider({ children }: { children: ReactNode }) {
   deckRef.current = deck
   const deckInitRef = useRef(false)
   const dragListenersRef = useRef<(() => void) | null>(null)
+  const placedPointerHandlersRef = useRef(
+    new Map<string, (e: PointerEvent) => void>(),
+  )
 
   const removeDragListeners = useCallback(() => {
     dragListenersRef.current?.()
@@ -191,8 +199,10 @@ export function StickerProvider({ children }: { children: ReactNode }) {
     removeDragListeners()
 
     const live = activeDragRef.current
-    const x = live?.clientX ?? dragPointerRef.current.x
-    const y = live?.clientY ?? dragPointerRef.current.y
+    const clientX = live?.clientX ?? dragPointerRef.current.x
+    const clientY = live?.clientY ?? dragPointerRef.current.y
+    const x = clientX
+    const y = clientY
     const instanceId = drag.instanceId ?? nextInstanceId()
     const pageY = y + window.scrollY
     const chapterId =
@@ -212,7 +222,8 @@ export function StickerProvider({ children }: { children: ReactNode }) {
       }
       return [...prev, next]
     })
-    setSelectedInstanceId(instanceId)
+    /* Stay unselected after drop so the edit ring does not block page scroll. */
+    setSelectedInstanceId(null)
 
     if (drag.fromPile) {
       commitDeck(deckRef.current.filter((s) => s.id !== drag.asset.id))
@@ -248,9 +259,7 @@ export function StickerProvider({ children }: { children: ReactNode }) {
       moveDrag(e.clientX, e.clientY)
     }
 
-    const onUp = (e: PointerEvent) => {
-      e.preventDefault()
-      e.stopPropagation()
+    const onUp = () => {
       endDrag()
     }
 
@@ -258,18 +267,36 @@ export function StickerProvider({ children }: { children: ReactNode }) {
       if (e.key === 'Escape') cancelDrag()
     }
 
-    window.addEventListener('pointermove', onMove)
-    window.addEventListener('pointerup', onUp, true)
-    window.addEventListener('pointercancel', onUp, true)
+    window.addEventListener('pointermove', onMove, { passive: true })
+    window.addEventListener('pointerup', onUp)
+    window.addEventListener('pointercancel', onUp)
     window.addEventListener('keydown', onKey)
 
     dragListenersRef.current = () => {
       window.removeEventListener('pointermove', onMove)
-      window.removeEventListener('pointerup', onUp, true)
-      window.removeEventListener('pointercancel', onUp, true)
+      window.removeEventListener('pointerup', onUp)
+      window.removeEventListener('pointercancel', onUp)
       window.removeEventListener('keydown', onKey)
     }
   }, [moveDrag, endDrag, cancelDrag, removeDragListeners])
+
+  const registerPlacedPointer = useCallback(
+    (instanceId: string, handler: ((e: PointerEvent) => void) | null) => {
+      if (handler) {
+        placedPointerHandlersRef.current.set(instanceId, handler)
+      } else {
+        placedPointerHandlersRef.current.delete(instanceId)
+      }
+    },
+    [],
+  )
+
+  const dispatchPlacedPointer = useCallback(
+    (instanceId: string, e: PointerEvent) => {
+      placedPointerHandlersRef.current.get(instanceId)?.(e)
+    },
+    [],
+  )
 
   const beginDragFromPile = useCallback(
     (
@@ -311,6 +338,8 @@ export function StickerProvider({ children }: { children: ReactNode }) {
       moveDrag,
       endDrag,
       cancelDrag,
+      registerPlacedPointer,
+      dispatchPlacedPointer,
     }),
     [
       deck,
@@ -324,6 +353,8 @@ export function StickerProvider({ children }: { children: ReactNode }) {
       moveDrag,
       endDrag,
       cancelDrag,
+      registerPlacedPointer,
+      dispatchPlacedPointer,
     ],
   )
 

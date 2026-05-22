@@ -6,7 +6,7 @@ import {
   publishSlideScrollState,
   type SlideNavPhase,
 } from '@/lib/scrollOrchestration'
-import { applyStickerLayerReveal } from '@/lib/stickerScroll'
+import { ensureChapterCopyWheelListener } from '@/lib/chapterCopyWheel'
 import { flushScrollFrame, scheduleScrollFrame } from '@/lib/scrollFrame'
 import {
   createContext,
@@ -57,6 +57,8 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
     phaseRef.current = phase
   }, [phase])
 
+  useEffect(() => ensureChapterCopyWheelListener(), [])
+
   useEffect(() => {
     const measureSlides = () => {
       const state = measureSlideScrollState(phaseRef.current)
@@ -72,7 +74,7 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
         setReveals(state.revealMap)
       }
 
-      if (!busyRef.current && phaseRef.current === 'idle') {
+      if (!busyRef.current) {
         const best = state.activeSlideId
         if (best && best !== activeRef.current) {
           activeRef.current = best
@@ -80,7 +82,6 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
         }
       }
 
-      applyStickerLayerReveal()
     }
 
     return scheduleScrollFrame(measureSlides)
@@ -116,14 +117,20 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
 
   const navigateToChapter = useCallback(
     (chapterId: string) =>
-      runNavigate(`[data-chapter-id="${chapterId}"]`, chapterId),
+      runNavigate(
+        `.portfolio-chapter-slot[data-chapter-id="${chapterId}"]`,
+        chapterId,
+      ),
     [runNavigate],
   )
 
   const navigateToSection = useCallback(
     (sectionId: string) => {
       const overviewId = `${sectionId}-overview`
-      return runNavigate(`[data-chapter-id="${overviewId}"]`, overviewId)
+      return runNavigate(
+        `.portfolio-chapter-slot[data-chapter-id="${overviewId}"]`,
+        overviewId,
+      )
     },
     [runNavigate],
   )
