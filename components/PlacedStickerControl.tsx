@@ -10,6 +10,7 @@ import {
   roundStickerRotation,
   shortestAngleDeltaDeg,
 } from '@/lib/stickerRotation'
+import { pinPlacedStickerToViewport } from '@/lib/stickerScroll'
 import { STICKER_SIZE_PLACED, stickerHeight } from '@/lib/stickers'
 
 const MOVE_THRESHOLD = 8
@@ -45,6 +46,12 @@ export function PlacedStickerControl({ sticker }: Props) {
   const rotatorRef = useRef<HTMLDivElement>(null)
   const rotatingRef = useRef(false)
   const [lockedRing, setLockedRing] = useState<LockedRing | null>(null)
+
+  useLayoutEffect(() => {
+    if (rootRef.current) {
+      pinPlacedStickerToViewport(rootRef.current)
+    }
+  }, [sticker.x, sticker.y])
 
   useLayoutEffect(() => {
     if (!selected) {
@@ -129,14 +136,19 @@ export function PlacedStickerControl({ sticker }: Props) {
     rootRef.current?.classList.add('sticker-placed--rotating')
 
     let rotation = s.rotation
-    let lastPointerAngle = pointerAngleDeg(pivotX, pivotY, e.pageX, e.pageY)
+    let lastPointerAngle = pointerAngleDeg(
+      pivotX,
+      pivotY,
+      e.clientX,
+      e.clientY,
+    )
     applyLiveRotation(rotation)
 
     target.setPointerCapture(pointerId)
 
     const onMove = (ev: PointerEvent) => {
       if (ev.pointerId !== pointerId) return
-      const angle = pointerAngleDeg(pivotX, pivotY, ev.pageX, ev.pageY)
+      const angle = pointerAngleDeg(pivotX, pivotY, ev.clientX, ev.clientY)
       rotation += shortestAngleDeltaDeg(lastPointerAngle, angle)
       lastPointerAngle = angle
       applyLiveRotation(rotation)
@@ -182,8 +194,8 @@ export function PlacedStickerControl({ sticker }: Props) {
     }
 
     const pointerId = e.pointerId
-    const startX = e.pageX
-    const startY = e.pageY
+    const startX = e.clientX
+    const startY = e.clientY
     let mode: 'tap' | 'move' = 'tap'
 
     body.setPointerCapture(pointerId)
@@ -191,8 +203,8 @@ export function PlacedStickerControl({ sticker }: Props) {
     const end = (ev: PointerEvent) => {
       if (ev.pointerId !== pointerId) return
 
-      const dx = ev.pageX - startX
-      const dy = ev.pageY - startY
+      const dx = ev.clientX - startX
+      const dy = ev.clientY - startY
       if (mode === 'tap' && Math.hypot(dx, dy) < MOVE_THRESHOLD && wasSelected) {
         selectSticker(null)
       }
@@ -207,15 +219,15 @@ export function PlacedStickerControl({ sticker }: Props) {
 
     const onMove = (ev: PointerEvent) => {
       if (ev.pointerId !== pointerId) return
-      const dx = ev.pageX - startX
-      const dy = ev.pageY - startY
+      const dx = ev.clientX - startX
+      const dy = ev.clientY - startY
       if (mode === 'tap' && Math.hypot(dx, dy) >= MOVE_THRESHOLD) {
         mode = 'move'
       }
       if (mode === 'move') {
         updatePlaced(stickerRef.current.instanceId, {
-          x: ev.pageX,
-          y: ev.pageY,
+          x: ev.clientX,
+          y: ev.clientY,
         })
       }
     }
@@ -243,9 +255,14 @@ export function PlacedStickerControl({ sticker }: Props) {
     <div
       ref={rootRef}
       className={`sticker-placed${selected ? ' sticker-placed--selected' : ''}`}
-      data-doc-x={sticker.x}
-      data-doc-y={sticker.y}
-      style={{ zIndex: sticker.zIndex }}
+      data-client-x={sticker.x}
+      data-client-y={sticker.y}
+      data-chapter-id={sticker.chapterId || undefined}
+      style={{
+        zIndex: sticker.zIndex,
+        left: sticker.x,
+        top: sticker.y,
+      }}
       onPointerDown={stopBubble}
     >
       <div

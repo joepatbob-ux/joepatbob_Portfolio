@@ -58,8 +58,8 @@ export default function RootLayout({
                   <SidebarNav />
                   <main className="content-area">{children}</main>
                 </div>
+                <StickerLayer />
               </ChapterNavProvider>
-              <StickerLayer />
             </StickerProvider>
           </HandednessProvider>
         </ThemeProvider>

@@ -1,12 +1,12 @@
 'use client'
 
-import {
-  computeChapterRevealMap,
-  pickActiveSlideId,
-  publishChapterRevealMap,
-} from '@/lib/chapterSlideshow'
 import { chapterRevealsChanged } from '@/lib/chapterReveals'
-import { isInHeroScrollZone } from '@/lib/heroScroll'
+import {
+  measureSlideScrollState,
+  publishSlideScrollState,
+  type SlideNavPhase,
+} from '@/lib/scrollOrchestration'
+import { applyStickerLayerReveal } from '@/lib/stickerScroll'
 import { flushScrollFrame, scheduleScrollFrame } from '@/lib/scrollFrame'
 import {
   createContext,
@@ -21,7 +21,7 @@ import {
 
 export const CHAPTER_NAV_FADE_MS = 520
 
-export type ChapterNavPhase = 'idle' | 'out' | 'in'
+export type ChapterNavPhase = SlideNavPhase
 
 interface ChapterNavContextValue {
   phase: ChapterNavPhase
@@ -59,33 +59,28 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const measureSlides = () => {
-      if (phaseRef.current === 'out') {
-        publishChapterRevealMap({})
-      } else if (isInHeroScrollZone()) {
-        publishChapterRevealMap({})
+      const state = measureSlideScrollState(phaseRef.current)
+      publishSlideScrollState(state)
+
+      if (state.inHero || phaseRef.current === 'out') {
         if (Object.keys(revealsRef.current).length > 0) {
           revealsRef.current = {}
           setReveals({})
         }
-        return
-      } else {
-        const next = computeChapterRevealMap()
-        publishChapterRevealMap(next)
-        if (chapterRevealsChanged(revealsRef.current, next)) {
-          revealsRef.current = next
-          setReveals(next)
-        }
+      } else if (chapterRevealsChanged(revealsRef.current, state.revealMap)) {
+        revealsRef.current = state.revealMap
+        setReveals(state.revealMap)
       }
 
-      if (busyRef.current) return
-
-      if (phaseRef.current === 'idle') {
-        const best = pickActiveSlideId()
+      if (!busyRef.current && phaseRef.current === 'idle') {
+        const best = state.activeSlideId
         if (best && best !== activeRef.current) {
           activeRef.current = best
           setActiveSlideId(best)
         }
       }
+
+      applyStickerLayerReveal()
     }
 
     return scheduleScrollFrame(measureSlides)

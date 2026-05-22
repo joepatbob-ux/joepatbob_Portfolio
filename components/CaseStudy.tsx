@@ -4,7 +4,6 @@ import { CaseStudyOverview } from './CaseStudyOverview'
 import { Chapter } from './Chapter'
 import { ChapterViewport } from './ChapterViewport'
 import { ClosingQuote } from './ClosingQuote'
-import { HardwareLessons } from './HardwareLessons'
 import { SectionLessons } from './SectionLessons'
 
 interface Props {
@@ -49,20 +48,12 @@ export function CaseStudy({ section, sectionId }: Props) {
         />
       ))}
 
-      {sectionId === 'hardware' ? (
-        <HardwareLessons
-          lessonTitle={section.lessonTitle}
-          lessonBody={section.lessonBody}
-          isLast={!section.closingQuote}
-        />
-      ) : (
-        <SectionLessons
-          sectionId={sectionId}
-          lessonTitle={section.lessonTitle}
-          lessonBody={section.lessonBody}
-          isLast={!section.closingQuote}
-        />
-      )}
+      <SectionLessons
+        sectionId={sectionId}
+        lessonTitle={section.lessonTitle}
+        lessonBody={section.lessonBody}
+        isLast={!section.closingQuote}
+      />
 
       {section.closingQuote ? (
         <ChapterViewport

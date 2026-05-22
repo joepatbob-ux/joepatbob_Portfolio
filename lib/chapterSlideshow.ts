@@ -1,8 +1,18 @@
 let publishedRevealMap: Record<string, number> = {}
+let publishedActiveSlideId: string | null = null
 
-/** Latest scroll reveal map (one compute per frame from ChapterNavProvider). */
+/** Latest scroll reveal map (one compute per frame from scroll orchestration). */
 export function publishChapterRevealMap(map: Record<string, number>): void {
   publishedRevealMap = map
+}
+
+/** Viewport-centered slide index — used by stickers when reveal map is empty or lagging. */
+export function publishActiveSlideId(id: string | null): void {
+  publishedActiveSlideId = id
+}
+
+export function activeSlideIdPublished(): string | null {
+  return publishedActiveSlideId
 }
 
 export function chapterRevealForId(chapterId: string): number {

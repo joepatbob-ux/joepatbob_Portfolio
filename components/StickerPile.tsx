@@ -82,6 +82,7 @@ export function StickerPile() {
                   disabled={Boolean(activeDrag)}
                   aria-label={`Pick up ${asset.alt}`}
                   onPointerDown={(e) => {
+                    if (e.button !== 0) return
                     e.preventDefault()
                     beginDragFromPile(
                       asset,
@@ -90,6 +91,7 @@ export function StickerPile() {
                       rotation,
                     )
                   }}
+                  onClick={(e) => e.preventDefault()}
                 >
                   <Sticker
                     src={asset.src}
