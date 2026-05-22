@@ -1,8 +1,22 @@
-import { BEFORE_DRAWERS } from '@/lib/webAppsScratchDraw'
+import { BEFORE_DRAWERS, fillLottoScratchLayer } from '@/lib/webAppsScratchDraw'
 
 export const SCRATCH_QUAD_PX = 400
 export const SCRATCH_CARD_PX = SCRATCH_QUAD_PX * 2
-export const COIN_BRUSH_PX = 48
+/** Matches RN Skia example strokeWidth (50). */
+export const COIN_BRUSH_PX = 50
+
+/** Foil texture from react-native-scratch-card-example `scratch-front.webp`. */
+export const SCRATCH_FRONT_SRC = '/images/web-apps-scratch-front.webp'
+
+export function loadScratchFrontImage(): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    img.decoding = 'async'
+    img.onload = () => resolve(img)
+    img.onerror = () => reject(new Error(`Failed to load ${SCRATCH_FRONT_SRC}`))
+    img.src = SCRATCH_FRONT_SRC
+  })
+}
 
 /** 48px coin image for ScratchCard `brush` prop. */
 export function createCoinBrushDataUrl(size = COIN_BRUSH_PX): string {
@@ -46,8 +60,9 @@ export function createCoinBrushDataUrl(size = COIN_BRUSH_PX): string {
   return canvas.toDataURL('image/png')
 }
 
-/** Lottery-ticket scratch surfaces (one per quadrant). */
+/** Scratch-off cover: foil texture + per-product “before” wireframe (one per quadrant). */
 export function createBeforeCoverDataUrls(
+  scratchFront?: HTMLImageElement | null,
   size = SCRATCH_QUAD_PX,
 ): string[] {
   return BEFORE_DRAWERS.map((draw) => {
@@ -56,6 +71,12 @@ export function createBeforeCoverDataUrls(
     canvas.height = size
     const ctx = canvas.getContext('2d')
     if (!ctx) return ''
+
+    if (scratchFront) {
+      ctx.drawImage(scratchFront, 0, 0, size, size)
+    } else {
+      fillLottoScratchLayer(ctx, size, size)
+    }
     draw(ctx, size, size)
     return canvas.toDataURL('image/png')
   })
