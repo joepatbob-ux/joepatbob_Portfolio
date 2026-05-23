@@ -2,6 +2,7 @@
 
 import { ChapterViewport } from '@/components/ChapterViewport'
 import { ChapterSlideCopy } from '@/components/chapter-slide/ChapterSlideCopy'
+import { InteractiveStageCursor } from '@/components/chapter-slide/InteractiveStageCursor'
 import { useCopyScrollActive } from '@/lib/useCopyScrollActive'
 import type { Chapter } from '@/lib/types'
 import type { ReactNode } from 'react'
@@ -17,6 +18,8 @@ interface Props {
   stageAriaLabel?: string
   /** DOM order: stage before copy (default) or copy before stage. */
   copyFirst?: boolean
+  /** Sensi Lite dot cursor while hovering the stage. */
+  interactiveCursor?: boolean
 }
 
 export function ChapterSlideLayout({
@@ -28,16 +31,30 @@ export function ChapterSlideLayout({
   stageId,
   stageAriaLabel,
   copyFirst = false,
+  interactiveCursor = false,
 }: Props) {
   const copyScrollActive = useCopyScrollActive(chapterId)
+
+  const stageInner = interactiveCursor ? (
+    <InteractiveStageCursor ringOverSelector="button[data-lite-hit]">
+      {stage}
+    </InteractiveStageCursor>
+  ) : (
+    stage
+  )
 
   const stageEl = (
     <div
       id={stageId}
-      className="chapter-slide__stage"
+      className={[
+        'chapter-slide__stage',
+        interactiveCursor ? 'chapter-slide__stage--interactive' : '',
+      ]
+        .filter(Boolean)
+        .join(' ')}
       aria-label={stageAriaLabel}
     >
-      {stage}
+      {stageInner}
     </div>
   )
 

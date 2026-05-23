@@ -16,9 +16,10 @@ export function SensiLiteChapter({ chapter, isLast }: Props) {
       chapterId="hardware-sensi-lite"
       modifier="sensi-lite"
       isLast={isLast}
+      interactiveCursor
       stageId="hardware-sensi-lite-interactive"
       stageAriaLabel="Sensi Lite interactive prototype"
-      stage={<SensiLiteProto showControlsLegend={false} />}
+      stage={<SensiLiteProto showControlsLegend={false} useDotCursor />}
     />
   )
 }
