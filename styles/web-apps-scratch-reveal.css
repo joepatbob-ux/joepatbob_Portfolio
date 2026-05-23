@@ -31,6 +31,8 @@
 
 .web-apps-scratch__card {
   position: relative;
+  width: var(--scratch-card, 560px);
+  height: var(--scratch-card, 560px);
   border: 1px solid #d4d2cb;
   border-radius: 8px;
   background: #fafaf8;
@@ -38,40 +40,15 @@
   overflow: hidden;
 }
 
-.web-apps-scratch__grid {
-  display: grid;
-  grid-template-columns: 400px 400px;
-  grid-template-rows: 400px 400px;
-  gap: 1px;
-  background: rgba(0, 0, 0, 0.08);
-}
-
-.web-apps-scratch__quad {
-  position: relative;
-  overflow: hidden;
-  background: #eceae5;
-}
-
 .web-apps-scratch__scratch-canvas {
   display: block;
   cursor: none !important;
 }
 
-.web-apps-scratch__quad-placeholder {
+.web-apps-scratch__placeholder {
+  width: 100%;
+  height: 100%;
   background: linear-gradient(135deg, #c9c7c1, #e8e6e0);
-}
-
-.web-apps-scratch__reveal-window {
-  position: relative;
-  width: 400px;
-  height: 400px;
-  overflow: hidden;
-}
-
-.web-apps-scratch__reveal-pan {
-  position: absolute;
-  width: 800px;
-  height: 800px;
 }
 
 .kelvin-after-wireframe {
@@ -80,8 +57,8 @@
 
 .web-apps-scratch__coin-cursor {
   position: absolute;
-  width: var(--scratch-coin-size, 50px);
-  height: var(--scratch-coin-size, 50px);
+  width: var(--scratch-coin-size, 35px);
+  height: var(--scratch-coin-size, 35px);
   transform: translate(-50%, -50%);
   border-radius: 50%;
   pointer-events: none;
@@ -106,26 +83,9 @@
   gap: 16px 24px;
   margin-top: 16px;
   width: 100%;
-  max-width: 800px;
-}
-
-.web-apps-scratch__dots {
-  display: flex;
-  gap: 8px;
-}
-
-.web-apps-scratch__dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  border: 1px solid #d4d2cb;
-  background: transparent;
-  transition: background 0.25s ease;
-}
-
-.web-apps-scratch__dot--filled {
-  background: #f5431b;
-  border-color: #f5431b;
+  max-width: var(--scratch-card, 560px);
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .web-apps-scratch__count {
@@ -158,7 +118,7 @@
   outline-offset: 2px;
 }
 
-@media (max-width: 860px) {
+@media (max-width: 620px) {
   .web-apps-scratch__card-wrap {
     width: 100%;
     overflow-x: auto;
