@@ -25,6 +25,33 @@
   box-sizing: border-box;
 }
 
+/* Hide main nav until useLayoutEffect positions it (prevents hero flash at top: 0). */
+.sidebar-shell--fixed:not([data-nav-positioned='true']) [data-sidebar-main-nav] {
+  visibility: hidden;
+}
+
+/* Viewport-based shell visibility — avoids desktop nav flash before hydration. */
+.sidebar-mobile-morph-nav {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .sidebar-desktop-shell,
+  .sidebar-desktop-subnav {
+    display: none !important;
+  }
+
+  .sidebar-mobile-morph-nav {
+    display: block;
+  }
+}
+
+@media (min-width: 768px) {
+  .sidebar-mobile-morph-nav {
+    display: none !important;
+  }
+}
+
 /* Ultra-wide: cap content column width; sidebar stays browser-left */
 @media (min-width: 2560px) {
   .content-area {

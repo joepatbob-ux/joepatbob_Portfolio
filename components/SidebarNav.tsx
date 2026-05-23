@@ -11,11 +11,12 @@
 
 'use client'
 
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { pickHardwareChapterFromScroll } from '@/lib/hardware/chapters'
 import { HardwareMobileNav } from '@/components/HardwareMobileNav'
 import { applySidebarHeroNameFade, isInHeroScrollZone } from '@/lib/heroScroll'
 import { NAV_SECTIONS, sectionIdForChapter } from '@/lib/nav'
+import { LAYOUT_MQ } from '@/lib/layout/breakpoints'
 import { scheduleScrollFrame } from '@/lib/scrollFrame'
 import { ContactButton } from '@/components/ContactButton'
 import { useChapterNav } from '@/components/ChapterNavProvider'
@@ -37,8 +38,8 @@ const BLUR_PX         = 6
 const NAV_TOP_PX      = 40
 const EMAIL_BOTTOM_PX = 40
 
-/** Phone overlay nav; keep in sync with `globals.css` (`max-width: 767px`). Tablet layout TODO. */
-const MOBILE_MAX = '(max-width: 767px)'
+/** Phone overlay nav — keep in sync with `LAYOUT_MQ.mobile` / globals.css */
+const MOBILE_MAX = LAYOUT_MQ.mobile
 
 const MOBILE_BAR_H = 52
 const MOBILE_MORPH_BOTTOM_PAD = 28
@@ -51,8 +52,13 @@ function smoothstep(edge0: number, edge1: number, x: number): number {
   return t * t * (3 - 2 * t)
 }
 
+function readIsMobile(): boolean {
+  if (typeof window === 'undefined') return false
+  return window.matchMedia(MOBILE_MAX).matches
+}
+
 function useIsMobile() {
-  const [isMobile, setIsMobile] = useState(false)
+  const [isMobile, setIsMobile] = useState(readIsMobile)
   useEffect(() => {
     const mq = window.matchMedia(MOBILE_MAX)
     const sync = () => setIsMobile(mq.matches)
@@ -200,6 +206,8 @@ export function SidebarNav() {
   const subNavVisibleRef = useRef(false)
   const activeSectionRef = useRef<string | null>(null)
   const activeChapterRef = useRef<string | null>(null)
+  const [desktopNavReady, setDesktopNavReady] = useState(false)
+  const sidebarShellRef = useRef<HTMLDivElement>(null)
   const heroRef       = useRef<HTMLDivElement>(null)
   const navWrapRef    = useRef<HTMLDivElement>(null)
   const contactRef    = useRef<HTMLDivElement>(null)
@@ -363,14 +371,9 @@ export function SidebarNav() {
     }
   }, [isMobile, mobileDrawerOpen])
 
-  /** Mobile: hero nav travels upward and morphs into the accent bar (scroll-linked, no CSS transition). */
-  useEffect(() => {
-    if (!isMobile) return
-
-    const accentRgb = { r: 222, g: 62, b: 24 }
-
-    return scheduleScrollFrame(() => {
-      const y = getScrollTop()
+  const applyMobileNavMorph = useCallback(
+    (y: number) => {
+      const accentRgb = { r: 222, g: 62, b: 24 }
       const vh = window.innerHeight
       const threshold = Math.max(96, vh * MOBILE_MORPH_SCROLL_RATIO)
       const travelT = Math.min(1, Math.max(0, y / threshold))
@@ -441,10 +444,49 @@ export function SidebarNav() {
         drawerHost.style.zIndex = '110'
         drawerHost.style.pointerEvents = mobileDrawerOpen ? 'auto' : 'none'
       }
+    },
+    [mobileDrawerOpen],
+  )
 
+  const applyDesktopNavScroll = useCallback((y: number) => {
+    const { viewportH, navRestTop, threshold } = layoutRef.current
+    const safeThreshold = threshold > 0 ? threshold : 1
+
+    applySidebarHeroNameFade(heroRef.current, y, viewportH, BLUR_PX)
+
+    const travelT = Math.min(1, y / safeThreshold)
+    const navTop =
+      y >= safeThreshold
+        ? NAV_TOP_PX
+        : navRestTop + (NAV_TOP_PX - navRestTop) * travelT
+    if (navWrapRef.current) {
+      navWrapRef.current.style.top = `${navTop}px`
+    }
+  }, [])
+
+  /** Position nav before paint — avoids hero flash at `top: 0` while layout/scroll frame init. */
+  useLayoutEffect(() => {
+    if (isMobile) {
+      setDesktopNavReady(false)
+      applyMobileNavMorph(getScrollTop())
+      return
+    }
+
+    measureLayout()
+    applyDesktopNavScroll(getScrollTop())
+    setDesktopNavReady(true)
+  }, [isMobile, measureLayout, applyDesktopNavScroll, applyMobileNavMorph])
+
+  /** Mobile: hero nav travels upward and morphs into the accent bar (scroll-linked, no CSS transition). */
+  useEffect(() => {
+    if (!isMobile) return
+
+    return scheduleScrollFrame(() => {
+      const y = getScrollTop()
+      applyMobileNavMorph(y)
       if (!isInHeroScrollZone()) applyScrollSpy()
     })
-  }, [isMobile, applyScrollSpy, mobileDrawerOpen])
+  }, [isMobile, applyScrollSpy, applyMobileNavMorph])
 
   useEffect(() => {
     if (!isMobile || !mobileDrawerOpen) return
@@ -463,24 +505,11 @@ export function SidebarNav() {
 
     return scheduleScrollFrame(() => {
       const y = getScrollTop()
-      const { viewportH, navRestTop, threshold } = layoutRef.current
-      const safeThreshold = threshold > 0 ? threshold : 1
-
-      applySidebarHeroNameFade(heroRef.current, y, viewportH, BLUR_PX)
-
-      const travelT = Math.min(1, y / safeThreshold)
-      const navTop =
-        y >= safeThreshold
-          ? NAV_TOP_PX
-          : navRestTop + (NAV_TOP_PX - navRestTop) * travelT
-      if (navWrapRef.current) {
-        navWrapRef.current.style.top = `${navTop}px`
-      }
-
+      applyDesktopNavScroll(y)
       applyStuckState(y)
       if (prevStuck.current) applyScrollSpy()
     })
-  }, [isMobile, applyStuckState, applyScrollSpy, measureLayout])
+  }, [isMobile, applyStuckState, applyScrollSpy, measureLayout, applyDesktopNavScroll])
 
   const syncScrollAfterNavigate = useCallback(() => {
     applyStuckState(getScrollTop())
@@ -521,8 +550,7 @@ export function SidebarNav() {
   return (
     <>
       {/* Mobile: hero intro + full nav morph into pinned accent bar + drawer */}
-      {isMobile && (
-        <>
+      <div className="sidebar-mobile-morph-nav">
           {mobileDrawerOpen && (
             <div
               role="presentation"
@@ -859,13 +887,14 @@ export function SidebarNav() {
               </div>
             </div>
           </div>
-        </>
-      )}
+      </div>
 
-      {/* Sidebar shell — hidden on small viewports; kept mounted for scroll/sync refs */}
-      <div hidden={isMobile}>
+      {/* Sidebar shell — desktop; CSS hides below 768px before hydration */}
+      <div className="sidebar-desktop-shell">
         <div
+          ref={sidebarShellRef}
           className="sidebar-shell--fixed"
+          data-nav-positioned={desktopNavReady ? 'true' : undefined}
           style={{
             position: 'fixed',
             left: 0,
@@ -887,18 +916,26 @@ export function SidebarNav() {
         }} />
 
         {/* Hero name — opacity/blur driven by scroll frame */}
-        <div ref={heroRef} className="sidebar-hero-name" aria-hidden style={{
-          position: 'absolute', top: 40, left: 40,
-          width: 'min(42vw, calc(var(--sidebar-width) - 40px - var(--sidebar-pad-right)))',
-          opacity: 1,
-          filter: 'blur(0px)',
-          transition: 'none',
-          pointerEvents: 'none', userSelect: 'none',
-        }}>
+        <div
+          ref={heroRef}
+          className="sidebar-hero-name"
+          aria-hidden
+          style={{
+            position: 'absolute',
+            top: 40,
+            opacity: 1,
+            filter: 'blur(0px)',
+            transition: 'none',
+            pointerEvents: 'none',
+            userSelect: 'none',
+          }}
+        >
           <div style={{ fontFamily: FONT_AHG, fontWeight: 700, fontSize: 'clamp(12px, 1.35vw, 28px)', lineHeight: 1.1, textTransform: 'uppercase', color: ACCENT, marginBottom: 8 }}>
             Hello, I am
           </div>
-          <div style={{
+          <div
+            className="sidebar-hero-name__display"
+            style={{
             fontFamily: FONT_AHG,
             fontWeight: 700,
             /* Preferred scales with width; vh ceiling ≈ half viewport minus eyebrow (3 lines × lh 0.82). */
@@ -907,23 +944,25 @@ export function SidebarNav() {
             letterSpacing: '-0.02em',
             textTransform: 'uppercase',
             color: C.ink,
-          }}>
+          }}
+          >
             <div>JOSEPH</div>
             <div>PATRICK</div>
             <div>ROBERTS<span style={{ color: ACCENT }}>.</span></div>
           </div>
         </div>
 
-        {/* Main nav sentence */}
-        <div ref={navWrapRef} style={{
-          position: 'absolute',
-          top: layoutRef.current.navRestTop,
-          left: 40,
-          right: 'calc(40px + var(--sidebar-pad-right))',
-          transition: 'none',
-          pointerEvents: 'auto',
-        }}>
-          <p style={{ fontFamily: FONT_AHG, fontWeight: 700, fontSize: 24, lineHeight: 1.2, letterSpacing: '0.02em', textTransform: 'uppercase', color: C.ink, margin: 0 }}>
+        {/* Main nav sentence — top set in applyDesktopNavScroll after layout measure */}
+        <div
+          ref={navWrapRef}
+          data-sidebar-main-nav
+          style={{
+            position: 'absolute',
+            transition: 'none',
+            pointerEvents: 'auto',
+          }}
+        >
+          <p className="sidebar-main-nav__sentence" style={{ color: C.ink }}>
             {'I simplify complex systems across '}
             {NAV_SECTIONS.map((sec, i) => {
               const isActive  = activeSection === sec.id
@@ -966,10 +1005,10 @@ export function SidebarNav() {
         {/* Contact — liquid split to Email / LinkedIn on hover */}
         <div
           ref={contactRef}
+          className="sidebar-contact"
           style={{
             position: 'absolute',
             bottom: EMAIL_BOTTOM_PX,
-            left: 40,
             pointerEvents: 'auto',
           }}
         >
@@ -985,20 +1024,18 @@ export function SidebarNav() {
         />
       ) : null}
 
-      {/* Sub nav — viewport center (desktop only; shell stays mounted when hidden) */}
-      <div hidden={isMobile}>
+      {/* Sub nav — viewport center (desktop only) */}
+      <div className="sidebar-desktop-subnav">
       <div
         className="sidebar-subnav--fixed"
         aria-label="Chapter navigation"
         style={{
           position: 'fixed',
-          left: 40,
           top: '50vh',
           transform: 'translateY(-50%)',
           display: 'flex',
           flexDirection: 'column',
           gap: 6,
-          width: 'min(300px, calc(var(--sidebar-width) - 40px - var(--sidebar-pad-right)))',
           zIndex: 101,
           pointerEvents: subNavVisible ? 'auto' : 'none',
         }}

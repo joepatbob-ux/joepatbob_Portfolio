@@ -220,15 +220,16 @@ hw-kelvin.jpg           ← Lord Kelvin illustration (color)
 
 ---
 
-## Responsive Breakpoints (to be implemented)
-| Breakpoint | Width | Notes |
-|---|---|---|
-| Mobile | < 768px | Single column, no sidebar, top nav |
-| Tablet | 768–1280px | Simplified sidebar or collapsed |
-| Desktop | 1280–1920px | Full layout |
-| Ultra-wide | > 1920px | Max-width container, edge-to-edge images |
+## Responsive Breakpoints
+| Tier | Width | Shell | Chapter slides |
+|---|---|---|---|
+| Mobile | ≤767px | No sidebar; morphing top nav | 1 column (stage above copy) |
+| Tablet | 768–1023px | **280px sidebar** (desktop nav + subnav) | 2 columns (stage \| copy) |
+| Desktop | ≥1024px | 400px sidebar | 2 columns |
+| Wide copy | ≥1200px | (unchanged) | 3 columns in copy band |
+| Cinema | ≥2560px | Max-width content column | — |
 
-Mobile and tablet breakpoints: build after desktop is complete.
+Source of truth: `lib/layout/breakpoints.ts`, `lib/chapter-slide/breakpoints.ts`.
 
 ---
 

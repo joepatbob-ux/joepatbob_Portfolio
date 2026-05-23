@@ -14,6 +14,7 @@
  * Rotating updates handedness until the user swipes (which writes storage and stops
  * auto updates).
  */
+import { LAYOUT_MQ } from '@/lib/layout/breakpoints'
 import {
   createContext,
   useCallback,
@@ -29,7 +30,7 @@ export type Handedness = 'left' | 'right'
 const STORAGE_KEY = 'portfolio-handedness'
 
 /** Keep in sync with Hero.tsx + SidebarNav (`useIsMobile` / globals). */
-const MOBILE_MQ = '(max-width: 767px)'
+const MOBILE_MQ = LAYOUT_MQ.mobile
 
 /**
  * Infer handedness from device rotation in mobile view only (`MOBILE_MQ`).

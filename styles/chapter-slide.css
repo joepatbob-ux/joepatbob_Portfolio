@@ -1,4 +1,5 @@
-/* Case study chapter slides — section grid: 3 / 2 / 1 columns (lib/chapter-slide/breakpoints.ts) */
+/* Case study chapter slides — section grid: 3 / 2 / 1 columns (lib/chapter-slide/breakpoints.ts).
+   Site shell tablet (narrow sidebar): 768–1023 in lib/layout/breakpoints.ts */
 .chapter-slide {
   --cs-stage-max: min(480px, 42vw);
   --cs-copy-max-h: min(70dvh, 100%);
@@ -147,6 +148,14 @@
   font-size: 14px;
   line-height: 1.65;
   margin: 0;
+}
+
+/* Tablet shell: slightly smaller stage cap (narrower content column) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .chapter-slide {
+    --cs-stage-max: min(360px, 36vw);
+    --cs-inner-max: min(100%, calc(100vw - var(--sidebar-width) - 2 * var(--content-pad-x) - 32px));
+  }
 }
 
 /* Mobile: single-column section, stage above copy */

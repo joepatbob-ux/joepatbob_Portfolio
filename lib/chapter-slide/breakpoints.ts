@@ -1,4 +1,5 @@
-/** Chapter slide layout breakpoints — keep media queries in globals.css aligned. */
+/** Chapter slide layout breakpoints — keep media queries in chapter-slide.css aligned.
+ *  Site shell (sidebar width): lib/layout/breakpoints.ts (tablet ends at 1023). */
 export const CS_BP = {
   /** Single-column section (stage stacked above copy) */
   mobileMax: 767,
