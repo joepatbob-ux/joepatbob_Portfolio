@@ -9,6 +9,7 @@
 @import './site-layout.css';
 @import './hardware-layout.css';
 @import './verdant-interactive.css';
+@import './sidebar-layout.css';
 
 /* ── FONTS ────────────────────────────────────────────────────────────────── */
 /* Place Alte Haas Grotesk in /public/fonts/ (see @font-face below).
@@ -105,7 +106,7 @@
     min-width: 0;
   }
 
-  /* Phone only (max 767px): full-width column + morphing top nav. Tablet / large breakpoints TODO. */
+  /* Phone (≤767): full-width column + morphing top nav */
   @media (max-width: 767px) {
     :root {
       --sidebar-width: 0px;
@@ -132,6 +133,15 @@
 
     #hero {
       scroll-margin-top: 0;
+    }
+  }
+
+  /* Tablet (768–1023): narrow sidebar — lib/layout/breakpoints.ts */
+  @media (min-width: 768px) and (max-width: 1023px) {
+    :root {
+      --sidebar-width: 280px;
+      --content-pad-x: 20px;
+      --gutter: 48px;
     }
   }
 }

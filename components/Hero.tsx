@@ -3,11 +3,12 @@
 import { useCallback, useEffect, useRef } from 'react'
 import { useTheme } from '@/components/ThemeProvider'
 import { useHandedness } from '@/components/HandednessProvider'
+import { LAYOUT_BP } from '@/lib/layout/breakpoints'
 
 const PORTRAIT_LIGHT = '/images/PortraitLight_MG_3496.jpg'
 const PORTRAIT_DARK = '/images/PortraitDark_MG_3490.jpg'
 
-const MOBILE_MAX_W = 767
+const MOBILE_MAX_W = LAYOUT_BP.mobileMax
 const HAND_SWIPE_X = 72
 
 export function Hero() {
