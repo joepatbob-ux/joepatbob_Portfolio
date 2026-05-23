@@ -272,10 +272,12 @@ function LiteFrame({
   onUp,
   onDown,
   onMenu,
+  hideNativeCursor = false,
 }: {
   onUp?: () => void
   onDown?: () => void
   onMenu?: () => void
+  hideNativeCursor?: boolean
 }) {
   const hitBase: CSSProperties = {
     position: 'absolute',
@@ -283,7 +285,7 @@ function LiteFrame({
     width: '100%',
     border: 'none',
     background: 'transparent',
-    cursor: 'pointer',
+    cursor: hideNativeCursor ? 'none' : 'pointer',
     padding: 0,
     margin: 0,
   }
@@ -321,11 +323,24 @@ function LiteFrame({
           draggable={false}
           style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }}
         />
-        <button type="button" aria-label="Up" style={{ ...hitBase, top: 0, height: '33.33%' }} onClick={onUp} />
-        <button type="button" aria-label="Menu" style={{ ...hitBase, top: '33.33%', height: '33.34%' }} onClick={onMenu} />
+        <button
+          type="button"
+          aria-label="Up"
+          data-lite-hit=""
+          style={{ ...hitBase, top: 0, height: '33.33%' }}
+          onClick={onUp}
+        />
+        <button
+          type="button"
+          aria-label="Menu"
+          data-lite-hit=""
+          style={{ ...hitBase, top: '33.33%', height: '33.34%' }}
+          onClick={onMenu}
+        />
         <button
           type="button"
           aria-label="Down"
+          data-lite-hit=""
           style={{ ...hitBase, top: '66.67%', height: '33.33%' }}
           onClick={onDown}
         />
@@ -336,8 +351,11 @@ function LiteFrame({
 
 export function SensiLiteProto({
   showControlsLegend = true,
+  useDotCursor = false,
 }: {
   showControlsLegend?: boolean
+  /** Chapter stage: hide native pointer on hit targets (orange dot overlay). */
+  useDotCursor?: boolean
 }) {
   const [state, setState] = useState<ThermostatState>({
     mode: 'cool',
@@ -432,6 +450,7 @@ export function SensiLiteProto({
 
   return (
     <div
+      className={useDotCursor ? 'sensi-lite-proto--dot-cursor' : undefined}
       style={{
         display: 'flex',
         flexDirection: 'column',
@@ -442,7 +461,12 @@ export function SensiLiteProto({
     >
       <ProtoStage>
         <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-          <LiteFrame onUp={handleUp} onDown={handleDown} onMenu={handleMenu} />
+          <LiteFrame
+            onUp={handleUp}
+            onDown={handleDown}
+            onMenu={handleMenu}
+            hideNativeCursor={useDotCursor}
+          />
           <LiteScreen
             mode={state.mode}
             lcdTemp={lcdTemp}
@@ -472,22 +496,7 @@ export function SensiLiteProto({
             Room {DISPLAY_TEMP}° · Heat {state.heatTo}° · Cool {state.coolTo}° · {DEADBAND}° min gap
           </span>
         </p>
-      ) : (
-        <p
-          style={{
-            marginTop: 16,
-            alignSelf: 'center',
-            fontFamily: 'var(--font-mono, monospace)',
-            fontSize: 9,
-            letterSpacing: '0.08em',
-            color: 'var(--color-muted)',
-            textAlign: 'center',
-            lineHeight: 1.8,
-          }}
-        >
-          Room {DISPLAY_TEMP}° · Heat {state.heatTo}° · Cool {state.coolTo}° · {DEADBAND}° min gap
-        </p>
-      )}
+      ) : null}
     </div>
   )
 }

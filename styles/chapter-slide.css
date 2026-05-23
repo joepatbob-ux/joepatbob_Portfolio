@@ -1,5 +1,6 @@
 /* Case study chapter slides — section grid: 3 / 2 / 1 columns (lib/chapter-slide/breakpoints.ts).
    Site shell tablet (narrow sidebar): 768–1023 in lib/layout/breakpoints.ts */
+
 .chapter-slide {
   --cs-stage-max: min(480px, 42vw);
   --cs-copy-max-h: min(70dvh, 100%);
@@ -14,11 +15,11 @@
   width: 100%;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   padding: clamp(24px, 4vw, 48px) clamp(16px, 4vw, 72px);
 }
 
-/* Tablet+: 2-column section (stage | context) */
+/* Tablet+: stage + left-aligned copy column */
 .chapter-slide__inner {
   box-sizing: border-box;
   width: 100%;
@@ -27,19 +28,23 @@
   max-height: min(88dvh, 100%);
   display: grid;
   grid-template-columns: var(--cs-stage-max) minmax(0, 1fr);
-  align-items: center;
+  align-items: start;
+  justify-items: start;
   gap: var(--cs-section-gap);
 }
 
 .chapter-slide__stage {
   grid-column: 1;
   grid-row: 1;
-  align-self: center;
+  align-self: start;
+  width: 100%;
+  max-width: var(--cs-stage-max);
 }
 
 .chapter-slide__copy {
   grid-column: 2;
   grid-row: 1;
+  text-align: left;
 }
 
 .chapter-slide--touch-2 .chapter-slide__stage {
@@ -50,7 +55,7 @@
   grid-column: 1;
 }
 
-/* Wide: 3-column section (stage | context | context) */
+/* Wide: extra copy column; copy stays one left-aligned band */
 @media (min-width: 1200px) {
   .chapter-slide {
     --cs-inner-max: min(1280px, 100%);
@@ -77,20 +82,15 @@
   }
 }
 
-.chapter-slide__stage {
-  min-width: 0;
-  width: 100%;
-  max-width: var(--cs-stage-max);
-  justify-self: center;
-}
-
 .chapter-slide__stage .touch2-carousel,
 .chapter-slide__stage .verdant-interactive,
-.chapter-slide__stage .eim-path-art {
+.chapter-slide__stage .eim-path-art,
+.chapter-slide__stage .chapter-stage-media,
+.chapter-slide__stage .before-after-slider,
+.chapter-slide__stage .sticker-pile-wrap {
   width: 100%;
-  max-width: var(--cs-stage-max);
-  margin-left: auto;
-  margin-right: auto;
+  max-width: 100%;
+  margin: 0;
 }
 
 .chapter-slide--verdant .chapter-slide__stage {
@@ -99,16 +99,19 @@
   justify-content: center;
 }
 
-.chapter-slide--sensi-lite .chapter-slide__stage > div {
+.chapter-slide--sensi-lite .chapter-slide__interactive-content > div {
   width: 100%;
-  max-width: var(--cs-stage-max);
-  margin: 0 auto;
+  max-width: 100%;
+  margin: 0;
 }
 
-.chapter-slide--sensi-lite .chapter-slide__stage > div > div {
-  max-width: var(--cs-stage-max) !important;
-  margin-left: auto;
-  margin-right: auto;
+.chapter-slide--sensi-lite .chapter-slide__interactive-content > div > div {
+  max-width: 100% !important;
+  margin: 0 !important;
+}
+
+.chapter-slide--eim .chapter-slide__stage {
+  overflow: visible;
 }
 
 .chapter-slide__copy {
@@ -118,7 +121,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  align-self: center;
+  align-self: start;
 }
 
 .chapter-slide__copy .chapter-copy-scroller {
@@ -128,18 +131,29 @@
   overflow-y: auto;
 }
 
-/* Context body: 2 grid columns inside the 3-column section on wide */
+.chapter-slide .chapter-copy__headline {
+  text-align: left;
+}
+
+.chapter-slide .chapter-copy__rule {
+  margin-left: 0;
+  margin-right: auto;
+}
+
 .chapter-slide__body {
   margin: 0;
   display: grid;
   grid-template-columns: 1fr;
   gap: clamp(1rem, 2.5vw, 1.5rem);
   align-content: start;
+  justify-items: start;
+  text-align: left;
 }
 
 @media (min-width: 1200px) {
   .chapter-slide__copy:not(.chapter-slide__copy--lessons) .chapter-slide__body {
     grid-template-columns: 1fr 1fr;
+    column-gap: clamp(1.25rem, 3vw, 2rem);
   }
 }
 
@@ -148,6 +162,7 @@
   font-size: 14px;
   line-height: 1.65;
   margin: 0;
+  text-align: left;
 }
 
 /* Tablet shell: slightly smaller stage cap (narrower content column) */
@@ -158,16 +173,18 @@
   }
 }
 
-/* Mobile: single-column section, stage above copy */
+/* Mobile: single-column section, framed stage above copy */
 @media (max-width: 767px) {
   .chapter-slide__viewport {
     padding: clamp(24px, 4vw, 40px) clamp(16px, 4vw, 32px);
+    justify-content: flex-start;
   }
 
   .chapter-slide__inner {
     grid-template-columns: 1fr;
     grid-template-rows: auto minmax(0, 1fr);
     align-items: stretch;
+    justify-items: stretch;
     height: min(92dvh, 100%);
     max-height: min(92dvh, 100%);
   }
@@ -177,6 +194,13 @@
     grid-column: 1;
     grid-row: 1;
     order: 1;
+    max-width: 100%;
+    justify-self: stretch;
+  }
+
+  .chapter-slide__stage {
+    max-width: min(480px, 100%);
+    margin: 0;
   }
 
   .chapter-slide__copy,
@@ -188,6 +212,7 @@
     height: 100%;
     min-height: 0;
     max-height: none;
+    width: 100%;
   }
 
   .chapter-slide__copy .chapter-copy-scroller {
@@ -195,34 +220,12 @@
     max-height: none;
   }
 
-  .chapter-slide__stage {
-    max-width: min(480px, 100%);
-    margin: 0 auto;
-    justify-self: center;
-  }
-
-  /* EIM path art is tall; cap stage so copy keeps scroll room */
   .chapter-slide--eim .chapter-slide__stage {
     max-width: min(72vw, 280px);
   }
 
-  .chapter-slide:not(.section-lessons) .chapter-slide__copy {
-    text-align: left;
-  }
-
-  .chapter-slide:not(.section-lessons) .chapter-copy__headline {
-    text-align: center;
-  }
-
-  .chapter-slide:not(.section-lessons) .chapter-copy__rule {
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .chapter-slide:not(.section-lessons) .chapter-copy__body {
-    max-width: 42ch;
-    margin-left: auto;
-    margin-right: auto;
+  .chapter-slide__copy:not(.chapter-slide__copy--lessons) .chapter-copy__body {
+    max-width: none;
   }
 
   .chapter-slide__body {
@@ -230,13 +233,7 @@
   }
 }
 
-/* Standard chapter stage media (mobile, web-apps, everything-else) */
-.chapter-slide__stage .chapter-stage-media {
-  width: 100%;
-  max-width: var(--cs-stage-max);
-  margin: 0 auto;
-}
-
+/* Standard chapter stage media */
 .chapter-slide__stage .chapter-stage-media--intrinsic img {
   display: block;
   width: 100%;
@@ -258,7 +255,8 @@
 .chapter-slide__stage .chapter-stage-media--placeholder {
   position: relative;
   width: 100%;
-  max-width: var(--cs-stage-max);
+  aspect-ratio: 4 / 5;
+  min-height: 240px;
   background-color: rgba(0, 0, 0, 0.06);
   display: flex;
   align-items: center;
@@ -285,14 +283,7 @@
   padding: 12px;
 }
 
-.chapter-slide__stage .before-after-slider,
-.chapter-slide__stage .sticker-pile-wrap {
-  width: 100%;
-  max-width: var(--cs-stage-max);
-  margin: 0 auto;
-}
-
-/* Full-width image chapters: stage stacked above copy at all breakpoints */
+/* Full-width image chapters: stage stacked above copy */
 .chapter-slide--full-width .chapter-slide__inner {
   grid-template-columns: 1fr;
   grid-template-rows: auto minmax(0, 1fr);
@@ -306,6 +297,9 @@
 
 .chapter-slide--full-width .chapter-slide__stage {
   grid-row: 1;
+}
+
+.chapter-slide--full-width .chapter-slide__stage {
   max-width: min(640px, 100%);
 }
 
@@ -321,4 +315,57 @@
   .chapter-slide--full-width .chapter-slide__copy {
     grid-column: 1;
   }
+}
+
+/* Sensi Lite — 40px accent dot cursor (chapter only) */
+.chapter-slide--sensi-lite .chapter-slide__interactive-wrap {
+  position: relative;
+  width: 100%;
+  cursor: none;
+  isolation: isolate;
+}
+
+.chapter-slide--sensi-lite .chapter-slide__interactive-content {
+  position: relative;
+  z-index: 0;
+  width: 100%;
+}
+
+.chapter-slide--sensi-lite .chapter-slide__interactive-dot-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.chapter-slide--sensi-lite .sensi-lite-proto--dot-cursor button {
+  cursor: none !important;
+}
+
+/* Default: soft accent fill (stronger than nav pill). Ring only on click targets. */
+.chapter-slide--sensi-lite .chapter-slide__interactive-dot {
+  --dot-size: 40px;
+  --dot-fill: color-mix(in srgb, var(--color-accent) 26%, transparent);
+  position: absolute;
+  box-sizing: border-box;
+  width: var(--dot-size) !important;
+  height: var(--dot-size) !important;
+  max-width: var(--dot-size) !important;
+  min-width: var(--dot-size);
+  min-height: var(--dot-size);
+  aspect-ratio: 1;
+  flex: none;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  pointer-events: none;
+  border: none;
+  background: var(--dot-fill);
+  box-shadow: none;
+  transition: box-shadow 180ms ease, background 180ms ease;
+}
+
+.chapter-slide--sensi-lite .chapter-slide__interactive-dot--ring {
+  --dot-fill: color-mix(in srgb, var(--color-accent) 34%, transparent);
+  box-shadow: 0 0 0 1px var(--color-nav-pill-outline);
 }

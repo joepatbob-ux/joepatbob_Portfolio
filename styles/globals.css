@@ -314,7 +314,7 @@
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   gap: clamp(40px, 6vw, 64px);
   padding: clamp(32px, 5vw, 48px) clamp(16px, 5vw, 72px) clamp(48px, 6vw, 72px);
@@ -477,6 +477,8 @@
   flex: 0 1 auto;
   width: 100%;
   max-width: min(640px, 100%);
+  margin-inline: 0;
+  text-align: left;
 }
 
 .section-lessons__copy.chapter-slide__copy--lessons .chapter-slide__body {
@@ -484,23 +486,23 @@
 }
 
 .section-lessons__copy .chapter-copy__headline {
-  text-align: center;
+  text-align: left;
   white-space: pre-line;
 }
 
 .section-lessons__copy .chapter-copy__rule {
-  margin-left: auto;
+  margin-left: 0;
   margin-right: auto;
 }
 
 .section-lessons__copy .chapter-copy__body {
   max-width: min(52ch, 100%);
-  margin-left: auto;
-  margin-right: auto;
+  margin-left: 0;
+  margin-right: 0;
   font-style: italic;
   font-size: clamp(15px, 1.6vw, 18px);
   line-height: 1.7;
-  text-align: center;
+  text-align: left;
   text-wrap: pretty;
 }
 
