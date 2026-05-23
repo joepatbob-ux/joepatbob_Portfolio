@@ -1,12 +1,13 @@
 // components/CaseStudy.tsx
 import type { Section } from '@/lib/types'
 import { Fragment } from 'react'
+import { insertsAfterChapter } from '@/lib/chapterInserts'
 import { CaseStudyOverview } from './CaseStudyOverview'
 import { Chapter } from './Chapter'
+import { ChapterInsertSlide } from './chapter-registry'
 import { ChapterViewport } from './ChapterViewport'
 import { ClosingQuote } from './ClosingQuote'
 import { SectionLessons } from './SectionLessons'
-import { WebAppsScratchReveal } from './WebAppsScratchReveal'
 
 interface Props {
   section: Section
@@ -48,15 +49,13 @@ export function CaseStudy({ section, sectionId }: Props) {
             sectionId={sectionId}
             isLast={i === section.chapters.length - 1}
           />
-          {sectionId === 'web-apps' && chapter.id === 'problem' ? (
-            <ChapterViewport
-              chapterId={`${sectionId}-scratch-reveal`}
-              fillViewport
-              className="web-apps-scratch-slot"
-            >
-              <WebAppsScratchReveal />
-            </ChapterViewport>
-          ) : null}
+          {insertsAfterChapter(sectionId, chapter.id).map((insert) => (
+            <ChapterInsertSlide
+              key={insert.insertId}
+              sectionId={sectionId}
+              insert={insert}
+            />
+          ))}
         </Fragment>
       ))}
 

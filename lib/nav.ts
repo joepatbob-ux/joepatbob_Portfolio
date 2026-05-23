@@ -1,4 +1,5 @@
 // lib/nav.ts — built from section content so labels/ids stay in sync
+import { navInsertsAfterChapter } from './chapterInserts'
 import { hardware } from './sections/hardware'
 import { mobile } from './sections/mobile'
 import { webApps } from './sections/webapps'
@@ -11,8 +12,8 @@ function sectionToNav(section: Section): NavSection {
   const chapters: NavSection['chapters'] = []
   for (const ch of section.chapters) {
     chapters.push({ id: ch.id, label: ch.title })
-    if (section.id === 'web-apps' && ch.id === 'problem') {
-      chapters.push({ id: 'scratch-reveal', label: 'One system' })
+    for (const insert of navInsertsAfterChapter(section.id, ch.id)) {
+      chapters.push({ id: insert.insertId, label: insert.navLabel })
     }
   }
   chapters.push({ ...LESSONS_CHAPTER })

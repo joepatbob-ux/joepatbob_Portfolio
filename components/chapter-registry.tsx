@@ -1,12 +1,16 @@
 'use client'
 
 import { BeforeAfterSlider } from '@/components/BeforeAfterSlider'
+import { ChapterViewport } from '@/components/ChapterViewport'
 import { EimChapter } from '@/components/EimChapter'
 import { SensiLiteChapter } from '@/components/SensiLiteChapter'
 import { StudyChapter } from '@/components/StudyChapter'
 import { StickerPile } from '@/components/StickerPile'
 import { Touch2Chapter } from '@/components/Touch2Chapter'
 import { VerdantChapter } from '@/components/VerdantChapter'
+import { WebAppsScratchReveal } from '@/components/WebAppsScratchReveal'
+import type { ChapterInsertDef } from '@/lib/chapterInserts'
+import { fullInsertChapterId } from '@/lib/chapterInserts'
 import type { Chapter } from '@/lib/types'
 import type { ReactNode } from 'react'
 
@@ -67,4 +71,32 @@ export function ChapterRenderer({
         <StudyChapter chapter={chapter} sectionId={sectionId} isLast={isLast} />
       )
   }
+}
+
+function ChapterInsertContent({ insertId }: { insertId: string }) {
+  switch (insertId) {
+    case 'scratch-reveal':
+      return <WebAppsScratchReveal />
+    default:
+      return null
+  }
+}
+
+/** Viewport + content for slides declared in `CHAPTER_INSERTS`. */
+export function ChapterInsertSlide({
+  sectionId,
+  insert,
+}: {
+  sectionId: string
+  insert: ChapterInsertDef
+}) {
+  return (
+    <ChapterViewport
+      chapterId={fullInsertChapterId(sectionId, insert.insertId)}
+      fillViewport={insert.fillViewport}
+      className={insert.viewportClassName}
+    >
+      <ChapterInsertContent insertId={insert.insertId} />
+    </ChapterViewport>
+  )
 }
