@@ -20,8 +20,7 @@ function slideModifier(chapter: Chapter): string {
 
 export function StudyChapter({ chapter, sectionId, isLast, stage }: Props) {
   const chapterId = `${sectionId}-${chapter.id}`
-  const copyFirst =
-    chapter.imagePosition === 'right' && chapter.imageLayout !== 'full-width'
+  const stacked = chapter.imageLayout === 'full-width'
 
   return (
     <ChapterSlideLayout
@@ -29,7 +28,7 @@ export function StudyChapter({ chapter, sectionId, isLast, stage }: Props) {
       chapterId={chapterId}
       isLast={isLast}
       modifier={slideModifier(chapter)}
-      copyFirst={copyFirst}
+      copyFirst={false}
       stage={stage ?? <ChapterStageMedia chapter={chapter} />}
     />
   )

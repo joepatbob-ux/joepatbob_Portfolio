@@ -8,12 +8,8 @@ export const hardware: Section = {
   eyebrow: '',
   headline: 'The interface has to do the hard work.',
   overviewBody: `Designing for hardware is a different problem than designing for screens. Over several product cycles at Copeland, I led UX across thermostat products, each with its own constraint profile, audience, and set of tradeoffs. From a 1728px touchscreen to 32 segments and 3 buttons. Two patents came out of this work.`,
-  lessonTitle: 'What hardware teaches you.',
-  lessonBody: `Designing for hardware strips away the safety nets. You can't push an update to fix a confusing menu on a shipped thermostat. You can't add a tooltip to a 32-segment display. The decisions you make are the decisions users live with.
-
-That pressure is clarifying... it makes you more deliberate, more rigorous, more honest about the difference between what you prefer and what actually works.
-
-Hardware has a way of making you better at everything else. The constraints are real and they don't negotiate. In that way it's not unlike print design. The canvas is fixed, so every decision has to earn its place. You can't hide behind iteration when the postcard is already in the mail. What hardware adds on top of that is physics. The real world is an active participant. A display has to work for someone reading it from across a hotel room. A button has to be findable without looking. The product doesn't live on a screen, it lives in a space with the person using it. Learning to design inside that is clarifying in a way that's hard to replicate anywhere else.`,
+  lessonTitle: '',
+  lessonBody: '',
   chapters: [
     {
       id: 'sensi-lite',
@@ -37,7 +33,7 @@ One constraint runs beneath all of it: Sensi Lite runs on power-stealing from a 
     },
     {
       id: 'touch-2',
-      title: 'Sensi Touch 2',
+      title: 'Touch 2',
       subtitle: 'Inheriting a touchscreen that didn\'t know it was a touchscreen.',
       body: `The original Touch thermostat was designed to work like the fixed segment display next to it in the product line: mode, fan, and schedule buttons along the bottom, up/down and menu controls to the right. Treating a touchscreen like a high-res segment display misses the point of having one.
 

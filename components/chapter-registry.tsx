@@ -1,14 +1,11 @@
 'use client'
 
-import { BeforeAfterSlider } from '@/components/BeforeAfterSlider'
 import { ChapterViewport } from '@/components/ChapterViewport'
 import { EimChapter } from '@/components/EimChapter'
 import { SensiLiteChapter } from '@/components/SensiLiteChapter'
 import { StudyChapter } from '@/components/StudyChapter'
-import { StickerPile } from '@/components/StickerPile'
 import { Touch2Chapter } from '@/components/Touch2Chapter'
 import { VerdantChapter } from '@/components/VerdantChapter'
-import { WebAppsScratchReveal } from '@/components/WebAppsScratchReveal'
 import type { ChapterInsertDef } from '@/lib/chapterInserts'
 import { fullInsertChapterId } from '@/lib/chapterInserts'
 import type { Chapter } from '@/lib/types'
@@ -41,31 +38,6 @@ export function ChapterRenderer({
       return <EimChapter chapter={chapter} isLast={isLast} />
     case 'hardware-verdant':
       return <VerdantChapter chapter={chapter} isLast={isLast} />
-    case 'everything-else-in-between':
-      return (
-        <StudyChapter
-          chapter={chapter}
-          sectionId={sectionId}
-          isLast={isLast}
-          stage={<StickerPile />}
-        />
-      )
-    case 'mobile-color':
-      return (
-        <StudyChapter
-          chapter={chapter}
-          sectionId={sectionId}
-          isLast={isLast}
-          stage={
-            <BeforeAfterSlider
-              beforeSrc="/images/mobile-android-legacy-fullbleed-orange.png"
-              afterSrc="/images/mobile-android-v1-dark-orange-number.png"
-              beforeAlt="Legacy full-bleed orange heat mode screen"
-              afterAlt="Refined UI with mode color on the temperature number"
-            />
-          }
-        />
-      )
     default:
       return (
         <StudyChapter chapter={chapter} sectionId={sectionId} isLast={isLast} />
@@ -73,13 +45,8 @@ export function ChapterRenderer({
   }
 }
 
-function ChapterInsertContent({ insertId }: { insertId: string }) {
-  switch (insertId) {
-    case 'scratch-reveal':
-      return <WebAppsScratchReveal />
-    default:
-      return null
-  }
+function ChapterInsertContent({ insertId: _insertId }: { insertId: string }) {
+  return null
 }
 
 /** Viewport + content for slides declared in `CHAPTER_INSERTS`. */

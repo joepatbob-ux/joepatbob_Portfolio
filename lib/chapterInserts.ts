@@ -11,16 +11,7 @@ export type ChapterInsertDef = {
   viewportClassName?: string
 }
 
-export const CHAPTER_INSERTS: readonly ChapterInsertDef[] = [
-  {
-    sectionId: 'web-apps',
-    afterChapterId: 'problem',
-    insertId: 'scratch-reveal',
-    navLabel: 'One system',
-    fillViewport: true,
-    viewportClassName: 'web-apps-scratch-slot',
-  },
-] as const
+export const CHAPTER_INSERTS: readonly ChapterInsertDef[] = [] as const
 
 export function fullInsertChapterId(sectionId: string, insertId: string): string {
   return `${sectionId}-${insertId}`

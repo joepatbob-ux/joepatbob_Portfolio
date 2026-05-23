@@ -1,0 +1,126 @@
+.eib-chapter-intro {
+  max-width: 42rem;
+  padding-top: 2rem;
+}
+
+.eib-chapter-intro__eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin: 0 0 1.25rem;
+}
+
+.eib-sub-intro {
+  margin-bottom: 2rem;
+}
+
+.eib-principles {
+  list-style: none;
+  margin: 0 0 2.5rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.eib-principles__item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1rem 1.25rem;
+  align-items: start;
+}
+
+.eib-principles__num {
+  font-family: var(--font-mono);
+  font-size: clamp(2.5rem, 5vw, 3.5rem);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--color-accent);
+  opacity: 0.35;
+}
+
+.eib-principles__statement {
+  margin: 0.35rem 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.25rem, 2.2vw, 1.75rem);
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--color-ink);
+}
+
+.eib-patent-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem 2rem;
+  margin: 0 0 2rem;
+  padding: 0;
+}
+
+@media (max-width: 640px) {
+  .eib-patent-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.eib-patent-row__item {
+  margin: 0;
+}
+
+.eib-patent-row__number {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-ink);
+  margin: 0;
+}
+
+.eib-patent-row__status {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-muted);
+  margin: 0.35rem 0 0;
+}
+
+.eib-practice-close {
+  margin-top: 2.5rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--color-rule);
+}
+
+.eib-practice-close__statement {
+  font-family: var(--font-display);
+  font-size: clamp(1.35rem, 2.5vw, 2rem);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--color-ink);
+  margin: 0 0 1.25rem;
+}
+
+.eib-practice-close__cta {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  margin: 0;
+}
+
+.eib-practice-close__cta a {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.eib-practice-close__cta a:hover {
+  text-decoration: underline;
+}
+
+.eib-practice-close__sep {
+  margin: 0 0.5rem;
+  color: var(--color-muted);
+}
+
+.eib-practice-gallery {
+  margin: 2rem 0;
+}

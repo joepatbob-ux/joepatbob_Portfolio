@@ -1,0 +1,97 @@
+/* Interactive stage left, copy right — shared across custom chapters */
+
+.case-study-split {
+  --cs-split-gap: clamp(24px, 3.5vw, 56px);
+  --cs-split-stage-max: min(480px, 42vw);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--cs-split-gap);
+  align-items: start;
+  justify-items: start;
+  width: 100%;
+  text-align: left;
+}
+
+.case-study-split__copy {
+  min-width: 0;
+  width: 100%;
+  max-width: 65ch;
+  text-align: left;
+}
+
+.case-study-split__stage {
+  min-width: 0;
+  width: 100%;
+  max-width: var(--cs-split-stage-max);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+.case-study-split__stage > * {
+  width: 100%;
+  max-width: 100%;
+}
+
+@media (min-width: 768px) {
+  .case-study-split {
+    grid-template-columns: minmax(240px, var(--cs-split-stage-max)) minmax(0, 1fr);
+  }
+
+  .case-study-split--wide-stage {
+    --cs-split-stage-max: min(640px, 50vw);
+    grid-template-columns: minmax(320px, var(--cs-split-stage-max)) minmax(0, 1fr);
+  }
+
+  .case-study-split__stage {
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: start;
+    width: 100%;
+  }
+
+  .case-study-split__copy {
+    grid-column: 2;
+    grid-row: 1;
+    max-width: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .case-study-split--stage-first-mobile .case-study-split__stage {
+    order: -1;
+  }
+
+  .case-study-split__stage {
+    max-width: min(480px, 100%);
+  }
+}
+
+/* Stage children — drop centered margins inside split columns */
+.case-study-split__stage .drag-scrubber__frame,
+.case-study-split__stage .touch2-carousel,
+.case-study-split__stage .spotlight-phone,
+.case-study-split__stage .kelvin-quad-scratch,
+.case-study-split__stage .sticker-pile-wrap,
+.case-study-split__stage .formation-lego,
+.case-study-split__stage .mobile-figure__img {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.case-study-split__stage .drag-scrubber__frame {
+  margin-inline: 0;
+}
+
+.case-study-split__stage .spotlight-phone {
+  align-items: flex-start;
+}
+
+.case-study-split__stage .kelvin-quad-scratch__stage {
+  justify-content: flex-start;
+}
+
+.case-study-split__stage .drag-scrubber__caption {
+  text-align: left;
+}

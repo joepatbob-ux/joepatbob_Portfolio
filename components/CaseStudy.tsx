@@ -7,6 +7,9 @@ import { Chapter } from './Chapter'
 import { ChapterInsertSlide } from './chapter-registry'
 import { ChapterViewport } from './ChapterViewport'
 import { ClosingQuote } from './ClosingQuote'
+import { EverythingInBetweenChapter } from './everything-in-between/EverythingInBetweenChapter'
+import { MobileChapter } from './mobile/MobileChapter'
+import { WebAppsKelvinChapter } from './web-apps/WebAppsKelvinChapter'
 import { SectionLessons } from './SectionLessons'
 
 interface Props {
@@ -25,6 +28,12 @@ const articleFullBleed: React.CSSProperties = {
 }
 
 export function CaseStudy({ section, sectionId }: Props) {
+  const isMobileSection = sectionId === 'mobile'
+  const isWebAppsSection = sectionId === 'web-apps'
+  const isEibSection = sectionId === 'everything-else'
+  const useCustomChapter =
+    isMobileSection || isWebAppsSection || isEibSection
+
   return (
     <article
       data-section-id={sectionId}
@@ -35,36 +44,48 @@ export function CaseStudy({ section, sectionId }: Props) {
         scrollMarginTop: 24,
       }}
     >
-      <CaseStudyOverview
-        sectionId={sectionId}
-        eyebrow={section.eyebrow}
-        headline={section.headline}
-        body={section.overviewBody}
-      />
+      {useCustomChapter ? null : (
+        <CaseStudyOverview
+          sectionId={sectionId}
+          eyebrow={section.eyebrow}
+          headline={section.headline}
+          body={section.overviewBody}
+        />
+      )}
 
-      {section.chapters.map((chapter, i) => (
-        <Fragment key={chapter.id}>
-          <Chapter
-            chapter={chapter}
-            sectionId={sectionId}
-            isLast={i === section.chapters.length - 1}
-          />
-          {insertsAfterChapter(sectionId, chapter.id).map((insert) => (
-            <ChapterInsertSlide
-              key={insert.insertId}
+      {isMobileSection ? (
+        <MobileChapter />
+      ) : isWebAppsSection ? (
+        <WebAppsKelvinChapter />
+      ) : isEibSection ? (
+        <EverythingInBetweenChapter />
+      ) : (
+        section.chapters.map((chapter, i) => (
+          <Fragment key={chapter.id}>
+            <Chapter
+              chapter={chapter}
               sectionId={sectionId}
-              insert={insert}
+              isLast={i === section.chapters.length - 1}
             />
-          ))}
-        </Fragment>
-      ))}
+            {insertsAfterChapter(sectionId, chapter.id).map((insert) => (
+              <ChapterInsertSlide
+                key={insert.insertId}
+                sectionId={sectionId}
+                insert={insert}
+              />
+            ))}
+          </Fragment>
+        ))
+      )}
 
-      <SectionLessons
-        sectionId={sectionId}
-        lessonTitle={section.lessonTitle}
-        lessonBody={section.lessonBody}
-        isLast={!section.closingQuote}
-      />
+      {useCustomChapter || !section.lessonTitle?.trim() ? null : (
+        <SectionLessons
+          sectionId={sectionId}
+          lessonTitle={section.lessonTitle}
+          lessonBody={section.lessonBody}
+          isLast={!section.closingQuote}
+        />
+      )}
 
       {section.closingQuote ? (
         <ChapterViewport

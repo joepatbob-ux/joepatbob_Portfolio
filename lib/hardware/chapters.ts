@@ -1,13 +1,22 @@
 import { hardware } from '@/lib/sections/hardware'
 
-/** Scroll-snap targets in the Hardware case study (overview → chapters → lessons). */
+export const HARDWARE_SECTION_TABS = hardware.chapters.map((ch) => ({
+  id: ch.id,
+  label: ch.id === 'touch-2' ? 'Touch 2' : ch.title,
+  chapterId: `hardware-${ch.id}`,
+})) as readonly {
+  id: string
+  label: string
+  chapterId: string
+}[]
+
+/** Scroll-snap targets in the Hardware case study (overview → product chapters). */
 export const HARDWARE_SCROLL_CHAPTERS = [
   { id: 'hardware-overview', label: 'Overview' },
-  ...hardware.chapters.map((ch) => ({
-    id: `hardware-${ch.id}`,
-    label: ch.title,
+  ...HARDWARE_SECTION_TABS.map((t) => ({
+    id: t.chapterId,
+    label: t.label,
   })),
-  { id: 'hardware-lessons', label: 'Lessons' },
 ] as const
 
 /** Closest hardware snap target to the viewport center. */
