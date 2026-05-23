@@ -2,8 +2,13 @@ import { BEFORE_DRAWERS, fillLottoScratchLayer } from '@/lib/webAppsScratchDraw'
 
 export const SCRATCH_QUAD_PX = 280
 export const SCRATCH_CARD_PX = SCRATCH_QUAD_PX * 2
-/** Scales with card size (50px brush at 400px quadrant). */
-export const COIN_BRUSH_PX = Math.round(50 * (SCRATCH_QUAD_PX / 400))
+/** Scales with card size; sized for Kelvin coin artwork in the scratch brush. */
+export const COIN_BRUSH_PX = Math.round(56 * (SCRATCH_QUAD_PX / 400))
+/** Follow-cursor display (tilted coin) — slightly larger than brush stamp. */
+export const COIN_CURSOR_PX = Math.round(COIN_BRUSH_PX * 1.35)
+
+export const KELVIN_COIN_FLAT_SRC = '/images/web-apps/kelvin-coin-flat.png'
+export const KELVIN_COIN_TILTED_SRC = '/images/web-apps/kelvin-coin-tilted.png'
 
 /** Quadrant placement for the 2×2 “before” wireframes (matches BEFORE_DRAWERS order). */
 const BEFORE_QUAD_LAYOUT = [
@@ -16,54 +21,46 @@ const BEFORE_QUAD_LAYOUT = [
 /** Foil texture from react-native-scratch-card-example `scratch-front.webp`. */
 export const SCRATCH_FRONT_SRC = '/images/web-apps-scratch-front.webp'
 
-export function loadScratchFrontImage(): Promise<HTMLImageElement> {
+function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const img = new Image()
     img.decoding = 'async'
     img.onload = () => resolve(img)
-    img.onerror = () => reject(new Error(`Failed to load ${SCRATCH_FRONT_SRC}`))
-    img.src = SCRATCH_FRONT_SRC
+    img.onerror = () => reject(new Error(`Failed to load ${src}`))
+    img.src = src
   })
 }
 
-/** 48px coin image for ScratchCard `brush` prop. */
-export function createCoinBrushDataUrl(size = COIN_BRUSH_PX): string {
+export function loadScratchFrontImage(): Promise<HTMLImageElement> {
+  return loadImage(SCRATCH_FRONT_SRC)
+}
+
+export function loadKelvinCoinImages(): Promise<{
+  flat: HTMLImageElement
+  tilted: HTMLImageElement
+}> {
+  return Promise.all([
+    loadImage(KELVIN_COIN_FLAT_SRC),
+    loadImage(KELVIN_COIN_TILTED_SRC),
+  ]).then(([flat, tilted]) => ({ flat, tilted }))
+}
+
+/** Rasterize tilted coin for ScratchCard `brush` prop. */
+export function createCoinBrushDataUrl(
+  coin: HTMLImageElement,
+  size = COIN_BRUSH_PX,
+): string {
   const canvas = document.createElement('canvas')
   canvas.width = size
   canvas.height = size
   const ctx = canvas.getContext('2d')
   if (!ctx) return ''
 
-  const cx = size / 2
-  const cy = size / 2
-  const r = size / 2 - 1
-
-  const face = ctx.createRadialGradient(cx - 9, cy - 10, 2, cx, cy, r)
-  face.addColorStop(0, '#FF8C6B')
-  face.addColorStop(0.42, '#F5431B')
-  face.addColorStop(1, '#C03010')
-  ctx.fillStyle = face
-  ctx.beginPath()
-  ctx.arc(cx, cy, r, 0, Math.PI * 2)
-  ctx.fill()
-
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.55)'
-  ctx.lineWidth = 2
-  ctx.beginPath()
-  ctx.arc(cx, cy, r - 3, 0, Math.PI * 2)
-  ctx.stroke()
-
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.35)'
-  ctx.lineWidth = 1.5
-  ctx.beginPath()
-  ctx.arc(cx, cy, r - 7, 0.15 * Math.PI, 1.05 * Math.PI)
-  ctx.stroke()
-
-  ctx.strokeStyle = 'rgba(192, 48, 16, 0.45)'
-  ctx.lineWidth = 1
-  ctx.beginPath()
-  ctx.arc(cx, cy, r - 1, 0.55 * Math.PI, 1.45 * Math.PI)
-  ctx.stroke()
+  ctx.clearRect(0, 0, size, size)
+  const scale = Math.min(size / coin.width, size / coin.height)
+  const w = coin.width * scale
+  const h = coin.height * scale
+  ctx.drawImage(coin, (size - w) / 2, (size - h) / 2, w, h)
 
   return canvas.toDataURL('image/png')
 }
