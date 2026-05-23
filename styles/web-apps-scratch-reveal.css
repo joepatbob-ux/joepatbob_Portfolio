@@ -18,14 +18,26 @@
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
-.web-apps-scratch__card-wrap {
-  position: relative;
+.web-apps-scratch__stage {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: center;
+  gap: clamp(16px, 3vw, 28px);
   width: fit-content;
   max-width: 100%;
   margin: 0 auto;
 }
 
-.web-apps-scratch__card-wrap--hover {
+.web-apps-scratch__card-wrap {
+  position: relative;
+  width: fit-content;
+  max-width: 100%;
+  flex: 0 0 auto;
+}
+
+.web-apps-scratch__card-wrap--hover,
+.web-apps-scratch__card-wrap--active {
   cursor: none;
 }
 
@@ -55,25 +67,126 @@
   display: block;
 }
 
+.web-apps-scratch__card-idle {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.web-apps-scratch__card-cover {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: fill;
+  pointer-events: none;
+}
+
+.web-apps-scratch__card-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 12%;
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 8px 12px;
+  max-width: 85%;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: center;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.92);
+  background: rgba(0, 0, 0, 0.45);
+  border-radius: 4px;
+  pointer-events: none;
+}
+
 .web-apps-scratch__coin-cursor {
   position: absolute;
-  width: var(--scratch-coin-size, 35px);
-  height: var(--scratch-coin-size, 35px);
+  width: var(--scratch-coin-size, 48px);
+  height: var(--scratch-coin-size, 48px);
   transform: translate(-50%, -50%);
-  border-radius: 50%;
   pointer-events: none;
   z-index: 10;
-  background: radial-gradient(
-    circle at 32% 28%,
-    #ff8c6b 0%,
-    #f5431b 48%,
-    #c03010 100%
-  );
+  object-fit: contain;
+}
+
+.web-apps-scratch__tray {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-width: 72px;
+}
+
+.web-apps-scratch__tray-label {
+  margin: 0;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  line-height: 1.35;
+  text-transform: uppercase;
+  text-align: center;
+  color: #5c5c58;
+  max-width: 11ch;
+}
+
+.web-apps-scratch__tray-well {
+  box-sizing: border-box;
+  width: 72px;
+  height: 52px;
+  padding: 6px 8px 4px;
+  border-radius: 6px 6px 10px 10px;
+  background: linear-gradient(180deg, #e8e6e0 0%, #d8d6d0 100%);
+  border: 1px solid #c4c2bc;
   box-shadow:
-    inset 2px 2px 6px rgba(255, 255, 255, 0.5),
-    inset -2px -3px 8px rgba(0, 0, 0, 0.22),
-    0 4px 16px rgba(245, 67, 27, 0.45);
-  border: 2px solid rgba(255, 255, 255, 0.45);
+    inset 0 2px 4px rgba(255, 255, 255, 0.65),
+    inset 0 -3px 6px rgba(0, 0, 0, 0.08),
+    0 4px 12px rgba(0, 0, 0, 0.06);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.web-apps-scratch__tray-well--leave:hover {
+  border-color: color-mix(in srgb, var(--color-accent, #de3e18) 35%, #c4c2bc);
+  box-shadow:
+    inset 0 2px 4px rgba(255, 255, 255, 0.65),
+    inset 0 -3px 6px rgba(0, 0, 0, 0.08),
+    0 4px 12px rgba(0, 0, 0, 0.06),
+    0 0 0 1px color-mix(in srgb, var(--color-accent, #de3e18) 25%, transparent);
+}
+
+.web-apps-scratch__tray-well:focus-visible {
+  outline: 2px solid var(--color-accent, #de3e18);
+  outline-offset: 4px;
+}
+
+.web-apps-scratch__tray-coin-img {
+  display: block;
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  transition: transform 160ms ease;
+  pointer-events: none;
+}
+
+.web-apps-scratch__tray-well:hover .web-apps-scratch__tray-coin-img {
+  transform: translateY(-3px) scale(1.04);
+}
+
+.web-apps-scratch__tray-empty {
+  display: block;
+  width: 48px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.06);
 }
 
 .web-apps-scratch__footer {
@@ -83,7 +196,7 @@
   gap: 16px 24px;
   margin-top: 16px;
   width: 100%;
-  max-width: var(--scratch-card, 560px);
+  max-width: calc(var(--scratch-card, 560px) + 100px);
   margin-left: auto;
   margin-right: auto;
 }
@@ -119,6 +232,12 @@
 }
 
 @media (max-width: 620px) {
+  .web-apps-scratch__stage {
+    width: 100%;
+    flex-direction: column;
+    align-items: center;
+  }
+
   .web-apps-scratch__card-wrap {
     width: 100%;
     overflow-x: auto;
