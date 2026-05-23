@@ -17,11 +17,14 @@ interface Slide {
 interface Props {
   slides?: readonly Slide[]
   className?: string
+  /** Overrides default “Touch 2 photo gallery” label. */
+  ariaLabel?: string
 }
 
 export function Touch2Carousel({
   slides = TOUCH2_CAROUSEL_IMAGES,
   className,
+  ariaLabel = 'Touch 2 photo gallery',
 }: Props) {
   const [index, setIndex] = useState(0)
   const [naturalSizes, setNaturalSizes] = useState<
@@ -89,7 +92,7 @@ export function Touch2Carousel({
       className={['touch2-carousel', className].filter(Boolean).join(' ')}
       role="region"
       aria-roledescription="carousel"
-      aria-label="Touch 2 photo gallery"
+      aria-label={ariaLabel}
       aria-live="polite"
     >
       <p className="touch2-carousel__sr-status">

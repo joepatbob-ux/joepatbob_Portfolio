@@ -16,7 +16,6 @@ export function Touch2Chapter({ chapter, isLast }: Props) {
       chapterId="hardware-touch-2"
       modifier="touch-2"
       isLast={isLast}
-      copyFirst
       stage={<Touch2Carousel />}
     />
   )

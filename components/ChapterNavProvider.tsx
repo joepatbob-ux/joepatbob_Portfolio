@@ -7,6 +7,7 @@ import {
   type SlideNavPhase,
 } from '@/lib/scrollOrchestration'
 import { ensureChapterCopyWheelListener } from '@/lib/chapterCopyWheel'
+import { sectionEntryChapterId } from '@/lib/sectionEntryChapter'
 import { flushScrollFrame, scheduleScrollFrame } from '@/lib/scrollFrame'
 import {
   createContext,
@@ -126,10 +127,10 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
 
   const navigateToSection = useCallback(
     (sectionId: string) => {
-      const overviewId = `${sectionId}-overview`
+      const entryId = sectionEntryChapterId(sectionId)
       return runNavigate(
-        `.portfolio-chapter-slot[data-chapter-id="${overviewId}"]`,
-        overviewId,
+        `.portfolio-chapter-slot[data-chapter-id="${entryId}"]`,
+        entryId,
       )
     },
     [runNavigate],

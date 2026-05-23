@@ -16,7 +16,14 @@ function sectionToNav(section: Section): NavSection {
       chapters.push({ id: insert.insertId, label: insert.navLabel })
     }
   }
-  chapters.push({ ...LESSONS_CHAPTER })
+  if (
+    section.id !== 'mobile' &&
+    section.id !== 'web-apps' &&
+    section.id !== 'hardware' &&
+    section.id !== 'everything-else'
+  ) {
+    chapters.push({ ...LESSONS_CHAPTER })
+  }
 
   return {
     id: section.id,

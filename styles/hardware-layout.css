@@ -111,7 +111,7 @@
   }
 
   .hardware-slideshow .chapter-copy__rule {
-    margin: 12px 0;
+    margin: 16px 0 20px;
   }
 
   /* Single-column copy — beats chapter-slide 2-col body at 1200px+ */
@@ -161,7 +161,7 @@
   }
 }
 
-/* Desktop (1025+): image | text side by side */
+/* Desktop (1025+): stage left, copy right */
 @media (min-width: 1025px) {
   .hardware-slideshow .chapter-slide__inner {
     flex-direction: row;
@@ -169,6 +169,7 @@
   }
 
   .hardware-slideshow .chapter-slide__stage {
+    order: 1;
     flex: 1 1 auto;
     min-width: var(--hw-stage-min-w);
     max-width: min(
@@ -179,22 +180,15 @@
   }
 
   .hardware-slideshow .chapter-slide__copy {
+    order: 2;
     flex: 0 0 auto;
     width: min(var(--hw-copy-max-w), 100%);
     min-width: min(var(--hw-copy-min-w), 100%);
     max-width: var(--hw-copy-max-w);
   }
-
-  .hardware-slideshow.chapter-slide--touch-2 .chapter-slide__copy {
-    order: 1;
-  }
-
-  .hardware-slideshow.chapter-slide--touch-2 .chapter-slide__stage {
-    order: 2;
-  }
 }
 
-/* Tablet (768–1024): single column, image above text */
+/* Tablet (768–1024): single column, stage above copy */
 @media (min-width: 768px) and (max-width: 1024px) {
   .hardware-slideshow .chapter-slide__inner {
     flex-direction: column;

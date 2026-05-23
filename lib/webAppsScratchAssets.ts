@@ -102,3 +102,38 @@ export function createUnifiedBeforeCoverDataUrl(
 
   return canvas.toDataURL('image/png')
 }
+
+/** Single-quadrant scratch cover: foil + one legacy wireframe. */
+export function createQuadBeforeCoverDataUrl(
+  quadIndex: number,
+  scratchFront?: HTMLImageElement | null,
+  quadSize = SCRATCH_QUAD_PX,
+): string {
+  const canvas = document.createElement('canvas')
+  canvas.width = quadSize
+  canvas.height = quadSize
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return ''
+
+  if (scratchFront) {
+    const { col, row } = BEFORE_QUAD_LAYOUT[quadIndex] ?? BEFORE_QUAD_LAYOUT[0]
+    ctx.drawImage(
+      scratchFront,
+      col * quadSize,
+      row * quadSize,
+      quadSize,
+      quadSize,
+      0,
+      0,
+      quadSize,
+      quadSize,
+    )
+  } else {
+    fillLottoScratchLayer(ctx, quadSize, quadSize)
+  }
+
+  const draw = BEFORE_DRAWERS[quadIndex]
+  if (draw) draw(ctx, quadSize, quadSize)
+
+  return canvas.toDataURL('image/png')
+}
