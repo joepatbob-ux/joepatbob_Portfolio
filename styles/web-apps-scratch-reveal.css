@@ -6,6 +6,7 @@
   padding: clamp(16px, 3vh, 32px) 0;
   width: 100%;
   max-width: 100%;
+  --scratch-card-max: 560px;
   background: transparent;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
@@ -14,16 +15,16 @@
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
-  justify-content: center;
+  justify-content: flex-start;
   gap: clamp(16px, 3vw, 28px);
-  width: fit-content;
+  width: 100%;
   max-width: 100%;
-  margin: 0 auto;
+  margin: 0;
 }
 
 .web-apps-scratch__card-wrap {
   position: relative;
-  width: fit-content;
+  width: min(100%, var(--scratch-card-max));
   max-width: 100%;
   flex: 0 0 auto;
 }
@@ -35,8 +36,10 @@
 
 .web-apps-scratch__card {
   position: relative;
-  width: var(--scratch-card, 560px);
-  height: var(--scratch-card, 560px);
+  width: 100%;
+  max-height: min(var(--scratch-card-max), 72dvh);
+  aspect-ratio: 1;
+  height: auto;
   border: 1px solid #d4d2cb;
   border-radius: 8px;
   background: #fafaf8;
@@ -188,9 +191,7 @@
   gap: 16px 24px;
   margin-top: 16px;
   width: 100%;
-  max-width: calc(var(--scratch-card, 560px) + 100px);
-  margin-left: auto;
-  margin-right: auto;
+  max-width: min(var(--scratch-card-max), 100%);
 }
 
 .web-apps-scratch__count {
@@ -225,14 +226,19 @@
 
 @media (max-width: 620px) {
   .web-apps-scratch__stage {
-    width: 100%;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
   }
 
   .web-apps-scratch__card-wrap {
     width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+  }
+
+  .web-apps-scratch__card {
+    max-height: min(var(--scratch-card-max), 62dvh);
+  }
+
+  .web-apps-scratch__tray {
+    align-self: flex-start;
   }
 }

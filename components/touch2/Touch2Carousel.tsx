@@ -159,10 +159,6 @@ function Touch2CarouselInner({
         ]
           .filter(Boolean)
           .join(' ')}
-        style={{
-          width: TOUCH2_FRAME_WIDTH,
-          height: TOUCH2_FRAME_HEIGHT,
-        }}
       >
         {slides.map((slide, i) => (
           <figure

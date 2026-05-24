@@ -30,7 +30,7 @@ module.exports = {
       },
       spacing: {
         'gutter': '72px',
-        'sidebar': '400px',
+        'sidebar': '280px',
       },
     },
   },

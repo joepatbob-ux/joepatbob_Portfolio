@@ -57,7 +57,9 @@
     /* Subnav: selected row fill; hover = 1px muted-accent ring (no fill on hover-only). */
     --color-nav-pill-muted-accent-1: rgba(222, 62, 24, 0.12);
     --color-nav-pill-outline:        rgba(222, 62, 24, 0.42);
-    --sidebar-width:    400px;
+    --sidebar-width:    280px;
+    --tablet-backdrop-scrim: rgba(240, 240, 240, 0.62);
+    --tablet-backdrop-blur: 14px;
     --mobile-nav-bar-height: 0px;
     --gutter:           72px;
     /* Horizontal inset for main column: rules and blocks don’t hug viewport or sidebar */
@@ -84,6 +86,7 @@
       --color-nav-faded-selection: rgba(222, 62, 24, 0.45);
       --color-nav-pill-muted-accent-1: rgba(222, 62, 24, 0.16);
       --color-nav-pill-outline:        rgba(222, 62, 24, 0.48);
+      --tablet-backdrop-scrim: rgba(4, 4, 4, 0.58);
     }
   }
 
@@ -143,12 +146,21 @@
     }
   }
 
-  /* Tablet (768–1023): narrow sidebar — lib/layout/breakpoints.ts */
+  /* Tablet (768–1023): collapsed vertical rail + overlay expand — lib/layout/breakpoints.ts */
   @media (min-width: 768px) and (max-width: 1023px) {
     :root {
-      --sidebar-width: 280px;
+      --sidebar-width: 52px;
+      --sidebar-overlay-width: 280px;
       --content-pad-x: 20px;
       --gutter: 48px;
+    }
+
+    html.sidebar-tablet-hero-active {
+      --sidebar-width: var(--sidebar-overlay-width);
+    }
+
+    .content-area {
+      transition: margin-left 0.34s cubic-bezier(0.4, 0, 0.2, 1);
     }
   }
 }
