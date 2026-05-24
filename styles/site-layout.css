@@ -30,24 +30,10 @@
   visibility: hidden;
 }
 
-/* Viewport-based shell visibility — avoids desktop nav flash before hydration. */
-.sidebar-mobile-morph-nav {
-  display: none;
-}
-
+/* Viewport-based shell visibility — desktop nav hidden on mobile via sidebar-mobile.css */
 @media (max-width: 767px) {
   .sidebar-desktop-shell,
   .sidebar-desktop-subnav {
-    display: none !important;
-  }
-
-  .sidebar-mobile-morph-nav {
-    display: block;
-  }
-}
-
-@media (min-width: 768px) {
-  .sidebar-mobile-morph-nav {
     display: none !important;
   }
 }
