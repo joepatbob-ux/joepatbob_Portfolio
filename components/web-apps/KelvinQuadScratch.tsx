@@ -1,19 +1,18 @@
 'use client'
 
 import { KelvinAfterWireframe } from '@/components/KelvinAfterWireframe'
+import { ScratchCoinTray } from '@/components/web-apps/ScratchCoinTray'
+import { useChapterActive } from '@/lib/chapterActiveContext'
+import { useKelvinScratchAssets } from '@/lib/useKelvinScratchAssets'
 import {
+  BEFORE_QUAD_LAYOUT,
   COIN_BRUSH_PX,
   COIN_CURSOR_PX,
-  createCoinBrushDataUrl,
-  createQuadBeforeCoverDataUrl,
-  KELVIN_COIN_FLAT_SRC,
   KELVIN_COIN_TILTED_SRC,
-  loadKelvinCoinImages,
-  loadScratchFrontImage,
   SCRATCH_CARD_PX,
   SCRATCH_QUAD_PX,
 } from '@/lib/webAppsScratchAssets'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { memo, useCallback, useRef, useState } from 'react'
 import ScratchCard, { Brushes, Covers } from 'react-scratchcard-v2'
 import '@/styles/web-apps-scratch-reveal.css'
 
@@ -24,12 +23,7 @@ const PRODUCT_LABELS = [
   'TempTrak 6',
 ] as const
 
-const QUAD_LAYOUT = [
-  { col: 0, row: 0 },
-  { col: 1, row: 0 },
-  { col: 0, row: 1 },
-  { col: 1, row: 1 },
-] as const
+const QUAD_LAYOUT = BEFORE_QUAD_LAYOUT
 
 function KelvinQuadAfter({ quadIndex }: { quadIndex: number }) {
   const { col, row } = QUAD_LAYOUT[quadIndex]
@@ -55,36 +49,14 @@ function KelvinQuadAfter({ quadIndex }: { quadIndex: number }) {
   )
 }
 
-export function KelvinQuadScratch() {
+function KelvinQuadScratchInner() {
+  const isActive = useChapterActive()
   const gridWrapRef = useRef<HTMLDivElement>(null)
-  const [covers, setCovers] = useState<string[] | null>(null)
-  const [coinBrush, setCoinBrush] = useState<string | null>(null)
+  const { covers, coinBrush, ready } = useKelvinScratchAssets(isActive)
   const [coinInTray, setCoinInTray] = useState(true)
   const [scratchEngaged, setScratchEngaged] = useState(false)
   const [hovering, setHovering] = useState(false)
   const [coinPos, setCoinPos] = useState({ x: 0, y: 0 })
-
-  useEffect(() => {
-    let cancelled = false
-    Promise.all([loadScratchFrontImage(), loadKelvinCoinImages()])
-      .then(([scratchFront, coins]) => {
-        if (cancelled) return
-        setCovers(
-          [0, 1, 2, 3].map((i) =>
-            createQuadBeforeCoverDataUrl(i, scratchFront),
-          ),
-        )
-        setCoinBrush(createCoinBrushDataUrl(coins.tilted))
-      })
-      .catch(() => {
-        if (cancelled) return
-        setCovers([0, 1, 2, 3].map((i) => createQuadBeforeCoverDataUrl(i, null)))
-        setCoinBrush(null)
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [])
 
   const pickUpCoin = useCallback(() => {
     setCoinInTray(false)
@@ -110,7 +82,6 @@ export function KelvinQuadScratch() {
     [updateCoinPos],
   )
 
-  const ready = Boolean(covers && coinBrush)
   const coinActive = ready && !coinInTray
   const showFollowCoin = coinActive && hovering
 
@@ -177,7 +148,8 @@ export function KelvinQuadScratch() {
                         className: 'web-apps-scratch__scratch-canvas',
                         style: {
                           display: 'block',
-                          cursor: 'none',
+                          cursor: coinInTray ? 'default' : 'none',
+                          pointerEvents: coinInTray ? 'none' : 'auto',
                         },
                       }}
                     >
@@ -215,43 +187,16 @@ export function KelvinQuadScratch() {
           ) : null}
         </div>
 
-        <div className="web-apps-scratch__tray" aria-label="Coin tray">
-          <p className="web-apps-scratch__tray-label">
-            Take a penny,
-            <br />
-            leave a penny
-          </p>
-          <button
-            type="button"
-            className={[
-              'web-apps-scratch__tray-well',
-              coinInTray ? '' : 'web-apps-scratch__tray-well--leave',
-            ]
-              .filter(Boolean)
-              .join(' ')}
-            onClick={coinInTray ? pickUpCoin : leaveCoin}
-            aria-label={
-              coinInTray
-                ? 'Take the Kelvin coin to scratch the panels'
-                : 'Leave the Kelvin coin in the tray'
-            }
-          >
-            {coinInTray ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                className="web-apps-scratch__tray-coin-img"
-                src={KELVIN_COIN_FLAT_SRC}
-                alt=""
-                width={56}
-                height={56}
-                draggable={false}
-              />
-            ) : (
-              <span className="web-apps-scratch__tray-empty" aria-hidden />
-            )}
-          </button>
-        </div>
+        <ScratchCoinTray
+          coinInTray={coinInTray}
+          onPickUp={pickUpCoin}
+          onLeave={leaveCoin}
+          pickUpLabel="Take the Kelvin coin to scratch the panels"
+          leaveLabel="Leave the Kelvin coin in the tray"
+        />
       </div>
     </div>
   )
 }
+
+export const KelvinQuadScratch = memo(KelvinQuadScratchInner)

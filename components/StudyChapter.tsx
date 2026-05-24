@@ -9,7 +9,7 @@ interface Props {
   chapter: Chapter
   sectionId: string
   isLast: boolean
-  /** Override default image/placeholder stage (e.g. StickerPile, BeforeAfterSlider). */
+  /** Override default image/placeholder stage (e.g. StickerPile, DragScrubber). */
   stage?: ReactNode
 }
 

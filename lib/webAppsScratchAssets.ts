@@ -11,7 +11,7 @@ export const KELVIN_COIN_FLAT_SRC = '/images/web-apps/kelvin-coin-flat.png'
 export const KELVIN_COIN_TILTED_SRC = '/images/web-apps/kelvin-coin-tilted.png'
 
 /** Quadrant placement for the 2×2 “before” wireframes (matches BEFORE_DRAWERS order). */
-const BEFORE_QUAD_LAYOUT = [
+export const BEFORE_QUAD_LAYOUT = [
   { col: 0, row: 0 },
   { col: 1, row: 0 },
   { col: 0, row: 1 },
@@ -61,44 +61,6 @@ export function createCoinBrushDataUrl(
   const w = coin.width * scale
   const h = coin.height * scale
   ctx.drawImage(coin, (size - w) / 2, (size - h) / 2, w, h)
-
-  return canvas.toDataURL('image/png')
-}
-
-/** Single scratch cover: foil + all four “before” wireframes on one 2×2 card. */
-export function createUnifiedBeforeCoverDataUrl(
-  scratchFront?: HTMLImageElement | null,
-  quadSize = SCRATCH_QUAD_PX,
-): string {
-  const cardSize = quadSize * 2
-  const canvas = document.createElement('canvas')
-  canvas.width = cardSize
-  canvas.height = cardSize
-  const ctx = canvas.getContext('2d')
-  if (!ctx) return ''
-
-  if (scratchFront) {
-    ctx.drawImage(scratchFront, 0, 0, cardSize, cardSize)
-  } else {
-    fillLottoScratchLayer(ctx, cardSize, cardSize)
-  }
-
-  BEFORE_DRAWERS.forEach((draw, i) => {
-    const { col, row } = BEFORE_QUAD_LAYOUT[i]
-    ctx.save()
-    ctx.translate(col * quadSize, row * quadSize)
-    draw(ctx, quadSize, quadSize)
-    ctx.restore()
-  })
-
-  ctx.strokeStyle = 'rgba(0, 0, 0, 0.08)'
-  ctx.lineWidth = 1
-  ctx.beginPath()
-  ctx.moveTo(quadSize + 0.5, 0)
-  ctx.lineTo(quadSize + 0.5, cardSize)
-  ctx.moveTo(0, quadSize + 0.5)
-  ctx.lineTo(cardSize, quadSize + 0.5)
-  ctx.stroke()
 
   return canvas.toDataURL('image/png')
 }

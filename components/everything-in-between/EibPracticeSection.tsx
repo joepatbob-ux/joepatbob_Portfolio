@@ -3,7 +3,7 @@
 import { ChapterCopyScroller } from '@/components/ChapterCopyScroller'
 import { ChapterViewport } from '@/components/ChapterViewport'
 import { CaseStudySplit } from '@/components/case-study/CaseStudySplit'
-import { PhotoGallery } from '@/components/PhotoGallery'
+import { Touch2Carousel } from '@/components/touch2/Touch2Carousel'
 import {
   EibPracticeClose,
   EibSubSectionIntro,
@@ -48,7 +48,7 @@ export function EibPracticeSection() {
               </>
             }
             stage={
-              <PhotoGallery
+              <Touch2Carousel
                 slides={PRACTICE_CAROUSEL_IMAGES}
                 className="eib-practice-gallery"
                 ariaLabel="Practice photo gallery"
