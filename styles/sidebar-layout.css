@@ -61,7 +61,6 @@
   box-sizing: border-box;
   align-items: center;
   justify-content: center;
-  pointer-events: auto;
 }
 
 .sidebar-tablet-rail__label {
@@ -98,11 +97,31 @@
 }
 
 @media (min-width: 768px) and (max-width: 1023px) {
+  :root {
+    --tablet-sidebar-ease: cubic-bezier(0.32, 0.72, 0, 1);
+    --tablet-sidebar-duration: 0.42s;
+    --tablet-backdrop-duration: 0.36s;
+    --tablet-rail-duration: 0.38s;
+  }
+
   .sidebar-tablet-rail {
     display: flex;
+    opacity: 0;
+    transform: translate3d(-14px, 0, 0);
+    pointer-events: none;
+    transition:
+      opacity var(--tablet-rail-duration) var(--tablet-sidebar-ease),
+      transform var(--tablet-rail-duration) var(--tablet-sidebar-ease);
+  }
+
+  .sidebar-tablet-rail--visible {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+    pointer-events: auto;
   }
 
   .sidebar-tablet-backdrop {
+    display: block;
     position: fixed;
     inset: 0;
     z-index: 108;
@@ -110,14 +129,28 @@
     backdrop-filter: blur(var(--tablet-backdrop-blur));
     -webkit-backdrop-filter: blur(var(--tablet-backdrop-blur));
     cursor: pointer;
-    pointer-events: auto;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition:
+      opacity var(--tablet-backdrop-duration) var(--tablet-sidebar-ease),
+      visibility 0s linear var(--tablet-backdrop-duration),
+      backdrop-filter var(--tablet-backdrop-duration) var(--tablet-sidebar-ease),
+      -webkit-backdrop-filter var(--tablet-backdrop-duration) var(--tablet-sidebar-ease);
   }
 
   .sidebar-tablet-backdrop--visible {
-    display: block;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transition:
+      opacity var(--tablet-backdrop-duration) var(--tablet-sidebar-ease),
+      visibility 0s linear 0s,
+      backdrop-filter var(--tablet-backdrop-duration) var(--tablet-sidebar-ease),
+      -webkit-backdrop-filter var(--tablet-backdrop-duration) var(--tablet-sidebar-ease);
   }
 
-  /* Hero: full desktop sidebar inset; fades via scroll (JS) */
+  /* Hero: full desktop sidebar inset; opacity/blur driven on scroll (JS) */
   .sidebar-desktop-shell.sidebar-tablet-hero {
     visibility: visible;
     pointer-events: auto;
@@ -126,13 +159,13 @@
   .sidebar-desktop-shell.sidebar-tablet-hero .sidebar-shell--fixed {
     width: var(--sidebar-overlay-width) !important;
     z-index: 100 !important;
-    transform: translateX(0);
+    transform: translate3d(0, 0, 0);
     box-shadow: none;
     pointer-events: none;
     transition: none;
   }
 
-  /* Hide full sidebar until hero or manual expand */
+  /* Hide overlay shell until hero or manual expand */
   .sidebar-desktop-shell:not(.sidebar-tablet-expanded):not(.sidebar-tablet-hero),
   .sidebar-desktop-subnav:not(.sidebar-tablet-expanded) {
     visibility: hidden;
@@ -148,15 +181,17 @@
   .sidebar-desktop-shell .sidebar-shell--fixed {
     width: var(--sidebar-overlay-width) !important;
     z-index: 110 !important;
-    transform: translateX(-104%);
-    transition: transform 0.34s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translate3d(calc(-1 * var(--sidebar-overlay-width)), 0, 0);
     box-shadow: none;
     pointer-events: none;
+    transition:
+      transform var(--tablet-sidebar-duration) var(--tablet-sidebar-ease),
+      box-shadow var(--tablet-sidebar-duration) var(--tablet-sidebar-ease);
   }
 
   .sidebar-desktop-shell.sidebar-tablet-expanded .sidebar-shell--fixed {
-    transform: translateX(0);
-    box-shadow: 8px 0 28px rgba(0, 0, 0, 0.16);
+    transform: translate3d(0, 0, 0);
+    box-shadow: 8px 0 28px rgba(0, 0, 0, 0.14);
     pointer-events: none;
   }
 
@@ -177,14 +212,25 @@
       )
     ) !important;
     z-index: 111 !important;
-    transform: translate(-104%, -50%) !important;
-    transition: transform 0.34s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translate3d(calc(-1 * var(--sidebar-overlay-width)), -50%, 0) !important;
     pointer-events: none;
+    transition: transform var(--tablet-sidebar-duration) var(--tablet-sidebar-ease) 0.05s !important;
   }
 
   .sidebar-desktop-subnav.sidebar-tablet-expanded .sidebar-subnav--fixed {
-    transform: translate(0, -50%) !important;
+    transform: translate3d(0, -50%, 0) !important;
     pointer-events: auto;
+    transition-delay: 0.08s !important;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sidebar-tablet-rail,
+    .sidebar-tablet-backdrop,
+    .sidebar-desktop-shell .sidebar-shell--fixed,
+    .sidebar-desktop-subnav .sidebar-subnav--fixed {
+      transition-duration: 0.01ms !important;
+      transition-delay: 0s !important;
+    }
   }
 }
 
