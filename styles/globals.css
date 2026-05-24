@@ -160,7 +160,8 @@
     }
 
     .content-area {
-      transition: margin-left 0.34s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: margin-left var(--tablet-sidebar-duration, 0.42s)
+        var(--tablet-sidebar-ease, cubic-bezier(0.32, 0.72, 0, 1));
     }
   }
 }

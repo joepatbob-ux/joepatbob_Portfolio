@@ -51,7 +51,12 @@ export function applySidebarShellFade(
   blurPx: number,
 ): void {
   if (!el) return
-  applySidebarRevealFade(el, sidebarNameFadeProgress(scrollY, viewportH), blurPx)
+  const fadeOut = sidebarNameFadeProgress(scrollY, viewportH)
+  const reveal = 1 - fadeOut
+  const blur = fadeOut < 0.02 ? 0 : fadeOut * blurPx
+
+  el.style.opacity = String(reveal)
+  el.style.filter = blur > 0 ? `blur(${blur}px)` : 'none'
 }
 
 export function resetSidebarShellFade(el: HTMLElement | null): void {

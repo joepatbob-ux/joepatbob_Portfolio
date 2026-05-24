@@ -1050,12 +1050,14 @@ export function SidebarNav() {
       </div>
 
       {/* Tablet: vertical rail → full desktop sidebar overlay */}
-      {showTabletRail ? (
+      {isTablet ? (
         <button
           type="button"
-          className="sidebar-tablet-rail"
+          className={`sidebar-tablet-rail${showTabletRail && !tabletSidebarOpen ? ' sidebar-tablet-rail--visible' : ''}`}
           aria-expanded={tabletSidebarOpen}
           aria-controls="sidebar-tablet-panel"
+          aria-hidden={showTabletRail && !tabletSidebarOpen ? undefined : true}
+          tabIndex={showTabletRail && !tabletSidebarOpen ? 0 : -1}
           onClick={() => setTabletSidebarOpen(true)}
         >
           <p className="sidebar-tablet-rail__label">
@@ -1064,10 +1066,11 @@ export function SidebarNav() {
           </p>
         </button>
       ) : null}
-      {tabletSidebarOpen ? (
+      {isTablet ? (
         <div
-          className="sidebar-tablet-backdrop sidebar-tablet-backdrop--visible"
+          className={`sidebar-tablet-backdrop${tabletSidebarOpen ? ' sidebar-tablet-backdrop--visible' : ''}`}
           role="presentation"
+          aria-hidden={tabletSidebarOpen ? undefined : true}
           onClick={() => setTabletSidebarOpen(false)}
         />
       ) : null}
