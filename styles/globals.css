@@ -17,6 +17,7 @@
 @import './hardware-layout.css';
 @import './verdant-interactive.css';
 @import './sidebar-layout.css';
+@import './sidebar-mobile.css';
 
 /* ── FONTS ────────────────────────────────────────────────────────────────── */
 /* Place Alte Haas Grotesk in /public/fonts/ (see @font-face below).

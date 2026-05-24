@@ -184,14 +184,12 @@
     transform: translate3d(calc(-1 * var(--sidebar-overlay-width)), 0, 0);
     box-shadow: none;
     pointer-events: none;
-    transition:
-      transform var(--tablet-sidebar-duration) var(--tablet-sidebar-ease),
-      box-shadow var(--tablet-sidebar-duration) var(--tablet-sidebar-ease);
+    transition: transform var(--tablet-sidebar-duration) var(--tablet-sidebar-ease);
   }
 
   .sidebar-desktop-shell.sidebar-tablet-expanded .sidebar-shell--fixed {
     transform: translate3d(0, 0, 0);
-    box-shadow: 8px 0 28px rgba(0, 0, 0, 0.14);
+    box-shadow: none;
     pointer-events: none;
   }
 

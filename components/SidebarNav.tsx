@@ -41,16 +41,6 @@ const EMAIL_BOTTOM_PX = 40
 /** Phone overlay nav — keep in sync with `LAYOUT_MQ.mobile` / globals.css */
 const MOBILE_MAX = LAYOUT_MQ.mobile
 
-const MOBILE_BAR_H = 52
-const MOBILE_MORPH_BOTTOM_PAD = 28
-/** Scroll distance (fraction of viewport) over which the hero nav travels into the top bar */
-const MOBILE_MORPH_SCROLL_RATIO = 0.54
-
-function smoothstep(edge0: number, edge1: number, x: number): number {
-  if (edge1 <= edge0) return x >= edge1 ? 1 : 0
-  const t = Math.min(1, Math.max(0, (x - edge0) / (edge1 - edge0)))
-  return t * t * (3 - 2 * t)
-}
 
 function readIsMobile(): boolean {
   if (typeof window === 'undefined') return false
@@ -335,6 +325,10 @@ export function SidebarNav() {
   }
 
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false)
+  const [mobileInHero, setMobileInHero] = useState(() =>
+    typeof window !== 'undefined' ? isInHeroScrollZone() : true,
+  )
+  const mobileInHeroRef = useRef(mobileInHero)
   const [tabletSidebarOpen, setTabletSidebarOpen] = useState(false)
   const [tabletInHero, setTabletInHero] = useState(() =>
     typeof window !== 'undefined' ? isInHeroScrollZone() : true,
@@ -368,11 +362,7 @@ export function SidebarNav() {
   const heroRef       = useRef<HTMLDivElement>(null)
   const navWrapRef    = useRef<HTMLDivElement>(null)
   const contactRef    = useRef<HTMLDivElement>(null)
-  const mobileMorphShellRef = useRef<HTMLDivElement>(null)
-  const mobileExpandedLayerRef = useRef<HTMLDivElement>(null)
-  const mobileExpandedHRef = useRef(MOBILE_BAR_H + 96)
-  const mobileCompactBtnRef = useRef<HTMLButtonElement>(null)
-  const mobileDrawerHostRef = useRef<HTMLDivElement>(null)
+  const mobileHeroRef = useRef<HTMLDivElement>(null)
   const layoutRef     = useRef({ viewportH: 900, navRestTop: 0, threshold: 648 })
   const stickThresholdRef = useRef(648)
 
@@ -520,6 +510,12 @@ export function SidebarNav() {
   )
 
   useEffect(() => {
+    if (isMobile && mobileInHero && mobileDrawerOpen) {
+      setMobileDrawerOpen(false)
+    }
+  }, [isMobile, mobileInHero, mobileDrawerOpen])
+
+  useEffect(() => {
     if (!isMobile || !mobileDrawerOpen) return
     const prev = document.body.style.overflow
     document.body.style.overflow = 'hidden'
@@ -528,82 +524,9 @@ export function SidebarNav() {
     }
   }, [isMobile, mobileDrawerOpen])
 
-  const applyMobileNavMorph = useCallback(
-    (y: number) => {
-      const accentRgb = { r: 222, g: 62, b: 24 }
-      const vh = window.innerHeight
-      const threshold = Math.max(96, vh * MOBILE_MORPH_SCROLL_RATIO)
-      const travelT = Math.min(1, Math.max(0, y / threshold))
-
-      if (mobileExpandedLayerRef.current && travelT < 0.14) {
-        const measured = mobileExpandedLayerRef.current.offsetHeight
-        if (measured > MOBILE_BAR_H + 24) {
-          mobileExpandedHRef.current = measured
-        }
-      }
-
-      const H0 = Math.max(mobileExpandedHRef.current, MOBILE_BAR_H + 48)
-      const hMorph = smoothstep(0.38, 1, travelT)
-      const hInterp = H0 + (MOBILE_BAR_H - H0) * hMorph
-
-      const topPx = Math.max(
-        0,
-        (vh - MOBILE_MORPH_BOTTOM_PAD - hInterp) * (1 - travelT),
-      )
-
-      const gutter = 16 * (1 - smoothstep(0.82, 0.995, travelT))
-
-      const tSolid = smoothstep(0.58, 0.9, travelT)
-      const rr = accentRgb.r
-      const gg = accentRgb.g
-      const bb = accentRgb.b
-
-      const shell = mobileMorphShellRef.current
-      if (shell) {
-        shell.style.position = 'fixed'
-        shell.style.left = `${gutter}px`
-        shell.style.right = `${gutter}px`
-        shell.style.top = `${topPx}px`
-        shell.style.width = 'auto'
-        shell.style.height = `${hInterp}px`
-        shell.style.boxSizing = 'border-box'
-        shell.style.borderRadius = '0'
-        shell.style.backgroundColor =
-          tSolid < 0.008 ? 'transparent' : `rgba(${rr},${gg},${bb},${tSolid})`
-        shell.style.boxShadow =
-          travelT >= 0.96 && mobileDrawerOpen
-            ? '0 8px 28px rgba(0,0,0,0.18)'
-            : 'none'
-        shell.style.overflow = 'hidden'
-        shell.style.pointerEvents = 'auto'
-      }
-
-      const expandedOp = 1 - smoothstep(0.18, 0.68, travelT)
-      const expandedLayer = mobileExpandedLayerRef.current
-      if (expandedLayer) {
-        expandedLayer.style.opacity = String(expandedOp)
-        expandedLayer.style.pointerEvents = expandedOp > 0.28 ? 'auto' : 'none'
-      }
-
-      const compactOp = smoothstep(0.48, 0.88, travelT)
-      const compactBtn = mobileCompactBtnRef.current
-      if (compactBtn) {
-        compactBtn.style.opacity = String(compactOp)
-        compactBtn.style.pointerEvents = compactOp > 0.82 ? 'auto' : 'none'
-      }
-
-      const drawerHost = mobileDrawerHostRef.current
-      if (drawerHost) {
-        drawerHost.style.position = 'fixed'
-        drawerHost.style.left = `${gutter}px`
-        drawerHost.style.right = `${gutter}px`
-        drawerHost.style.top = `${topPx + hInterp}px`
-        drawerHost.style.zIndex = '110'
-        drawerHost.style.pointerEvents = mobileDrawerOpen ? 'auto' : 'none'
-      }
-    },
-    [mobileDrawerOpen],
-  )
+  const applyMobileHeroScroll = useCallback((y: number) => {
+    applySidebarShellFade(mobileHeroRef.current, y, window.innerHeight, BLUR_PX)
+  }, [])
 
   const applyDesktopNavScroll = useCallback((y: number) => {
     const { viewportH, navRestTop, threshold } = layoutRef.current
@@ -641,7 +564,12 @@ export function SidebarNav() {
   useLayoutEffect(() => {
     if (isMobile) {
       setDesktopNavReady(false)
-      applyMobileNavMorph(getScrollTop())
+      const y = getScrollTop()
+      if (mobileInHero && !mobileDrawerOpen) {
+        applyMobileHeroScroll(y)
+      } else {
+        resetSidebarShellFade(mobileHeroRef.current)
+      }
       return
     }
 
@@ -666,18 +594,30 @@ export function SidebarNav() {
     measureLayout()
     applyDesktopNavScroll(getScrollTop())
     setDesktopNavReady(true)
-  }, [isMobile, isTablet, tabletSidebarOpen, tabletInHero, measureLayout, applyDesktopNavScroll, applyTabletHeroSidebarScroll, applyMobileNavMorph])
+  }, [isMobile, isTablet, mobileInHero, mobileDrawerOpen, tabletSidebarOpen, tabletInHero, measureLayout, applyDesktopNavScroll, applyTabletHeroSidebarScroll, applyMobileHeroScroll])
 
-  /** Mobile: hero nav travels upward and morphs into the accent bar (scroll-linked, no CSS transition). */
+  /** Mobile: hero intro fades on scroll; pill + drawer overlay after hero. */
   useEffect(() => {
     if (!isMobile) return
 
     return scheduleScrollFrame(() => {
       const y = getScrollTop()
-      applyMobileNavMorph(y)
-      if (!isInHeroScrollZone()) applyScrollSpy()
+      const inHero = isInHeroScrollZone()
+
+      if (inHero !== mobileInHeroRef.current) {
+        mobileInHeroRef.current = inHero
+        setMobileInHero(inHero)
+      }
+
+      if (inHero && !mobileDrawerOpen) {
+        applyMobileHeroScroll(y)
+      } else {
+        resetSidebarShellFade(mobileHeroRef.current)
+      }
+
+      if (!inHero) applyScrollSpy()
     })
-  }, [isMobile, applyScrollSpy, applyMobileNavMorph])
+  }, [isMobile, mobileDrawerOpen, applyScrollSpy, applyMobileHeroScroll])
 
   useEffect(() => {
     if ((!isMobile && !isTablet) || !(mobileDrawerOpen || tabletSidebarOpen)) return
@@ -788,10 +728,11 @@ export function SidebarNav() {
 
   const currentSection = NAV_SECTIONS.find((s) => s.id === activeSection) || NAV_SECTIONS[0]
 
-  const drawerMaxH = `min(72dvh, calc(100dvh - ${MOBILE_BAR_H}px))`
-
   /** Right-handed (default): hero copy + menus bias toward the trailing edge; swipe hero left→`left`. */
   const thumbTrailing = handedness === 'right'
+
+  const showMobilePill = isMobile && !mobileInHero && !mobileDrawerOpen
+  const showMobileHero = isMobile && mobileInHero && !mobileDrawerOpen
 
   const showTabletRail = isTablet && !tabletSidebarOpen && !tabletInHero
 
@@ -812,55 +753,24 @@ export function SidebarNav() {
 
   return (
     <>
-      {/* Mobile: hero intro + full nav morph into pinned accent bar + drawer */}
-      <div className="sidebar-mobile-morph-nav">
-          {mobileDrawerOpen && (
-            <div
-              role="presentation"
-              onClick={() => setMobileDrawerOpen(false)}
-              style={{
-                position: 'fixed',
-                inset: 0,
-                zIndex: 108,
-                background: 'rgba(0,0,0,0.38)',
-                cursor: 'pointer',
-                pointerEvents: 'auto',
-              }}
-            />
-          )}
-          <nav
-            ref={mobileMorphShellRef}
-            aria-label="Site navigation"
-            style={{
-              position: 'fixed',
-              left: 16,
-              right: 16,
-              top: 'calc(100dvh - 140px)',
-              height: MOBILE_BAR_H,
-              zIndex: 100,
-              overflow: 'hidden',
-              pointerEvents: 'auto',
-              boxSizing: 'border-box',
-            }}
+      {/* Mobile: hero intro → accent pill → bottom drawer overlay */}
+      <div className="sidebar-mobile-nav">
+        <div
+          className={`sidebar-mobile-backdrop${mobileDrawerOpen ? ' sidebar-mobile-backdrop--visible' : ''}`}
+          role="presentation"
+          aria-hidden={mobileDrawerOpen ? undefined : true}
+          onClick={() => setMobileDrawerOpen(false)}
+        />
+
+        <nav
+          ref={mobileHeroRef}
+          aria-label="Site navigation"
+          className={`sidebar-mobile-hero${showMobileHero ? ' sidebar-mobile-hero--active' : ''}`}
+          aria-hidden={showMobileHero ? undefined : true}
+        >
+          <div
+            className={`sidebar-mobile-hero__inner sidebar-mobile-hero__inner--${thumbTrailing ? 'trailing' : 'leading'}`}
           >
-            <div
-              ref={mobileExpandedLayerRef}
-              style={{
-                position: 'absolute',
-                left: 0,
-                right: 0,
-                top: 0,
-                paddingTop: 18,
-                paddingBottom: 22,
-                paddingLeft: 'max(16px, env(safe-area-inset-left))',
-                paddingRight: 'max(16px, env(safe-area-inset-right))',
-                boxSizing: 'border-box',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: thumbTrailing ? 'flex-end' : 'flex-start',
-                textAlign: thumbTrailing ? 'right' : 'left',
-              }}
-            >
               <div
                 style={{
                   fontFamily: FONT_AHG,
@@ -945,108 +855,55 @@ export function SidebarNav() {
                   )
                 })}
               </p>
-            </div>
-            <button
-              ref={mobileCompactBtnRef}
-              type="button"
-              aria-expanded={mobileDrawerOpen}
-              aria-controls="mobile-nav-drawer"
-              onClick={() => setMobileDrawerOpen((o) => !o)}
-              style={{
-                position: 'absolute',
-                inset: 0,
-                margin: 0,
-                padding: '12px 14px 12px 16px',
-                border: 'none',
-                background: 'transparent',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10,
-                boxSizing: 'border-box',
-                opacity: 0,
-                pointerEvents: 'none',
-                flexDirection: handedness === 'left' ? 'row-reverse' : 'row',
-              }}
-            >
-              <span
-                style={{
-                  fontFamily: FONT_AHG,
-                  fontWeight: 700,
-                  fontSize: 13,
-                  letterSpacing: '0.04em',
-                  textTransform: 'uppercase',
-                  color: 'rgba(255,255,255,0.92)',
-                  flexShrink: 0,
-                }}
-              >
-                I design for…
-              </span>
-              <span
-                style={{
-                  fontFamily: FONT_AHG,
-                  fontWeight: 700,
-                  fontSize: 13,
-                  letterSpacing: '0.04em',
-                  textTransform: 'uppercase',
-                  color: '#fff',
-                  flex: 1,
-                  minWidth: 0,
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                  textAlign: thumbTrailing ? 'right' : 'left',
-                }}
-              >
-                {currentSection.label}
-              </span>
-              <span
-                aria-hidden
-                style={{
-                  flexShrink: 0,
-                  color: '#fff',
-                  fontSize: 12,
-                  lineHeight: 1,
-                  transform: mobileDrawerOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-                  transition: 'transform 0.28s ease',
-                }}
-              >
-                ▼
-              </span>
-            </button>
-          </nav>
-
-          <div ref={mobileDrawerHostRef}>
-            <div
-              id="mobile-nav-drawer"
-              style={{
-                maxHeight: mobileDrawerOpen ? drawerMaxH : 0,
-                overflow: 'hidden',
-                transition: 'max-height 0.38s cubic-bezier(0.4, 0, 0.2, 1)',
-                background: ACCENT,
-              }}
-            >
-              <div
-                style={{
-                  overflowY: 'auto',
-                  maxHeight: drawerMaxH,
-                  padding: '8px 16px 24px',
-                  boxSizing: 'border-box',
-                  borderTop: '1px solid rgba(255,255,255,0.22)',
-                  textAlign: thumbTrailing ? 'right' : 'left',
-                }}
-              >
-                <AccentNavDrawerBody
-                  activeSection={activeSection ?? NAV_SECTIONS[0].id}
-                  activeChapter={activeChapter}
-                  currentSection={currentSection}
-                  thumbTrailing={thumbTrailing}
-                  onSection={scrollToSection}
-                  onChapter={scrollToChapter}
-                />
-              </div>
-            </div>
           </div>
+        </nav>
+
+        <button
+          type="button"
+          className={[
+            'sidebar-mobile-pill',
+            showMobilePill ? 'sidebar-mobile-pill--visible' : '',
+            !thumbTrailing ? 'sidebar-mobile-pill--trailing' : '',
+          ]
+            .filter(Boolean)
+            .join(' ')}
+          aria-expanded={mobileDrawerOpen}
+          aria-controls="mobile-nav-drawer"
+          aria-hidden={showMobilePill ? undefined : true}
+          tabIndex={showMobilePill ? 0 : -1}
+          onClick={() => setMobileDrawerOpen(true)}
+        >
+          <span className="sidebar-mobile-pill__eyebrow">I design for…</span>
+          <span
+            className="sidebar-mobile-pill__section"
+            style={{ textAlign: thumbTrailing ? 'right' : 'left' }}
+          >
+            {currentSection.label}
+          </span>
+          <span className="sidebar-mobile-pill__chevron" aria-hidden>
+            ▲
+          </span>
+        </button>
+
+        <div
+          id="mobile-nav-drawer"
+          className={`sidebar-mobile-drawer${mobileDrawerOpen ? ' sidebar-mobile-drawer--open' : ''}`}
+          aria-hidden={mobileDrawerOpen ? undefined : true}
+        >
+          <div
+            className="sidebar-mobile-drawer__scroll"
+            style={{ textAlign: thumbTrailing ? 'right' : 'left' }}
+          >
+            <AccentNavDrawerBody
+              activeSection={activeSection ?? NAV_SECTIONS[0].id}
+              activeChapter={activeChapter}
+              currentSection={currentSection}
+              thumbTrailing={thumbTrailing}
+              onSection={scrollToSection}
+              onChapter={scrollToChapter}
+            />
+          </div>
+        </div>
       </div>
 
       {/* Tablet: vertical rail → full desktop sidebar overlay */}
