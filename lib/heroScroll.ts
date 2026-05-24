@@ -65,6 +65,13 @@ export function resetSidebarShellFade(el: HTMLElement | null): void {
   el.style.filter = 'none'
 }
 
+/** Tablet rail handoff — keep shell hidden (avoid reset-to-opaque flash leaving hero). */
+export function hideSidebarShell(el: HTMLElement | null): void {
+  if (!el) return
+  el.style.opacity = '0'
+  el.style.filter = 'none'
+}
+
 function applySidebarRevealFade(
   el: HTMLElement,
   fadeOut: number,

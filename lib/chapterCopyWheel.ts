@@ -2,6 +2,7 @@ import {
   activeSlideIdPublished,
   CHAPTER_SLOT_SELECTOR,
 } from '@/lib/chapterSlideshow'
+import { LAYOUT_MQ } from '@/lib/layout/breakpoints'
 
 let listening = false
 
@@ -90,6 +91,9 @@ function onWheelCapture(e: WheelEvent) {
 /** One listener for the whole site — ties in-slide copy scroll to scroll-snap active slide. */
 export function ensureChapterCopyWheelListener(): () => void {
   if (listening || typeof window === 'undefined') {
+    return () => {}
+  }
+  if (window.matchMedia(LAYOUT_MQ.mobile).matches) {
     return () => {}
   }
   listening = true

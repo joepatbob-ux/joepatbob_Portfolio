@@ -3,6 +3,23 @@
 :root {
   --sidebar-pad-inline: 24px;
   --sidebar-subnav-max: 220px;
+  --sidebar-divider-inset: 40px;
+}
+
+/* Vertical rule — shared by expanded shell and collapsed tablet rail */
+.sidebar-shell__divider,
+.sidebar-tablet-rail::after {
+  position: absolute;
+  right: var(--sidebar-pad-right);
+  top: var(--sidebar-divider-inset);
+  width: 1px;
+  height: calc(100% - 2 * var(--sidebar-divider-inset));
+  background: var(--color-rule);
+  pointer-events: none;
+}
+
+.sidebar-tablet-rail::after {
+  content: '';
 }
 
 .sidebar-shell--fixed .sidebar-hero-name {
@@ -32,6 +49,48 @@
   margin: 0;
 }
 
+/* Outline pill — secondary actions (overlay close, etc.) */
+.sidebar-action--secondary {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  line-height: 1.35;
+  color: var(--color-nav-faded-selection);
+  background: transparent;
+  border: none;
+  border-radius: 9999px;
+  cursor: pointer;
+  box-shadow: 0 0 0 1px var(--color-nav-pill-outline);
+  transition:
+    background 180ms ease,
+    color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.sidebar-action--secondary:hover {
+  color: var(--color-accent);
+  background: var(--color-nav-pill-muted-accent-1);
+}
+
+.sidebar-action--secondary:focus-visible {
+  outline: 2px solid var(--color-nav-pill-outline);
+  outline-offset: 3px;
+}
+
+.sidebar-action--secondary-on-accent {
+  color: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.4);
+}
+
+.sidebar-action--secondary-on-accent:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.14);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.55);
+}
+
 .sidebar-hero-name .sidebar-hero-name__display {
   font-size: clamp(32px, min(6.5vw, calc((50dvh - 56px) / 2.46)), 160px) !important;
 }
@@ -55,7 +114,6 @@
   margin: 0;
   padding: 0;
   border: none;
-  border-right: 1px solid var(--color-rule);
   background: var(--color-paper);
   cursor: pointer;
   box-sizing: border-box;
@@ -150,6 +208,24 @@
       -webkit-backdrop-filter var(--tablet-backdrop-duration) var(--tablet-sidebar-ease);
   }
 
+  /* Dimmed main content — close centered in scrim (right of sidebar panel) */
+  .sidebar-tablet-backdrop__content {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: var(--sidebar-overlay-width);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+
+  .sidebar-tablet-backdrop__content .sidebar-overlay-close--tablet {
+    pointer-events: auto;
+    padding: 10px 18px;
+  }
+
   /* Hero: full desktop sidebar inset; opacity/blur driven on scroll (JS) */
   .sidebar-desktop-shell.sidebar-tablet-hero {
     visibility: visible;
@@ -172,6 +248,12 @@
     pointer-events: none;
   }
 
+  .sidebar-desktop-shell:not(.sidebar-tablet-expanded):not(.sidebar-tablet-hero)
+    .sidebar-shell--fixed {
+    opacity: 0 !important;
+    filter: none !important;
+  }
+
   .sidebar-desktop-shell.sidebar-tablet-expanded,
   .sidebar-desktop-subnav.sidebar-tablet-expanded {
     visibility: visible;
@@ -190,7 +272,7 @@
   .sidebar-desktop-shell.sidebar-tablet-expanded .sidebar-shell--fixed {
     transform: translate3d(0, 0, 0);
     box-shadow: none;
-    pointer-events: none;
+    pointer-events: auto;
   }
 
   .sidebar-desktop-shell .sidebar-hero-name {

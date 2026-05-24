@@ -14,7 +14,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { pickHardwareChapterFromScroll } from '@/lib/hardware/chapters'
 import { HardwareMobileNav } from '@/components/HardwareMobileNav'
-import { applySidebarHeroNameFade, applySidebarShellFade, isInHeroScrollZone, resetSidebarShellFade } from '@/lib/heroScroll'
+import { applySidebarHeroNameFade, applySidebarShellFade, hideSidebarShell, isInHeroScrollZone, resetSidebarShellFade } from '@/lib/heroScroll'
 import { NAV_SECTIONS, sectionIdForChapter } from '@/lib/nav'
 import { LAYOUT_MQ } from '@/lib/layout/breakpoints'
 import { scheduleScrollFrame } from '@/lib/scrollFrame'
@@ -77,6 +77,36 @@ function useIsTablet() {
 }
 
 type NavSection = (typeof NAV_SECTIONS)[number]
+
+function SidebarOverlayClose({
+  onClose,
+  variant,
+}: {
+  onClose: () => void
+  variant: 'tablet' | 'mobile-drawer'
+}) {
+  return (
+    <button
+      type="button"
+      className={[
+        'sidebar-overlay-close',
+        `sidebar-overlay-close--${variant}`,
+        'sidebar-action--secondary',
+        variant === 'mobile-drawer' ? 'sidebar-action--secondary-on-accent' : '',
+      ]
+        .filter(Boolean)
+        .join(' ')}
+      aria-label="Close navigation"
+      data-sidebar-nav-hit
+      onClick={(e) => {
+        e.stopPropagation()
+        onClose()
+      }}
+    >
+      Close
+    </button>
+  )
+}
 
 function AccentNavDrawerBody({
   activeSection,
@@ -524,6 +554,11 @@ export function SidebarNav() {
     }
   }, [isMobile, mobileDrawerOpen])
 
+  const closeOverlays = useCallback(() => {
+    setMobileDrawerOpen(false)
+    setTabletSidebarOpen(false)
+  }, [])
+
   const applyMobileHeroScroll = useCallback((y: number) => {
     applySidebarShellFade(mobileHeroRef.current, y, window.innerHeight, BLUR_PX)
   }, [])
@@ -579,13 +614,15 @@ export function SidebarNav() {
         const y = getScrollTop()
         if (tabletInHero && !tabletSidebarOpen) {
           applyTabletHeroSidebarScroll(y)
-        } else {
+        } else if (tabletSidebarOpen) {
           resetSidebarShellFade(sidebarShellRef.current)
           applyDesktopNavScroll(y)
+        } else {
+          hideSidebarShell(sidebarShellRef.current)
         }
         setDesktopNavReady(true)
       } else {
-        resetSidebarShellFade(sidebarShellRef.current)
+        hideSidebarShell(sidebarShellRef.current)
         setDesktopNavReady(false)
       }
       return
@@ -622,14 +659,11 @@ export function SidebarNav() {
   useEffect(() => {
     if ((!isMobile && !isTablet) || !(mobileDrawerOpen || tabletSidebarOpen)) return
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setMobileDrawerOpen(false)
-        setTabletSidebarOpen(false)
-      }
+      if (e.key === 'Escape') closeOverlays()
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [isMobile, isTablet, mobileDrawerOpen, tabletSidebarOpen])
+  }, [isMobile, isTablet, mobileDrawerOpen, tabletSidebarOpen, closeOverlays])
 
   useEffect(() => {
     if (!isTablet || !tabletSidebarOpen) return
@@ -674,7 +708,7 @@ export function SidebarNav() {
         } else if (inHero) {
           applyTabletHeroSidebarScroll(y)
         } else {
-          resetSidebarShellFade(sidebarShellRef.current)
+          hideSidebarShell(sidebarShellRef.current)
         }
       } else {
         applyDesktopNavScroll(y)
@@ -701,8 +735,6 @@ export function SidebarNav() {
   }, [applyStuckState, applyScrollSpy])
 
   const scrollToSection = (id: string) => {
-    setMobileDrawerOpen(false)
-    setTabletSidebarOpen(false)
     const sec = NAV_SECTIONS.find((s) => s.id === id)
     activeSectionRef.current = id
     switchSection(id)
@@ -714,8 +746,6 @@ export function SidebarNav() {
   }
 
   const scrollToChapter = (chapterId: string) => {
-    setMobileDrawerOpen(false)
-    setTabletSidebarOpen(false)
     const sectionId = sectionIdForChapter(chapterId)
     if (sectionId) {
       activeSectionRef.current = sectionId
@@ -759,8 +789,14 @@ export function SidebarNav() {
           className={`sidebar-mobile-backdrop${mobileDrawerOpen ? ' sidebar-mobile-backdrop--visible' : ''}`}
           role="presentation"
           aria-hidden={mobileDrawerOpen ? undefined : true}
-          onClick={() => setMobileDrawerOpen(false)}
-        />
+          onClick={closeOverlays}
+        >
+          {mobileDrawerOpen ? (
+            <div className="sidebar-mobile-backdrop__content">
+              <SidebarOverlayClose onClose={closeOverlays} variant="mobile-drawer" />
+            </div>
+          ) : null}
+        </div>
 
         <nav
           ref={mobileHeroRef}
@@ -893,6 +929,9 @@ export function SidebarNav() {
           <div
             className="sidebar-mobile-drawer__scroll"
             style={{ textAlign: thumbTrailing ? 'right' : 'left' }}
+            onClick={(e) => {
+              if (e.target === e.currentTarget) closeOverlays()
+            }}
           >
             <AccentNavDrawerBody
               activeSection={activeSection ?? NAV_SECTIONS[0].id}
@@ -928,8 +967,14 @@ export function SidebarNav() {
           className={`sidebar-tablet-backdrop${tabletSidebarOpen ? ' sidebar-tablet-backdrop--visible' : ''}`}
           role="presentation"
           aria-hidden={tabletSidebarOpen ? undefined : true}
-          onClick={() => setTabletSidebarOpen(false)}
-        />
+          onClick={closeOverlays}
+        >
+          {tabletSidebarOpen ? (
+            <div className="sidebar-tablet-backdrop__content">
+              <SidebarOverlayClose onClose={closeOverlays} variant="tablet" />
+            </div>
+          ) : null}
+        </div>
       ) : null}
 
       {/* Sidebar shell — desktop; tablet expands as overlay */}
@@ -945,18 +990,24 @@ export function SidebarNav() {
             width: 'var(--sidebar-width)',
             height: '100dvh',
             zIndex: 100,
-            pointerEvents: 'none',
+            pointerEvents: isTablet && tabletSidebarOpen ? 'auto' : 'none',
+          }}
+          onClick={(e) => {
+            if (!isTablet || !tabletSidebarOpen) return
+            if ((e.target as Element).closest('[data-sidebar-nav-hit]')) return
+            setTabletSidebarOpen(false)
           }}
         >
         {/* Divider */}
-        <div aria-hidden style={{
-          position: 'absolute', right: 'var(--sidebar-pad-right)', top: 40,
-          width: 1, height: 'calc(100% - 80px)',
-          background: C.divider,
-          opacity: dividerVisible ? 1 : 0,
-          filter: dividerVisible ? 'blur(0)' : `blur(${BLUR_PX}px)`,
-          transition: 'opacity 600ms ease, filter 600ms ease',
-        }} />
+        <div
+          aria-hidden
+          className="sidebar-shell__divider"
+          style={{
+            opacity: dividerVisible ? 1 : 0,
+            filter: dividerVisible ? 'blur(0)' : `blur(${BLUR_PX}px)`,
+            transition: 'opacity 600ms ease, filter 600ms ease',
+          }}
+        />
 
         {/* Hero name — opacity/blur driven by scroll frame */}
         <div
@@ -999,6 +1050,7 @@ export function SidebarNav() {
         <div
           ref={navWrapRef}
           data-sidebar-main-nav
+          data-sidebar-nav-hit
           style={{
             position: 'absolute',
             transition: 'none',
@@ -1049,6 +1101,7 @@ export function SidebarNav() {
         <div
           ref={contactRef}
           className="sidebar-contact"
+          data-sidebar-nav-hit
           style={{
             position: 'absolute',
             bottom: EMAIL_BOTTOM_PX,
@@ -1072,6 +1125,7 @@ export function SidebarNav() {
       <div
         className="sidebar-subnav--fixed"
         aria-label="Chapter navigation"
+        data-sidebar-nav-hit
         style={{
           position: 'fixed',
           top: '50vh',
