@@ -13,7 +13,6 @@
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { pickHardwareChapterFromScroll } from '@/lib/hardware/chapters'
-import { HardwareMobileNav } from '@/components/HardwareMobileNav'
 import { applySidebarHeroNameFade, applySidebarShellFade, hideSidebarShell, isInHeroScrollZone, resetSidebarShellFade } from '@/lib/heroScroll'
 import { NAV_SECTIONS, sectionIdForChapter } from '@/lib/nav'
 import { LAYOUT_MQ } from '@/lib/layout/breakpoints'
@@ -83,7 +82,7 @@ function SidebarOverlayClose({
   variant,
 }: {
   onClose: () => void
-  variant: 'tablet' | 'mobile-drawer'
+  variant: 'tablet' | 'mobile-scrim'
 }) {
   return (
     <button
@@ -92,7 +91,6 @@ function SidebarOverlayClose({
         'sidebar-overlay-close',
         `sidebar-overlay-close--${variant}`,
         'sidebar-action--secondary',
-        variant === 'mobile-drawer' ? 'sidebar-action--secondary-on-accent' : '',
       ]
         .filter(Boolean)
         .join(' ')}
@@ -108,23 +106,85 @@ function SidebarOverlayClose({
   )
 }
 
-function AccentNavDrawerBody({
+function NavOverlayPanelBody({
+  theme,
+  ink,
   activeSection,
   activeChapter,
   currentSection,
   thumbTrailing,
+  onSectionKeyword,
   onSection,
   onChapter,
 }: {
+  theme: 'paper' | 'accent'
+  ink: string
   activeSection: string
   activeChapter: string | null
   currentSection: NavSection
   thumbTrailing: boolean
+  onSectionKeyword: (id: string) => void
   onSection: (id: string) => void
   onChapter: (chapterId: string) => void
 }) {
+  const onPaper = theme === 'paper'
+  const labelMuted = onPaper ? 'var(--color-muted)' : 'rgba(255,255,255,0.75)'
+
   return (
     <>
+      <p
+        className={onPaper ? 'sidebar-main-nav__sentence nav-overlay-panel__sentence' : undefined}
+        style={{
+          fontFamily: FONT_AHG,
+          fontWeight: 700,
+          fontSize: onPaper ? undefined : 18,
+          lineHeight: onPaper ? undefined : 1.25,
+          letterSpacing: '0.02em',
+          textTransform: 'uppercase',
+          color: ink,
+          margin: onPaper ? '0 0 18px' : undefined,
+          textAlign: thumbTrailing ? 'right' : 'left',
+        }}
+      >
+        {'I simplify complex systems across '}
+        {NAV_SECTIONS.map((sec, i) => {
+          const connector =
+            i === NAV_SECTIONS.length - 2
+              ? ', and '
+              : i < NAV_SECTIONS.length - 1
+                ? ', '
+                : '.'
+          const isActive = activeSection === sec.id
+          return (
+            <span key={sec.id}>
+              <button
+                type="button"
+                onClick={() => onSectionKeyword(sec.id)}
+                style={{
+                  display: 'inline',
+                  margin: 0,
+                  padding: 0,
+                  border: 'none',
+                  background: 'none',
+                  font: 'inherit',
+                  letterSpacing: 'inherit',
+                  textTransform: 'inherit',
+                  lineHeight: 'inherit',
+                  color: ACCENT,
+                  cursor: 'pointer',
+                  verticalAlign: 'baseline',
+                  opacity: isActive ? 1 : onPaper ? 0.55 : 0.75,
+                  transition: 'opacity 180ms ease',
+                }}
+              >
+                {sec.label}
+              </button>
+              {connector}
+            </span>
+          )
+        })}
+      </p>
+
       <p
         style={{
           fontFamily: FONT_MONO,
@@ -132,18 +192,16 @@ function AccentNavDrawerBody({
           fontSize: 10,
           letterSpacing: '0.12em',
           textTransform: 'uppercase',
-          color: 'rgba(255,255,255,0.75)',
-          margin: '4px 0 12px',
+          color: labelMuted,
+          margin: '0 0 10px',
+          textAlign: thumbTrailing ? 'right' : 'left',
         }}
       >
         Sections
       </p>
       <div
+        className="nav-overlay-panel__sections"
         style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: 8,
-          marginBottom: 22,
           justifyContent: thumbTrailing ? 'flex-end' : 'flex-start',
         }}
       >
@@ -154,25 +212,32 @@ function AccentNavDrawerBody({
               key={sec.id}
               type="button"
               onClick={() => onSection(sec.id)}
-              style={{
-                fontFamily: FONT_AHG,
-                fontWeight: 700,
-                fontSize: 12,
-                letterSpacing: '0.05em',
-                textTransform: 'uppercase',
-                padding: '8px 14px',
-                borderRadius: 9999,
-                border: on ? '2px solid #fff' : '1px solid rgba(255,255,255,0.45)',
-                background: on ? 'rgba(255,255,255,0.18)' : 'transparent',
-                color: '#fff',
-                cursor: 'pointer',
-              }}
+              className={onPaper ? 'nav-overlay-panel__pill' : undefined}
+              style={
+                onPaper
+                  ? undefined
+                  : {
+                      fontFamily: FONT_AHG,
+                      fontWeight: 700,
+                      fontSize: 12,
+                      letterSpacing: '0.05em',
+                      textTransform: 'uppercase',
+                      padding: '8px 14px',
+                      borderRadius: 9999,
+                      border: on ? '2px solid #fff' : '1px solid rgba(255,255,255,0.45)',
+                      background: on ? 'rgba(255,255,255,0.18)' : 'transparent',
+                      color: '#fff',
+                      cursor: 'pointer',
+                    }
+              }
+              data-active={on ? 'true' : undefined}
             >
               {sec.label}
             </button>
           )
         })}
       </div>
+
       <p
         style={{
           fontFamily: FONT_MONO,
@@ -180,18 +245,16 @@ function AccentNavDrawerBody({
           fontSize: 10,
           letterSpacing: '0.12em',
           textTransform: 'uppercase',
-          color: 'rgba(255,255,255,0.75)',
-          margin: '0 0 12px',
+          color: labelMuted,
+          margin: '18px 0 10px',
+          textAlign: thumbTrailing ? 'right' : 'left',
         }}
       >
         In this section
       </p>
       <div
+        className="nav-overlay-panel__chapters"
         style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 6,
-          marginBottom: 28,
           alignItems: thumbTrailing ? 'flex-end' : 'flex-start',
         }}
       >
@@ -204,22 +267,28 @@ function AccentNavDrawerBody({
               type="button"
               aria-current={on ? 'true' : undefined}
               onClick={() => onChapter(chId)}
-              style={{
-                alignSelf: thumbTrailing ? 'flex-end' : 'flex-start',
-                fontFamily: FONT_MONO,
-                fontWeight: 700,
-                fontSize: 11,
-                letterSpacing: '0.07em',
-                textTransform: 'uppercase',
-                lineHeight: 1.45,
-                padding: '8px 14px',
-                borderRadius: 9999,
-                border: 'none',
-                background: on ? 'rgba(255,255,255,0.22)' : 'rgba(255,255,255,0.08)',
-                color: '#fff',
-                cursor: 'pointer',
-                textAlign: thumbTrailing ? 'right' : 'left',
-              }}
+              className={onPaper ? 'nav-overlay-panel__pill nav-overlay-panel__pill--chapter' : undefined}
+              style={
+                onPaper
+                  ? undefined
+                  : {
+                      alignSelf: thumbTrailing ? 'flex-end' : 'flex-start',
+                      fontFamily: FONT_MONO,
+                      fontWeight: 700,
+                      fontSize: 11,
+                      letterSpacing: '0.07em',
+                      textTransform: 'uppercase',
+                      lineHeight: 1.45,
+                      padding: '8px 14px',
+                      borderRadius: 9999,
+                      border: 'none',
+                      background: on ? 'rgba(255,255,255,0.22)' : 'rgba(255,255,255,0.08)',
+                      color: '#fff',
+                      cursor: 'pointer',
+                      textAlign: thumbTrailing ? 'right' : 'left',
+                    }
+              }
+              data-active={on ? 'true' : undefined}
             >
               {chapter.label}
             </button>
@@ -227,12 +296,12 @@ function AccentNavDrawerBody({
         })}
       </div>
       <div
+        className="nav-overlay-panel__contact"
         style={{
-          display: 'flex',
           justifyContent: thumbTrailing ? 'flex-end' : 'flex-start',
         }}
       >
-        <div className="contact-liquid contact-liquid--on-accent">
+        <div className={onPaper ? 'contact-liquid' : 'contact-liquid contact-liquid--on-accent'}>
           <ContactButton />
         </div>
       </div>
@@ -387,6 +456,7 @@ export function SidebarNav() {
   const subNavVisibleRef = useRef(false)
   const activeSectionRef = useRef<string | null>(null)
   const activeChapterRef = useRef<string | null>(null)
+  const overlayOpenRef = useRef(false)
   const [desktopNavReady, setDesktopNavReady] = useState(false)
   const sidebarShellRef = useRef<HTMLDivElement>(null)
   const heroRef       = useRef<HTMLDivElement>(null)
@@ -469,7 +539,35 @@ export function SidebarNav() {
     activeChapterRef.current = activeChapter
   }, [activeChapter])
 
+  useEffect(() => {
+    overlayOpenRef.current = mobileDrawerOpen || tabletSidebarOpen
+  }, [mobileDrawerOpen, tabletSidebarOpen])
+
+  /** Expanded tablet panel: reveal chapter subnav even before scroll-lock threshold. */
+  useEffect(() => {
+    if (!isTablet) return
+    if (tabletSidebarOpen) {
+      const id = activeSectionRef.current || NAV_SECTIONS[0].id
+      setSubNavVisible(true)
+      setDividerVisible(true)
+      setDimActive(true)
+      staggerIn(id, id === NAV_SECTIONS[0].id)
+      return
+    }
+    if (!prevStuck.current) {
+      setSubNavVisible(false)
+      setDividerVisible(false)
+      setDimActive(false)
+      setNavIsStuck(false)
+      setChapterItemsVisible([])
+      staggerTimers.current.forEach(clearTimeout)
+      staggerTimers.current = []
+    }
+  }, [isTablet, tabletSidebarOpen, staggerIn])
+
   const applyScrollSpy = useCallback(() => {
+    if (overlayOpenRef.current) return
+
     const hardwareArticle = document.querySelector('[data-section-id="hardware"]')
     if (hardwareArticle) {
       const rect = hardwareArticle.getBoundingClientRect()
@@ -542,6 +640,14 @@ export function SidebarNav() {
   useEffect(() => {
     if (isMobile && mobileInHero && mobileDrawerOpen) {
       setMobileDrawerOpen(false)
+    }
+  }, [isMobile, mobileInHero, mobileDrawerOpen])
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('mobile-top-nav-active', isMobile && !mobileInHero)
+    document.documentElement.classList.toggle('mobile-nav-panel-open', isMobile && mobileDrawerOpen)
+    return () => {
+      document.documentElement.classList.remove('mobile-top-nav-active', 'mobile-nav-panel-open')
     }
   }, [isMobile, mobileInHero, mobileDrawerOpen])
 
@@ -652,7 +758,7 @@ export function SidebarNav() {
         resetSidebarShellFade(mobileHeroRef.current)
       }
 
-      if (!inHero) applyScrollSpy()
+      if (!inHero && !overlayOpenRef.current) applyScrollSpy()
     })
   }, [isMobile, mobileDrawerOpen, applyScrollSpy, applyMobileHeroScroll])
 
@@ -715,7 +821,7 @@ export function SidebarNav() {
       }
 
       applyStuckState(y)
-      if (isTablet || prevStuck.current) applyScrollSpy()
+      if ((isTablet || prevStuck.current) && !overlayOpenRef.current) applyScrollSpy()
     })
   }, [
     isMobile,
@@ -734,7 +840,33 @@ export function SidebarNav() {
     applyScrollSpy()
   }, [applyStuckState, applyScrollSpy])
 
+  const finishNavigate = useCallback(
+    (closeOverlay: boolean) => {
+      if (closeOverlay) closeOverlays()
+      syncScrollAfterNavigate()
+    },
+    [closeOverlays, syncScrollAfterNavigate],
+  )
+
+  /** Mobile drawer: switch section + chapter list without scrolling yet. */
+  const previewDrawerSection = useCallback(
+    (id: string) => {
+      activeSectionRef.current = id
+      switchSection(id)
+      const sec = NAV_SECTIONS.find((s) => s.id === id)
+      if (!sec) return
+      const currentCh = activeChapterRef.current
+      if (!currentCh || sectionIdForChapter(currentCh) !== id) {
+        const first = toChapterId(id, sec.chapters[0].id)
+        activeChapterRef.current = first
+        setActiveChapter(first)
+      }
+    },
+    [switchSection],
+  )
+
   const scrollToSection = (id: string) => {
+    const closeAfter = mobileDrawerOpen || tabletSidebarOpen
     const sec = NAV_SECTIONS.find((s) => s.id === id)
     activeSectionRef.current = id
     switchSection(id)
@@ -742,10 +874,11 @@ export function SidebarNav() {
       activeChapterRef.current = toChapterId(id, sec.chapters[0].id)
       setActiveChapter(activeChapterRef.current)
     }
-    void navigateToSection(id).then(syncScrollAfterNavigate)
+    void navigateToSection(id).then(() => finishNavigate(closeAfter))
   }
 
   const scrollToChapter = (chapterId: string) => {
+    const closeAfter = mobileDrawerOpen || tabletSidebarOpen
     const sectionId = sectionIdForChapter(chapterId)
     if (sectionId) {
       activeSectionRef.current = sectionId
@@ -753,15 +886,18 @@ export function SidebarNav() {
     }
     activeChapterRef.current = chapterId
     setActiveChapter(chapterId)
-    void navigateToChapter(chapterId).then(syncScrollAfterNavigate)
+    void navigateToChapter(chapterId).then(() => finishNavigate(closeAfter))
   }
 
   const currentSection = NAV_SECTIONS.find((s) => s.id === activeSection) || NAV_SECTIONS[0]
 
+  const tabletOverlaySubnav = isTablet && tabletSidebarOpen
+  const subnavInteractive = subNavVisible || tabletOverlaySubnav
+
   /** Right-handed (default): hero copy + menus bias toward the trailing edge; swipe hero left→`left`. */
   const thumbTrailing = handedness === 'right'
 
-  const showMobilePill = isMobile && !mobileInHero && !mobileDrawerOpen
+  const showMobileRail = isMobile && !mobileInHero && !mobileDrawerOpen
   const showMobileHero = isMobile && mobileInHero && !mobileDrawerOpen
 
   const showTabletRail = isTablet && !tabletSidebarOpen && !tabletInHero
@@ -783,7 +919,7 @@ export function SidebarNav() {
 
   return (
     <>
-      {/* Mobile: hero intro → accent pill → bottom drawer overlay */}
+      {/* Mobile: hero intro → top rail (tablet pattern) → expand panel + scrim */}
       <div className="sidebar-mobile-nav">
         <div
           className={`sidebar-mobile-backdrop${mobileDrawerOpen ? ' sidebar-mobile-backdrop--visible' : ''}`}
@@ -793,7 +929,7 @@ export function SidebarNav() {
         >
           {mobileDrawerOpen ? (
             <div className="sidebar-mobile-backdrop__content">
-              <SidebarOverlayClose onClose={closeOverlays} variant="mobile-drawer" />
+              <SidebarOverlayClose onClose={closeOverlays} variant="mobile-scrim" />
             </div>
           ) : null}
         </div>
@@ -897,48 +1033,72 @@ export function SidebarNav() {
         <button
           type="button"
           className={[
-            'sidebar-mobile-pill',
-            showMobilePill ? 'sidebar-mobile-pill--visible' : '',
-            !thumbTrailing ? 'sidebar-mobile-pill--trailing' : '',
+            'sidebar-mobile-rail',
+            showMobileRail ? 'sidebar-mobile-rail--visible' : '',
           ]
             .filter(Boolean)
             .join(' ')}
           aria-expanded={mobileDrawerOpen}
-          aria-controls="mobile-nav-drawer"
-          aria-hidden={showMobilePill ? undefined : true}
-          tabIndex={showMobilePill ? 0 : -1}
+          aria-controls="mobile-nav-panel"
+          aria-hidden={showMobileRail ? undefined : true}
+          tabIndex={showMobileRail ? 0 : -1}
           onClick={() => setMobileDrawerOpen(true)}
         >
-          <span className="sidebar-mobile-pill__eyebrow">I design for…</span>
-          <span
-            className="sidebar-mobile-pill__section"
-            style={{ textAlign: thumbTrailing ? 'right' : 'left' }}
+          <span className="sidebar-mobile-rail__blur" aria-hidden />
+          <p
+            className={[
+              'sidebar-mobile-rail__label',
+              thumbTrailing ? 'sidebar-mobile-rail__label--trailing' : '',
+            ]
+              .filter(Boolean)
+              .join(' ')}
           >
-            {currentSection.label}
-          </span>
-          <span className="sidebar-mobile-pill__chevron" aria-hidden>
-            ▲
-          </span>
+            <span className="sidebar-mobile-rail__copy sidebar-mobile-rail__copy--long">
+              I simplify complex systems for{' '}
+              <span className="sidebar-mobile-rail__label-accent">{currentSection.label}</span>
+            </span>
+            <span className="sidebar-mobile-rail__copy sidebar-mobile-rail__copy--short">
+              I simplify systems for{' '}
+              <span className="sidebar-mobile-rail__label-accent">{currentSection.label}</span>
+            </span>
+          </p>
         </button>
 
         <div
-          id="mobile-nav-drawer"
-          className={`sidebar-mobile-drawer${mobileDrawerOpen ? ' sidebar-mobile-drawer--open' : ''}`}
+          id="mobile-nav-panel"
+          className={[
+            'sidebar-mobile-panel',
+            mobileDrawerOpen ? 'sidebar-mobile-panel--open' : '',
+          ]
+            .filter(Boolean)
+            .join(' ')}
+          role="dialog"
+          aria-modal={mobileDrawerOpen ? true : undefined}
+          aria-label="Navigation menu"
           aria-hidden={mobileDrawerOpen ? undefined : true}
         >
+          <span className="sidebar-mobile-panel__frost" aria-hidden />
           <div
-            className="sidebar-mobile-drawer__scroll"
-            style={{ textAlign: thumbTrailing ? 'right' : 'left' }}
+            className={[
+              'sidebar-mobile-panel__scroll',
+              thumbTrailing ? 'sidebar-mobile-panel__scroll--trailing' : '',
+            ]
+              .filter(Boolean)
+              .join(' ')}
+            data-sidebar-nav-hit
             onClick={(e) => {
               if (e.target === e.currentTarget) closeOverlays()
             }}
           >
-            <AccentNavDrawerBody
+            <NavOverlayPanelBody
+              theme="paper"
+              ink={C.ink}
               activeSection={activeSection ?? NAV_SECTIONS[0].id}
               activeChapter={activeChapter}
               currentSection={currentSection}
               thumbTrailing={thumbTrailing}
-              onSection={scrollToSection}
+              onSectionKeyword={scrollToSection}
+              onSection={previewDrawerSection}
               onChapter={scrollToChapter}
             />
           </div>
@@ -1113,13 +1273,6 @@ export function SidebarNav() {
         </div>
       </div>
 
-      {isMobile ? (
-        <HardwareMobileNav
-          activeChapterId={activeChapter ?? 'hardware-overview'}
-          onSelect={scrollToChapter}
-        />
-      ) : null}
-
       {/* Sub nav — viewport center (desktop only) */}
       <div className={tabletSubnavClass}>
       <div
@@ -1134,13 +1287,15 @@ export function SidebarNav() {
           flexDirection: 'column',
           gap: 6,
           zIndex: 101,
-          pointerEvents: subNavVisible ? 'auto' : 'none',
+          pointerEvents: subnavInteractive ? 'auto' : 'none',
         }}
       >
         {currentSection.chapters.map((chapter, i) => {
           const chId      = toChapterId(currentSection.id, chapter.id)
           const isActive  = activeChapter === chId
-          const isVisible = subNavVisible && chapterItemsVisible.includes(i)
+          const isVisible =
+            subnavInteractive &&
+            (tabletOverlaySubnav || chapterItemsVisible.includes(i))
           const isHoverThis = hoverChapterId === chId
           const chapterFill = isActive ? NAV_PILL_1 : 'transparent'
           const chapterRing = isHoverThis ? `0 0 0 1px ${NAV_OUTLINE}` : 'none'

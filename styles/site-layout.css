@@ -2,7 +2,6 @@
 
 :root {
   --sidebar-pad-right: clamp(12px, 1.5vw, 32px);
-  --hardware-mobile-bar-height: 52px;
   --site-frame-max: 1400px;
 }
 
