@@ -29,10 +29,10 @@
   visibility: hidden;
 }
 
-/* Viewport-based shell visibility — desktop nav hidden on mobile via sidebar-mobile.css */
+/* Viewport-based shell visibility — desktop nav hidden on mobile unless expanded overlay */
 @media (max-width: 767px) {
-  .sidebar-desktop-shell,
-  .sidebar-desktop-subnav {
+  .sidebar-desktop-shell:not(.sidebar-mobile-expanded),
+  .sidebar-desktop-subnav:not(.sidebar-mobile-expanded) {
     display: none !important;
   }
 }

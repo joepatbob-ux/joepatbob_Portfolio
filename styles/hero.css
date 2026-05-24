@@ -39,10 +39,6 @@
   -webkit-user-drag: none;
 }
 
-.hero--hand-left .hero-portrait {
-  object-position: left bottom;
-}
-
 @media (max-width: 767px) {
   .hero-portrait {
     object-fit: cover;

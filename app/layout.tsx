@@ -5,7 +5,6 @@ import '../styles/globals.css'
 import { ChapterNavProvider } from '@/components/ChapterNavProvider'
 import { SidebarNav } from '@/components/SidebarNav'
 import { ThemeProvider } from '@/components/ThemeProvider'
-import { HandednessProvider } from '@/components/HandednessProvider'
 import { StickerProvider } from '@/components/StickerProvider'
 import { StickerLayer } from '@/components/StickerLayer'
 
@@ -50,8 +49,7 @@ export default function RootLayout({
         <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#040404" />
       </head>
       <body>
-        <ThemeProvider>
-          <HandednessProvider>
+          <ThemeProvider>
             <StickerProvider>
               <ChapterNavProvider>
                 <div className="site-frame">
@@ -61,8 +59,7 @@ export default function RootLayout({
                 <StickerLayer />
               </ChapterNavProvider>
             </StickerProvider>
-          </HandednessProvider>
-        </ThemeProvider>
+          </ThemeProvider>
       </body>
     </html>
   )
