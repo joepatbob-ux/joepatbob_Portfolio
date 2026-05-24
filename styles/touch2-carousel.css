@@ -37,12 +37,13 @@
   margin: 0 auto;
   isolation: isolate;
   max-width: 100%;
-  transition:
-    width 760ms var(--touch2-morph-ease),
-    height 760ms var(--touch2-morph-ease);
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: var(--touch2-radius);
+  corner-shape: squircle;
 }
 
-.touch2-carousel__slides:not(.touch2-carousel__slides--ready) {
+.touch2-carousel__slides--instant .touch2-carousel__slide {
   transition: none;
 }
 
@@ -56,18 +57,16 @@
   opacity: 0;
   z-index: 0;
   pointer-events: none;
-  transform: scale(0.97);
-  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.22);
-  transition:
-    opacity 560ms var(--touch2-fade-ease),
-    transform 760ms var(--touch2-morph-ease);
+  transform: scale(1);
+  box-shadow: none;
+  transition: opacity 640ms var(--touch2-fade-ease);
 }
 
 .touch2-carousel__slide--active {
   opacity: 1;
   z-index: 1;
   pointer-events: auto;
-  transform: scale(1);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.22);
 }
 
 .touch2-carousel__img {
@@ -135,7 +134,7 @@
   opacity: 0;
 }
 
-/* Layer 2: muted pill fill — scales from center when selected */
+/* Layer 2: muted pill fill — full size when selected, no morph */
 .touch2-carousel__dot-fill {
   position: absolute;
   inset: 0;
@@ -143,17 +142,12 @@
   corner-shape: squircle;
   background-color: var(--color-nav-pill-muted-accent-1);
   opacity: 0;
-  transform: scale(1, 0);
-  transform-origin: center center;
-  transition:
-    transform var(--touch2-dot-duration) var(--touch2-dot-ease),
-    opacity calc(var(--touch2-dot-duration) * 0.5) ease;
   pointer-events: none;
+  transition: opacity 160ms ease;
 }
 
 .touch2-carousel__dot--active .touch2-carousel__dot-fill {
   opacity: 1;
-  transform: scale(1, 1);
 }
 
 .touch2-carousel__dot--active:hover,
@@ -161,24 +155,24 @@
   box-shadow: 0 0 0 1px var(--color-nav-pill-outline);
 }
 
-/* Layer 3: accent indicator — circle at rest, pill when selected */
+/* Layer 3: accent indicator — pill shape snaps, height counts down only */
 .touch2-carousel__dot-indicator {
   position: relative;
   z-index: 1;
   display: block;
   width: var(--touch2-dot-size);
   height: var(--touch2-dot-size);
-  border-radius: 50%;
+  border-radius: 999px;
   background-color: var(--color-accent);
   pointer-events: none;
-  transition:
-    height var(--touch2-dot-duration) var(--touch2-dot-ease),
-    border-radius var(--touch2-dot-duration) var(--touch2-dot-ease);
 }
 
 .touch2-carousel__dot--active .touch2-carousel__dot-indicator {
-  height: var(--touch2-dot-active-h);
-  border-radius: 4px;
+  height: calc(
+    var(--touch2-dot-size) +
+      (var(--touch2-dot-active-h) - var(--touch2-dot-size)) *
+      (1 - var(--touch2-dot-progress, 0))
+  );
 }
 
 @media (max-width: 640px) {
@@ -196,21 +190,11 @@
     --touch2-morph-ease: ease;
   }
 
-  .touch2-carousel__slides {
-    transition-duration: 0.2s;
-  }
-
   .touch2-carousel__slide {
-    transform: none;
-    transition-duration: 0.2s;
+    transition-duration: 0.15s;
   }
 
-  .touch2-carousel__slide--active {
-    transform: none;
-  }
-
-  .touch2-carousel__dot-fill,
-  .touch2-carousel__dot-indicator {
-    transition-duration: 0.18s;
+  .touch2-carousel__dot-fill {
+    transition: none;
   }
 }

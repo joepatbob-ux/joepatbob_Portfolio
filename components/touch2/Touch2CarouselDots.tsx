@@ -4,6 +4,8 @@ interface Props {
   count: number
   activeIndex: number
   slideKeys: readonly string[]
+  /** 0 = full pill, 1 = elapsed (countdown). Defaults to full. */
+  activeProgress?: number
   onSelect: (index: number) => void
 }
 
@@ -11,6 +13,7 @@ export function Touch2CarouselDots({
   count,
   activeIndex,
   slideKeys,
+  activeProgress = 0,
   onSelect,
 }: Props) {
   return (
@@ -30,6 +33,13 @@ export function Touch2CarouselDots({
             ]
               .filter(Boolean)
               .join(' ')}
+            style={
+              active
+                ? ({
+                    ['--touch2-dot-progress' as string]: activeProgress,
+                  } as React.CSSProperties)
+                : undefined
+            }
             onClick={() => onSelect(i)}
           >
             <span className="touch2-carousel__dot-ring" aria-hidden />

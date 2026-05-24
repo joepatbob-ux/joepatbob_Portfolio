@@ -1,17 +1,17 @@
 'use client'
 
+import { KELVIN_SCRATCH_QUADS } from '@/lib/kelvinScratchQuads'
 import {
   createCoinBrushDataUrl,
-  createQuadBeforeCoverDataUrl,
+  createUnifiedScratchCoverDataUrl,
   loadKelvinCoinImages,
+  loadKelvinScratchQuadPlaceholders,
   loadScratchFrontImage,
 } from '@/lib/webAppsScratchAssets'
 import { useEffect, useState } from 'react'
 
-const QUAD_COUNT = 4
-
 export function useKelvinScratchAssets(isActive: boolean) {
-  const [covers, setCovers] = useState<string[] | null>(null)
+  const [cover, setCover] = useState<string | null>(null)
   const [coinBrush, setCoinBrush] = useState<string | null>(null)
 
   useEffect(() => {
@@ -19,21 +19,24 @@ export function useKelvinScratchAssets(isActive: boolean) {
 
     let cancelled = false
 
-    Promise.all([loadScratchFrontImage(), loadKelvinCoinImages()])
-      .then(([scratchFront, coins]) => {
+    Promise.all([
+      loadScratchFrontImage(),
+      loadKelvinCoinImages(),
+      loadKelvinScratchQuadPlaceholders(
+        KELVIN_SCRATCH_QUADS.map((q) => q.placeholderSrc),
+      ),
+    ])
+      .then(([scratchFront, coins, placeholders]) => {
         if (cancelled) return
-        setCovers(
-          Array.from({ length: QUAD_COUNT }, (_, i) =>
-            createQuadBeforeCoverDataUrl(i, scratchFront),
-          ),
-        )
+        setCover(createUnifiedScratchCoverDataUrl(scratchFront, placeholders))
         setCoinBrush(createCoinBrushDataUrl(coins.tilted))
       })
       .catch(() => {
         if (cancelled) return
-        setCovers(
-          Array.from({ length: QUAD_COUNT }, (_, i) =>
-            createQuadBeforeCoverDataUrl(i, null),
+        setCover(
+          createUnifiedScratchCoverDataUrl(
+            null,
+            KELVIN_SCRATCH_QUADS.map(() => null),
           ),
         )
         setCoinBrush(null)
@@ -45,8 +48,8 @@ export function useKelvinScratchAssets(isActive: boolean) {
   }, [isActive])
 
   return {
-    covers,
+    cover,
     coinBrush,
-    ready: Boolean(covers && coinBrush),
+    ready: Boolean(cover && coinBrush),
   }
 }
