@@ -905,19 +905,17 @@ export function SidebarNav() {
             if (isMobile && mobileDrawerOpen) setMobileDrawerOpen(false)
           }}
         >
-        {isMobile && mobileDrawerOpen ? (
-          <SidebarOverlayClose onClose={closeOverlays} variant="mobile-panel" />
+        {!(isMobile && mobileDrawerOpen) ? (
+          <div
+            aria-hidden
+            className="sidebar-shell__divider"
+            style={{
+              opacity: dividerVisible ? 1 : 0,
+              filter: dividerVisible ? 'blur(0)' : `blur(${BLUR_PX}px)`,
+              transition: 'opacity 600ms ease, filter 600ms ease',
+            }}
+          />
         ) : null}
-        {/* Divider */}
-        <div
-          aria-hidden
-          className="sidebar-shell__divider"
-          style={{
-            opacity: dividerVisible ? 1 : 0,
-            filter: dividerVisible ? 'blur(0)' : `blur(${BLUR_PX}px)`,
-            transition: 'opacity 600ms ease, filter 600ms ease',
-          }}
-        />
 
         {/* Hero name — opacity/blur driven by scroll frame */}
         <div
@@ -1007,19 +1005,29 @@ export function SidebarNav() {
           </p>
         </div>
 
-        {/* Contact — liquid split to Email / LinkedIn on hover */}
-        <div
-          ref={contactRef}
-          className="sidebar-contact"
-          data-sidebar-nav-hit
-          style={{
-            position: 'absolute',
-            bottom: EMAIL_BOTTOM_PX,
-            pointerEvents: 'auto',
-          }}
-        >
-          <ContactButton />
-        </div>
+        {/* Contact — liquid split; mobile overlay stacks divider + close below */}
+        {isMobile && mobileDrawerOpen ? (
+          <div className="sidebar-mobile-shell-footer" data-sidebar-nav-hit>
+            <div ref={contactRef} className="sidebar-contact">
+              <ContactButton />
+            </div>
+            <div aria-hidden className="sidebar-shell__divider sidebar-shell__divider--horizontal" />
+            <SidebarOverlayClose onClose={closeOverlays} variant="mobile-panel" />
+          </div>
+        ) : (
+          <div
+            ref={contactRef}
+            className="sidebar-contact"
+            data-sidebar-nav-hit
+            style={{
+              position: 'absolute',
+              bottom: EMAIL_BOTTOM_PX,
+              pointerEvents: 'auto',
+            }}
+          >
+            <ContactButton />
+          </div>
+        )}
         </div>
       </div>
 
