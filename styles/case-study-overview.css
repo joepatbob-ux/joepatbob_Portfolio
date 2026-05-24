@@ -81,6 +81,13 @@
   }
 }
 
+@media (min-width: 1200px) {
+  .case-study-overview.hardware-slideshow .case-study-overview__body {
+    column-count: 1;
+    max-width: none;
+  }
+}
+
 @media (max-width: 767px) {
   .case-study-overview .portfolio-chapter-panel {
     padding-top: clamp(32px, 6vh, 56px);
