@@ -133,13 +133,22 @@
 
     .content-area {
       margin-left: 0;
-      /* Hero is full-viewport; morphing nav floats — no permanent top inset */
       padding-top: 0;
     }
 
-    [data-chapter-id],
-    article[data-section-id] {
-      scroll-margin-top: calc(var(--mobile-nav-bar-height) + 12px);
+    html.mobile-top-nav-active .content-area {
+      padding-top: calc(var(--mobile-nav-bar-height) + env(safe-area-inset-top, 0px));
+    }
+
+    html.mobile-nav-panel-open .content-area {
+      padding-top: 0;
+    }
+
+    html.mobile-top-nav-active [data-chapter-id],
+    html.mobile-top-nav-active article[data-section-id] {
+      scroll-margin-top: calc(
+        var(--mobile-nav-bar-height) + env(safe-area-inset-top, 0px) + 12px
+      );
     }
 
     #hero {

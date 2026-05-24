@@ -259,11 +259,6 @@
 
 /* Mobile: normal scroll, no snap */
 @media (max-width: 767px) {
-  body.hardware-mobile-chapters nav[aria-label='Site navigation'] {
-    visibility: hidden;
-    pointer-events: none;
-  }
-
   [data-section-id='hardware'] .portfolio-chapter-slot--fill,
   .hardware-slideshow.portfolio-chapter-slot--fill {
     height: auto;
@@ -325,7 +320,7 @@
 
   .hardware-slideshow.case-study-overview .portfolio-chapter-panel {
     padding-inline: 24px;
-    padding-top: calc(var(--hardware-mobile-bar-height) + 24px);
+    padding-top: 24px;
   }
 
   .hardware-slideshow.case-study-overview .case-study-overview__inner {
@@ -334,117 +329,6 @@
 
   .hardware-slideshow.section-lessons .chapter-slide__viewport {
     padding-inline: 24px;
-    padding-top: calc(var(--hardware-mobile-bar-height) + 16px);
-  }
-}
-
-/* Mobile hardware chapter bar */
-.hardware-mobile-nav {
-  display: none;
-}
-
-@media (max-width: 767px) {
-  .hardware-mobile-nav {
-    display: block;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 111;
-    height: var(--hardware-mobile-bar-height);
-    box-sizing: border-box;
-    background-color: var(--color-paper);
-    border-bottom: 1px solid var(--color-rule);
-    pointer-events: auto;
-  }
-
-  .hardware-mobile-nav__bar {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    height: 100%;
-    padding: 0 16px;
-    box-sizing: border-box;
-  }
-
-  .hardware-mobile-nav__menu {
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    margin: 0;
-    padding: 0;
-    border: none;
-    background: transparent;
-    color: var(--color-ink);
-    cursor: pointer;
-  }
-
-  .hardware-mobile-nav__menu-icon {
-    display: block;
-    width: 20px;
-    height: 2px;
-    background: currentColor;
-    box-shadow: 0 -6px 0 currentColor, 0 6px 0 currentColor;
-  }
-
-  .hardware-mobile-nav__title {
-    flex: 1;
-    min-width: 0;
-    margin: 0;
-    font-family: var(--font-mono);
-    font-weight: 700;
-    font-size: 11px;
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
-    line-height: 1.4;
-    color: var(--color-accent);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .hardware-mobile-nav__dropdown {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    margin: 0;
-    padding: 8px 0 12px;
-    list-style: none;
-    background-color: var(--color-paper);
-    border-bottom: 1px solid var(--color-rule);
-    box-shadow: none;
-  }
-
-  .hardware-mobile-nav__link {
-    display: inline-flex;
-    align-self: flex-start;
-    align-items: center;
-    margin: 4px 16px;
-    padding: 5px 14px;
-    border: none;
-    border-radius: 9999px;
-    background: transparent;
-    cursor: pointer;
-    font-family: var(--font-mono);
-    font-weight: 700;
-    font-size: 11px;
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
-    line-height: 1.5;
-    color: var(--color-accent);
-    text-align: left;
-  }
-
-  .hardware-mobile-nav__link[aria-current='true'] {
-    background: var(--color-nav-pill-muted-accent-1);
-  }
-
-  .hardware-mobile-nav__link:focus-visible {
-    outline: 2px solid var(--color-accent);
-    outline-offset: 2px;
+    padding-top: 16px;
   }
 }
