@@ -65,7 +65,68 @@ export function createCoinBrushDataUrl(
   return canvas.toDataURL('image/png')
 }
 
-/** Single-quadrant scratch cover: foil + one legacy wireframe. */
+/** Unified scratch cover: foil + quadrant placeholders (SVG or canvas fallback). */
+export function createUnifiedScratchCoverDataUrl(
+  scratchFront: HTMLImageElement | null | undefined,
+  quadPlaceholders: (HTMLImageElement | null)[],
+  quadSize = SCRATCH_QUAD_PX,
+): string {
+  const cardSize = quadSize * 2
+  const canvas = document.createElement('canvas')
+  canvas.width = cardSize
+  canvas.height = cardSize
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return ''
+
+  if (scratchFront) {
+    ctx.drawImage(scratchFront, 0, 0, cardSize, cardSize)
+  } else {
+    fillLottoScratchLayer(ctx, cardSize, cardSize)
+  }
+
+  BEFORE_DRAWERS.forEach((draw, i) => {
+    const { col, row } = BEFORE_QUAD_LAYOUT[i]
+    const placeholder = quadPlaceholders[i]
+    ctx.save()
+    ctx.translate(col * quadSize, row * quadSize)
+    if (placeholder) {
+      ctx.drawImage(placeholder, 0, 0, quadSize, quadSize)
+    } else {
+      draw(ctx, quadSize, quadSize)
+    }
+    ctx.restore()
+  })
+
+  ctx.strokeStyle = 'rgba(0, 0, 0, 0.08)'
+  ctx.lineWidth = 1
+  ctx.beginPath()
+  ctx.moveTo(quadSize + 0.5, 0)
+  ctx.lineTo(quadSize + 0.5, cardSize)
+  ctx.moveTo(0, quadSize + 0.5)
+  ctx.lineTo(cardSize, quadSize + 0.5)
+  ctx.stroke()
+
+  return canvas.toDataURL('image/png')
+}
+
+export function loadKelvinScratchQuadPlaceholders(
+  sources: readonly string[],
+): Promise<(HTMLImageElement | null)[]> {
+  return Promise.all(
+    sources.map(
+      (src) =>
+        new Promise<HTMLImageElement | null>((resolve) => {
+          const img = new Image()
+          img.decoding = 'async'
+          img.onload = () => resolve(img)
+          img.onerror = () => resolve(null)
+          img.src = src
+        }),
+    ),
+  )
+}
+
+/** @deprecated Per-quadrant covers — use createUnifiedScratchCoverDataUrl */
 export function createQuadBeforeCoverDataUrl(
   quadIndex: number,
   scratchFront?: HTMLImageElement | null,
