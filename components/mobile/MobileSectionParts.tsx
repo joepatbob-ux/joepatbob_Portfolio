@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react'
+import { parseChapterBody } from '@/lib/chapter-slide/parseChapterBody'
 
-export function splitParagraphs(text: string): string[] {
-  return text.split(/\n\n+/).filter((p) => p.trim().length > 0)
-}
+/** @deprecated Use parseChapterBody */
+export const splitParagraphs = parseChapterBody
 
 export function MobileMetaRow({
   items,

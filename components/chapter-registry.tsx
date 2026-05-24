@@ -1,15 +1,36 @@
 'use client'
 
+import dynamic from 'next/dynamic'
 import { ChapterViewport } from '@/components/ChapterViewport'
-import { EimChapter } from '@/components/EimChapter'
-import { SensiLiteChapter } from '@/components/SensiLiteChapter'
 import { StudyChapter } from '@/components/StudyChapter'
-import { Touch2Chapter } from '@/components/Touch2Chapter'
-import { VerdantChapter } from '@/components/VerdantChapter'
 import type { ChapterInsertDef } from '@/lib/chapterInserts'
 import { fullInsertChapterId } from '@/lib/chapterInserts'
 import type { Chapter } from '@/lib/types'
 import type { ReactNode } from 'react'
+
+const SensiLiteChapter = dynamic(() =>
+  import('@/components/SensiLiteChapter').then((m) => ({
+    default: m.SensiLiteChapter,
+  })),
+)
+
+const Touch2Chapter = dynamic(() =>
+  import('@/components/Touch2Chapter').then((m) => ({
+    default: m.Touch2Chapter,
+  })),
+)
+
+const EimChapter = dynamic(() =>
+  import('@/components/EimChapter').then((m) => ({
+    default: m.EimChapter,
+  })),
+)
+
+const VerdantChapter = dynamic(() =>
+  import('@/components/VerdantChapter').then((m) => ({
+    default: m.VerdantChapter,
+  })),
+)
 
 export interface ChapterRenderContext {
   chapter: Chapter
@@ -45,10 +66,6 @@ export function ChapterRenderer({
   }
 }
 
-function ChapterInsertContent({ insertId: _insertId }: { insertId: string }) {
-  return null
-}
-
 /** Viewport + content for slides declared in `CHAPTER_INSERTS`. */
 export function ChapterInsertSlide({
   sectionId,
@@ -63,7 +80,7 @@ export function ChapterInsertSlide({
       fillViewport={insert.fillViewport}
       className={insert.viewportClassName}
     >
-      <ChapterInsertContent insertId={insert.insertId} />
+      {null}
     </ChapterViewport>
   )
 }

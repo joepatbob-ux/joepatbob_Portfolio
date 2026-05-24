@@ -2,14 +2,12 @@
 import type { Section } from '@/lib/types'
 import { Fragment } from 'react'
 import { insertsAfterChapter } from '@/lib/chapterInserts'
+import { LazySectionChapter } from './case-study/LazySectionChapter'
 import { CaseStudyOverview } from './CaseStudyOverview'
 import { Chapter } from './Chapter'
 import { ChapterInsertSlide } from './chapter-registry'
 import { ChapterViewport } from './ChapterViewport'
 import { ClosingQuote } from './ClosingQuote'
-import { EverythingInBetweenChapter } from './everything-in-between/EverythingInBetweenChapter'
-import { MobileChapter } from './mobile/MobileChapter'
-import { WebAppsKelvinChapter } from './web-apps/WebAppsKelvinChapter'
 import { SectionLessons } from './SectionLessons'
 
 interface Props {
@@ -54,11 +52,11 @@ export function CaseStudy({ section, sectionId }: Props) {
       )}
 
       {isMobileSection ? (
-        <MobileChapter />
+        <LazySectionChapter sectionId="mobile" />
       ) : isWebAppsSection ? (
-        <WebAppsKelvinChapter />
+        <LazySectionChapter sectionId="web-apps" />
       ) : isEibSection ? (
-        <EverythingInBetweenChapter />
+        <LazySectionChapter sectionId="everything-else" />
       ) : (
         section.chapters.map((chapter, i) => (
           <Fragment key={chapter.id}>

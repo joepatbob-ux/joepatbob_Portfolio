@@ -1,13 +1,5 @@
 /* Web Apps scratch card — scoped; does not alter global tokens */
 
-.web-apps-scratch-slot.portfolio-chapter-slot--fill .portfolio-chapter-panel {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: auto;
-  background-color: #eceae5;
-}
-
 .web-apps-scratch {
   box-sizing: border-box;
   margin: 0;

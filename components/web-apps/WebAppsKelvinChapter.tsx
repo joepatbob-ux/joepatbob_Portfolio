@@ -30,7 +30,7 @@ export function WebAppsKelvinChapter() {
       chapterId={WEB_APPS_KELVIN_CHAPTER_ID}
       fillViewport
       isLast
-      className="web-apps-kelvin-slot mobile-chapter-slot"
+      className="mobile-chapter-slot"
     >
       <ChapterCopyScroller
         active={copyScrollActive}

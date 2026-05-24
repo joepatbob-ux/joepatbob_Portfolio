@@ -1,7 +1,8 @@
 'use client'
 
+import { ChapterActiveProvider } from '@/lib/chapterActiveContext'
 import { useChapterPanelOpacity } from '@/lib/useChapterPanelOpacity'
-import type { CSSProperties, ReactNode } from 'react'
+import { memo, type CSSProperties, type ReactNode } from 'react'
 
 interface Props {
   chapterId: string
@@ -12,9 +13,9 @@ interface Props {
   children: ReactNode
 }
 
-export function ChapterViewport({
+function ChapterViewportInner({
   chapterId,
-  isLast,
+  isLast: _isLast,
   className,
   style,
   fillViewport = false,
@@ -43,8 +44,12 @@ export function ChapterViewport({
         style={panelStyle}
         aria-hidden={!isActive}
       >
-        {children}
+        <ChapterActiveProvider active={isActive}>
+          {children}
+        </ChapterActiveProvider>
       </div>
     </section>
   )
 }
+
+export const ChapterViewport = memo(ChapterViewportInner)

@@ -1,11 +1,5 @@
 /* Web Apps — single Kelvin DS chapter (shared rhythm with mobile sub-stories) */
 
-.web-apps-kelvin-slot .portfolio-chapter-panel {
-  justify-content: flex-start;
-  align-items: stretch;
-  padding: 0;
-}
-
 .web-apps-kelvin__content {
   max-width: min(1120px, 100%);
 }
