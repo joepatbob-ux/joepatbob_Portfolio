@@ -23,6 +23,13 @@ function sidebarNameFadeProgress(scrollY: number, viewportH: number): number {
   return easeChapterReveal(linear)
 }
 
+export function getSidebarHeroFadeProgress(
+  scrollY: number,
+  viewportH: number,
+): number {
+  return sidebarNameFadeProgress(scrollY, viewportH)
+}
+
 /** Sidebar “Hello, I am” block — fade/blur on scroll (hero portrait stays sharp). */
 export function applySidebarHeroNameFade(
   el: HTMLElement | null,
@@ -33,6 +40,31 @@ export function applySidebarHeroNameFade(
   if (!el) return
 
   const fadeOut = sidebarNameFadeProgress(scrollY, viewportH)
+  applySidebarRevealFade(el, fadeOut, blurPx)
+}
+
+/** Whole sidebar shell — tablet hero uses this so nav + contact fade together. */
+export function applySidebarShellFade(
+  el: HTMLElement | null,
+  scrollY: number,
+  viewportH: number,
+  blurPx: number,
+): void {
+  if (!el) return
+  applySidebarRevealFade(el, sidebarNameFadeProgress(scrollY, viewportH), blurPx)
+}
+
+export function resetSidebarShellFade(el: HTMLElement | null): void {
+  if (!el) return
+  el.style.opacity = '1'
+  el.style.filter = 'none'
+}
+
+function applySidebarRevealFade(
+  el: HTMLElement,
+  fadeOut: number,
+  blurPx: number,
+): void {
   const reveal = 1 - fadeOut
   const blur = fadeOut < 0.02 ? 0 : fadeOut * blurPx
 

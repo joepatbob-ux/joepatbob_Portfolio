@@ -9,8 +9,10 @@ export const LAYOUT_BP = {
   chapterWideMin: 1200,
   cinemaMin: 2560,
   siteFrameMax: 1400,
-  sidebarWidthDesktop: 400,
-  sidebarWidthTablet: 280,
+  sidebarWidthDesktop: 280,
+  /** Collapsed tablet rail width (768–1023) */
+  sidebarWidthCollapsed: 52,
+  sidebarOverlayWidth: 280,
 } as const
 
 /** Media query strings for JS `matchMedia` / `window.matchMedia`. */

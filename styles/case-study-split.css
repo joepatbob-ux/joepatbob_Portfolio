@@ -66,6 +66,20 @@
   .case-study-split__stage {
     max-width: min(480px, 100%);
   }
+
+  .case-study-split--wide-stage {
+    --cs-split-stage-max: min(640px, 100%);
+    grid-template-columns: 1fr;
+  }
+
+  .case-study-split--wide-stage .case-study-split__stage {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .case-study-split--wide-stage .case-study-split__copy {
+    max-width: none;
+  }
 }
 
 /* Stage children — drop centered margins inside split columns */
@@ -78,6 +92,8 @@
 .case-study-split__stage .mobile-figure__img {
   margin-left: 0;
   margin-right: 0;
+  width: 100%;
+  max-width: 100%;
 }
 
 .case-study-split__stage .drag-scrubber__frame {

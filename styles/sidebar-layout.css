@@ -1,8 +1,8 @@
-/* Sidebar + subnav — uses --sidebar-width from globals (400 desktop / 280 tablet). */
+/* Sidebar + subnav — 280px desktop shell; tablet uses vertical rail → overlay expand. */
 
 :root {
-  --sidebar-pad-inline: 40px;
-  --sidebar-subnav-max: 300px;
+  --sidebar-pad-inline: 24px;
+  --sidebar-subnav-max: 220px;
 }
 
 .sidebar-shell--fixed .sidebar-hero-name {
@@ -25,11 +25,15 @@
 .sidebar-main-nav__sentence {
   font-family: var(--font-ahg);
   font-weight: 700;
-  font-size: 24px;
-  line-height: 1.2;
+  font-size: 18px;
+  line-height: 1.25;
   letter-spacing: 0.02em;
   text-transform: uppercase;
   margin: 0;
+}
+
+.sidebar-hero-name .sidebar-hero-name__display {
+  font-size: clamp(32px, min(6.5vw, calc((50dvh - 56px) / 2.46)), 160px) !important;
 }
 
 .sidebar-subnav--fixed {
@@ -40,19 +44,153 @@
   ) !important;
 }
 
-/* Tablet: narrow sidebar (option B) — more room for chapter stage + copy */
+/* Tablet: vertical collapsed rail → expands to desktop sidebar overlay */
+.sidebar-tablet-rail {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: var(--sidebar-width);
+  height: 100dvh;
+  z-index: 100;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-right: 1px solid var(--color-rule);
+  background: var(--color-paper);
+  cursor: pointer;
+  box-sizing: border-box;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+}
+
+.sidebar-tablet-rail__label {
+  font-family: var(--font-ahg);
+  font-weight: 700;
+  font-size: clamp(13px, 1.6vw, 16px);
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--color-ink);
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  white-space: nowrap;
+  margin: 0;
+  padding: 32px 0;
+  max-height: min(88dvh, 720px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-tablet-rail__label-accent {
+  color: var(--color-accent);
+}
+
+.sidebar-tablet-backdrop {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .sidebar-tablet-rail,
+  .sidebar-tablet-backdrop {
+    display: none !important;
+  }
+}
+
 @media (min-width: 768px) and (max-width: 1023px) {
-  :root {
-    --sidebar-pad-inline: 24px;
-    --sidebar-subnav-max: 220px;
+  .sidebar-tablet-rail {
+    display: flex;
   }
 
-  .sidebar-main-nav__sentence {
-    font-size: 18px;
-    line-height: 1.25;
+  .sidebar-tablet-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 108;
+    background: var(--tablet-backdrop-scrim);
+    backdrop-filter: blur(var(--tablet-backdrop-blur));
+    -webkit-backdrop-filter: blur(var(--tablet-backdrop-blur));
+    cursor: pointer;
+    pointer-events: auto;
   }
 
-  .sidebar-hero-name .sidebar-hero-name__display {
-    font-size: clamp(32px, min(6.5vw, calc((50dvh - 56px) / 2.46)), 160px) !important;
+  .sidebar-tablet-backdrop--visible {
+    display: block;
+  }
+
+  /* Hero: full desktop sidebar inset; fades via scroll (JS) */
+  .sidebar-desktop-shell.sidebar-tablet-hero {
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  .sidebar-desktop-shell.sidebar-tablet-hero .sidebar-shell--fixed {
+    width: var(--sidebar-overlay-width) !important;
+    z-index: 100 !important;
+    transform: translateX(0);
+    box-shadow: none;
+    pointer-events: none;
+    transition: none;
+  }
+
+  /* Hide full sidebar until hero or manual expand */
+  .sidebar-desktop-shell:not(.sidebar-tablet-expanded):not(.sidebar-tablet-hero),
+  .sidebar-desktop-subnav:not(.sidebar-tablet-expanded) {
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .sidebar-desktop-shell.sidebar-tablet-expanded,
+  .sidebar-desktop-subnav.sidebar-tablet-expanded {
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  .sidebar-desktop-shell .sidebar-shell--fixed {
+    width: var(--sidebar-overlay-width) !important;
+    z-index: 110 !important;
+    transform: translateX(-104%);
+    transition: transform 0.34s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: none;
+    pointer-events: none;
+  }
+
+  .sidebar-desktop-shell.sidebar-tablet-expanded .sidebar-shell--fixed {
+    transform: translateX(0);
+    box-shadow: 8px 0 28px rgba(0, 0, 0, 0.16);
+    pointer-events: none;
+  }
+
+  .sidebar-desktop-shell .sidebar-hero-name {
+    width: min(
+      100%,
+      calc(
+        var(--sidebar-overlay-width) - var(--sidebar-pad-inline) - var(--sidebar-pad-right)
+      )
+    );
+  }
+
+  .sidebar-desktop-subnav .sidebar-subnav--fixed {
+    width: min(
+      var(--sidebar-subnav-max),
+      calc(
+        var(--sidebar-overlay-width) - var(--sidebar-pad-inline) - var(--sidebar-pad-right)
+      )
+    ) !important;
+    z-index: 111 !important;
+    transform: translate(-104%, -50%) !important;
+    transition: transform 0.34s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+  }
+
+  .sidebar-desktop-subnav.sidebar-tablet-expanded .sidebar-subnav--fixed {
+    transform: translate(0, -50%) !important;
+    pointer-events: auto;
+  }
+}
+
+@media (min-width: 1024px) {
+  .sidebar-tablet-rail,
+  .sidebar-tablet-backdrop {
+    display: none !important;
   }
 }

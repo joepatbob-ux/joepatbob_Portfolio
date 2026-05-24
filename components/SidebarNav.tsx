@@ -14,7 +14,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { pickHardwareChapterFromScroll } from '@/lib/hardware/chapters'
 import { HardwareMobileNav } from '@/components/HardwareMobileNav'
-import { applySidebarHeroNameFade, isInHeroScrollZone } from '@/lib/heroScroll'
+import { applySidebarHeroNameFade, applySidebarShellFade, isInHeroScrollZone, resetSidebarShellFade } from '@/lib/heroScroll'
 import { NAV_SECTIONS, sectionIdForChapter } from '@/lib/nav'
 import { LAYOUT_MQ } from '@/lib/layout/breakpoints'
 import { scheduleScrollFrame } from '@/lib/scrollFrame'
@@ -67,6 +67,157 @@ function useIsMobile() {
     return () => mq.removeEventListener('change', sync)
   }, [])
   return isMobile
+}
+
+function readIsTablet(): boolean {
+  if (typeof window === 'undefined') return false
+  return window.matchMedia(LAYOUT_MQ.tablet).matches
+}
+
+function useIsTablet() {
+  const [isTablet, setIsTablet] = useState(readIsTablet)
+  useEffect(() => {
+    const mq = window.matchMedia(LAYOUT_MQ.tablet)
+    const sync = () => setIsTablet(mq.matches)
+    sync()
+    mq.addEventListener('change', sync)
+    return () => mq.removeEventListener('change', sync)
+  }, [])
+  return isTablet
+}
+
+type NavSection = (typeof NAV_SECTIONS)[number]
+
+function AccentNavDrawerBody({
+  activeSection,
+  activeChapter,
+  currentSection,
+  thumbTrailing,
+  onSection,
+  onChapter,
+}: {
+  activeSection: string
+  activeChapter: string | null
+  currentSection: NavSection
+  thumbTrailing: boolean
+  onSection: (id: string) => void
+  onChapter: (chapterId: string) => void
+}) {
+  return (
+    <>
+      <p
+        style={{
+          fontFamily: FONT_MONO,
+          fontWeight: 700,
+          fontSize: 10,
+          letterSpacing: '0.12em',
+          textTransform: 'uppercase',
+          color: 'rgba(255,255,255,0.75)',
+          margin: '4px 0 12px',
+        }}
+      >
+        Sections
+      </p>
+      <div
+        style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: 8,
+          marginBottom: 22,
+          justifyContent: thumbTrailing ? 'flex-end' : 'flex-start',
+        }}
+      >
+        {NAV_SECTIONS.map((sec) => {
+          const on = activeSection === sec.id
+          return (
+            <button
+              key={sec.id}
+              type="button"
+              onClick={() => onSection(sec.id)}
+              style={{
+                fontFamily: FONT_AHG,
+                fontWeight: 700,
+                fontSize: 12,
+                letterSpacing: '0.05em',
+                textTransform: 'uppercase',
+                padding: '8px 14px',
+                borderRadius: 9999,
+                border: on ? '2px solid #fff' : '1px solid rgba(255,255,255,0.45)',
+                background: on ? 'rgba(255,255,255,0.18)' : 'transparent',
+                color: '#fff',
+                cursor: 'pointer',
+              }}
+            >
+              {sec.label}
+            </button>
+          )
+        })}
+      </div>
+      <p
+        style={{
+          fontFamily: FONT_MONO,
+          fontWeight: 700,
+          fontSize: 10,
+          letterSpacing: '0.12em',
+          textTransform: 'uppercase',
+          color: 'rgba(255,255,255,0.75)',
+          margin: '0 0 12px',
+        }}
+      >
+        In this section
+      </p>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 6,
+          marginBottom: 28,
+          alignItems: thumbTrailing ? 'flex-end' : 'flex-start',
+        }}
+      >
+        {currentSection.chapters.map((chapter) => {
+          const chId = toChapterId(currentSection.id, chapter.id)
+          const on = activeChapter === chId
+          return (
+            <button
+              key={chapter.id}
+              type="button"
+              aria-current={on ? 'true' : undefined}
+              onClick={() => onChapter(chId)}
+              style={{
+                alignSelf: thumbTrailing ? 'flex-end' : 'flex-start',
+                fontFamily: FONT_MONO,
+                fontWeight: 700,
+                fontSize: 11,
+                letterSpacing: '0.07em',
+                textTransform: 'uppercase',
+                lineHeight: 1.45,
+                padding: '8px 14px',
+                borderRadius: 9999,
+                border: 'none',
+                background: on ? 'rgba(255,255,255,0.22)' : 'rgba(255,255,255,0.08)',
+                color: '#fff',
+                cursor: 'pointer',
+                textAlign: thumbTrailing ? 'right' : 'left',
+              }}
+            >
+              {chapter.label}
+            </button>
+          )
+        })}
+      </div>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: thumbTrailing ? 'flex-end' : 'flex-start',
+        }}
+      >
+        <div className="contact-liquid contact-liquid--on-accent">
+          <ContactButton />
+        </div>
+      </div>
+    </>
+  )
 }
 
 /** Main nav section keywords: orange + opacity dimming when stuck. */
@@ -175,6 +326,7 @@ function pickActiveSpyTarget(): { chapterId: string | null; sectionId: string | 
 export function SidebarNav() {
   const dark = useDarkMode()
   const isMobile = useIsMobile()
+  const isTablet = useIsTablet()
   const { handedness } = useHandedness()
   const { navigateToChapter, navigateToSection } = useChapterNav()
   const C = {
@@ -183,6 +335,11 @@ export function SidebarNav() {
   }
 
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false)
+  const [tabletSidebarOpen, setTabletSidebarOpen] = useState(false)
+  const [tabletInHero, setTabletInHero] = useState(() =>
+    typeof window !== 'undefined' ? isInHeroScrollZone() : true,
+  )
+  const tabletInHeroRef = useRef(tabletInHero)
 
   const [navIsStuck,          setNavIsStuck]          = useState(false)
   const [dividerVisible,      setDividerVisible]      = useState(false)
@@ -235,7 +392,7 @@ export function SidebarNav() {
   }, [])
 
   useEffect(() => {
-    if (isMobile) return
+    if (isMobile || (isTablet && !tabletSidebarOpen && !tabletInHero)) return
     measureLayout()
     window.addEventListener('resize', measureLayout)
     const ro = new ResizeObserver(measureLayout)
@@ -245,7 +402,7 @@ export function SidebarNav() {
       window.removeEventListener('resize', measureLayout)
       ro.disconnect()
     }
-  }, [isMobile, measureLayout])
+  }, [isMobile, isTablet, tabletSidebarOpen, tabletInHero, measureLayout])
 
   const staggerIn = useCallback((sectionId: string, isFirst = false) => {
     staggerTimers.current.forEach(clearTimeout)
@@ -464,6 +621,22 @@ export function SidebarNav() {
     }
   }, [])
 
+  const applyTabletHeroSidebarScroll = useCallback((y: number) => {
+    const { viewportH, navRestTop, threshold } = layoutRef.current
+    const safeThreshold = threshold > 0 ? threshold : 1
+
+    applySidebarShellFade(sidebarShellRef.current, y, viewportH, BLUR_PX)
+
+    const travelT = Math.min(1, y / safeThreshold)
+    const navTop =
+      y >= safeThreshold
+        ? NAV_TOP_PX
+        : navRestTop + (NAV_TOP_PX - navRestTop) * travelT
+    if (navWrapRef.current) {
+      navWrapRef.current.style.top = `${navTop}px`
+    }
+  }, [])
+
   /** Position nav before paint — avoids hero flash at `top: 0` while layout/scroll frame init. */
   useLayoutEffect(() => {
     if (isMobile) {
@@ -472,10 +645,28 @@ export function SidebarNav() {
       return
     }
 
+    if (isTablet) {
+      if (tabletSidebarOpen || tabletInHero) {
+        measureLayout()
+        const y = getScrollTop()
+        if (tabletInHero && !tabletSidebarOpen) {
+          applyTabletHeroSidebarScroll(y)
+        } else {
+          resetSidebarShellFade(sidebarShellRef.current)
+          applyDesktopNavScroll(y)
+        }
+        setDesktopNavReady(true)
+      } else {
+        resetSidebarShellFade(sidebarShellRef.current)
+        setDesktopNavReady(false)
+      }
+      return
+    }
+
     measureLayout()
     applyDesktopNavScroll(getScrollTop())
     setDesktopNavReady(true)
-  }, [isMobile, measureLayout, applyDesktopNavScroll, applyMobileNavMorph])
+  }, [isMobile, isTablet, tabletSidebarOpen, tabletInHero, measureLayout, applyDesktopNavScroll, applyTabletHeroSidebarScroll, applyMobileNavMorph])
 
   /** Mobile: hero nav travels upward and morphs into the accent bar (scroll-linked, no CSS transition). */
   useEffect(() => {
@@ -489,27 +680,80 @@ export function SidebarNav() {
   }, [isMobile, applyScrollSpy, applyMobileNavMorph])
 
   useEffect(() => {
-    if (!isMobile || !mobileDrawerOpen) return
+    if ((!isMobile && !isTablet) || !(mobileDrawerOpen || tabletSidebarOpen)) return
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setMobileDrawerOpen(false)
+      if (e.key === 'Escape') {
+        setMobileDrawerOpen(false)
+        setTabletSidebarOpen(false)
+      }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [isMobile, mobileDrawerOpen])
+  }, [isMobile, isTablet, mobileDrawerOpen, tabletSidebarOpen])
+
+  useEffect(() => {
+    if (!isTablet || !tabletSidebarOpen) return
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = prev
+    }
+  }, [isTablet, tabletSidebarOpen])
+
+  useEffect(() => {
+    if (!isTablet) return
+    const active = tabletInHero && !tabletSidebarOpen
+    document.documentElement.classList.toggle('sidebar-tablet-hero-active', active)
+    return () => {
+      document.documentElement.classList.remove('sidebar-tablet-hero-active')
+    }
+  }, [isTablet, tabletInHero, tabletSidebarOpen])
 
   // Scroll-linked sidebar hero name + nav travel — one shared scroll frame (no idle rAF loop).
   useEffect(() => {
     if (isMobile) return
 
-    measureLayout()
+    const tabletSidebarLive =
+      isTablet && (tabletSidebarOpen || tabletInHero)
+
+    if (!isTablet || tabletSidebarLive) measureLayout()
 
     return scheduleScrollFrame(() => {
       const y = getScrollTop()
-      applyDesktopNavScroll(y)
+
+      if (isTablet) {
+        const inHero = isInHeroScrollZone()
+        if (inHero !== tabletInHeroRef.current) {
+          tabletInHeroRef.current = inHero
+          setTabletInHero(inHero)
+        }
+
+        if (tabletSidebarOpen) {
+          resetSidebarShellFade(sidebarShellRef.current)
+          applyDesktopNavScroll(y)
+        } else if (inHero) {
+          applyTabletHeroSidebarScroll(y)
+        } else {
+          resetSidebarShellFade(sidebarShellRef.current)
+        }
+      } else {
+        applyDesktopNavScroll(y)
+      }
+
       applyStuckState(y)
-      if (prevStuck.current) applyScrollSpy()
+      if (isTablet || prevStuck.current) applyScrollSpy()
     })
-  }, [isMobile, applyStuckState, applyScrollSpy, measureLayout, applyDesktopNavScroll])
+  }, [
+    isMobile,
+    isTablet,
+    tabletSidebarOpen,
+    tabletInHero,
+    applyStuckState,
+    applyScrollSpy,
+    measureLayout,
+    applyDesktopNavScroll,
+    applyTabletHeroSidebarScroll,
+  ])
 
   const syncScrollAfterNavigate = useCallback(() => {
     applyStuckState(getScrollTop())
@@ -518,6 +762,7 @@ export function SidebarNav() {
 
   const scrollToSection = (id: string) => {
     setMobileDrawerOpen(false)
+    setTabletSidebarOpen(false)
     const sec = NAV_SECTIONS.find((s) => s.id === id)
     activeSectionRef.current = id
     switchSection(id)
@@ -530,6 +775,7 @@ export function SidebarNav() {
 
   const scrollToChapter = (chapterId: string) => {
     setMobileDrawerOpen(false)
+    setTabletSidebarOpen(false)
     const sectionId = sectionIdForChapter(chapterId)
     if (sectionId) {
       activeSectionRef.current = sectionId
@@ -546,6 +792,23 @@ export function SidebarNav() {
 
   /** Right-handed (default): hero copy + menus bias toward the trailing edge; swipe hero left→`left`. */
   const thumbTrailing = handedness === 'right'
+
+  const showTabletRail = isTablet && !tabletSidebarOpen && !tabletInHero
+
+  const tabletShellClass = [
+    'sidebar-desktop-shell',
+    tabletSidebarOpen ? 'sidebar-tablet-expanded' : '',
+    tabletInHero && !tabletSidebarOpen ? 'sidebar-tablet-hero' : '',
+  ]
+    .filter(Boolean)
+    .join(' ')
+
+  const tabletSubnavClass = [
+    'sidebar-desktop-subnav',
+    tabletSidebarOpen ? 'sidebar-tablet-expanded' : '',
+  ]
+    .filter(Boolean)
+    .join(' ')
 
   return (
     <>
@@ -773,124 +1036,44 @@ export function SidebarNav() {
                   textAlign: thumbTrailing ? 'right' : 'left',
                 }}
               >
-                <p
-                  style={{
-                    fontFamily: FONT_MONO,
-                    fontWeight: 700,
-                    fontSize: 10,
-                    letterSpacing: '0.12em',
-                    textTransform: 'uppercase',
-                    color: 'rgba(255,255,255,0.75)',
-                    margin: '4px 0 12px',
-                  }}
-                >
-                  Sections
-                </p>
-                <div
-                  style={{
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    gap: 8,
-                    marginBottom: 22,
-                    justifyContent: thumbTrailing ? 'flex-end' : 'flex-start',
-                  }}
-                >
-                  {NAV_SECTIONS.map((sec) => {
-                    const on = activeSection === sec.id
-                    return (
-                      <button
-                        key={sec.id}
-                        type="button"
-                        onClick={() => scrollToSection(sec.id)}
-                        style={{
-                          fontFamily: FONT_AHG,
-                          fontWeight: 700,
-                          fontSize: 12,
-                          letterSpacing: '0.05em',
-                          textTransform: 'uppercase',
-                          padding: '8px 14px',
-                          borderRadius: 9999,
-                          border: on ? '2px solid #fff' : '1px solid rgba(255,255,255,0.45)',
-                          background: on ? 'rgba(255,255,255,0.18)' : 'transparent',
-                          color: '#fff',
-                          cursor: 'pointer',
-                        }}
-                      >
-                        {sec.label}
-                      </button>
-                    )
-                  })}
-                </div>
-                <p
-                  style={{
-                    fontFamily: FONT_MONO,
-                    fontWeight: 700,
-                    fontSize: 10,
-                    letterSpacing: '0.12em',
-                    textTransform: 'uppercase',
-                    color: 'rgba(255,255,255,0.75)',
-                    margin: '0 0 12px',
-                  }}
-                >
-                  In this section
-                </p>
-                <div
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 6,
-                    marginBottom: 28,
-                    alignItems: thumbTrailing ? 'flex-end' : 'flex-start',
-                  }}
-                >
-                  {currentSection.chapters.map((chapter) => {
-                    const chId = toChapterId(currentSection.id, chapter.id)
-                    const on = activeChapter === chId
-                    return (
-                      <button
-                        key={chapter.id}
-                        type="button"
-                        aria-current={on ? 'true' : undefined}
-                        onClick={() => scrollToChapter(chId)}
-                        style={{
-                          alignSelf: thumbTrailing ? 'flex-end' : 'flex-start',
-                          fontFamily: FONT_MONO,
-                          fontWeight: 700,
-                          fontSize: 11,
-                          letterSpacing: '0.07em',
-                          textTransform: 'uppercase',
-                          lineHeight: 1.45,
-                          padding: '8px 14px',
-                          borderRadius: 9999,
-                          border: 'none',
-                          background: on ? 'rgba(255,255,255,0.22)' : 'rgba(255,255,255,0.08)',
-                          color: '#fff',
-                          cursor: 'pointer',
-                          textAlign: thumbTrailing ? 'right' : 'left',
-                        }}
-                      >
-                        {chapter.label}
-                      </button>
-                    )
-                  })}
-                </div>
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: thumbTrailing ? 'flex-end' : 'flex-start',
-                  }}
-                >
-                  <div className="contact-liquid contact-liquid--on-accent">
-                    <ContactButton />
-                  </div>
-                </div>
+                <AccentNavDrawerBody
+                  activeSection={activeSection ?? NAV_SECTIONS[0].id}
+                  activeChapter={activeChapter}
+                  currentSection={currentSection}
+                  thumbTrailing={thumbTrailing}
+                  onSection={scrollToSection}
+                  onChapter={scrollToChapter}
+                />
               </div>
             </div>
           </div>
       </div>
 
-      {/* Sidebar shell — desktop; CSS hides below 768px before hydration */}
-      <div className="sidebar-desktop-shell">
+      {/* Tablet: vertical rail → full desktop sidebar overlay */}
+      {showTabletRail ? (
+        <button
+          type="button"
+          className="sidebar-tablet-rail"
+          aria-expanded={tabletSidebarOpen}
+          aria-controls="sidebar-tablet-panel"
+          onClick={() => setTabletSidebarOpen(true)}
+        >
+          <p className="sidebar-tablet-rail__label">
+            I simplify complex systems for{' '}
+            <span className="sidebar-tablet-rail__label-accent">{currentSection.label}</span>
+          </p>
+        </button>
+      ) : null}
+      {tabletSidebarOpen ? (
+        <div
+          className="sidebar-tablet-backdrop sidebar-tablet-backdrop--visible"
+          role="presentation"
+          onClick={() => setTabletSidebarOpen(false)}
+        />
+      ) : null}
+
+      {/* Sidebar shell — desktop; tablet expands as overlay */}
+      <div id="sidebar-tablet-panel" className={tabletShellClass}>
         <div
           ref={sidebarShellRef}
           className="sidebar-shell--fixed"
@@ -1025,7 +1208,7 @@ export function SidebarNav() {
       ) : null}
 
       {/* Sub nav — viewport center (desktop only) */}
-      <div className="sidebar-desktop-subnav">
+      <div className={tabletSubnavClass}>
       <div
         className="sidebar-subnav--fixed"
         aria-label="Chapter navigation"

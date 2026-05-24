@@ -5,13 +5,14 @@ import { ScratchCoinTray } from '@/components/web-apps/ScratchCoinTray'
 import { useChapterActive } from '@/lib/chapterActiveContext'
 import { KELVIN_SCRATCH_QUADS } from '@/lib/kelvinScratchQuads'
 import { useKelvinScratchAssets } from '@/lib/useKelvinScratchAssets'
+import { useElementSize } from '@/lib/useElementSize'
 import {
   COIN_BRUSH_PX,
   COIN_CURSOR_PX,
   KELVIN_COIN_TILTED_SRC,
   SCRATCH_CARD_PX,
 } from '@/lib/webAppsScratchAssets'
-import { memo, useCallback, useRef, useState } from 'react'
+import { memo, useCallback, useMemo, useRef, useState } from 'react'
 import ScratchCard, { Brushes, Covers } from 'react-scratchcard-v2'
 import '@/styles/web-apps-scratch-reveal.css'
 
@@ -20,6 +21,7 @@ const FINISH_PERCENT = 55
 function KelvinQuadScratchInner() {
   const isActive = useChapterActive()
   const frameRef = useRef<HTMLDivElement>(null)
+  const { ref: cardRef, size: cardBox } = useElementSize<HTMLDivElement>()
   const { cover, coinBrush, ready } = useKelvinScratchAssets(isActive)
   const [coinInTray, setCoinInTray] = useState(true)
   const [scratchEngaged, setScratchEngaged] = useState(false)
@@ -56,14 +58,24 @@ function KelvinQuadScratchInner() {
   const showFollowCoin = coinActive && hovering
   const showScratch = ready && cover && coinBrush && scratchEngaged
 
+  const cardSize = cardBox.width > 0 ? cardBox.width : SCRATCH_CARD_PX
+  const scale = cardSize / SCRATCH_CARD_PX
+  const brushPx = useMemo(
+    () => Math.max(12, Math.round(COIN_BRUSH_PX * scale)),
+    [scale],
+  )
+  const coinCursorPx = useMemo(
+    () => Math.round(COIN_CURSOR_PX * scale),
+    [scale],
+  )
+
   return (
     <div
       className="kelvin-quad-scratch web-apps-scratch"
       role="application"
       aria-label="Scratch the foil with the Kelvin coin to reveal the unified design system underneath."
       style={{
-        ['--scratch-coin-size' as string]: `${COIN_CURSOR_PX}px`,
-        ['--scratch-card' as string]: `${SCRATCH_CARD_PX}px`,
+        ['--scratch-coin-size' as string]: `${coinCursorPx}px`,
       }}
     >
       <div className="kelvin-quad-scratch__stage web-apps-scratch__stage">
@@ -95,13 +107,17 @@ function KelvinQuadScratchInner() {
             />
           ) : null}
 
-          <div className="kelvin-quad-scratch__card web-apps-scratch__card">
-            {showScratch ? (
+          <div
+            ref={cardRef}
+            className="kelvin-quad-scratch__card web-apps-scratch__card"
+          >
+            {showScratch && cardBox.width > 0 ? (
               <ScratchCard
-                width={SCRATCH_CARD_PX}
-                height={SCRATCH_CARD_PX}
+                key={cardSize}
+                width={cardSize}
+                height={cardSize}
                 cover={Covers.image(cover)}
-                brush={Brushes.image(coinBrush, COIN_BRUSH_PX, COIN_BRUSH_PX)}
+                brush={Brushes.image(coinBrush, brushPx, brushPx)}
                 finishPercent={FINISH_PERCENT}
                 lockOnComplete={false}
                 onScratch={trackCoin}
@@ -112,22 +128,18 @@ function KelvinQuadScratchInner() {
                   className: 'web-apps-scratch__scratch-canvas',
                   style: {
                     display: 'block',
+                    width: '100%',
+                    height: '100%',
                     cursor: coinInTray ? 'default' : 'none',
                     pointerEvents: coinInTray ? 'none' : 'auto',
                   },
                 }}
               >
-                <KelvinAfterWireframe
-                  width={SCRATCH_CARD_PX}
-                  height={SCRATCH_CARD_PX}
-                />
+                <KelvinAfterWireframe width={cardSize} height={cardSize} />
               </ScratchCard>
             ) : ready && cover ? (
               <div className="kelvin-quad-scratch__idle web-apps-scratch__card-idle">
-                <KelvinAfterWireframe
-                  width={SCRATCH_CARD_PX}
-                  height={SCRATCH_CARD_PX}
-                />
+                <KelvinAfterWireframe width={cardSize} height={cardSize} />
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   className="kelvin-quad-scratch__idle-cover web-apps-scratch__card-cover"

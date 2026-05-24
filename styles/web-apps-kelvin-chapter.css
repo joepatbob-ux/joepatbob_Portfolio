@@ -179,15 +179,19 @@
 .kelvin-quad-scratch {
   margin: 0 0 28px;
   padding: 0;
+  width: 100%;
+  max-width: 100%;
 }
 
 .kelvin-quad-scratch__stage {
   align-items: flex-end;
+  width: 100%;
 }
 
 .kelvin-quad-scratch__frame {
   position: relative;
   flex: 0 0 auto;
+  width: min(100%, var(--scratch-card-max, 560px));
 }
 
 .kelvin-quad-scratch__frame--hover,

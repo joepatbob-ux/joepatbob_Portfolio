@@ -14,7 +14,10 @@
 
 .touch2-carousel {
   position: relative;
-  --touch2-radius: 40px;
+  --touch2-frame-max-w: 520px;
+  --touch2-frame-max-h: 580px;
+  --touch2-frame-aspect: 520 / 580;
+  --touch2-radius: clamp(24px, 5vw, 40px);
   --touch2-morph-ease: cubic-bezier(0.34, 1.22, 0.64, 1);
   --touch2-fade-ease: cubic-bezier(0.16, 1, 0.3, 1);
   --touch2-dot-ease: cubic-bezier(0.22, 1, 0.36, 1);
@@ -36,7 +39,10 @@
   position: relative;
   margin: 0 auto;
   isolation: isolate;
-  max-width: 100%;
+  width: min(var(--touch2-frame-max-w), 100%);
+  max-height: min(var(--touch2-frame-max-h), 72dvh);
+  aspect-ratio: var(--touch2-frame-aspect);
+  height: auto;
   flex-shrink: 0;
   overflow: hidden;
   border-radius: var(--touch2-radius);
@@ -175,13 +181,13 @@
   );
 }
 
-@media (max-width: 640px) {
+@media (max-width: 767px) {
   .touch2-carousel {
-    grid-template-columns: minmax(0, 1fr) auto;
+    gap: clamp(12px, 3vw, 20px);
   }
 
   .touch2-carousel__slides {
-    max-width: min(100%, 520px);
+    max-height: min(var(--touch2-frame-max-h), 58dvh);
   }
 }
 
