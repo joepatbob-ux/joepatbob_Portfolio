@@ -19,7 +19,6 @@ import { LAYOUT_MQ } from '@/lib/layout/breakpoints'
 import { scheduleScrollFrame } from '@/lib/scrollFrame'
 import { ContactButton } from '@/components/ContactButton'
 import { useChapterNav } from '@/components/ChapterNavProvider'
-import { useHandedness } from '@/components/HandednessProvider'
 
 // ── FONT STRINGS (CSS vars: --font-ahg / --font-mono from globals + layout) ─
 const FONT_AHG  = 'var(--font-ahg)'
@@ -75,14 +74,12 @@ function useIsTablet() {
   return isTablet
 }
 
-type NavSection = (typeof NAV_SECTIONS)[number]
-
 function SidebarOverlayClose({
   onClose,
   variant,
 }: {
   onClose: () => void
-  variant: 'tablet' | 'mobile-scrim'
+  variant: 'tablet' | 'mobile-panel'
 }) {
   return (
     <button
@@ -106,208 +103,6 @@ function SidebarOverlayClose({
   )
 }
 
-function NavOverlayPanelBody({
-  theme,
-  ink,
-  activeSection,
-  activeChapter,
-  currentSection,
-  thumbTrailing,
-  onSectionKeyword,
-  onSection,
-  onChapter,
-}: {
-  theme: 'paper' | 'accent'
-  ink: string
-  activeSection: string
-  activeChapter: string | null
-  currentSection: NavSection
-  thumbTrailing: boolean
-  onSectionKeyword: (id: string) => void
-  onSection: (id: string) => void
-  onChapter: (chapterId: string) => void
-}) {
-  const onPaper = theme === 'paper'
-  const labelMuted = onPaper ? 'var(--color-muted)' : 'rgba(255,255,255,0.75)'
-
-  return (
-    <>
-      <p
-        className={onPaper ? 'sidebar-main-nav__sentence nav-overlay-panel__sentence' : undefined}
-        style={{
-          fontFamily: FONT_AHG,
-          fontWeight: 700,
-          fontSize: onPaper ? undefined : 18,
-          lineHeight: onPaper ? undefined : 1.25,
-          letterSpacing: '0.02em',
-          textTransform: 'uppercase',
-          color: ink,
-          margin: onPaper ? '0 0 18px' : undefined,
-          textAlign: thumbTrailing ? 'right' : 'left',
-        }}
-      >
-        {'I simplify complex systems across '}
-        {NAV_SECTIONS.map((sec, i) => {
-          const connector =
-            i === NAV_SECTIONS.length - 2
-              ? ', and '
-              : i < NAV_SECTIONS.length - 1
-                ? ', '
-                : '.'
-          const isActive = activeSection === sec.id
-          return (
-            <span key={sec.id}>
-              <button
-                type="button"
-                onClick={() => onSectionKeyword(sec.id)}
-                style={{
-                  display: 'inline',
-                  margin: 0,
-                  padding: 0,
-                  border: 'none',
-                  background: 'none',
-                  font: 'inherit',
-                  letterSpacing: 'inherit',
-                  textTransform: 'inherit',
-                  lineHeight: 'inherit',
-                  color: ACCENT,
-                  cursor: 'pointer',
-                  verticalAlign: 'baseline',
-                  opacity: isActive ? 1 : onPaper ? 0.55 : 0.75,
-                  transition: 'opacity 180ms ease',
-                }}
-              >
-                {sec.label}
-              </button>
-              {connector}
-            </span>
-          )
-        })}
-      </p>
-
-      <p
-        style={{
-          fontFamily: FONT_MONO,
-          fontWeight: 700,
-          fontSize: 10,
-          letterSpacing: '0.12em',
-          textTransform: 'uppercase',
-          color: labelMuted,
-          margin: '0 0 10px',
-          textAlign: thumbTrailing ? 'right' : 'left',
-        }}
-      >
-        Sections
-      </p>
-      <div
-        className="nav-overlay-panel__sections"
-        style={{
-          justifyContent: thumbTrailing ? 'flex-end' : 'flex-start',
-        }}
-      >
-        {NAV_SECTIONS.map((sec) => {
-          const on = activeSection === sec.id
-          return (
-            <button
-              key={sec.id}
-              type="button"
-              onClick={() => onSection(sec.id)}
-              className={onPaper ? 'nav-overlay-panel__pill' : undefined}
-              style={
-                onPaper
-                  ? undefined
-                  : {
-                      fontFamily: FONT_AHG,
-                      fontWeight: 700,
-                      fontSize: 12,
-                      letterSpacing: '0.05em',
-                      textTransform: 'uppercase',
-                      padding: '8px 14px',
-                      borderRadius: 9999,
-                      border: on ? '2px solid #fff' : '1px solid rgba(255,255,255,0.45)',
-                      background: on ? 'rgba(255,255,255,0.18)' : 'transparent',
-                      color: '#fff',
-                      cursor: 'pointer',
-                    }
-              }
-              data-active={on ? 'true' : undefined}
-            >
-              {sec.label}
-            </button>
-          )
-        })}
-      </div>
-
-      <p
-        style={{
-          fontFamily: FONT_MONO,
-          fontWeight: 700,
-          fontSize: 10,
-          letterSpacing: '0.12em',
-          textTransform: 'uppercase',
-          color: labelMuted,
-          margin: '18px 0 10px',
-          textAlign: thumbTrailing ? 'right' : 'left',
-        }}
-      >
-        In this section
-      </p>
-      <div
-        className="nav-overlay-panel__chapters"
-        style={{
-          alignItems: thumbTrailing ? 'flex-end' : 'flex-start',
-        }}
-      >
-        {currentSection.chapters.map((chapter) => {
-          const chId = toChapterId(currentSection.id, chapter.id)
-          const on = activeChapter === chId
-          return (
-            <button
-              key={chapter.id}
-              type="button"
-              aria-current={on ? 'true' : undefined}
-              onClick={() => onChapter(chId)}
-              className={onPaper ? 'nav-overlay-panel__pill nav-overlay-panel__pill--chapter' : undefined}
-              style={
-                onPaper
-                  ? undefined
-                  : {
-                      alignSelf: thumbTrailing ? 'flex-end' : 'flex-start',
-                      fontFamily: FONT_MONO,
-                      fontWeight: 700,
-                      fontSize: 11,
-                      letterSpacing: '0.07em',
-                      textTransform: 'uppercase',
-                      lineHeight: 1.45,
-                      padding: '8px 14px',
-                      borderRadius: 9999,
-                      border: 'none',
-                      background: on ? 'rgba(255,255,255,0.22)' : 'rgba(255,255,255,0.08)',
-                      color: '#fff',
-                      cursor: 'pointer',
-                      textAlign: thumbTrailing ? 'right' : 'left',
-                    }
-              }
-              data-active={on ? 'true' : undefined}
-            >
-              {chapter.label}
-            </button>
-          )
-        })}
-      </div>
-      <div
-        className="nav-overlay-panel__contact"
-        style={{
-          justifyContent: thumbTrailing ? 'flex-end' : 'flex-start',
-        }}
-      >
-        <div className={onPaper ? 'contact-liquid' : 'contact-liquid contact-liquid--on-accent'}>
-          <ContactButton />
-        </div>
-      </div>
-    </>
-  )
-}
 
 /** Main nav section keywords: orange + opacity dimming when stuck. */
 function navKeywordStyle(opts: {
@@ -416,7 +211,6 @@ export function SidebarNav() {
   const dark = useDarkMode()
   const isMobile = useIsMobile()
   const isTablet = useIsTablet()
-  const { handedness } = useHandedness()
   const { navigateToChapter, navigateToSection } = useChapterNav()
   const C = {
     ink:     dark ? '#f0eeea' : '#0d0d0d',
@@ -482,7 +276,13 @@ export function SidebarNav() {
   }, [])
 
   useEffect(() => {
-    if (isMobile || (isTablet && !tabletSidebarOpen && !tabletInHero)) return
+    if (
+      isMobile
+        ? !mobileDrawerOpen
+        : isTablet && !tabletSidebarOpen && !tabletInHero
+    ) {
+      return
+    }
     measureLayout()
     window.addEventListener('resize', measureLayout)
     const ro = new ResizeObserver(measureLayout)
@@ -492,7 +292,7 @@ export function SidebarNav() {
       window.removeEventListener('resize', measureLayout)
       ro.disconnect()
     }
-  }, [isMobile, isTablet, tabletSidebarOpen, tabletInHero, measureLayout])
+  }, [isMobile, isTablet, mobileDrawerOpen, tabletSidebarOpen, tabletInHero, measureLayout])
 
   const staggerIn = useCallback((sectionId: string, isFirst = false) => {
     staggerTimers.current.forEach(clearTimeout)
@@ -543,10 +343,12 @@ export function SidebarNav() {
     overlayOpenRef.current = mobileDrawerOpen || tabletSidebarOpen
   }, [mobileDrawerOpen, tabletSidebarOpen])
 
-  /** Expanded tablet panel: reveal chapter subnav even before scroll-lock threshold. */
+  /** Expanded overlay panel: reveal chapter subnav even before scroll-lock threshold. */
   useEffect(() => {
-    if (!isTablet) return
-    if (tabletSidebarOpen) {
+    const overlayOpen =
+      (isTablet && tabletSidebarOpen) || (isMobile && mobileDrawerOpen)
+    if (!isTablet && !isMobile) return
+    if (overlayOpen) {
       const id = activeSectionRef.current || NAV_SECTIONS[0].id
       setSubNavVisible(true)
       setDividerVisible(true)
@@ -563,7 +365,7 @@ export function SidebarNav() {
       staggerTimers.current.forEach(clearTimeout)
       staggerTimers.current = []
     }
-  }, [isTablet, tabletSidebarOpen, staggerIn])
+  }, [isTablet, isMobile, tabletSidebarOpen, mobileDrawerOpen, staggerIn])
 
   const applyScrollSpy = useCallback(() => {
     if (overlayOpenRef.current) return
@@ -704,12 +506,19 @@ export function SidebarNav() {
   /** Position nav before paint — avoids hero flash at `top: 0` while layout/scroll frame init. */
   useLayoutEffect(() => {
     if (isMobile) {
-      setDesktopNavReady(false)
-      const y = getScrollTop()
-      if (mobileInHero && !mobileDrawerOpen) {
-        applyMobileHeroScroll(y)
+      if (mobileDrawerOpen) {
+        measureLayout()
+        resetSidebarShellFade(sidebarShellRef.current)
+        applyDesktopNavScroll(getScrollTop())
+        setDesktopNavReady(true)
       } else {
-        resetSidebarShellFade(mobileHeroRef.current)
+        setDesktopNavReady(false)
+        const y = getScrollTop()
+        if (mobileInHero) {
+          applyMobileHeroScroll(y)
+        } else {
+          resetSidebarShellFade(mobileHeroRef.current)
+        }
       }
       return
     }
@@ -848,23 +657,6 @@ export function SidebarNav() {
     [closeOverlays, syncScrollAfterNavigate],
   )
 
-  /** Mobile drawer: switch section + chapter list without scrolling yet. */
-  const previewDrawerSection = useCallback(
-    (id: string) => {
-      activeSectionRef.current = id
-      switchSection(id)
-      const sec = NAV_SECTIONS.find((s) => s.id === id)
-      if (!sec) return
-      const currentCh = activeChapterRef.current
-      if (!currentCh || sectionIdForChapter(currentCh) !== id) {
-        const first = toChapterId(id, sec.chapters[0].id)
-        activeChapterRef.current = first
-        setActiveChapter(first)
-      }
-    },
-    [switchSection],
-  )
-
   const scrollToSection = (id: string) => {
     const closeAfter = mobileDrawerOpen || tabletSidebarOpen
     const sec = NAV_SECTIONS.find((s) => s.id === id)
@@ -892,27 +684,28 @@ export function SidebarNav() {
   const currentSection = NAV_SECTIONS.find((s) => s.id === activeSection) || NAV_SECTIONS[0]
 
   const tabletOverlaySubnav = isTablet && tabletSidebarOpen
-  const subnavInteractive = subNavVisible || tabletOverlaySubnav
-
-  /** Right-handed (default): hero copy + menus bias toward the trailing edge; swipe hero left→`left`. */
-  const thumbTrailing = handedness === 'right'
+  const mobileOverlaySubnav = isMobile && mobileDrawerOpen
+  const overlaySubnav = tabletOverlaySubnav || mobileOverlaySubnav
+  const subnavInteractive = subNavVisible || overlaySubnav
 
   const showMobileRail = isMobile && !mobileInHero && !mobileDrawerOpen
   const showMobileHero = isMobile && mobileInHero && !mobileDrawerOpen
 
   const showTabletRail = isTablet && !tabletSidebarOpen && !tabletInHero
 
-  const tabletShellClass = [
+  const shellClass = [
     'sidebar-desktop-shell',
     tabletSidebarOpen ? 'sidebar-tablet-expanded' : '',
+    mobileDrawerOpen ? 'sidebar-mobile-expanded' : '',
     tabletInHero && !tabletSidebarOpen ? 'sidebar-tablet-hero' : '',
   ]
     .filter(Boolean)
     .join(' ')
 
-  const tabletSubnavClass = [
+  const subnavClass = [
     'sidebar-desktop-subnav',
     tabletSidebarOpen ? 'sidebar-tablet-expanded' : '',
+    mobileDrawerOpen ? 'sidebar-mobile-expanded' : '',
   ]
     .filter(Boolean)
     .join(' ')
@@ -926,13 +719,7 @@ export function SidebarNav() {
           role="presentation"
           aria-hidden={mobileDrawerOpen ? undefined : true}
           onClick={closeOverlays}
-        >
-          {mobileDrawerOpen ? (
-            <div className="sidebar-mobile-backdrop__content">
-              <SidebarOverlayClose onClose={closeOverlays} variant="mobile-scrim" />
-            </div>
-          ) : null}
-        </div>
+        />
 
         <nav
           ref={mobileHeroRef}
@@ -940,9 +727,7 @@ export function SidebarNav() {
           className={`sidebar-mobile-hero${showMobileHero ? ' sidebar-mobile-hero--active' : ''}`}
           aria-hidden={showMobileHero ? undefined : true}
         >
-          <div
-            className={`sidebar-mobile-hero__inner sidebar-mobile-hero__inner--${thumbTrailing ? 'trailing' : 'leading'}`}
-          >
+          <div className="sidebar-mobile-hero__inner">
               <div
                 style={{
                   fontFamily: FONT_AHG,
@@ -1039,20 +824,13 @@ export function SidebarNav() {
             .filter(Boolean)
             .join(' ')}
           aria-expanded={mobileDrawerOpen}
-          aria-controls="mobile-nav-panel"
+          aria-controls="sidebar-tablet-panel"
           aria-hidden={showMobileRail ? undefined : true}
           tabIndex={showMobileRail ? 0 : -1}
           onClick={() => setMobileDrawerOpen(true)}
         >
           <span className="sidebar-mobile-rail__blur" aria-hidden />
-          <p
-            className={[
-              'sidebar-mobile-rail__label',
-              thumbTrailing ? 'sidebar-mobile-rail__label--trailing' : '',
-            ]
-              .filter(Boolean)
-              .join(' ')}
-          >
+          <p className="sidebar-mobile-rail__label">
             <span className="sidebar-mobile-rail__copy sidebar-mobile-rail__copy--long">
               I simplify complex systems for{' '}
               <span className="sidebar-mobile-rail__label-accent">{currentSection.label}</span>
@@ -1063,46 +841,6 @@ export function SidebarNav() {
             </span>
           </p>
         </button>
-
-        <div
-          id="mobile-nav-panel"
-          className={[
-            'sidebar-mobile-panel',
-            mobileDrawerOpen ? 'sidebar-mobile-panel--open' : '',
-          ]
-            .filter(Boolean)
-            .join(' ')}
-          role="dialog"
-          aria-modal={mobileDrawerOpen ? true : undefined}
-          aria-label="Navigation menu"
-          aria-hidden={mobileDrawerOpen ? undefined : true}
-        >
-          <span className="sidebar-mobile-panel__frost" aria-hidden />
-          <div
-            className={[
-              'sidebar-mobile-panel__scroll',
-              thumbTrailing ? 'sidebar-mobile-panel__scroll--trailing' : '',
-            ]
-              .filter(Boolean)
-              .join(' ')}
-            data-sidebar-nav-hit
-            onClick={(e) => {
-              if (e.target === e.currentTarget) closeOverlays()
-            }}
-          >
-            <NavOverlayPanelBody
-              theme="paper"
-              ink={C.ink}
-              activeSection={activeSection ?? NAV_SECTIONS[0].id}
-              activeChapter={activeChapter}
-              currentSection={currentSection}
-              thumbTrailing={thumbTrailing}
-              onSectionKeyword={scrollToSection}
-              onSection={previewDrawerSection}
-              onChapter={scrollToChapter}
-            />
-          </div>
-        </div>
       </div>
 
       {/* Tablet: vertical rail → full desktop sidebar overlay */}
@@ -1138,7 +876,13 @@ export function SidebarNav() {
       ) : null}
 
       {/* Sidebar shell — desktop; tablet expands as overlay */}
-      <div id="sidebar-tablet-panel" className={tabletShellClass}>
+      <div
+        id="sidebar-tablet-panel"
+        className={shellClass}
+        role={mobileDrawerOpen ? 'dialog' : undefined}
+        aria-modal={mobileDrawerOpen ? true : undefined}
+        aria-label={mobileDrawerOpen ? 'Navigation menu' : undefined}
+      >
         <div
           ref={sidebarShellRef}
           className="sidebar-shell--fixed"
@@ -1150,14 +894,20 @@ export function SidebarNav() {
             width: 'var(--sidebar-width)',
             height: '100dvh',
             zIndex: 100,
-            pointerEvents: isTablet && tabletSidebarOpen ? 'auto' : 'none',
+            pointerEvents:
+              (isTablet && tabletSidebarOpen) || (isMobile && mobileDrawerOpen)
+                ? 'auto'
+                : 'none',
           }}
           onClick={(e) => {
-            if (!isTablet || !tabletSidebarOpen) return
             if ((e.target as Element).closest('[data-sidebar-nav-hit]')) return
-            setTabletSidebarOpen(false)
+            if (isTablet && tabletSidebarOpen) setTabletSidebarOpen(false)
+            if (isMobile && mobileDrawerOpen) setMobileDrawerOpen(false)
           }}
         >
+        {isMobile && mobileDrawerOpen ? (
+          <SidebarOverlayClose onClose={closeOverlays} variant="mobile-panel" />
+        ) : null}
         {/* Divider */}
         <div
           aria-hidden
@@ -1274,7 +1024,7 @@ export function SidebarNav() {
       </div>
 
       {/* Sub nav — viewport center (desktop only) */}
-      <div className={tabletSubnavClass}>
+      <div className={subnavClass}>
       <div
         className="sidebar-subnav--fixed"
         aria-label="Chapter navigation"
@@ -1295,7 +1045,7 @@ export function SidebarNav() {
           const isActive  = activeChapter === chId
           const isVisible =
             subnavInteractive &&
-            (tabletOverlaySubnav || chapterItemsVisible.includes(i))
+            (overlaySubnav || chapterItemsVisible.includes(i))
           const isHoverThis = hoverChapterId === chId
           const chapterFill = isActive ? NAV_PILL_1 : 'transparent'
           const chapterRing = isHoverThis ? `0 0 0 1px ${NAV_OUTLINE}` : 'none'
