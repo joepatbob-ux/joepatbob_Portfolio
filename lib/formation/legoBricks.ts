@@ -68,9 +68,6 @@ export const BRICK_POSITION_PIN_NATIVE: Record<
   right: PIVOT_LAYOUT.right.positionPinNative,
 }
 
-/** @deprecated Use BRICK_POSITION_PIN_NATIVE */
-export const BRICK_PIVOT_NATIVE = BRICK_POSITION_PIN_NATIVE
-
 /** Block 0,0 in brick SVG (above position pin along plate +GY). */
 export function blockOriginNativeInBrick(pivot: BrickPivot): {
   x: number
@@ -290,9 +287,6 @@ export function positionPinNative(
   }
 }
 
-/** @deprecated Use positionPinNative */
-export const pivotStudNative = positionPinNative
-
 export function anchorFromPlacement(
   localLeft: number,
   localTop: number,
@@ -310,25 +304,6 @@ export function anchorFromPlacement(
     layerLift,
   )
   return nearestStudFromNative(native.x, native.y)
-}
-
-export function placementFromPivotNative(
-  displayWidth: number,
-  studX: number,
-  studY: number,
-  pivot: BrickPivot,
-  level: number,
-  layerLift: number,
-): { left: number; top: number; width: number; height: number } {
-  const s = boardScale(displayWidth)
-  const anchor = BRICK_POSITION_PIN_NATIVE[pivot]
-  const size = brickDisplaySize(displayWidth)
-  return {
-    left: (studX - anchor.x) * s,
-    top: (studY - anchor.y) * s - level * layerLift,
-    width: size.width,
-    height: size.height,
-  }
 }
 
 export function blockOriginScreenPosition(

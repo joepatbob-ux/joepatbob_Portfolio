@@ -1,3 +1,4 @@
+import { LAYOUT_MQ } from '@/lib/layout/breakpoints'
 import { hardware } from '@/lib/sections/hardware'
 
 export const HARDWARE_SECTION_TABS = hardware.chapters.map((ch) => ({
@@ -19,14 +20,17 @@ export const HARDWARE_SCROLL_CHAPTERS = [
   })),
 ] as const
 
-/** Closest hardware snap target to the viewport center. */
+/** Hardware chapter most visible on screen (mobile) or closest to viewport center. */
 export function pickHardwareChapterFromScroll(): string {
   if (typeof window === 'undefined') return HARDWARE_SCROLL_CHAPTERS[0].id
 
   const vh = window.innerHeight
-  const centerY = window.scrollY + vh / 2
+  const useVisibility =
+    typeof window !== 'undefined' &&
+    window.matchMedia(LAYOUT_MQ.mobile).matches
+
   let bestId: string = HARDWARE_SCROLL_CHAPTERS[0].id
-  let bestDist = Infinity
+  let bestScore = -1
 
   for (const ch of HARDWARE_SCROLL_CHAPTERS) {
     const el = document.querySelector<HTMLElement>(
@@ -34,10 +38,15 @@ export function pickHardwareChapterFromScroll(): string {
     )
     if (!el) continue
     const rect = el.getBoundingClientRect()
-    const mid = rect.top + window.scrollY + rect.height / 2
-    const d = Math.abs(centerY - mid)
-    if (d < bestDist) {
-      bestDist = d
+
+    const score = useVisibility
+      ? Math.max(0, Math.min(rect.bottom, vh) - Math.max(rect.top, 0))
+      : -Math.abs(
+          rect.top + window.scrollY + rect.height / 2 - (window.scrollY + vh / 2),
+        )
+
+    if (score > bestScore) {
+      bestScore = score
       bestId = ch.id
     }
   }

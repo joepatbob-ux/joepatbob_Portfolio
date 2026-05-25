@@ -13,10 +13,12 @@
   );
 }
 
-.hardware-slideshow.portfolio-chapter-slot--fill,
-[data-section-id='hardware'] .portfolio-chapter-slot--fill {
-  height: 100vh;
-  height: 100dvh;
+@media (min-width: 768px) {
+  .hardware-slideshow.portfolio-chapter-slot--fill,
+  [data-section-id='hardware'] .portfolio-chapter-slot--fill {
+    height: 100vh;
+    height: 100dvh;
+  }
 }
 
 .hardware-slideshow .portfolio-chapter-panel,
@@ -293,6 +295,7 @@
     align-items: stretch;
     justify-content: flex-start;
     gap: clamp(20px, 5vw, 32px);
+    height: auto !important;
     max-height: none !important;
   }
 
@@ -314,8 +317,17 @@
     flex: none;
     width: 100%;
     max-width: none;
+    height: auto;
+    max-height: none;
+    overflow: visible;
     padding-inline: 24px;
     box-sizing: border-box;
+  }
+
+  .hardware-slideshow .chapter-slide__copy .chapter-copy-scroller {
+    flex: none;
+    overflow: visible;
+    max-height: none;
   }
 
   .hardware-slideshow.case-study-overview .portfolio-chapter-panel {

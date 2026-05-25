@@ -21,7 +21,7 @@ function isMobileViewport(): boolean {
   return window.matchMedia(LAYOUT_MQ.mobile).matches
 }
 
-/** Mobile: in-flow chapters — no crossfade; visible slides read at full opacity. */
+/** Mobile: in-flow chapters — no crossfade; any on-screen slide stays fully revealed. */
 function computeMobileFlowRevealMap(): Record<string, number> {
   const map: Record<string, number> = {}
   const vh = window.innerHeight
@@ -30,8 +30,8 @@ function computeMobileFlowRevealMap(): Record<string, number> {
     const id = el.dataset.chapterId
     if (!id) return
     const rect = el.getBoundingClientRect()
-    const visible = rect.bottom > vh * 0.08 && rect.top < vh * 0.92
-    map[id] = visible ? 1 : 0
+    const onScreen = rect.bottom > 0 && rect.top < vh
+    map[id] = onScreen ? 1 : 0
   })
 
   return map
