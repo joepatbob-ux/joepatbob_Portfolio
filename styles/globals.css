@@ -1,7 +1,3 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 @import './hero.css';
 @import './touch2-carousel.css';
 @import './case-study-overview.css';
@@ -19,9 +15,13 @@
 @import './sidebar-layout.css';
 @import './sidebar-mobile.css';
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* ── FONTS ────────────────────────────────────────────────────────────────── */
 /* Place Alte Haas Grotesk in /public/fonts/ (see @font-face below).
-   JetBrains Mono is loaded via next/font/google in app/layout.tsx. */
+   JetBrains Mono is loaded via Google Fonts in index.html. */
 
 @font-face {
   font-family: 'Alte Haas Grotesk Bold';
