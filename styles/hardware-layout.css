@@ -277,7 +277,7 @@
     right: auto !important;
     width: 100% !important;
     height: auto !important;
-    min-height: min(100dvh, 100vh);
+    min-height: auto;
     overflow: visible;
     opacity: 1 !important;
     filter: none !important;
