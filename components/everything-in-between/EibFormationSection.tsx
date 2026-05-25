@@ -37,6 +37,7 @@ export function EibFormationSection() {
       >
         <div className="mobile-chapter-panel__content eib-section__content">
           <CaseStudySplit
+            className="case-study-split--formation-lego"
             copy={
               <>
                 <EibSubSectionIntro>

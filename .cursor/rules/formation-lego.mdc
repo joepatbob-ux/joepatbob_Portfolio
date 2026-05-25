@@ -1,6 +1,15 @@
 ---
 description: Formation LEGO — peg grid (legoGrid) + bricks (legoBricks) on /Lego/ SVGs
 globs: components/formation/**/*,lib/formation/**/*,styles/formation-lego-board.css,public/Lego/**
+
+## Layout (components)
+
+- `FormationLegoBoard.tsx` — shell + baseplate
+- `FormationLegoTuningBar.tsx` — readout + pivot / align / debug toggles
+- `FormationLegoDebugGrid.tsx` — axis labels (GY left, GX right) + peg hit targets
+- `FormationLegoBrickPiece.tsx` — brick image, align snap marker, drag handle
+- `useFormationLegoBoard.ts` — state, placement, drag/snap
+- `spritePlacement.ts` — shared anchor→board positioning math
 alwaysApply: false
 ---
 
@@ -10,11 +19,15 @@ alwaysApply: false
 
 - 10×10 studs; **A0** = plate zero pin (bottom tip); **GX** A→J right; **GY** 0→9.
 - `pegLabel(gx, gy)` → `A0` … `J9`; `PEG_MAP` = stud centers from `Lego_Board.svg`.
+- All board stud caps are orange (`#ff6700`, `.cls-3`); A0 uses `.cls-a0` on cap + top face.
 
 ## Bricks (`lib/formation/legoBricks.ts`)
 
 - Assets: `public/Lego/Lego_Left_*.svg`, `Lego_Right_*.svg`.
-- **Position pin** (reference red stud) snaps to the chosen plate peg; sprite anchors there.
+- Align overlays: `Lego_Align_Left.svg`, `Lego_Align_Right.svg` — orange plate pegs, gray brick studs.
+- **Left snap**: position-pin orange `ALIGN_PLATE_ORANGE_PIN_NATIVE` → clicked peg cap.
+- **Right snap**: block 0,0 orange `ALIGN_BLOCK_ORIGIN_ORANGE_NATIVE` → peg `(gx−2, gy−2)` so C2 → board **A0**; position pin stays on clicked peg.
+- Board stud caps orange (`#ff6700`, `.cls-3`).
 - **Block 0,0** is `BLOCK_ORIGIN_ABOVE_POSITION_GY` (3.566) studs along **+GY** above the position pin; footprint uses block origin.
 - **Left** pivot: 4×2 along +GY. **Right** pivot: 4×2 along +GX.
 - **Flip** (when restored): swap Left/Right sprites and mirror position peg `gx → 9 - gx`.

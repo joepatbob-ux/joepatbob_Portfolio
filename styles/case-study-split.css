@@ -108,6 +108,24 @@
   justify-content: flex-start;
 }
 
+/* Formation LEGO tuning board — 720px display width */
+.case-study-split--formation-lego {
+  --cs-split-stage-max: min(720px, 52vw);
+}
+
+@media (min-width: 768px) {
+  .case-study-split--formation-lego {
+    grid-template-columns: minmax(280px, var(--cs-split-stage-max)) minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 767px) {
+  .case-study-split--formation-lego .case-study-split__stage {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+}
+
 .case-study-split__stage .drag-scrubber__caption {
   text-align: left;
 }
