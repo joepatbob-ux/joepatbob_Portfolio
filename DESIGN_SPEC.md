@@ -4,7 +4,7 @@
 ---
 
 ## Stack
-- **Framework**: Next.js 14, App Router
+- **Framework**: Vite 8 + React 18 (SPA, `dist/` static deploy)
 - **Styling**: Tailwind CSS + CSS custom properties for design tokens
 - **Language**: TypeScript
 - **Deployment**: Vercel, domain joepatbob.com

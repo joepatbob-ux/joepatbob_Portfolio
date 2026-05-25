@@ -3,10 +3,9 @@
 Portfolio site for Joseph Patrick Roberts, Principal Product Designer.
 
 ## Stack
-- Next.js 14 (App Router)
+- Vite 8 + React 18
 - TypeScript
 - Tailwind CSS
-- Deployed on Vercel
 
 ## Getting Started
 
@@ -16,6 +15,15 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
+
+Production build:
+
+```bash
+npm run build
+npm run preview
+```
+
+Static output is written to `dist/` (deploy that folder to any static host).
 
 ## Before running, add fonts
 
