@@ -693,6 +693,10 @@ export function SidebarNav() {
 
   const showTabletRail = isTablet && !tabletSidebarOpen && !tabletInHero
 
+  const shellUsesOverlayWidth =
+    (isMobile && mobileDrawerOpen) ||
+    (isTablet && (tabletSidebarOpen || tabletInHero))
+
   const shellClass = [
     'sidebar-desktop-shell',
     tabletSidebarOpen ? 'sidebar-tablet-expanded' : '',
@@ -891,7 +895,9 @@ export function SidebarNav() {
             position: 'fixed',
             left: 0,
             top: 0,
-            width: 'var(--sidebar-width)',
+            width: shellUsesOverlayWidth
+              ? 'var(--sidebar-overlay-width)'
+              : 'var(--sidebar-width)',
             height: '100dvh',
             zIndex: 100,
             pointerEvents:
