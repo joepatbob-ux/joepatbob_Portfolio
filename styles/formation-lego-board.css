@@ -2,6 +2,124 @@
   margin: 2rem 0;
 }
 
+.formation-lego__hint {
+  margin: 0 0 1rem;
+  font-size: 0.875rem;
+  color: var(--color-text-muted, #555);
+}
+
+.formation-lego--single .formation-lego__tuning {
+  margin-bottom: 0.75rem;
+}
+
+.formation-lego__readout {
+  margin: 0 0 0.5rem;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--color-text, #1a1a1a);
+}
+
+.formation-lego__tuning-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.formation-lego__tab {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8125rem;
+  border: 1px solid var(--color-text-muted, #999);
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.formation-lego__tab--active {
+  border-color: var(--color-accent, #e85d04);
+  background: color-mix(in srgb, var(--color-accent, #e85d04) 12%, transparent);
+}
+
+.formation-lego__debug-pegs {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.formation-lego__debug-pegs .formation-lego__peg {
+  pointer-events: auto;
+}
+
+.formation-lego__peg {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--color-accent, #e85d04) 40%, transparent);
+  border-radius: 50%;
+  background: transparent;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.formation-lego__peg--footprint {
+  background: color-mix(in srgb, var(--color-accent, #e85d04) 25%, transparent);
+}
+
+.formation-lego__peg--pin {
+  width: 18px;
+  height: 18px;
+  border-width: 2px;
+  background: var(--color-accent, #e85d04);
+  z-index: 2;
+}
+
+.formation-lego__pivot-marker {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px #fff;
+  pointer-events: none;
+  z-index: 4;
+}
+
+.formation-lego__pivot-marker--position {
+  border: 2px solid #0f0;
+}
+
+.formation-lego__pivot-marker--block-origin {
+  width: 10px;
+  height: 10px;
+  margin: -5px 0 0 -5px;
+  border: 2px solid #06c;
+  background: color-mix(in srgb, #06c 35%, transparent);
+}
+
+.formation-lego__block-origin-marker {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  margin: -5px 0 0 -5px;
+  border: 2px solid #06c;
+  border-radius: 50%;
+  background: color-mix(in srgb, #06c 35%, transparent);
+  box-shadow: 0 0 0 2px #fff;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.formation-lego--single .formation-lego__block {
+  z-index: 3;
+  overflow: visible;
+}
+
+.formation-lego--single .formation-lego__sprite {
+  overflow: visible;
+}
+
 .formation-lego__board {
   position: relative;
   margin: 0 auto;
@@ -16,7 +134,6 @@
   height: 100% !important;
   object-fit: fill;
   pointer-events: none;
-  user-select: none;
 }
 
 .formation-lego__block {
@@ -26,18 +143,15 @@
   z-index: 2;
 }
 
-.formation-lego__brick-sprite {
+.formation-lego__block--selected {
+  z-index: 12;
+}
+
+.formation-lego__sprite {
   position: absolute;
-  bottom: 0;
-  pointer-events: none;
-}
-
-.formation-lego__brick-sprite--left {
   left: 0;
-}
-
-.formation-lego__brick-sprite--right {
-  right: 0;
+  top: 0;
+  pointer-events: none;
 }
 
 .formation-lego__brick-img {
@@ -47,24 +161,33 @@
   max-width: none;
 }
 
-/* Placed: hide orange rotation ring in authored art */
-.formation-lego__brick-sprite--placed.formation-lego__brick-sprite--left {
-  clip-path: inset(0 6% 22% 0);
+.formation-lego__ring {
+  position: absolute;
+  bottom: 2%;
+  border-radius: 50%;
+  border: 2px solid var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 30%, transparent);
+  pointer-events: none;
+  z-index: 3;
 }
 
-.formation-lego__brick-sprite--placed.formation-lego__brick-sprite--right {
-  clip-path: inset(0 0 22% 6%);
+.formation-lego__ring--left {
+  left: 4%;
+  width: 42%;
+  height: 30%;
 }
 
-.formation-lego__brick-sprite--ring {
-  clip-path: none;
+.formation-lego__ring--right {
+  right: 4%;
+  width: 42%;
+  height: 30%;
 }
 
 .formation-lego__flip-hit {
   position: absolute;
   bottom: 0;
-  width: 38%;
-  height: 32%;
+  width: 40%;
+  height: 34%;
   padding: 0;
   border: none;
   background: transparent;

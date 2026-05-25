@@ -1,0 +1,115 @@
+.formation-peg-map {
+  margin: 2rem 0;
+}
+
+.formation-peg-map__hint {
+  margin: 0 0 0.5rem;
+  font-size: 0.875rem;
+  color: var(--color-text-muted, #555);
+}
+
+.formation-peg-map__selection {
+  margin: 0 0 1rem;
+  font-size: 0.9375rem;
+}
+
+.formation-peg-map__raw {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted, #555);
+}
+
+.formation-peg-map__board {
+  position: relative;
+  margin: 0 auto;
+}
+
+.formation-peg-map__plate {
+  display: block;
+  width: 100% !important;
+  height: auto !important;
+  pointer-events: none;
+}
+
+.formation-peg-map__axis {
+  position: absolute;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--color-accent, #e85d04);
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  z-index: 4;
+  text-shadow: 0 0 4px #fff, 0 0 6px #fff;
+}
+
+.formation-peg-map__axis--gx {
+  transform: translate(-50%, calc(-50% + 22px));
+}
+
+.formation-peg-map__axis--gy {
+  transform: translate(calc(-50% - 22px), -50%);
+}
+
+.formation-peg-map__peg {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.formation-peg-map__peg-dot {
+  display: block;
+  width: 10px;
+  height: 10px;
+  margin: 9px auto 0;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--color-accent, #e85d04) 55%, transparent);
+  border: 1px solid var(--color-accent, #e85d04);
+  transition: transform 120ms ease, background-color 120ms ease;
+}
+
+.formation-peg-map__peg-label {
+  display: block;
+  margin-top: 1px;
+  font-size: 8px;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--color-text, #1a1a1a);
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+.formation-peg-map__peg:hover .formation-peg-map__peg-label,
+.formation-peg-map__peg--active .formation-peg-map__peg-label,
+.formation-peg-map__peg--origin .formation-peg-map__peg-label {
+  opacity: 1;
+}
+
+.formation-peg-map__peg:hover .formation-peg-map__peg-dot,
+.formation-peg-map__peg--active .formation-peg-map__peg-dot {
+  transform: scale(1.25);
+}
+
+.formation-peg-map__peg--origin .formation-peg-map__peg-dot {
+  width: 14px;
+  height: 14px;
+  margin-top: 7px;
+  background: var(--color-accent, #e85d04);
+  border-width: 2px;
+}
+
+.formation-peg-map__peg--active {
+  z-index: 6;
+}
+
+.formation-peg-map__peg--active .formation-peg-map__peg-dot {
+  background: var(--color-accent, #e85d04);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent, #e85d04) 35%, transparent);
+}
