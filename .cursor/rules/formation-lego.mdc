@@ -8,16 +8,18 @@ alwaysApply: false
 
 ## Peg map (`lib/formation/legoGrid.ts`)
 
-- 10×10 studs; **A0** = zero pin (bottom tip); **GX** A→J right; **GY** 0→9.
+- 10×10 studs; **A0** = plate zero pin (bottom tip); **GX** A→J right; **GY** 0→9.
 - `pegLabel(gx, gy)` → `A0` … `J9`; `PEG_MAP` = stud centers from `Lego_Board.svg`.
 
 ## Bricks (`lib/formation/legoBricks.ts`)
 
-- Assets: `public/Lego/Lego_Left_*.svg`, `Lego_Right_*.svg` (horizontal 2×4, long side +GX).
-- Pivot stud aligns to anchor `(gx, gy)`; **flip** = swap Left/Right + `gx → 9 - gx`.
-- Stack: `snapToTopLevel`; selection ring = CSS overlay only.
+- Assets: `public/Lego/Lego_Left_*.svg`, `Lego_Right_*.svg`.
+- **Position pin** (reference red stud) snaps to the chosen plate peg; sprite anchors there.
+- **Block 0,0** is `BLOCK_ORIGIN_ABOVE_POSITION_GY` (3.566) studs along **+GY** above the position pin; footprint uses block origin.
+- **Left** pivot: 4×2 along +GY. **Right** pivot: 4×2 along +GX.
+- **Flip** (when restored): swap Left/Right sprites and mirror position peg `gx → 9 - gx`.
 
 ## Do not
 
-- Procedural placeholder bricks or old `public/images/formation/*.png` unless user asks.
-- CSS rotate for orientation (art is already horizontal).
+- Procedural placeholder bricks or `public/images/formation/` PNGs (removed).
+- CSS `rotate` for brick orientation — art is already aligned to the plate axes.

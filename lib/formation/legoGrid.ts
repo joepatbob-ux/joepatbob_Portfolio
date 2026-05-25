@@ -20,9 +20,6 @@ export const GRID_ORIGIN = { x: 667.71, y: 750 } as const
 /** Isometric stud pitch from Lego_Board.svg cls-3 centers. */
 export const GRID_STEP = { x: 68.99, y: -39.84 } as const
 
-/** Vertical screen component of one stud step (|STEP.y|). */
-export const GRID_STUD_SCREEN_UP = Math.abs(GRID_STEP.y)
-
 export type PegCoord = { gx: number; gy: number }
 
 export type PegPosition = PegCoord & { x: number; y: number }
@@ -35,28 +32,10 @@ export function pegLabel(gx: number, gy: number): string {
   return `${letter}${gy}`
 }
 
-export function parsePegLabel(label: string): PegCoord | null {
-  const m = /^([A-J])(\d)$/i.exec(label.trim())
-  if (!m) return null
-  const gx = GX_LETTERS.indexOf(m[1].toUpperCase())
-  const gy = Number(m[2])
-  if (gx < 0 || gy < 0 || gy > 9) return null
-  return { gx, gy }
-}
-
 export function studToNative(gx: number, gy: number): { x: number; y: number } {
   return {
     x: GRID_ORIGIN.x + (gx - gy) * GRID_STEP.x,
     y: GRID_ORIGIN.y + (gx + gy) * GRID_STEP.y,
-  }
-}
-
-export function nativeToStud(x: number, y: number): PegCoord {
-  const a = (x - GRID_ORIGIN.x) / GRID_STEP.x
-  const b = (y - GRID_ORIGIN.y) / GRID_STEP.y
-  return {
-    gx: Math.round((a + b) / 2),
-    gy: Math.round((b - a) / 2),
   }
 }
 
@@ -193,7 +172,3 @@ export const PEG_MAP: PegPosition[] = [
   { gx: 8, gy: 9, x: 598.71, y: 72.83 },
   { gx: 9, gy: 9, x: 667.71, y: 33 },
 ]
-
-export function pegAt(gx: number, gy: number): PegPosition | undefined {
-  return PEG_MAP.find((p) => p.gx === gx && p.gy === gy)
-}

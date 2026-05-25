@@ -143,10 +143,6 @@
   z-index: 2;
 }
 
-.formation-lego__block--selected {
-  z-index: 12;
-}
-
 .formation-lego__sprite {
   position: absolute;
   left: 0;
@@ -159,48 +155,6 @@
   width: 100% !important;
   height: auto !important;
   max-width: none;
-}
-
-.formation-lego__ring {
-  position: absolute;
-  bottom: 2%;
-  border-radius: 50%;
-  border: 2px solid var(--color-accent);
-  background: color-mix(in srgb, var(--color-accent) 30%, transparent);
-  pointer-events: none;
-  z-index: 3;
-}
-
-.formation-lego__ring--left {
-  left: 4%;
-  width: 42%;
-  height: 30%;
-}
-
-.formation-lego__ring--right {
-  right: 4%;
-  width: 42%;
-  height: 30%;
-}
-
-.formation-lego__flip-hit {
-  position: absolute;
-  bottom: 0;
-  width: 40%;
-  height: 34%;
-  padding: 0;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  z-index: 5;
-}
-
-.formation-lego__flip-hit--left {
-  left: 0;
-}
-
-.formation-lego__flip-hit--right {
-  right: 0;
 }
 
 .formation-lego__piece--drag {

@@ -1,6 +1,7 @@
 'use client'
 
 import { CHAPTER_NAV_FADE_MS, useChapterNav } from '@/components/ChapterNavProvider'
+import { LAYOUT_MQ } from '@/lib/layout/breakpoints'
 import { SCROLL_BLUR_PX, blurOutFromReveal } from '@/lib/scrollBlur'
 
 const SCROLL_EASE = 'cubic-bezier(0.16, 1, 0.3, 1)'
@@ -21,7 +22,10 @@ export function useChapterPanelOpacity(chapterId: string) {
     reveal = entering ? 1 : 0
     isActive = entering
   } else if (activeSlideId === chapterId) {
-    isActive = scrollReveal > 0.25
+    const mobileFlow =
+      typeof window !== 'undefined' &&
+      window.matchMedia(LAYOUT_MQ.mobile).matches
+    isActive = mobileFlow ? scrollReveal > 0 : scrollReveal > 0.25
   }
 
   const { opacity, filter } = blurOutFromReveal(reveal, SCROLL_BLUR_PX)
