@@ -12,7 +12,7 @@
     --mobile-rail-duration: 0.38s;
     --mobile-nav-blur: 18px;
     --mobile-rail-blur-height: 48px;
-    --sidebar-overlay-width: min(100vw, 320px);
+    --sidebar-overlay-width: 280px;
   }
 
   .sidebar-mobile-nav {
