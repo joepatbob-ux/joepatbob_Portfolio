@@ -1,255 +1,315 @@
 'use client'
 
-import Image from 'next/image'
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import {
+  BOARD_VIEWBOX,
+  pegLabel,
+  PEG_MAP,
+  pegScreenPosition,
+} from '@/lib/formation/legoGrid'
+import {
+  anchorFromPlacement,
+  blockOriginNativeInBrick,
+  blockOriginScreenPosition,
   boardDisplayHeight,
+  BLOCK_ORIGIN_ABOVE_POSITION_GY,
   brickArtSrc,
   brickDisplaySize,
-  FORMATION_ART,
-  formationArtScale,
-  LEGO_MM,
+  brickPlacement,
+  BRICK_POSITION_PIN_NATIVE,
+  BRICK_VIEWBOX,
+  clampBrickAnchor,
+  footprintCells,
+  pivotLayout,
   type BrickColor,
   type BrickPivot,
-} from '@/lib/formation/legoSpec'
+} from '@/lib/formation/legoBricks'
 import '@/styles/formation-lego-board.css'
 
-const PLATE_STUDS = LEGO_MM.plate16.studs
-const BRICK_STUD_W = LEGO_MM.brick2x4.studsLong
-const BRICK_STUD_H = LEGO_MM.brick2x4.studsWide
+const BOARD_W = 360
 
-const BOARD_DISPLAY_W = 300
-
-type BlockDef = {
-  id: string
-  label: string
-  color: BrickColor
-}
-
-const BLOCK_DEFS: BlockDef[] = [
-  { id: 'brand', label: 'Brand', color: 'magenta' },
-  { id: 'print', label: 'Print', color: 'yellow' },
-  { id: 'hardware', label: 'Hardware', color: 'cyan' },
-  { id: 'software', label: 'Software', color: 'black' },
-]
-
-type PieceState = {
-  id: string
-  sx: number
-  sy: number
-  pivot: BrickPivot
-}
-
-function studPoint(studX: number, studY: number, studPx: number, isoY: number) {
-  return {
-    x: (studX - studY) * studPx,
-    y: (studX + studY) * isoY,
-  }
-}
-
-function brickFootprint(
-  sx: number,
-  sy: number,
-  studPx: number,
-  isoY: number,
-) {
-  const corners = [
-    studPoint(sx, sy, studPx, isoY),
-    studPoint(sx + BRICK_STUD_W, sy, studPx, isoY),
-    studPoint(sx, sy + BRICK_STUD_H, studPx, isoY),
-    studPoint(sx + BRICK_STUD_W, sy + BRICK_STUD_H, studPx, isoY),
-  ]
-  const xs = corners.map((p) => p.x)
-  const ys = corners.map((p) => p.y)
-  return {
-    left: Math.min(...xs),
-    top: Math.min(...ys),
-    width: Math.max(...xs) - Math.min(...xs),
-    height: Math.max(...ys) - Math.min(...ys),
-  }
-}
-
-function sortKey(p: PieceState) {
-  return p.sx + p.sy + BRICK_STUD_W + BRICK_STUD_H
-}
-
-const INITIAL: PieceState[] = [
-  { id: 'brand', sx: 0, sy: 4, pivot: 'left' },
-  { id: 'print', sx: 10, sy: 0, pivot: 'right' },
-  { id: 'hardware', sx: 0, sy: 10, pivot: 'left' },
-  { id: 'software', sx: 8, sy: 6, pivot: 'left' },
-]
+/** Single-brick tuning: position pin on this peg (default C2). */
+const DEFAULT_POSITION_PIN = { gx: 2, gy: 2 }
+const BRICK_COLOR: BrickColor = 'cyan'
 
 export function FormationLegoBoard() {
-  const [pieces, setPieces] = useState<PieceState[]>(INITIAL)
-  const [selectedId, setSelectedId] = useState<string | null>(null)
-  const [dragId, setDragId] = useState<string | null>(null)
+  const [pivot, setPivot] = useState<BrickPivot>('left')
+  const [positionPin, setPositionPin] = useState(DEFAULT_POSITION_PIN)
+  const [dragFree, setDragFree] = useState<{ left: number; top: number } | null>(
+    null,
+  )
+  const [isDragging, setIsDragging] = useState(false)
   const boardRef = useRef<HTMLDivElement>(null)
-  const dragOffset = useRef({ x: 0, y: 0 })
+  const grabOffset = useRef({ x: 0, y: 0 })
 
-  const boardW = BOARD_DISPLAY_W
-  const boardH = boardDisplayHeight(boardW)
-  const studPx = boardW / PLATE_STUDS
-  const isoY = studPx * 0.55
-  const brickSize = brickDisplaySize(boardW)
+  const boardH = boardDisplayHeight(BOARD_W)
+  const brickSize = brickDisplaySize(BOARD_W)
 
-  const flipPivot = useCallback((id: string) => {
-    setPieces((prev) =>
-      prev.map((p) =>
-        p.id === id ? { ...p, pivot: p.pivot === 'left' ? 'right' : 'left' } : p,
+  const footprint = useMemo(
+    () => footprintCells(positionPin.gx, positionPin.gy, pivot),
+    [positionPin, pivot],
+  )
+
+  const blockOriginOnBoard = useMemo(
+    () =>
+      blockOriginScreenPosition(
+        positionPin.gx,
+        positionPin.gy,
+        BOARD_W,
       ),
-    )
-  }, [])
+    [positionPin],
+  )
 
-  const onBoardPointerDown = useCallback((e: React.PointerEvent) => {
-    const target = e.target as HTMLElement
-    if (target.closest('.formation-lego__block')) return
-    setSelectedId(null)
-  }, [])
+  const blockOriginInBrick = useMemo(
+    () => blockOriginNativeInBrick(pivot),
+    [pivot],
+  )
 
-  const onPointerDown = useCallback(
-    (e: React.PointerEvent, id: string) => {
-      e.stopPropagation()
-      setSelectedId(id)
-      const board = boardRef.current
-      if (!board) return
-      const piece = pieces.find((p) => p.id === id)
-      if (!piece) return
-      const box = brickFootprint(piece.sx, piece.sy, studPx, isoY)
-      const rect = board.getBoundingClientRect()
-      dragOffset.current = {
-        x: e.clientX - rect.left - box.left,
-        y: e.clientY - rect.top - box.top,
-      }
-      setDragId(id)
-      ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
+  const snappedPlace = brickPlacement(
+    BOARD_W,
+    positionPin.gx,
+    positionPin.gy,
+    pivot,
+    0,
+    0,
+  )
+  const place = dragFree
+    ? { ...snappedPlace, left: dragFree.left, top: dragFree.top }
+    : snappedPlace
+
+  const layout = pivotLayout(pivot)
+  const positionPegLabel = pegLabel(positionPin.gx, positionPin.gy)
+  const footprintLabels = footprint.map((c) => pegLabel(c.x, c.y))
+
+  const setPositionPinFromPeg = useCallback(
+    (gx: number, gy: number) => {
+      const clamped = clampBrickAnchor(gx, gy, pivot)
+      setPositionPin(clamped)
+      setDragFree(null)
     },
-    [pieces, studPx, isoY],
+    [pivot],
+  )
+
+  const onPegClick = useCallback(
+    (gx: number, gy: number) => {
+      setPositionPinFromPeg(gx, gy)
+    },
+    [setPositionPinFromPeg],
+  )
+
+  const endDrag = useCallback(() => {
+    if (!dragFree) {
+      setIsDragging(false)
+      return
+    }
+    const anchor = anchorFromPlacement(
+      dragFree.left,
+      dragFree.top,
+      BOARD_W,
+      pivot,
+      0,
+      0,
+    )
+    setPositionPinFromPeg(anchor.gx, anchor.gy)
+    setIsDragging(false)
+    setDragFree(null)
+  }, [dragFree, pivot, setPositionPinFromPeg])
+
+  const onBrickPointerDown = useCallback(
+    (e: React.PointerEvent) => {
+      if (!boardRef.current) return
+      e.stopPropagation()
+      const rect = boardRef.current.getBoundingClientRect()
+      grabOffset.current = {
+        x: e.clientX - rect.left - place.left,
+        y: e.clientY - rect.top - place.top,
+      }
+      setDragFree({ left: place.left, top: place.top })
+      setIsDragging(true)
+      boardRef.current.setPointerCapture(e.pointerId)
+    },
+    [place.left, place.top],
   )
 
   const onPointerMove = useCallback(
     (e: React.PointerEvent) => {
-      if (!dragId || !boardRef.current) return
-      const piece = pieces.find((p) => p.id === dragId)
-      if (!piece) return
+      if (!isDragging || !boardRef.current) return
       const rect = boardRef.current.getBoundingClientRect()
-      const localX = e.clientX - rect.left - dragOffset.current.x
-      const localY = e.clientY - rect.top - dragOffset.current.y
-      const sx = Math.round((localX / studPx + localY / isoY) / 2)
-      const sy = Math.round((localY / isoY - localX / studPx) / 2)
-      setPieces((prev) =>
-        prev.map((p) =>
-          p.id === dragId
-            ? {
-                ...p,
-                sx: Math.max(0, Math.min(PLATE_STUDS - BRICK_STUD_W, sx)),
-                sy: Math.max(0, Math.min(PLATE_STUDS - BRICK_STUD_H, sy)),
-              }
-            : p,
-        ),
-      )
+      setDragFree({
+        left: e.clientX - rect.left - grabOffset.current.x,
+        top: e.clientY - rect.top - grabOffset.current.y,
+      })
     },
-    [dragId, pieces, studPx, isoY],
+    [isDragging],
   )
 
-  const onPointerUp = useCallback(() => {
-    setDragId(null)
-  }, [])
-
-  const sorted = [...pieces].sort((a, b) => sortKey(a) - sortKey(b))
-  const renderOrder =
-    dragId != null
-      ? [...sorted.filter((p) => p.id !== dragId), pieces.find((p) => p.id === dragId)!]
-      : sorted
+  const onPointerUp = useCallback(
+    (e: React.PointerEvent) => {
+      if (boardRef.current?.hasPointerCapture(e.pointerId)) {
+        boardRef.current.releasePointerCapture(e.pointerId)
+      }
+      endDrag()
+    },
+    [endDrag],
+  )
 
   return (
-    <div className="formation-lego">
+    <div className="formation-lego formation-lego--single">
+      <p className="formation-lego__hint">
+        Tuning <strong>one</strong> brick — cyan, {pivot} pivot.{' '}
+        <strong>Click a peg</strong> to move the position pin (red stud), or drag
+        the brick. Block 0,0 sits {BLOCK_ORIGIN_ABOVE_POSITION_GY} studs above
+        that on +GY. Snap on release.
+      </p>
+
+      <div className="formation-lego__tuning">
+        <p className="formation-lego__readout" aria-live="polite">
+          Position pin: <strong>{positionPegLabel}</strong> (gx {positionPin.gx},
+          gy {positionPin.gy}) · Footprint (block 0,0):{' '}
+          {footprintLabels.join(', ')} · Long axis{' '}
+          <strong>{layout.longAlong.toUpperCase()}</strong>
+        </p>
+        <div className="formation-lego__tuning-actions">
+          <button
+            type="button"
+            className={
+              pivot === 'left' ? 'formation-lego__tab--active' : 'formation-lego__tab'
+            }
+            onClick={() => {
+              setPivot('left')
+              setPositionPin((p) => clampBrickAnchor(p.gx, p.gy, 'left'))
+            }}
+          >
+            Left pivot
+          </button>
+          <button
+            type="button"
+            className={
+              pivot === 'right'
+                ? 'formation-lego__tab--active'
+                : 'formation-lego__tab'
+            }
+            onClick={() => {
+              setPivot('right')
+              setPositionPin((p) => clampBrickAnchor(p.gx, p.gy, 'right'))
+            }}
+          >
+            Right pivot
+          </button>
+        </div>
+      </div>
+
       <div
         ref={boardRef}
         className="formation-lego__board"
-        style={{ width: boardW, height: boardH }}
-        onPointerDown={onBoardPointerDown}
+        style={{ width: BOARD_W, height: boardH }}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
-        onPointerLeave={onPointerUp}
+        onPointerCancel={onPointerUp}
       >
-        <Image
-          src="/images/formation/board.png"
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/Lego/Lego_Board.svg"
           alt=""
-          width={FORMATION_ART.board.width}
-          height={FORMATION_ART.board.height}
+          width={BOARD_VIEWBOX.width}
+          height={BOARD_VIEWBOX.height}
           className="formation-lego__baseplate"
-          style={{ width: boardW, height: boardH }}
           draggable={false}
-          priority
         />
 
-        {renderOrder.map((piece) => {
-          const def = BLOCK_DEFS.find((b) => b.id === piece.id)
-          if (!def) return null
-
-          const box = brickFootprint(piece.sx, piece.sy, studPx, isoY)
-          const isDragging = dragId === piece.id
-          const isSelected = selectedId === piece.id && !isDragging
-          const showRing = isSelected
-
-          return (
-            <div
-              key={piece.id}
-              className={[
-                'formation-lego__block',
-                isSelected ? 'formation-lego__block--selected' : '',
-                isDragging ? 'formation-lego__piece--drag' : '',
-              ]
-                .filter(Boolean)
-                .join(' ')}
-              style={{
-                left: box.left,
-                top: box.top,
-                width: box.width,
-                height: box.height,
-              }}
-              onPointerDown={(e) => onPointerDown(e, piece.id)}
-            >
-              <div
+        <div className="formation-lego__debug-pegs" aria-hidden>
+          {PEG_MAP.map((peg) => {
+            const inFootprint = footprint.some(
+              (c) => c.x === peg.gx && c.y === peg.gy,
+            )
+            const isPositionPin =
+              peg.gx === positionPin.gx && peg.gy === positionPin.gy
+            const { left, top } = pegScreenPosition(
+              peg.gx,
+              peg.gy,
+              BOARD_W,
+            )
+            return (
+              <button
+                key={`${peg.gx}-${peg.gy}`}
+                type="button"
                 className={[
-                  'formation-lego__brick-sprite',
-                  `formation-lego__brick-sprite--${piece.pivot}`,
-                  showRing
-                    ? 'formation-lego__brick-sprite--ring'
-                    : 'formation-lego__brick-sprite--placed',
+                  'formation-lego__peg',
+                  inFootprint ? 'formation-lego__peg--footprint' : '',
+                  isPositionPin ? 'formation-lego__peg--pin' : '',
                 ]
                   .filter(Boolean)
                   .join(' ')}
-                style={{ width: brickSize.width, height: brickSize.height }}
+                style={{ left, top }}
+                tabIndex={-1}
+                aria-label={`Stud ${pegLabel(peg.gx, peg.gy)}`}
+                onClick={() => onPegClick(peg.gx, peg.gy)}
+              />
+            )
+          })}
+        </div>
+
+        <span
+          className="formation-lego__block-origin-marker"
+          style={{
+            left: blockOriginOnBoard.left,
+            top: blockOriginOnBoard.top,
+          }}
+          aria-hidden
+          title="Block 0,0 on plate"
+        />
+
+        <div
+          className={[
+            'formation-lego__block',
+            isDragging ? 'formation-lego__piece--drag' : '',
+            `formation-lego__block--pivot-${pivot}`,
+          ]
+            .filter(Boolean)
+            .join(' ')}
+          style={{
+            left: place.left,
+            top: place.top,
+            width: place.width,
+            height: place.height,
+          }}
+          onPointerDown={onBrickPointerDown}
+        >
+              <div
+                className="formation-lego__sprite"
+                style={{
+                  width: brickSize.width,
+                  height: brickSize.height,
+                }}
               >
-                <Image
-                  src={brickArtSrc(def.color, piece.pivot)}
-                  alt=""
-                  width={FORMATION_ART.brick.width}
-                  height={FORMATION_ART.brick.height}
-                  className="formation-lego__brick-img"
-                  draggable={false}
-                />
-              </div>
-              {showRing ? (
-                <button
-                  type="button"
-                  className={[
-                    'formation-lego__flip-hit',
-                    `formation-lego__flip-hit--${piece.pivot}`,
-                  ].join(' ')}
-                  aria-label={`Flip ${def.label} block`}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    flipPivot(piece.id)
-                  }}
-                  onPointerDown={(e) => e.stopPropagation()}
-                />
-              ) : null}
-            </div>
-          )
-        })}
+            <img
+              src={brickArtSrc(BRICK_COLOR, pivot)}
+              alt=""
+              width={BRICK_VIEWBOX.width}
+              height={BRICK_VIEWBOX.height}
+              className="formation-lego__brick-img"
+              draggable={false}
+            />
+          </div>
+          <span
+            className="formation-lego__pivot-marker formation-lego__pivot-marker--position"
+            style={{
+              left: `${(BRICK_POSITION_PIN_NATIVE[pivot].x / BRICK_VIEWBOX.width) * 100}%`,
+              top: `${(BRICK_POSITION_PIN_NATIVE[pivot].y / BRICK_VIEWBOX.height) * 100}%`,
+            }}
+            aria-hidden
+            title="Position pin"
+          />
+          <span
+            className="formation-lego__pivot-marker formation-lego__pivot-marker--block-origin"
+            style={{
+              left: `${(blockOriginInBrick.x / BRICK_VIEWBOX.width) * 100}%`,
+              top: `${(blockOriginInBrick.y / BRICK_VIEWBOX.height) * 100}%`,
+            }}
+            aria-hidden
+            title="Block 0,0"
+          />
+        </div>
       </div>
     </div>
   )
