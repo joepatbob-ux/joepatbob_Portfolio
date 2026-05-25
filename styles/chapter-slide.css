@@ -213,6 +213,29 @@
     max-width: none;
   }
 
+  /* Hardware: full in-flow scroll (no 92dvh slide cage) */
+  .hardware-slideshow .chapter-slide__viewport {
+    padding: 0;
+  }
+
+  .hardware-slideshow .chapter-slide__inner {
+    display: flex !important;
+    grid-template-rows: unset !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+
+  .hardware-slideshow .chapter-slide__copy {
+    height: auto;
+    min-height: 0;
+  }
+
+  .hardware-slideshow .chapter-slide__copy .chapter-copy-scroller {
+    flex: none;
+    overflow: visible;
+    max-height: none;
+  }
+
   .chapter-slide__body {
     grid-template-columns: 1fr;
   }

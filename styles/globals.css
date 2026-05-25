@@ -97,7 +97,6 @@
     color: var(--color-ink);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    scroll-snap-type: y mandatory;
   }
 
   body {
@@ -129,6 +128,7 @@
     html {
       /* Offset anchor scrolling when the compact bar is pinned */
       scroll-padding-top: calc(var(--mobile-nav-bar-height) + 12px);
+      scroll-snap-type: none;
     }
 
     .content-area {
@@ -1059,48 +1059,70 @@
     drop-shadow(0 3px 8px rgba(0, 0, 0, 0.1));
 }
 
-/* Portfolio chapters — slideshow: one sticky slide per viewport, crossfade between */
-#hero,
-.portfolio-chapter-slot--fill {
-  scroll-snap-align: start;
-  scroll-snap-stop: always;
-}
+/* Portfolio chapters — desktop/tablet slideshow (snap + fixed panels) */
+@media (min-width: 768px) {
+  html {
+    scroll-snap-type: y mandatory;
+  }
 
-.portfolio-chapter-slot--fill {
-  height: 100vh;
-  height: 100dvh;
-  position: relative;
-}
-
-.portfolio-chapter-panel {
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  height: 100dvh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  box-sizing: border-box;
-  will-change: opacity, filter;
-}
-
-/* Slideshow panels stay in the frame; scroll only advances snap spacers */
-.portfolio-chapter-slot--fill .portfolio-chapter-panel {
-  position: fixed;
-  top: 0;
-  left: calc(var(--sidebar-width) + var(--content-pad-x));
-  right: var(--content-pad-x);
-  width: auto;
-  height: 100dvh;
-  background-color: var(--color-paper);
-  z-index: 1;
-  overflow: hidden;
-}
-
-@media (max-width: 767px) {
+  #hero,
   .portfolio-chapter-slot--fill {
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+
+  .portfolio-chapter-slot--fill {
+    height: 100vh;
+    height: 100dvh;
+    position: relative;
+  }
+
+  .portfolio-chapter-panel {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-sizing: border-box;
+    will-change: opacity, filter;
+  }
+
+  /* Slideshow panels stay in the frame; scroll only advances snap spacers */
+  .portfolio-chapter-slot--fill .portfolio-chapter-panel {
+    position: fixed;
+    top: 0;
+    left: calc(var(--sidebar-width) + var(--content-pad-x));
+    right: var(--content-pad-x);
+    width: auto;
+    height: 100dvh;
+    background-color: var(--color-paper);
+    z-index: 1;
+    overflow: hidden;
+  }
+}
+
+/* Mobile: in-flow chapters — no snap, no viewport-height spacers */
+@media (max-width: 767px) {
+  html {
+    scroll-snap-type: none;
+  }
+
+  #hero,
+  .portfolio-chapter-slot--fill {
+    scroll-snap-align: none;
+    scroll-snap-stop: normal;
     height: auto;
     min-height: 0;
+  }
+
+  .portfolio-chapter-panel {
+    position: relative;
+    top: auto;
+    height: auto;
+    min-height: 0;
+    will-change: auto;
   }
 
   .portfolio-chapter-slot--fill .portfolio-chapter-panel {
