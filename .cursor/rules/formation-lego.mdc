@@ -27,6 +27,11 @@ alwaysApply: false
 - **Right snap**: block 0,0 orange → block-origin peg + nudge; corner `pin+(1,1)` for block, else pin ≡ block peg; snap ties prefer colocated pin.
 - **Left** pivot: 4×2 along +GY. **Right** pivot: 4×2 along +GX.
 
+## Depth and stacking
+
+- **Front → back**: A0 (front) … J9 (back). `drawOrderKey` uses the footprint stud closest to A0 (`min(gx+gy)`); higher `level` always paints on top.
+- **Collision**: two bricks cannot share studs at the **same** `level`; overlapping placement auto-stacks via `snapToTopLevel` (same pegs, higher level).
+
 ## Do not
 
 - Procedural placeholder bricks or `public/images/formation/` PNGs (removed).

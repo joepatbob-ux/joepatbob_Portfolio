@@ -441,15 +441,30 @@ export function snapToTopLevel(
   return level
 }
 
+/** gx+gy distance from A0 (0); smaller = closer to the front of the plate. */
+export function footprintFrontness(
+  positionGx: number,
+  positionGy: number,
+  pivot: BrickPivot,
+): number {
+  const cells = footprintCells(positionGx, positionGy, pivot)
+  return Math.min(...cells.map((c) => c.x + c.y))
+}
+
+/**
+ * Paint order for isometric depth: A0 front, J9 back; higher stack level always on top.
+ * Larger key = drawn later (in front).
+ */
 export function drawOrderKey(
   gx: number,
   gy: number,
   level: number,
   pivot: BrickPivot,
 ): number {
-  const cells = footprintCells(gx, gy, pivot)
-  const maxSum = Math.max(...cells.map((c) => c.x + c.y))
-  return level * 1000 + maxSum
+  const plateDepthMax = (PLATE_STUDS - 1) * 2
+  const frontness = plateDepthMax - footprintFrontness(gx, gy, pivot)
+  const LEVEL_STRIDE = 1000
+  return level * LEVEL_STRIDE + frontness
 }
 
 /** Flip swaps Left/Right art and mirrors position peg GX across the plate. */
