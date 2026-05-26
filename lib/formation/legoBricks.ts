@@ -3,8 +3,8 @@
  *
  * **Left**: position-pin orange snaps to the position-pin peg; block 0,0 uses the same peg
  *   (footprint uses block 0,0; move/snap uses position pin).
- * **Right**: block 0,0 orange snaps to block-origin peg (+nudge). Interior: pin − (2,2) → block;
- *   near plate corner (gx or gy under 2): block is pin + (1,1); else pin and block share a peg.
+ * **Right**: block 0,0 orange snaps to block-origin peg (+nudge). Position pin and block
+ *   origin share the same peg (including corners).
  * Left: 4×2 along +GY. Right: 4×2 along +GX.
  */
 
@@ -54,8 +54,8 @@ export const ALIGN_BLOCK_ORIGIN_ORANGE_NATIVE: Record<
 
 type GridOffset = { dgx: number; dgy: number }
 
-/** Right near plate corner: block 0,0 is +1 +GX, +1 +GY from the position pin (A0 → B1). */
-const RIGHT_CORNER_PIN_TO_BLOCK: GridOffset = { dgx: -1, dgy: -1 }
+/** Right pivot: block 0,0 peg coincides with the position pin peg. */
+const RIGHT_CORNER_PIN_TO_BLOCK: GridOffset = { dgx: 0, dgy: 0 }
 
 /**
  * Left: block 0,0 peg coincides with the position pin peg.
