@@ -1,11 +1,11 @@
 /**
  * 2×4 bricks on the Formation peg grid (see legoGrid.ts).
  *
- * **Left**: position-pin orange snaps to block-origin peg + visual nudge (not raw position peg).
- * **Right**: block **0,0** orange snaps to the plate peg under logical 0,0
- * (position pin −2, −2 on the grid → C2 puts block 0,0 on board A0).
- * **Block 0,0** sits BLOCK_ORIGIN_ABOVE_POSITION_GY studs along +GY (up-screen).
- * Right: 4×2 along +GX. Left: 4×2 along +GY.
+ * **Left**: position-pin orange snaps to the position-pin peg; block 0,0 uses the same peg
+ *   (footprint uses block 0,0; move/snap uses position pin).
+ * **Right**: block 0,0 orange snaps to block-origin peg (+nudge). Interior: pin − (2,2) → block;
+ *   near plate corner (gx or gy under 2): block is pin + (1,1); else pin and block share a peg.
+ * Left: 4×2 along +GY. Right: 4×2 along +GX.
  */
 
 import {
@@ -52,28 +52,72 @@ export const ALIGN_BLOCK_ORIGIN_ORANGE_NATIVE: Record<
   right: { x: 157.62, y: 289 },
 }
 
-/**
- * Right pivot: block 0,0 plate peg is this many studs along +GX and +GY from
- * the position pin (tuned so C2 → block A0 covers board A0).
- */
-const RIGHT_BLOCK_ORIGIN_OFFSET = { dgx: 2, dgy: 2 } as const
+type GridOffset = { dgx: number; dgy: number }
 
-/** Tuned via Formation board drag + copy report (right pivot, position A0). */
+/** Right near plate corner: block 0,0 is +1 +GX, +1 +GY from the position pin (A0 → B1). */
+const RIGHT_CORNER_PIN_TO_BLOCK: GridOffset = { dgx: -1, dgy: -1 }
+
+/**
+ * Left: block 0,0 peg coincides with the position pin peg.
+ */
+const LEFT_BLOCK_ORIGIN_OFFSET: GridOffset = { dgx: 0, dgy: 0 }
+
+function clampPegCoord(gx: number, gy: number): PegCoord {
+  return {
+    gx: Math.max(0, Math.min(PLATE_STUDS - 1, gx)),
+    gy: Math.max(0, Math.min(PLATE_STUDS - 1, gy)),
+  }
+}
+
+function blockOriginPegFromPositionRight(
+  positionGx: number,
+  positionGy: number,
+): PegCoord {
+  if (positionGx < 2 || positionGy < 2) {
+    const { dgx, dgy } = RIGHT_CORNER_PIN_TO_BLOCK
+    return clampPegCoord(positionGx - dgx, positionGy - dgy)
+  }
+  return clampPegCoord(positionGx, positionGy)
+}
+
+function positionPinFromBlockOriginRight(
+  blockGx: number,
+  blockGy: number,
+): PegCoord {
+  if (blockGx < 2 || blockGy < 2) {
+    const { dgx, dgy } = RIGHT_CORNER_PIN_TO_BLOCK
+    return clampPegCoord(blockGx + dgx, blockGy + dgy)
+  }
+  return clampPegCoord(blockGx, blockGy)
+}
+
+function positionPinToBlockSeparationSq(
+  positionGx: number,
+  positionGy: number,
+  pivot: BrickPivot,
+): number {
+  const block = blockOriginPegFromPosition(positionGx, positionGy, pivot)
+  const dx = positionGx - block.gx
+  const dy = positionGy - block.gy
+  return dx * dx + dy * dy
+}
+
+/** Tuned via Formation board drag + copy report (right pivot). */
 const RIGHT_BLOCK_VISUAL_SNAP_NUDGE = {
   x: 40.7,
   y: -0.09,
 } as const
 
-/** Tuned via Formation board drag + copy report (left pivot, position C2). */
-const LEFT_BLOCK_VISUAL_SNAP_NUDGE = {
-  x: 276.95,
-  y: 238.63,
-} as const
+/** Sub-pixel tweak on position-pin peg snap (left pivot). */
+const LEFT_POSITION_PIN_SNAP_NUDGE = { x: 0, y: 0 } as const
 
 export const BRICK_STUDS_LONG = 4
 export const BRICK_STUDS_WIDE = 2
 
-/** Block logical origin is this many plate studs (+GY) above the position pin. */
+/**
+ * Legacy native-space offset (superseded by BLOCK_ORIGIN_OFFSET on the peg grid).
+ * Kept for reference / debug comparisons.
+ */
 export const BLOCK_ORIGIN_ABOVE_POSITION_GY = 3.566
 
 export type BrickColor = 'yellow' | 'cyan' | 'magenta' | 'black'
@@ -128,23 +172,24 @@ export function blockOriginPegFromPosition(
   pivot: BrickPivot,
 ): PegCoord {
   if (pivot === 'right') {
-    return {
-      gx: Math.max(
-        0,
-        Math.min(PLATE_STUDS - 1, positionGx - RIGHT_BLOCK_ORIGIN_OFFSET.dgx),
-      ),
-      gy: Math.max(
-        0,
-        Math.min(PLATE_STUDS - 1, positionGy - RIGHT_BLOCK_ORIGIN_OFFSET.dgy),
-      ),
-    }
+    return blockOriginPegFromPositionRight(positionGx, positionGy)
   }
-  const pos = studToNative(positionGx, positionGy)
-  const native = {
-    x: pos.x - BLOCK_ORIGIN_ABOVE_POSITION_GY * GRID_STEP.x,
-    y: pos.y + BLOCK_ORIGIN_ABOVE_POSITION_GY * GRID_STEP.y,
+  const { dgx, dgy } = LEFT_BLOCK_ORIGIN_OFFSET
+  return clampPegCoord(positionGx - dgx, positionGy - dgy)
+}
+
+/** Inverse of blockOriginPegFromPosition — place block 0,0 on a plate peg. */
+export function positionPinFromBlockOrigin(
+  blockGx: number,
+  blockGy: number,
+  pivot: BrickPivot,
+): PegCoord {
+  if (pivot === 'right') {
+    const peg = positionPinFromBlockOriginRight(blockGx, blockGy)
+    return clampBrickAnchor(peg.gx, peg.gy, pivot)
   }
-  return nearestStudFromNative(native.x, native.y)
+  const { dgx, dgy } = LEFT_BLOCK_ORIGIN_OFFSET
+  return clampBrickAnchor(blockGx + dgx, blockGy + dgy, pivot)
 }
 
 /** Board native point for block 0,0 snap (grid peg + optional visual nudge). */
@@ -161,26 +206,39 @@ export function blockOriginNativeFromPosition(
       y: native.y + RIGHT_BLOCK_VISUAL_SNAP_NUDGE.y,
     }
   }
+  return { x: native.x, y: native.y }
+}
+
+function positionPinNativeFromPeg(
+  positionGx: number,
+  positionGy: number,
+): { x: number; y: number } {
+  const native = studToNative(positionGx, positionGy)
   return {
-    x: native.x + LEFT_BLOCK_VISUAL_SNAP_NUDGE.x,
-    y: native.y + LEFT_BLOCK_VISUAL_SNAP_NUDGE.y,
+    x: native.x + LEFT_POSITION_PIN_SNAP_NUDGE.x,
+    y: native.y + LEFT_POSITION_PIN_SNAP_NUDGE.y,
   }
 }
 
-/** Snap anchor in overlay SVG ↔ board peg (left: position pin, right: block 0,0). */
+/** Snap anchor in brick SVG (left: position pin, right: block 0,0). */
 export function placementSnapAnchor(pivot: BrickPivot): { x: number; y: number } {
-  if (pivot === 'right') {
-    return ALIGN_BLOCK_ORIGIN_ORANGE_NATIVE.right
+  if (pivot === 'left') {
+    // The left-pivot snap anchor that aligns to studs is the block-origin orange cap.
+    // Using the plate-pin orange cap here would land one stud lower/right.
+    return ALIGN_BLOCK_ORIGIN_ORANGE_NATIVE.left
   }
-  return ALIGN_PLATE_ORANGE_PIN_NATIVE.left
+  return ALIGN_BLOCK_ORIGIN_ORANGE_NATIVE.right
 }
 
-/** Board peg center the overlay anchor should cover. */
+/** Board point the snap anchor should cover (matches click / drag release). */
 export function placementBoardTarget(
   positionGx: number,
   positionGy: number,
   pivot: BrickPivot,
 ): { x: number; y: number } {
+  if (pivot === 'left') {
+    return positionPinNativeFromPeg(positionGx, positionGy)
+  }
   return blockOriginNativeFromPosition(positionGx, positionGy, pivot)
 }
 
@@ -239,15 +297,14 @@ function footprintLocalOffsets(pivot: BrickPivot): { lx: number; ly: number }[] 
   return offsets
 }
 
-/** Eight plate pegs under the brick from block 0,0 (not the position pin). */
-export function footprintCells(
-  positionGx: number,
-  positionGy: number,
+/** Eight plate pegs under the brick from a known block 0,0 peg (probe / visual). */
+export function footprintCellsFromBlockOrigin(
+  blockGx: number,
+  blockGy: number,
   pivot: BrickPivot,
 ): { x: number; y: number }[] {
   const { pivotLocal } = PIVOT_LAYOUT[pivot]
-  const originPeg = blockOriginPegFromPosition(positionGx, positionGy, pivot)
-  const origin = studToNative(originPeg.gx, originPeg.gy)
+  const origin = studToNative(blockGx, blockGy)
   return footprintLocalOffsets(pivot).map(({ lx, ly }) => {
     const native = {
       x: origin.x + (lx - ly + pivotLocal.lx) * GRID_STEP.x,
@@ -258,8 +315,77 @@ export function footprintCells(
   })
 }
 
+/** Eight plate pegs under the brick from position pin (coded snap). */
+export function footprintCells(
+  positionGx: number,
+  positionGy: number,
+  pivot: BrickPivot,
+): { x: number; y: number }[] {
+  const originPeg = blockOriginPegFromPosition(positionGx, positionGy, pivot)
+  return footprintCellsFromBlockOrigin(originPeg.gx, originPeg.gy, pivot)
+}
+
 function cellKey(x: number, y: number): string {
   return `${x},${y}`
+}
+
+/** True when the full 2×4 footprint stays on the 10×10 plate. */
+export function positionPinFits(
+  positionGx: number,
+  positionGy: number,
+  pivot: BrickPivot,
+): boolean {
+  const cells = footprintCells(positionGx, positionGy, pivot)
+  return cells.every(
+    (c) => c.x >= 0 && c.x < PLATE_STUDS && c.y >= 0 && c.y < PLATE_STUDS,
+  )
+}
+
+/** Where the pivot’s snap anchor sits on the board (from brick box top-left). */
+export function boardSnapPointFromBrickPlacement(
+  localLeft: number,
+  localTop: number,
+  displayWidth: number,
+  pivot: BrickPivot,
+  level = 0,
+  layerLift = 0,
+): { x: number; y: number } {
+  const s = boardScale(displayWidth)
+  const anchor = placementSnapAnchor(pivot)
+  return {
+    x: localLeft / s + anchor.x,
+    y: localTop / s + anchor.y + (level * layerLift) / s,
+  }
+}
+
+/** Closest valid position pin so coded snap lands on this board point. */
+export function positionPinFromBoardSnapPoint(
+  snapNative: { x: number; y: number },
+  pivot: BrickPivot,
+): PegCoord {
+  let best: PegCoord = { gx: 2, gy: 2 }
+  let bestD = Infinity
+  for (let gy = 0; gy < PLATE_STUDS; gy++) {
+    for (let gx = 0; gx < PLATE_STUDS; gx++) {
+      if (!positionPinFits(gx, gy, pivot)) continue
+      const target = placementBoardTarget(gx, gy, pivot)
+      const d =
+        (target.x - snapNative.x) * (target.x - snapNative.x) +
+        (target.y - snapNative.y) * (target.y - snapNative.y)
+      if (d < bestD) {
+        bestD = d
+        best = { gx, gy }
+      } else if (d === bestD) {
+        if (
+          positionPinToBlockSeparationSq(gx, gy, pivot) <
+          positionPinToBlockSeparationSq(best.gx, best.gy, pivot)
+        ) {
+          best = { gx, gy }
+        }
+      }
+    }
+  }
+  return best
 }
 
 export function clampBrickAnchor(
@@ -267,32 +393,11 @@ export function clampBrickAnchor(
   positionGy: number,
   pivot: BrickPivot,
 ): { gx: number; gy: number } {
-  let gx = Math.max(0, Math.min(PLATE_STUDS - 1, positionGx))
-  let gy = Math.max(0, Math.min(PLATE_STUDS - 1, positionGy))
-
-  const fits = (pgx: number, pgy: number) => {
-    const cells = footprintCells(pgx, pgy, pivot)
-    return cells.every(
-      (c) => c.x >= 0 && c.x < PLATE_STUDS && c.y >= 0 && c.y < PLATE_STUDS,
-    )
-  }
-
-  if (fits(gx, gy)) return { gx, gy }
-
-  let best = { gx, gy }
-  let bestD = Infinity
-  for (let py = 0; py < PLATE_STUDS; py++) {
-    for (let px = 0; px < PLATE_STUDS; px++) {
-      if (!fits(px, py)) continue
-      const d =
-        (px - positionGx) * (px - positionGx) + (py - positionGy) * (py - positionGy)
-      if (d < bestD) {
-        bestD = d
-        best = { gx: px, gy: py }
-      }
-    }
-  }
-  return best
+  const gx = Math.max(0, Math.min(PLATE_STUDS - 1, positionGx))
+  const gy = Math.max(0, Math.min(PLATE_STUDS - 1, positionGy))
+  if (positionPinFits(gx, gy, pivot)) return { gx, gy }
+  const { x, y } = studToNative(gx, gy)
+  return positionPinFromBoardSnapPoint({ x, y }, pivot)
 }
 
 export function studTopHeights(
@@ -398,28 +503,45 @@ export function positionPinFromBrickPlacement(
   level = 0,
   layerLift = 0,
 ): PegCoord {
-  const s = boardScale(displayWidth)
-  const anchor = placementSnapAnchor(pivot)
-  const anchorBoard = {
-    x: localLeft / s + anchor.x,
-    y: localTop / s + anchor.y + (level * layerLift) / s,
-  }
+  const snap = boardSnapPointFromBrickPlacement(
+    localLeft,
+    localTop,
+    displayWidth,
+    pivot,
+    level,
+    layerLift,
+  )
+  return positionPinFromBoardSnapPoint(snap, pivot)
+}
 
-  let best = { gx: 0, gy: 0 }
-  let bestD = Infinity
-  for (let gy = 0; gy < PLATE_STUDS; gy++) {
-    for (let gx = 0; gx < PLATE_STUDS; gx++) {
-      const target = placementBoardTarget(gx, gy, pivot)
-      const d =
-        (target.x - anchorBoard.x) * (target.x - anchorBoard.x) +
-        (target.y - anchorBoard.y) * (target.y - anchorBoard.y)
-      if (d < bestD) {
-        bestD = d
-        best = { gx, gy }
-      }
-    }
+/** Snap brick box to nearest on-plate placement (full 2×4 footprint on grid). */
+export function clampBrickPlacementToPlate(
+  localLeft: number,
+  localTop: number,
+  displayWidth: number,
+  pivot: BrickPivot,
+  level = 0,
+  layerLift = 0,
+): { peg: PegCoord; placement: ReturnType<typeof brickPlacement> } {
+  const peg = positionPinFromBrickPlacement(
+    localLeft,
+    localTop,
+    displayWidth,
+    pivot,
+    level,
+    layerLift,
+  )
+  return {
+    peg,
+    placement: brickPlacement(
+      displayWidth,
+      peg.gx,
+      peg.gy,
+      pivot,
+      level,
+      layerLift,
+    ),
   }
-  return clampBrickAnchor(best.gx, best.gy, pivot)
 }
 
 /** Position pin in board native coords from brick box top-left. */
@@ -450,6 +572,28 @@ export function blockOriginScreenPosition(
   return { left: x * s, top: y * s }
 }
 
-export function boardDisplayHeight(displayWidth: number): number {
-  return BOARD_VIEWBOX.height * boardScale(displayWidth)
+/** Nearest on-plate position pin + brick screen placement from a board-native point. */
+export function snappedPlacementFromNative(
+  nativeX: number,
+  nativeY: number,
+  displayWidth: number,
+  pivot: BrickPivot,
+  level = 0,
+  layerLift = 0,
+): { peg: PegCoord; placement: ReturnType<typeof brickPlacement> } {
+  const peg = positionPinFromBoardSnapPoint(
+    { x: nativeX, y: nativeY },
+    pivot,
+  )
+  return {
+    peg,
+    placement: brickPlacement(
+      displayWidth,
+      peg.gx,
+      peg.gy,
+      pivot,
+      level,
+      layerLift,
+    ),
+  }
 }
