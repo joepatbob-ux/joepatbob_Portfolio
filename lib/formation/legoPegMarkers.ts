@@ -13,8 +13,8 @@ export type CornerPegMarker = {
 
 export const CORNER_PEG_MARKERS: CornerPegMarker[] = [
   { gx: 0, gy: 0, label: 'A0', color: '#00aeef' },
-  { gx: 0, gy: 9, label: 'A9', color: '#c800a1' },
-  { gx: 9, gy: 0, label: 'J0', color: '#ffe600' },
+  { gx: 0, gy: 9, label: 'J0', color: '#c800a1' },
+  { gx: 9, gy: 0, label: 'A9', color: '#ffe600' },
   { gx: 9, gy: 9, label: 'J9', color: '#1a1a1a' },
 ]
 

@@ -15,8 +15,9 @@ alwaysApply: false
 
 ## Peg map (`lib/formation/legoGrid.ts`)
 
-- 10×10 studs; **A0** = plate zero pin (bottom tip); **GX** A→J right; **GY** 0→9.
-- `pegLabel(gx, gy)` → `A0` … `J9`; `PEG_MAP` = stud centers from `Lego_Board.svg`.
+- 10×10 studs; **A0** = plate zero pin (bottom tip, cyan).
+- **Y-axis (A→J)**: +GY from cyan (A) to magenta (J) up the plate; **X-axis (0→9)**: +GX toward screen right.
+- `pegLabel(gx, gy)` → y letter + x digit (`A0` … `J9`); `PEG_MAP` = stud centers from `Lego_Board.svg`.
 - Board stud caps `#e6e7e8` (not orange — that was debug-only).
 
 ## Bricks (`lib/formation/legoBricks.ts`)

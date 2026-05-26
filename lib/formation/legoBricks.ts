@@ -503,8 +503,9 @@ export function snapPositionPinFromScreen(
   localTop: number,
   displayWidth: number,
   pivot: BrickPivot,
+  prefer?: PegCoord,
 ): PegCoord {
-  let best: PegCoord = { gx: 2, gy: 2 }
+  let best: PegCoord = prefer ?? { gx: 2, gy: 2 }
   let bestD = Infinity
   for (let gy = 0; gy < PLATE_STUDS; gy++) {
     for (let gx = 0; gx < PLATE_STUDS; gx++) {
@@ -515,6 +516,13 @@ export function snapPositionPinFromScreen(
         (placement.top - localTop) * (placement.top - localTop)
       if (d < bestD) {
         bestD = d
+        best = { gx, gy }
+      } else if (
+        prefer &&
+        d === bestD &&
+        gx === prefer.gx &&
+        gy === prefer.gy
+      ) {
         best = { gx, gy }
       }
     }

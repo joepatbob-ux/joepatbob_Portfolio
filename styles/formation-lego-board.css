@@ -24,11 +24,54 @@
   margin: 0 0.15rem;
 }
 
-.formation-lego__hint {
-  margin: 0 0 0.75rem;
-  font-size: 0.75rem;
+.formation-lego__debug {
+  flex: 0 1 320px;
+  max-width: 100%;
+  margin-top: 0.25rem;
+}
+
+.formation-lego__debug-summary {
+  cursor: pointer;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.formation-lego__debug-summary::-webkit-details-marker {
+  display: none;
+}
+
+.formation-lego__debug-summary-pill {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--color-accent, #e85d04) 18%, #fff);
+  color: #333;
+}
+
+.formation-lego__debug-body {
+  margin-top: 0.65rem;
+}
+
+.formation-lego__debug-line {
+  margin: 0 0 0.5rem;
+  font-size: 0.8125rem;
   line-height: 1.45;
+  color: #333;
+}
+
+.formation-lego__debug-legend {
+  margin: 0.35rem 0 0.5rem;
+  font-size: 0.7rem;
   color: var(--color-text-muted, #555);
+}
+
+.formation-lego__topdown-wrap--compact {
+  padding: 0.5rem 0 0.75rem;
 }
 
 .formation-lego__color-tab {
@@ -463,6 +506,11 @@
   cursor: pointer;
   min-height: 0;
   -webkit-tap-highlight-color: transparent;
+}
+
+.formation-lego__topdown-cell--readonly {
+  cursor: default;
+  pointer-events: none;
 }
 
 .formation-lego__topdown-label--light {

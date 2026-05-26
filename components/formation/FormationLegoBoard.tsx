@@ -63,11 +63,6 @@ export function FormationLegoBoard() {
         </button>
       </div>
 
-      <p className="formation-lego__hint">
-        Drag any block to move it. Select a color, then rotate left/right for that
-        block only. Overlapping blocks stack on top.
-      </p>
-
       <div className="formation-lego__stage">
         <div
           ref={board.boardRef}
@@ -122,7 +117,7 @@ export function FormationLegoBoard() {
 
         <FormationLegoTopDownGrid
           pivot={board.activePivot}
-          isoPositionPin={board.activePositionPin}
+          positionPin={board.activePositionPin}
           boardDisplayW={board.boardW}
           brickPlacementScreen={{
             left: board.brickPlace.left,
