@@ -3,8 +3,10 @@
  *
  * Coordinates (from your spec):
  * - Origin (0,0): bottom tip stud on Lego_Board.svg (A0).
- * - +GX: toward screen right (upper-right on the plate).
- * - +GY: toward screen left along the bottom row, then back/up the plate.
+ * - +GX (x-axis, 0–9): toward screen right (upper-right on the plate).
+ * - +GY (y-axis, A–J): from cyan corner (A) up the plate to magenta corner (J).
+ *
+ * Pin labels: `pegLabel(gx, gy)` → letter from gy + digit from gx (e.g. A0, J9).
  *
  * Screen position in board viewBox units:
  *   x = ORIGIN.x + (gx - gy) * STEP_X
@@ -24,12 +26,25 @@ export type PegCoord = { gx: number; gy: number }
 
 export type PegPosition = PegCoord & { x: number; y: number }
 
-export const GX_LETTERS = 'ABCDEFGHIJ'
+/** Y-axis letters A–J (cyan → magenta along +GY). */
+export const PEG_Y_LETTERS = 'ABCDEFGHIJ'
 
-/** Reference label for a cell, e.g. `A0`, `D4`. */
+/** @deprecated Use PEG_Y_LETTERS — kept for imports that expected GX_LETTERS. */
+export const GX_LETTERS = PEG_Y_LETTERS
+
+/** Y-axis letter for a peg row (A at gy=0, J at gy=9). */
+export function pegYLetter(gy: number): string {
+  return PEG_Y_LETTERS[gy] ?? '?'
+}
+
+/** Reference label for a cell, e.g. `A0`, `D4` (y letter + x digit). */
 export function pegLabel(gx: number, gy: number): string {
-  const letter = GX_LETTERS[gx] ?? '?'
-  return `${letter}${gy}`
+  return `${pegYLetter(gy)}${gx}`
+}
+
+/** Human + internal coords for debug (x digit, y letter). */
+export function pegCoordAnnotation(gx: number, gy: number): string {
+  return `x=${gx} y=${pegYLetter(gy)} (gx=${gx}, gy=${gy})`
 }
 
 export function studToNative(gx: number, gy: number): { x: number; y: number } {
