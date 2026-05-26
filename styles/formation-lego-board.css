@@ -4,8 +4,62 @@
 
 .formation-lego__controls {
   display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   gap: 0.5rem;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.formation-lego__controls-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-muted, #555);
+  margin-right: 0.15rem;
+}
+
+.formation-lego__controls-divider {
+  width: 1px;
+  height: 1.25rem;
+  background: #ccc;
+  margin: 0 0.15rem;
+}
+
+.formation-lego__hint {
+  margin: 0 0 0.75rem;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: var(--color-text-muted, #555);
+}
+
+.formation-lego__color-tab {
+  padding: 0.35rem 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 2px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #222;
+}
+
+.formation-lego__color-tab--cyan {
+  background: color-mix(in srgb, #00aeef 35%, #fff);
+}
+
+.formation-lego__color-tab--magenta {
+  background: color-mix(in srgb, #c800a1 28%, #fff);
+}
+
+.formation-lego__color-tab--yellow {
+  background: color-mix(in srgb, #ffe600 45%, #fff);
+}
+
+.formation-lego__color-tab--black {
+  background: color-mix(in srgb, #1a1a1a 18%, #fff);
+}
+
+.formation-lego__color-tab--active {
+  border-color: var(--color-accent, #e85d04);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-accent, #e85d04) 40%, transparent);
 }
 
 .formation-lego__tab {
@@ -126,6 +180,23 @@
   overflow: visible;
   cursor: grab;
   z-index: 2;
+  touch-action: none;
+}
+
+/* Glow on face wrapper (sticker pattern) — not on img, avoids SVG filter artifacts. */
+.formation-lego__brick-face {
+  position: absolute;
+  left: 0;
+  top: 0;
+  line-height: 0;
+  pointer-events: none;
+}
+
+.formation-lego__block--selected:not(.formation-lego__piece--drag) .formation-lego__brick-face {
+  filter:
+    drop-shadow(0 0 0.5px var(--color-accent, #e85d04))
+    drop-shadow(0 0 1px var(--color-accent, #e85d04))
+    drop-shadow(0 0 1.5px var(--color-accent, #e85d04));
 }
 
 .formation-lego__sprite {
@@ -133,7 +204,6 @@
   left: 0;
   top: 0;
   pointer-events: none;
-  transition: transform 120ms ease, filter 120ms ease;
 }
 
 .formation-lego__brick-img {
@@ -141,6 +211,7 @@
   width: 100% !important;
   height: auto !important;
   max-width: none;
+  filter: none;
 }
 
 .formation-lego__piece--drag {
@@ -148,13 +219,18 @@
   cursor: grabbing;
 }
 
-.formation-lego__piece--drag .formation-lego__sprite {
-  /* Avoid translateY: it can look like the brick jumps away from the cursor. */
-  transform: scale(1.02);
+.formation-lego__piece--drag .formation-lego__brick-face {
   filter:
-    drop-shadow(0 0 0.55rem rgb(232 93 4 / 78%))
-    drop-shadow(0 0.5rem 0.8rem rgb(0 0 0 / 35%));
-  transition: transform 120ms ease, filter 120ms ease;
+    drop-shadow(0 0 0.5px var(--color-accent, #e85d04))
+    drop-shadow(0 0 1px var(--color-accent, #e85d04))
+    drop-shadow(0 0 2px var(--color-accent, #e85d04))
+    drop-shadow(0 3px 8px rgb(0 0 0 / 12%));
+}
+
+.formation-lego__piece--drag .formation-lego__sprite,
+.formation-lego__piece--drag .formation-lego__brick-img {
+  transform: none;
+  filter: none;
 }
 
 .formation-lego__stage {
