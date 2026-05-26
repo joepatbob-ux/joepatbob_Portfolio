@@ -9,7 +9,7 @@ import {
   placementSnapAnchor,
   positionPinFits,
   positionPinFromBoardSnapPoint,
-  snapPositionPinFromScreen,
+  positionPinFromBrickPlacement,
   snappedPlacementFromNative,
   snapToTopLevel,
   type BrickColor,
@@ -19,8 +19,6 @@ import { spritePlacement } from '@/lib/formation/spritePlacement'
 import {
   clientToBoardNative,
   clientToClip,
-  clipToBoardNative,
-  fullScreenToClip,
   plateDisplayLayout,
 } from '@/lib/formation/plateViewport'
 
@@ -106,7 +104,8 @@ export function useFormationLegoBoard() {
   )
   const [dragHasMoved, setDragHasMoved] = useState(false)
   const boardRef = useRef<HTMLDivElement>(null)
-  const grabOffsetClip = useRef({ x: 0, y: 0 })
+  /** Pointer minus snap-anchor in board native space (not brick box top-left). */
+  const grabOffsetNative = useRef({ x: 0, y: 0 })
   const dragNativeRef = useRef<{ x: number; y: number } | null>(null)
   const dragPointerStartClip = useRef<{ x: number; y: number } | null>(null)
 
@@ -191,12 +190,13 @@ export function useFormationLegoBoard() {
     const release = dragFree
     if (piece && release && dragHasMoved) {
       setPieces((prev) => {
-        const peg = snapPositionPinFromScreen(
+        const peg = positionPinFromBrickPlacement(
           release.left,
           release.top,
           boardW,
           piece.pivot,
-          { gx: piece.gx, gy: piece.gy },
+          piece.level,
+          0,
         )
         const topLevel = snapToTopLevel(
           peg.gx,
@@ -243,24 +243,36 @@ export function useFormationLegoBoard() {
       if (!piece) return
 
       const piecePlacement = placementForPiece(piece)
-      const { clipX, clipY } = fullScreenToClip(
+      const pointerNative = clientToBoardNative(
+        boardRef.current,
+        e.clientX,
+        e.clientY,
+        boardW,
+      )
+      const anchorNative = boardSnapPointFromBrickPlacement(
         piecePlacement.left,
         piecePlacement.top,
-        plate,
+        boardW,
+        piece.pivot,
+        piece.level,
+        0,
       )
-      const pointer = clientToClip(boardRef.current, e.clientX, e.clientY)
-      grabOffsetClip.current = {
-        x: pointer.clipX - clipX,
-        y: pointer.clipY - clipY,
+      grabOffsetNative.current = {
+        x: pointerNative.x - anchorNative.x,
+        y: pointerNative.y - anchorNative.y,
       }
-      dragNativeRef.current = clipToBoardNative(clipX, clipY, boardW)
-      dragPointerStartClip.current = { x: pointer.clipX, y: pointer.clipY }
+      dragNativeRef.current = anchorNative
+      const pointerClip = clientToClip(boardRef.current, e.clientX, e.clientY)
+      dragPointerStartClip.current = {
+        x: pointerClip.clipX,
+        y: pointerClip.clipY,
+      }
       setDragHasMoved(false)
       setDragId(pieceId)
       setDragFree(null)
       boardRef.current.setPointerCapture(e.pointerId)
     },
-    [boardW, pieces, placementForPiece, plate],
+    [boardW, pieces, placementForPiece],
   )
 
   const onPointerMove = useCallback(
@@ -278,18 +290,23 @@ export function useFormationLegoBoard() {
         }
         if (!dragHasMoved) setDragHasMoved(true)
       }
-      const native = clipToBoardNative(
-        pointer.clipX - grabOffsetClip.current.x,
-        pointer.clipY - grabOffsetClip.current.y,
+      const pointerNative = clientToBoardNative(
+        boardRef.current,
+        e.clientX,
+        e.clientY,
         boardW,
       )
+      const anchorNative = {
+        x: pointerNative.x - grabOffsetNative.current.x,
+        y: pointerNative.y - grabOffsetNative.current.y,
+      }
       const { left, top } = placementFollowPointer(
-        native,
+        anchorNative,
         boardW,
         piece.pivot,
         piece.level,
       )
-      dragNativeRef.current = native
+      dragNativeRef.current = anchorNative
       setDragFree({ left, top })
     },
     [boardW, dragHasMoved, dragId, pieces],
