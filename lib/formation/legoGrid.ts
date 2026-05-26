@@ -2,7 +2,7 @@
  * 10×10 stud grid for Formation LEGO board.
  *
  * Coordinates (from your spec):
- * - Origin (0,0): bottom tip stud on Lego_Board.svg (orange zero pin).
+ * - Origin (0,0): bottom tip stud on Lego_Board.svg (A0).
  * - +GX: toward screen right (upper-right on the plate).
  * - +GY: toward screen left along the bottom row, then back/up the plate.
  *
@@ -57,6 +57,16 @@ export function nearestStudFromNative(x: number, y: number): PegCoord {
 
 export function boardScale(displayWidth: number): number {
   return displayWidth / BOARD_VIEWBOX.width
+}
+
+/** Inset around outermost stud centers (excludes Lego_Board.svg bezel). */
+const PLATE_STUD_INSET = 42
+
+export type PlateContentBounds = {
+  minX: number
+  minY: number
+  width: number
+  height: number
 }
 
 export function pegScreenPosition(
@@ -172,3 +182,23 @@ export const PEG_MAP: PegPosition[] = [
   { gx: 8, gy: 9, x: 598.71, y: 72.83 },
   { gx: 9, gy: 9, x: 667.71, y: 33 },
 ]
+
+/** Playable 10×10 stud area in board SVG space (A0–J9 corners + stud radius). */
+export const PLATE_CONTENT_BOUNDS: PlateContentBounds = (() => {
+  let minX = Infinity
+  let minY = Infinity
+  let maxX = -Infinity
+  let maxY = -Infinity
+  for (const peg of PEG_MAP) {
+    minX = Math.min(minX, peg.x)
+    maxX = Math.max(maxX, peg.x)
+    minY = Math.min(minY, peg.y)
+    maxY = Math.max(maxY, peg.y)
+  }
+  return {
+    minX: minX - PLATE_STUD_INSET,
+    minY: minY - PLATE_STUD_INSET,
+    width: maxX - minX + PLATE_STUD_INSET * 2,
+    height: maxY - minY + PLATE_STUD_INSET * 2,
+  }
+})()

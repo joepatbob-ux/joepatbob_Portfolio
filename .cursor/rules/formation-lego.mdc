@@ -17,12 +17,13 @@ alwaysApply: false
 
 - 10×10 studs; **A0** = plate zero pin (bottom tip); **GX** A→J right; **GY** 0→9.
 - `pegLabel(gx, gy)` → `A0` … `J9`; `PEG_MAP` = stud centers from `Lego_Board.svg`.
+- Board stud caps `#e6e7e8` (not orange — that was debug-only).
 
 ## Bricks (`lib/formation/legoBricks.ts`)
 
 - Assets: `public/Lego/Lego_Left_*.svg`, `Lego_Right_*.svg`.
-- **Left snap**: position-pin orange → block-origin peg + `LEFT_BLOCK_VISUAL_SNAP_NUDGE` `{ x: 276.95, y: 238.63 }`.
-- **Right snap**: block 0,0 orange → peg `(gx−2, gy−2)`; `RIGHT_BLOCK_VISUAL_SNAP_NUDGE` `{ x: 40.7, y: -0.09 }`.
+- **Left snap**: position-pin orange → position-pin peg; block 0,0 uses the same peg for footprint.
+- **Right snap**: block 0,0 orange → block-origin peg + nudge; corner `pin+(1,1)` for block, else pin ≡ block peg; snap ties prefer colocated pin.
 - **Left** pivot: 4×2 along +GY. **Right** pivot: 4×2 along +GX.
 
 ## Do not
