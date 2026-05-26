@@ -494,6 +494,34 @@ export function brickPlacement(
   )
 }
 
+/**
+ * Nearest valid position pin whose snapped brick box best matches on-screen
+ * left/top (minimizes release jump after free drag).
+ */
+export function snapPositionPinFromScreen(
+  localLeft: number,
+  localTop: number,
+  displayWidth: number,
+  pivot: BrickPivot,
+): PegCoord {
+  let best: PegCoord = { gx: 2, gy: 2 }
+  let bestD = Infinity
+  for (let gy = 0; gy < PLATE_STUDS; gy++) {
+    for (let gx = 0; gx < PLATE_STUDS; gx++) {
+      if (!positionPinFits(gx, gy, pivot)) continue
+      const placement = brickPlacement(displayWidth, gx, gy, pivot, 0, 0)
+      const d =
+        (placement.left - localLeft) * (placement.left - localLeft) +
+        (placement.top - localTop) * (placement.top - localTop)
+      if (d < bestD) {
+        bestD = d
+        best = { gx, gy }
+      }
+    }
+  }
+  return best
+}
+
 /** Nearest valid position pin after dragging the brick (includes visual nudge). */
 export function positionPinFromBrickPlacement(
   localLeft: number,

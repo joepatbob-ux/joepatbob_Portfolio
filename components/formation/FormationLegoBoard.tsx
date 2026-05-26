@@ -1,16 +1,25 @@
 'use client'
 
 import { BOARD_VIEWBOX } from '@/lib/formation/legoGrid'
-import { useFormationLegoBoard } from '@/lib/formation/useFormationLegoBoard'
+import {
+  FORMATION_BRICK_COLORS,
+  useFormationLegoBoard,
+} from '@/lib/formation/useFormationLegoBoard'
 import { FormationLegoBrickPiece } from '@/components/formation/FormationLegoBrickPiece'
 import { FormationLegoIsoPegOverlay } from '@/components/formation/FormationLegoIsoPegOverlay'
 import { FormationLegoTopDownGrid } from '@/components/formation/FormationLegoTopDownGrid'
+import type { BrickColor } from '@/lib/formation/legoBricks'
 import '@/styles/formation-lego-board.css'
-
-const BRICK_COLOR = 'cyan' as const
 
 function tabClass(active: boolean): string {
   return active ? 'formation-lego__tab--active' : 'formation-lego__tab'
+}
+
+const COLOR_LABEL: Record<BrickColor, string> = {
+  cyan: 'Cyan',
+  magenta: 'Magenta',
+  yellow: 'Yellow',
+  black: 'Black',
 }
 
 export function FormationLegoBoard() {
@@ -20,21 +29,44 @@ export function FormationLegoBoard() {
   return (
     <div className="formation-lego formation-lego--single">
       <div className="formation-lego__controls">
+        <span className="formation-lego__controls-label">Active block</span>
+        {FORMATION_BRICK_COLORS.map((color) => (
+          <button
+            key={color}
+            type="button"
+            className={[
+              'formation-lego__color-tab',
+              `formation-lego__color-tab--${color}`,
+              board.activeId === color ? 'formation-lego__color-tab--active' : '',
+            ]
+              .filter(Boolean)
+              .join(' ')}
+            onClick={() => board.setActiveId(color)}
+          >
+            {COLOR_LABEL[color]}
+          </button>
+        ))}
+        <span className="formation-lego__controls-divider" aria-hidden />
         <button
           type="button"
-          className={tabClass(board.pivot === 'left')}
-          onClick={() => board.setPivotAndClamp('left')}
+          className={tabClass(board.activePivot === 'left')}
+          onClick={() => board.rotateActivePiece('left')}
         >
-          Left pivot
+          Rotate left
         </button>
         <button
           type="button"
-          className={tabClass(board.pivot === 'right')}
-          onClick={() => board.setPivotAndClamp('right')}
+          className={tabClass(board.activePivot === 'right')}
+          onClick={() => board.rotateActivePiece('right')}
         >
-          Right pivot
+          Rotate right
         </button>
       </div>
+
+      <p className="formation-lego__hint">
+        Drag any block to move it. Select a color, then rotate left/right for that
+        block only. Overlapping blocks stack on top.
+      </p>
 
       <div className="formation-lego__stage">
         <div
@@ -66,25 +98,31 @@ export function FormationLegoBoard() {
 
             <FormationLegoIsoPegOverlay
               boardDisplayW={board.boardW}
-              pivot={board.pivot}
-              positionPin={board.positionPin}
+              pivot={board.activePivot}
+              positionPin={board.activePositionPin}
             />
 
-            <FormationLegoBrickPiece
-              pivot={board.pivot}
-              color={BRICK_COLOR}
-              boardWidth={board.boardW}
-              brickViewBox={board.brickViewBox}
-              placement={board.brickPlace}
-              isDragging={board.isDragging}
-              onPointerDown={board.onBrickPointerDown}
-            />
+            {board.pieces.map((p) => (
+              <FormationLegoBrickPiece
+                key={p.id}
+                id={p.id}
+                pivot={p.pivot}
+                color={p.color}
+                boardWidth={board.boardW}
+                brickViewBox={board.brickViewBox}
+                placement={p.placement}
+                isDragging={board.draggingId === p.id}
+                isSelected={board.activeId === p.id}
+                zIndex={p.z + (board.activeId === p.id ? 10000 : 0)}
+                onPointerDown={board.onBrickPointerDown(p.id)}
+              />
+            ))}
           </div>
         </div>
 
         <FormationLegoTopDownGrid
-          pivot={board.pivot}
-          isoPositionPin={board.positionPin}
+          pivot={board.activePivot}
+          isoPositionPin={board.activePositionPin}
           boardDisplayW={board.boardW}
           brickPlacementScreen={{
             left: board.brickPlace.left,
