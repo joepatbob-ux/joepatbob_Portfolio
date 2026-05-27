@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   boardSnapPointFromBrickPlacement,
   brickLayerLift,
@@ -12,6 +12,7 @@ import {
   positionPinFromBoardSnapPoint,
   positionPinFromRaisedBrickPlacement,
   previewStackLevel,
+  hasBrickStackedAbove,
   resolveStackedSnap,
   snappedPlacementFromNative,
   snapToTopLevel,
@@ -149,6 +150,24 @@ export function useFormationLegoBoard() {
     [activeId, pieces],
   )
 
+  const selectPiece = useCallback(
+    (pieceId: BrickColor | null) => {
+      if (pieceId != null) {
+        const piece = pieces.find((p) => p.id === pieceId)
+        if (!piece || hasBrickStackedAbove(piece, pieces)) return
+      }
+      setActiveId(pieceId)
+    },
+    [pieces],
+  )
+
+  useEffect(() => {
+    if (!activeId) return
+    const active = pieces.find((p) => p.id === activeId)
+    if (active && hasBrickStackedAbove(active, pieces)) {
+      setActiveId(null)
+    }
+  }, [activeId, pieces])
 
   const isDragging = dragId != null && dragHasMoved
 
@@ -251,6 +270,7 @@ export function useFormationLegoBoard() {
     (e: React.PointerEvent) => {
       if ((e.target as HTMLElement).closest('.formation-lego__block')) return
       if (!boardRef.current || !activePiece) return
+      if (hasBrickStackedAbove(activePiece, pieces)) return
       const native = clientToBoardNative(
         boardRef.current,
         e.clientX,
@@ -259,16 +279,17 @@ export function useFormationLegoBoard() {
       )
       commitSnap(activePiece.id, native, activePiece.pivot)
     },
-    [activePiece, boardW, commitSnap],
+    [activePiece, boardW, commitSnap, pieces],
   )
 
   const onBrickPointerDown = useCallback(
     (pieceId: BrickColor) => (e: React.PointerEvent) => {
       if (!boardRef.current) return
-      e.stopPropagation()
-      setActiveId(pieceId)
       const piece = pieces.find((p) => p.id === pieceId)
-      if (!piece) return
+      if (!piece || hasBrickStackedAbove(piece, pieces)) return
+
+      e.stopPropagation()
+      selectPiece(pieceId)
 
       const piecePlacement = placementForPiece(piece)
       const pointerNative = clientToBoardNative(
@@ -305,7 +326,7 @@ export function useFormationLegoBoard() {
       setDragFree(null)
       boardRef.current.setPointerCapture(e.pointerId)
     },
-    [boardW, layerLift, pieces, placementForPiece],
+    [boardW, layerLift, pieces, placementForPiece, selectPiece],
   )
 
   const onPointerMove = useCallback(
@@ -398,6 +419,7 @@ export function useFormationLegoBoard() {
     (next: BrickPivot) => {
       const piece = pieces.find((p) => p.id === activeId)
       if (!piece || piece.pivot === next) return
+      if (hasBrickStackedAbove(piece, pieces)) return
 
       const placement =
         dragId === activeId && dragFree
@@ -447,9 +469,11 @@ export function useFormationLegoBoard() {
         const isFreeDrag = dragId === p.id && dragHasMoved
         const free = isFreeDrag ? dragFree : null
         const placement = placementForPiece(p, free)
+        const isAnchored = hasBrickStackedAbove(p, pieces)
         return {
           ...p,
           placement,
+          isAnchored,
           z: depthZDuringDrag(
             p,
             isFreeDrag ? dragFree : null,
@@ -473,7 +497,7 @@ export function useFormationLegoBoard() {
     draggingId: dragId,
     pieces: piecesWithPlacement,
     activeId,
-    setActiveId,
+    selectPiece,
     onBoardPointerDown,
     onBrickPointerDown,
     onPointerMove,

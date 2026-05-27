@@ -329,6 +329,33 @@ function cellKey(x: number, y: number): string {
   return `${x},${y}`
 }
 
+export type BrickStackPiece = {
+  id: string
+  gx: number
+  gy: number
+  pivot: BrickPivot
+  level: number
+}
+
+/** True when another brick sits on this one's studs (same footprint, higher level). */
+export function hasBrickStackedAbove(
+  piece: BrickStackPiece,
+  pieces: BrickStackPiece[],
+): boolean {
+  const baseCells = new Set(
+    footprintCells(piece.gx, piece.gy, piece.pivot).map((c) =>
+      cellKey(c.x, c.y),
+    ),
+  )
+  for (const other of pieces) {
+    if (other.id === piece.id || other.level <= piece.level) continue
+    for (const cell of footprintCells(other.gx, other.gy, other.pivot)) {
+      if (baseCells.has(cellKey(cell.x, cell.y))) return true
+    }
+  }
+  return false
+}
+
 /** True when the full 2×4 footprint stays on the 10×10 plate. */
 export function positionPinFits(
   positionGx: number,
