@@ -50,6 +50,11 @@
   background: color-mix(in srgb, #1a1a1a 18%, #fff);
 }
 
+.formation-lego--theme-light .formation-lego__color-tab--black {
+  background: color-mix(in srgb, #f2f2f2 55%, #fff);
+  border-color: color-mix(in srgb, #888 35%, transparent);
+}
+
 .formation-lego__color-tab--active {
   border-color: var(--color-accent, #e85d04);
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-accent, #e85d04) 40%, transparent);

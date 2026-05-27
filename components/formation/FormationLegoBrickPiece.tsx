@@ -3,8 +3,11 @@
 import {
   brickArtSrc,
   brickDisplaySize,
+  brickSelectedArtSrc,
+  brickSpriteViewBox,
   type BrickColor,
   type BrickPivot,
+  type LegoBoardTheme,
 } from '@/lib/formation/legoBricks'
 import type { SpritePlacement } from '@/lib/formation/spritePlacement'
 
@@ -12,8 +15,9 @@ type Props = {
   id: string
   pivot: BrickPivot
   color: BrickColor
+  boardTheme: LegoBoardTheme
   boardWidth: number
-  brickViewBox: { width: number; height: number }
+  isPickedUp: boolean
   placement: SpritePlacement
   isDragging: boolean
   isSelected: boolean
@@ -26,8 +30,9 @@ export function FormationLegoBrickPiece({
   id,
   pivot,
   color,
+  boardTheme,
   boardWidth,
-  brickViewBox,
+  isPickedUp,
   placement,
   isDragging,
   isSelected,
@@ -35,7 +40,11 @@ export function FormationLegoBrickPiece({
   zIndex,
   onPointerDown,
 }: Props) {
-  const brickSize = brickDisplaySize(boardWidth)
+  const brickViewBox = brickSpriteViewBox(isPickedUp)
+  const brickSize = brickDisplaySize(boardWidth, isPickedUp)
+  const artSrc = isPickedUp
+    ? brickSelectedArtSrc(pivot)
+    : brickArtSrc(color, pivot, boardTheme)
 
   return (
     <div
@@ -65,7 +74,7 @@ export function FormationLegoBrickPiece({
           style={{ width: brickSize.width, height: brickSize.height }}
         >
                     <img
-            src={brickArtSrc(color, pivot)}
+            src={artSrc}
             alt=""
             width={brickViewBox.width}
             height={brickViewBox.height}

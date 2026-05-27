@@ -28,7 +28,7 @@ alwaysApply: false
 
 ## Depth and stacking
 
-- Board art: `Lego/Lego_Board.svg` (plate + studs as one layer). Bricks use `brickIsoZIndex` for A0→J9 depth; board studs cannot interleave until studs are split into per-peg layers.
+- Board art: `Lego_Board_White.svg` (dark mode) / `Lego_Board_Black.svg` (light mode); same viewBox. Neutral brick (`black` color): `Lego_*_Black` on white board, `Lego_Brick_*_White` on black board. Active / dragging piece uses `Lego_Brick_*_Selected.svg` + `SELECTED_VIEWBOX` for placement (orange snap guides). Bricks use `brickIsoZIndex` for A0→J9 depth; board studs cannot interleave until studs are split into per-peg layers.
 - **Collision**: two bricks cannot share studs at the **same** `level`; overlapping placement auto-stacks via `snapToTopLevel` (same pegs, higher level).
 
 ## Do not

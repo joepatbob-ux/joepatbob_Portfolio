@@ -21,8 +21,15 @@ import { spritePlacement } from '@/lib/formation/spritePlacement'
 
 export const BRICK_VIEWBOX = { width: 412.23, height: 334 } as const
 
+/** Picked-up guide art (`Lego_Brick_*_Selected.svg`) — same snap anchors as align overlay. */
+export const SELECTED_VIEWBOX = { width: 414.23, height: 335.44 } as const
+
 /** Align overlay art — plate pegs (orange) vs brick studs (gray). */
 export const ALIGN_VIEWBOX = { width: 414.23, height: 334.58 } as const
+
+export function brickSpriteViewBox(pickedUp: boolean) {
+  return pickedUp ? SELECTED_VIEWBOX : BRICK_VIEWBOX
+}
 
 /** Stud cap center (cls-2 path origin) in brick / align SVGs. */
 export const POSITION_PIN_CENTER_NATIVE: Record<
@@ -123,6 +130,9 @@ export const BLOCK_ORIGIN_ABOVE_POSITION_GY = 3.566
 export type BrickColor = 'yellow' | 'cyan' | 'magenta' | 'black'
 export type BrickPivot = 'left' | 'right'
 export type BrickLongAxis = 'gx' | 'gy'
+
+/** Effective site theme — pairs board + neutral brick contrast. */
+export type LegoBoardTheme = 'light' | 'dark'
 
 const COLOR_FILE: Record<BrickColor, string> = {
   yellow: 'Yellow',
@@ -250,9 +260,39 @@ export function blockOriginNativeInBrick(pivot: BrickPivot): {
   return ALIGN_BLOCK_ORIGIN_ORANGE_NATIVE[pivot]
 }
 
-export function brickArtSrc(color: BrickColor, pivot: BrickPivot): string {
+/** White board in dark mode; black board in light mode (same viewBox as legacy plate). */
+export function legoBoardSrc(theme: LegoBoardTheme): string {
+  return theme === 'dark'
+    ? '/Lego/Lego_Board_White.svg'
+    : '/Lego/Lego_Board_Black.svg'
+}
+
+/** Neutral brick contrasts the plate: black on white board, white on black board. */
+function neutralBrickBasename(
+  theme: LegoBoardTheme,
+  side: 'Left' | 'Right',
+): string {
+  if (theme === 'dark') {
+    return `Lego_${side}_Black`
+  }
+  return `Lego_Brick_${side}_White`
+}
+
+export function brickArtSrc(
+  color: BrickColor,
+  pivot: BrickPivot,
+  theme: LegoBoardTheme,
+): string {
   const side = pivot === 'left' ? 'Left' : 'Right'
+  if (color === 'black') {
+    return `/Lego/${neutralBrickBasename(theme, side)}.svg`
+  }
   return `/Lego/Lego_${side}_${COLOR_FILE[color]}.svg`
+}
+
+export function brickSelectedArtSrc(pivot: BrickPivot): string {
+  const side = pivot === 'left' ? 'Left' : 'Right'
+  return `/Lego/Lego_Brick_${side}_Selected.svg`
 }
 
 export function alignArtSrc(pivot: BrickPivot): string {
@@ -659,14 +699,18 @@ export function flipMirror(
   }
 }
 
-export function brickDisplaySize(displayWidth: number): {
+export function brickDisplaySize(
+  displayWidth: number,
+  pickedUp = false,
+): {
   width: number
   height: number
 } {
+  const vb = brickSpriteViewBox(pickedUp)
   const s = boardScale(displayWidth)
   return {
-    width: BRICK_VIEWBOX.width * s,
-    height: BRICK_VIEWBOX.height * s,
+    width: vb.width * s,
+    height: vb.height * s,
   }
 }
 
@@ -677,12 +721,13 @@ export function brickPlacement(
   pivot: BrickPivot,
   level: number,
   layerLift: number,
+  pickedUp = false,
 ) {
   return spritePlacement(
     displayWidth,
     placementSnapAnchor(pivot),
     placementBoardTarget(positionGx, positionGy, pivot),
-    BRICK_VIEWBOX,
+    brickSpriteViewBox(pickedUp),
     level,
     layerLift,
   )
