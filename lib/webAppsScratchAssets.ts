@@ -45,6 +45,28 @@ export function loadKelvinCoinImages(): Promise<{
   ]).then(([flat, tilted]) => ({ flat, tilted }))
 }
 
+/** Simple circular brush when coin artwork fails to load. */
+export function createFallbackCoinBrushDataUrl(size = COIN_BRUSH_PX): string {
+  const canvas = document.createElement('canvas')
+  canvas.width = size
+  canvas.height = size
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return ''
+
+  const r = size * 0.42
+  const cx = size / 2
+  const cy = size / 2
+  const gradient = ctx.createRadialGradient(cx, cy, r * 0.2, cx, cy, r)
+  gradient.addColorStop(0, '#f5d76e')
+  gradient.addColorStop(1, '#c9a227')
+  ctx.fillStyle = gradient
+  ctx.beginPath()
+  ctx.arc(cx, cy, r, 0, Math.PI * 2)
+  ctx.fill()
+
+  return canvas.toDataURL('image/png')
+}
+
 /** Rasterize tilted coin for ScratchCard `brush` prop. */
 export function createCoinBrushDataUrl(
   coin: HTMLImageElement,

@@ -92,7 +92,14 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
     async (selector: string, chapterId: string) => {
       if (busyRef.current) return
       const target = document.querySelector<HTMLElement>(selector)
-      if (!target) return
+      if (!target) {
+        if (import.meta.env.DEV) {
+          console.warn(
+            `[ChapterNav] No element for selector "${selector}" (chapter ${chapterId})`,
+          )
+        }
+        return
+      }
 
       busyRef.current = true
       setTargetId(chapterId)

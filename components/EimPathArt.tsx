@@ -115,7 +115,12 @@ export function EimPathArt({
     const debug = isEimDashDebugEnabled()
 
     fetch(SVG_SRC)
-      .then((res) => res.text())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`EIM path SVG failed (${res.status})`)
+        }
+        return res.text()
+      })
       .then((raw) => {
         if (cancelled || !svgHostRef.current) return
 
@@ -165,8 +170,12 @@ export function EimPathArt({
         setDashCount(segments.length)
         setSvgReady(true)
       })
-      .catch(() => {
-        if (!cancelled) setSvgReady(false)
+      .catch((err) => {
+        if (cancelled) return
+        setSvgReady(false)
+        if (import.meta.env.DEV) {
+          console.warn('[EimPathArt] Failed to load path SVG:', err)
+        }
       })
 
     return () => {
