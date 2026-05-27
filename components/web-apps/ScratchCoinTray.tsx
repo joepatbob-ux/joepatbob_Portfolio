@@ -34,8 +34,7 @@ export function ScratchCoinTray({
         aria-label={coinInTray ? pickUpLabel : leaveLabel}
       >
         {coinInTray ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+                    <img
             className="web-apps-scratch__tray-coin-img"
             src={KELVIN_COIN_FLAT_SRC}
             alt=""

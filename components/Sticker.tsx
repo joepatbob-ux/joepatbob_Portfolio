@@ -45,8 +45,7 @@ export function Sticker({
       }
     >
       <span className="sticker__face">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+                <img
           src={src}
           alt={alt}
           height={height}

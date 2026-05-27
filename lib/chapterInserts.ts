@@ -1,4 +1,5 @@
 /** Extra scroll slides inserted after a section chapter (nav + DOM stay in sync). */
+import type { ReactNode } from 'react'
 
 export type ChapterInsertDef = {
   sectionId: string
@@ -9,6 +10,8 @@ export type ChapterInsertDef = {
   navLabel: string
   fillViewport?: boolean
   viewportClassName?: string
+  /** Optional rendered slide content. If omitted, insert is skipped. */
+  render?: (ctx: { sectionId: string }) => ReactNode
 }
 
 export const CHAPTER_INSERTS: readonly ChapterInsertDef[] = [] as const

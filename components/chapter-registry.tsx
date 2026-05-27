@@ -74,13 +74,23 @@ export function ChapterInsertSlide({
   sectionId: string
   insert: ChapterInsertDef
 }) {
+  const content = insert.render?.({ sectionId }) ?? null
+  if (!content) {
+    if (import.meta.env.DEV) {
+      console.warn(
+        `[ChapterInsert] Missing render() for ${fullInsertChapterId(sectionId, insert.insertId)}`,
+      )
+    }
+    return null
+  }
+
   return (
     <ChapterViewport
       chapterId={fullInsertChapterId(sectionId, insert.insertId)}
       fillViewport={insert.fillViewport}
       className={insert.viewportClassName}
     >
-      {null}
+      {content}
     </ChapterViewport>
   )
 }

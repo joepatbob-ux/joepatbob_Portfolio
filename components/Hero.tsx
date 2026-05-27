@@ -28,8 +28,7 @@ export function Hero() {
   return (
     <section id="hero" className="hero">
       <div className="hero-pin">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+                <img
           className="hero-portrait"
           src={portraitSrc}
           alt="Joseph Patrick Roberts"

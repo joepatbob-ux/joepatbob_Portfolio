@@ -97,8 +97,7 @@ function KelvinQuadScratchInner() {
           }}
         >
           {showFollowCoin ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+                        <img
               className="web-apps-scratch__coin-cursor"
               src={KELVIN_COIN_TILTED_SRC}
               alt=""
@@ -140,8 +139,7 @@ function KelvinQuadScratchInner() {
             ) : ready && cover ? (
               <div className="kelvin-quad-scratch__idle web-apps-scratch__card-idle">
                 <KelvinAfterWireframe width={cardSize} height={cardSize} />
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                                <img
                   className="kelvin-quad-scratch__idle-cover web-apps-scratch__card-cover"
                   src={cover}
                   alt=""
