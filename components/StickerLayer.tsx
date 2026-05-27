@@ -37,12 +37,7 @@ export function StickerLayer() {
         return
       }
 
-      const placedRoot = target.closest(
-        '[data-sticker-instance]',
-      ) as HTMLElement | null
-      const instanceId =
-        placedRoot?.dataset.stickerInstance ??
-        stickerInstanceAtPoint(e.clientX, e.clientY)
+      const instanceId = stickerInstanceAtPoint(e.clientX, e.clientY)
       if (instanceId) {
         dispatchPlacedPointer(instanceId, e)
         e.stopPropagation()
