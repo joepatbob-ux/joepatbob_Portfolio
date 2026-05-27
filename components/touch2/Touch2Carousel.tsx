@@ -171,8 +171,7 @@ function Touch2CarouselInner({
               .join(' ')}
             aria-hidden={i !== index}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+                        <img
               src={slide.src}
               alt={i === index ? slide.alt : ''}
               className="touch2-carousel__img"

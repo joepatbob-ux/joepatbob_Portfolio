@@ -61,8 +61,7 @@ export function FormationLegoBrickPiece({
           className="formation-lego__sprite"
           style={{ width: brickSize.width, height: brickSize.height }}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+                    <img
             src={brickArtSrc(color, pivot)}
             alt=""
             width={brickViewBox.width}
