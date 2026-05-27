@@ -441,6 +441,92 @@ export function snapToTopLevel(
   return level
 }
 
+/** Iso rise per stack level in board native units (brick shell height on plate). */
+export const BRICK_LAYER_LIFT_NATIVE = 20.8
+
+export function brickLayerLift(displayWidth: number): number {
+  return BRICK_LAYER_LIFT_NATIVE * boardScale(displayWidth)
+}
+
+/** Map a lifted brick box back to peg coords on the level-0 snap plane. */
+export function positionPinFromRaisedBrickPlacement(
+  localLeft: number,
+  localTop: number,
+  displayWidth: number,
+  pivot: BrickPivot,
+  renderLevel: number,
+): PegCoord {
+  const lift = brickLayerLift(displayWidth)
+  return positionPinFromBrickPlacement(
+    localLeft,
+    localTop + renderLevel * lift,
+    displayWidth,
+    pivot,
+    0,
+    0,
+  )
+}
+
+/** Peg + stack level after dropping a brick (same footprint may stack on others). */
+export function resolveStackedSnap(
+  localLeft: number,
+  localTop: number,
+  displayWidth: number,
+  pivot: BrickPivot,
+  renderLevel: number,
+  pieces: {
+    id: string
+    gx: number
+    gy: number
+    pivot: BrickPivot
+    level: number
+  }[],
+  excludeId?: string,
+): { peg: PegCoord; level: number } {
+  const peg = positionPinFromRaisedBrickPlacement(
+    localLeft,
+    localTop,
+    displayWidth,
+    pivot,
+    renderLevel,
+  )
+  const level = snapToTopLevel(peg.gx, peg.gy, pivot, pieces, excludeId)
+  return { peg, level }
+}
+
+export function previewStackLevel(
+  localLeft: number,
+  localTop: number,
+  displayWidth: number,
+  pivot: BrickPivot,
+  renderLevel: number,
+  pieces: {
+    id: string
+    gx: number
+    gy: number
+    pivot: BrickPivot
+    level: number
+  }[],
+  excludeId?: string,
+): number {
+  const peg = positionPinFromRaisedBrickPlacement(
+    localLeft,
+    localTop,
+    displayWidth,
+    pivot,
+    renderLevel,
+  )
+  return snapToTopLevel(peg.gx, peg.gy, pivot, pieces, excludeId)
+}
+
+/** Max gx+gy on the plate (J9); A0 is 0. */
+export const PLATE_DEPTH_MAX = (PLATE_STUDS - 1) * 2
+
+/** Stride between depth bands so pegs and bricks can interleave. */
+export const ISO_DEPTH_STRIDE = 10
+
+export const ISO_LEVEL_STRIDE = 1000
+
 /** gx+gy distance from A0 (0); smaller = closer to the front of the plate. */
 export function footprintFrontness(
   positionGx: number,
@@ -451,9 +537,68 @@ export function footprintFrontness(
   return Math.min(...cells.map((c) => c.x + c.y))
 }
 
+/** Stud on the plate closest to A0 under this brick (drives paint order). */
+export function frontFootprintStud(
+  positionGx: number,
+  positionGy: number,
+  pivot: BrickPivot,
+): PegCoord {
+  const cells = footprintCells(positionGx, positionGy, pivot)
+  let best = cells[0]
+  let bestSum = best.x + best.y
+  for (const c of cells) {
+    const sum = c.x + c.y
+    if (sum < bestSum) {
+      best = c
+      bestSum = sum
+    }
+  }
+  return { gx: best.x, gy: best.y }
+}
+
+/** Larger = closer to camera (A0 front, J9 back). */
+export function studDepthFrontness(gx: number, gy: number): number {
+  return PLATE_DEPTH_MAX - (gx + gy)
+}
+
+export type IsoStackLayer = 'peg' | 'brick'
+
 /**
- * Paint order for isometric depth: A0 front, J9 back; higher stack level always on top.
- * Larger key = drawn later (in front).
+ * Shared isometric z-index for plate pegs and bricks (same stacking context).
+ * At the same stud, bricks paint above pegs; higher stack level always wins.
+ */
+export function isoStackZIndex(
+  gx: number,
+  gy: number,
+  layer: IsoStackLayer,
+  level = 0,
+): number {
+  const layerBias = layer === 'brick' ? 1 : 0
+  return (
+    BRICK_Z_INDEX_BASE +
+    level * ISO_LEVEL_STRIDE +
+    studDepthFrontness(gx, gy) * ISO_DEPTH_STRIDE +
+    layerBias
+  )
+}
+
+export function brickIsoZIndex(
+  positionGx: number,
+  positionGy: number,
+  pivot: BrickPivot,
+  level: number,
+): number {
+  const stud = frontFootprintStud(positionGx, positionGy, pivot)
+  return isoStackZIndex(stud.gx, stud.gy, 'brick', level)
+}
+
+export function pegIsoZIndex(gx: number, gy: number): number {
+  return isoStackZIndex(gx, gy, 'peg')
+}
+
+/**
+ * Relative paint order (legacy sort key): A0 front, J9 back; higher level on top.
+ * Use brickIsoZIndex / pegIsoZIndex for CSS z-index.
  */
 export function drawOrderKey(
   gx: number,
@@ -461,11 +606,18 @@ export function drawOrderKey(
   level: number,
   pivot: BrickPivot,
 ): number {
-  const plateDepthMax = (PLATE_STUDS - 1) * 2
-  const frontness = plateDepthMax - footprintFrontness(gx, gy, pivot)
-  const LEVEL_STRIDE = 1000
-  return level * LEVEL_STRIDE + frontness
+  const frontness = PLATE_DEPTH_MAX - footprintFrontness(gx, gy, pivot)
+  return level * ISO_LEVEL_STRIDE + frontness
 }
+
+/** Base offset for isoStackZIndex (pegs and bricks share this stacking context). */
+export const BRICK_Z_INDEX_BASE = 10
+
+/** While dragging, keep the piece above all snapped bricks. */
+export const BRICK_Z_INDEX_DRAG_BOOST = 50_000
+
+/** Selected (not dragging) piece sits above others at the same depth. */
+export const BRICK_Z_INDEX_SELECT_BOOST = 10_000
 
 /** Flip swaps Left/Right art and mirrors position peg GX across the plate. */
 export function flipMirror(
