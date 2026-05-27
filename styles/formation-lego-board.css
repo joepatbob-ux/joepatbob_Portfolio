@@ -118,6 +118,11 @@
   touch-action: none;
 }
 
+.formation-lego__block--anchored {
+  cursor: default;
+  pointer-events: none;
+}
+
 .formation-lego__brick-face {
   position: absolute;
   left: 0;

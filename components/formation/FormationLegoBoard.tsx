@@ -32,22 +32,27 @@ export function FormationLegoBoard() {
     <div className="formation-lego formation-lego--single">
       <div className="formation-lego__controls">
         <span className="formation-lego__controls-label">Active block</span>
-        {FORMATION_BRICK_COLORS.map((color) => (
-          <button
-            key={color}
-            type="button"
-            className={[
-              'formation-lego__color-tab',
-              `formation-lego__color-tab--${color}`,
-              board.activeId === color ? 'formation-lego__color-tab--active' : '',
-            ]
-              .filter(Boolean)
-              .join(' ')}
-            onClick={() => board.setActiveId(color)}
-          >
-            {COLOR_LABEL[color]}
-          </button>
-        ))}
+        {FORMATION_BRICK_COLORS.map((color) => {
+          const piece = board.pieces.find((p) => p.id === color)
+          const isAnchored = piece?.isAnchored ?? false
+          return (
+            <button
+              key={color}
+              type="button"
+              className={[
+                'formation-lego__color-tab',
+                `formation-lego__color-tab--${color}`,
+                board.activeId === color ? 'formation-lego__color-tab--active' : '',
+              ]
+                .filter(Boolean)
+                .join(' ')}
+              disabled={isAnchored}
+              onClick={() => board.selectPiece(color)}
+            >
+              {COLOR_LABEL[color]}
+            </button>
+          )
+        })}
         <span className="formation-lego__controls-divider" aria-hidden />
         <button
           type="button"
@@ -104,13 +109,15 @@ export function FormationLegoBoard() {
                 brickViewBox={board.brickViewBox}
                 placement={p.placement}
                 isDragging={board.draggingId === p.id && board.isDragging}
-                isSelected={board.activeId === p.id}
+                isSelected={board.activeId === p.id && !p.isAnchored}
+                isAnchored={p.isAnchored}
                 zIndex={
                   p.z +
                   (board.draggingId === p.id && board.isDragging
                     ? BRICK_Z_INDEX_DRAG_BOOST
                     : 0) +
                   (board.activeId === p.id &&
+                  !p.isAnchored &&
                   !(board.draggingId === p.id && board.isDragging)
                     ? BRICK_Z_INDEX_SELECT_BOOST
                     : 0)

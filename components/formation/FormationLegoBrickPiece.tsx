@@ -17,6 +17,7 @@ type Props = {
   placement: SpritePlacement
   isDragging: boolean
   isSelected: boolean
+  isAnchored: boolean
   zIndex: number
   onPointerDown: (e: React.PointerEvent) => void
 }
@@ -30,6 +31,7 @@ export function FormationLegoBrickPiece({
   placement,
   isDragging,
   isSelected,
+  isAnchored,
   zIndex,
   onPointerDown,
 }: Props) {
@@ -41,6 +43,7 @@ export function FormationLegoBrickPiece({
         'formation-lego__block',
         isDragging ? 'formation-lego__piece--drag' : '',
         isSelected ? 'formation-lego__block--selected' : '',
+        isAnchored ? 'formation-lego__block--anchored' : '',
         `formation-lego__block--pivot-${pivot}`,
         `formation-lego__block--color-${color}`,
       ]
