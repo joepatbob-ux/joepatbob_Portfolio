@@ -8,6 +8,7 @@ import type { PlacedSticker } from '@/components/StickerProvider'
 import { useStickers } from '@/components/StickerProvider'
 import {
   measureStickerArt,
+  readStickerPickMetrics,
   writeStickerPickData,
   type StickerArtMetrics,
 } from '@/lib/stickerPickBounds'
@@ -105,14 +106,17 @@ export function PlacedStickerControl({ sticker }: Props) {
     }
   }
 
-  const startRotateScrub = (e: PointerEvent, target: SVGCircleElement) => {
+  const startRotateScrub = (e: PointerEvent) => {
     e.preventDefault()
     e.stopPropagation()
     selectSticker(sticker.instanceId)
     const pointerId = e.pointerId
     const s = stickerRef.current
-    const offX = artLayout?.artOffsetX ?? 0
-    const offY = artLayout?.artOffsetY ?? 0
+    const metrics = rootRef.current
+      ? readStickerPickMetrics(rootRef.current)
+      : null
+    const offX = metrics?.artOffsetX ?? artLayout?.artOffsetX ?? 0
+    const offY = metrics?.artOffsetY ?? artLayout?.artOffsetY ?? 0
     const pivotX = s.x - offX
     const pivotY = s.y - offY
 
@@ -123,7 +127,11 @@ export function PlacedStickerControl({ sticker }: Props) {
     let lastPointerAngle = pointerAngleDeg(pivotX, pivotY, e.clientX, e.clientY)
     applyLiveRotation(rotation)
 
-    target.setPointerCapture(pointerId)
+    const removeRotateListeners = () => {
+      window.removeEventListener('pointermove', onMove)
+      window.removeEventListener('pointerup', onUp)
+      window.removeEventListener('pointercancel', onUp)
+    }
 
     const onMove = (ev: PointerEvent) => {
       if (ev.pointerId !== pointerId) return
@@ -135,32 +143,27 @@ export function PlacedStickerControl({ sticker }: Props) {
 
     const onUp = (ev: PointerEvent) => {
       if (ev.pointerId !== pointerId) return
-      if (target.hasPointerCapture(pointerId)) {
-        target.releasePointerCapture(pointerId)
-      }
-      target.removeEventListener('pointermove', onMove)
-      target.removeEventListener('pointerup', onUp)
-      target.removeEventListener('pointercancel', onUp)
 
       rotatingRef.current = false
       rootRef.current?.classList.remove('sticker-placed--rotating')
+      removeRotateListeners()
 
       const final = roundStickerRotation(rotation)
       applyLiveRotation(final)
       updatePlaced(stickerRef.current.instanceId, { rotation: final })
     }
 
-    target.addEventListener('pointermove', onMove)
-    target.addEventListener('pointerup', onUp)
-    target.addEventListener('pointercancel', onUp)
+    window.addEventListener('pointermove', onMove)
+    window.addEventListener('pointerup', onUp)
+    window.addEventListener('pointercancel', onUp)
   }
 
   const onBodyPointerDown = (e: PointerEvent) => {
     if (e.button !== 0) return
 
     const rotateHit = rotateHandleAtPoint(e.clientX, e.clientY)
-    if (rotateHit && selectedRef.current) {
-      startRotateScrub(e, rotateHit)
+    if (rotateHit) {
+      startRotateScrub(e)
       return
     }
 
@@ -231,8 +234,8 @@ export function PlacedStickerControl({ sticker }: Props) {
   onPlacedPointerDownRef.current = (e: PointerEvent) => {
     if (rotatingRef.current) return
     const rotateHit = rotateHandleAtPoint(e.clientX, e.clientY)
-    if (rotateHit && selectedRef.current) {
-      startRotateScrub(e, rotateHit)
+    if (rotateHit) {
+      startRotateScrub(e)
       return
     }
     onBodyPointerDown(e)
@@ -253,7 +256,7 @@ export function PlacedStickerControl({ sticker }: Props) {
   }, [reveals, selected, sticker.chapterId, selectSticker])
 
   const chapterReveal = sticker.chapterId
-    ? (reveals[sticker.chapterId] ?? 1)
+    ? (reveals[sticker.chapterId] ?? 0)
     : 1
   const stickerVisible = chapterReveal > 0.08
 
@@ -293,7 +296,7 @@ export function PlacedStickerControl({ sticker }: Props) {
         zIndex: sticker.zIndex,
         left: sticker.x,
         top: sticker.y,
-        opacity: stickerVisible ? chapterReveal : 0,
+        opacity: stickerVisible ? 1 : 0,
         pointerEvents: selected ? 'auto' : undefined,
         visibility: stickerVisible ? 'visible' : 'hidden',
       }}

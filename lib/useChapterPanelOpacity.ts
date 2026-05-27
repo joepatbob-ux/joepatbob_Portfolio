@@ -6,6 +6,12 @@ import { SCROLL_BLUR_PX, blurOutFromReveal } from '@/lib/scrollBlur'
 
 const SCROLL_EASE = 'cubic-bezier(0.16, 1, 0.3, 1)'
 
+import { isFlowChapterId } from '@/lib/chapterFlow'
+
+function chapterUsesFlowScroll(chapterId: string): boolean {
+  return isFlowChapterId(chapterId)
+}
+
 export function useChapterPanelOpacity(chapterId: string) {
   const { phase, targetId, activeSlideId, reveals } = useChapterNav()
 
@@ -25,7 +31,14 @@ export function useChapterPanelOpacity(chapterId: string) {
     const mobileFlow =
       typeof window !== 'undefined' &&
       window.matchMedia(LAYOUT_MQ.mobile).matches
-    isActive = mobileFlow ? scrollReveal > 0 : scrollReveal > 0.25
+    const flowScroll = chapterUsesFlowScroll(chapterId)
+    isActive =
+      mobileFlow || flowScroll ? scrollReveal > 0 : scrollReveal > 0.25
+  }
+
+  if (chapterUsesFlowScroll(chapterId) && phase === 'idle') {
+    reveal = scrollReveal
+    isActive = scrollReveal > 0
   }
 
   const { opacity, filter } = blurOutFromReveal(reveal, SCROLL_BLUR_PX)

@@ -2,7 +2,6 @@
    Site shell tablet (narrow sidebar): 768–1023 in lib/layout/breakpoints.ts */
 
 .chapter-slide {
-  --cs-stage-max: min(480px, 42vw);
   --cs-copy-max-h: min(70dvh, 100%);
   --cs-inner-max: min(1120px, 100%);
   --cs-section-gap: clamp(28px, 4vw, 56px);
@@ -27,10 +26,17 @@
   min-height: 0;
   max-height: min(88dvh, 100%);
   display: grid;
-  grid-template-columns: var(--cs-stage-max) minmax(0, 1fr);
+  grid-template-columns: 1fr;
   align-items: start;
   justify-items: start;
   gap: var(--cs-section-gap);
+}
+
+@media (min-width: 768px) {
+  .chapter-slide__inner {
+    grid-template-columns: var(--cs-stage-col) var(--cs-copy-col);
+    justify-items: stretch;
+  }
 }
 
 .chapter-slide__stage {
@@ -38,32 +44,22 @@
   grid-row: 1;
   align-self: start;
   width: 100%;
-  max-width: var(--cs-stage-max);
-  justify-self: start;
+  min-width: 0;
+  max-width: none;
+  justify-self: stretch;
 }
 
 .chapter-slide__copy {
   grid-column: 2;
   grid-row: 1;
+  min-width: 0;
   text-align: left;
 }
 
-/* Wide: extra copy column */
+/* Wide: larger inner cap; copy body still splits into two columns inside the 70% band */
 @media (min-width: 1200px) {
   .chapter-slide {
     --cs-inner-max: min(1280px, 100%);
-  }
-
-  .chapter-slide__inner {
-    grid-template-columns: var(--cs-stage-max) minmax(0, 1fr) minmax(0, 1fr);
-  }
-
-  .chapter-slide:not(.chapter-slide--full-width) .chapter-slide__stage {
-    grid-column: 1;
-  }
-
-  .chapter-slide:not(.chapter-slide--full-width) .chapter-slide__copy {
-    grid-column: 2 / 4;
   }
 }
 
@@ -150,10 +146,9 @@
   text-align: left;
 }
 
-/* Tablet shell: slightly smaller stage cap (narrower content column) */
+/* Tablet shell: fluid inner width (narrower content column) */
 @media (min-width: 768px) and (max-width: 1023px) {
   .chapter-slide {
-    --cs-stage-max: min(360px, 36vw);
     --cs-inner-max: min(100%, calc(100vw - var(--sidebar-width) - 2 * var(--content-pad-x) - 32px));
   }
 }

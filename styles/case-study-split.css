@@ -1,8 +1,13 @@
 /* Interactive stage left, copy right — shared across custom chapters */
 
+.case-study-split,
+.chapter-slide {
+  --cs-stage-col: minmax(0, 3fr);
+  --cs-copy-col: minmax(0, 7fr);
+}
+
 .case-study-split {
   --cs-split-gap: clamp(24px, 3.5vw, 56px);
-  --cs-split-stage-max: min(480px, 42vw);
   display: grid;
   grid-template-columns: 1fr;
   gap: var(--cs-split-gap);
@@ -22,7 +27,7 @@
 .case-study-split__stage {
   min-width: 0;
   width: 100%;
-  max-width: var(--cs-split-stage-max);
+  max-width: 100%;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -36,25 +41,22 @@
 
 @media (min-width: 768px) {
   .case-study-split {
-    grid-template-columns: minmax(240px, var(--cs-split-stage-max)) minmax(0, 1fr);
-  }
-
-  .case-study-split--wide-stage {
-    --cs-split-stage-max: min(640px, 50vw);
-    grid-template-columns: minmax(320px, var(--cs-split-stage-max)) minmax(0, 1fr);
+    grid-template-columns: var(--cs-stage-col) var(--cs-copy-col);
   }
 
   .case-study-split__stage {
     grid-column: 1;
     grid-row: 1;
-    justify-self: start;
+    justify-self: stretch;
     width: 100%;
+    max-width: none;
   }
 
   .case-study-split__copy {
     grid-column: 2;
     grid-row: 1;
     max-width: none;
+    width: 100%;
   }
 }
 
@@ -65,11 +67,6 @@
 
   .case-study-split__stage {
     max-width: min(480px, 100%);
-  }
-
-  .case-study-split--wide-stage {
-    --cs-split-stage-max: min(640px, 100%);
-    grid-template-columns: 1fr;
   }
 
   .case-study-split--wide-stage .case-study-split__stage {
@@ -106,17 +103,6 @@
 
 .case-study-split__stage .kelvin-quad-scratch__stage {
   justify-content: flex-start;
-}
-
-/* Formation LEGO tuning board — 720px display width */
-.case-study-split--formation-lego {
-  --cs-split-stage-max: min(720px, 52vw);
-}
-
-@media (min-width: 768px) {
-  .case-study-split--formation-lego {
-    grid-template-columns: minmax(280px, var(--cs-split-stage-max)) minmax(0, 1fr);
-  }
 }
 
 @media (max-width: 767px) {

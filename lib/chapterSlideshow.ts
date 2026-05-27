@@ -1,5 +1,3 @@
-import { LAYOUT_MQ } from '@/lib/layout/breakpoints'
-
 /** Real snap slides only — excludes placed stickers (they use data-sticker-chapter-id). */
 export const CHAPTER_SLOT_SELECTOR = '.portfolio-chapter-slot[data-chapter-id]'
 
@@ -150,36 +148,7 @@ function pickActiveSlideIdByVisibility(): string | null {
   return bestId
 }
 
-/** Closest chapter slide to the viewport center (desktop slideshow). */
+/** Chapter with the largest visible area (snap slides and in-flow sections). */
 export function pickActiveSlideId(): string | null {
-  if (
-    typeof window !== 'undefined' &&
-    window.matchMedia(LAYOUT_MQ.mobile).matches
-  ) {
-    return pickActiveSlideIdByVisibility()
-  }
-
-  const slots = chapterSlots()
-  if (!slots.length) return null
-
-  const vh = window.innerHeight
-  const viewportCenter = vh / 2
-  let bestId: string | null = null
-  let bestDistance = Infinity
-
-  slots.forEach((el) => {
-    const id = el.dataset.chapterId
-    if (!id) return
-    const rect = el.getBoundingClientRect()
-    if (rect.bottom <= 0 || rect.top >= vh) return
-
-    const slideCenter = rect.top + rect.height / 2
-    const distance = Math.abs(slideCenter - viewportCenter)
-    if (distance < bestDistance) {
-      bestDistance = distance
-      bestId = id
-    }
-  })
-
-  return bestId
+  return pickActiveSlideIdByVisibility()
 }
