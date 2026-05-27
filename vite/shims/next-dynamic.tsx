@@ -1,3 +1,4 @@
+import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { lazy, Suspense, type ComponentType } from 'react'
 
 type DynamicOptions = {
@@ -19,9 +20,11 @@ export default function dynamic(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function DynamicComponent(props: any) {
     return (
-      <Suspense fallback={Loading ? <Loading /> : null}>
-        <Lazy {...props} />
-      </Suspense>
+      <ErrorBoundary label="Chapter">
+        <Suspense fallback={Loading ? <Loading /> : null}>
+          <Lazy {...props} />
+        </Suspense>
+      </ErrorBoundary>
     )
   }
 

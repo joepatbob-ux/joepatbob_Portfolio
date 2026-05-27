@@ -15,6 +15,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react
 import { pickHardwareChapterFromScroll } from '@/lib/hardware/chapters'
 import { applySidebarHeroNameFade, applySidebarShellFade, hideSidebarShell, isInHeroScrollZone, resetSidebarShellFade } from '@/lib/heroScroll'
 import { NAV_SECTIONS, sectionIdForChapter } from '@/lib/nav'
+import { sectionEntryChapterId } from '@/lib/sectionEntryChapter'
 import { LAYOUT_MQ } from '@/lib/layout/breakpoints'
 import { scheduleScrollFrame } from '@/lib/scrollFrame'
 import { ContactButton } from '@/components/ContactButton'
@@ -663,8 +664,9 @@ export function SidebarNav() {
     activeSectionRef.current = id
     switchSection(id)
     if (sec) {
-      activeChapterRef.current = toChapterId(id, sec.chapters[0].id)
-      setActiveChapter(activeChapterRef.current)
+      const entryChapterId = sectionEntryChapterId(id)
+      activeChapterRef.current = entryChapterId
+      setActiveChapter(entryChapterId)
     }
     void navigateToSection(id).then(() => finishNavigate(closeAfter))
   }

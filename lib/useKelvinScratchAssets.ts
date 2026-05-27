@@ -3,6 +3,7 @@
 import { KELVIN_SCRATCH_QUADS } from '@/lib/kelvinScratchQuads'
 import {
   createCoinBrushDataUrl,
+  createFallbackCoinBrushDataUrl,
   createUnifiedScratchCoverDataUrl,
   loadKelvinCoinImages,
   loadKelvinScratchQuadPlaceholders,
@@ -39,7 +40,7 @@ export function useKelvinScratchAssets(isActive: boolean) {
             KELVIN_SCRATCH_QUADS.map(() => null),
           ),
         )
-        setCoinBrush(null)
+        setCoinBrush(createFallbackCoinBrushDataUrl())
       })
 
     return () => {
