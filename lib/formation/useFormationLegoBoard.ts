@@ -18,6 +18,7 @@ import {
   type BrickColor,
   type BrickPivot,
 } from '@/lib/formation/legoBricks'
+import { roundPlacementPx } from '@/lib/formation/pixelNudge'
 import { spritePlacement } from '@/lib/formation/spritePlacement'
 import {
   clientToBoardNative,
@@ -376,7 +377,7 @@ export function useFormationLegoBoard() {
       dragPreviewLevelRef.current = previewLevel
       setDragPreviewLevel(previewLevel)
       dragNativeRef.current = anchorNative
-      const nextFree = { left, top }
+      const nextFree = roundPlacementPx(left, top)
       dragFreeRef.current = nextFree
       setDragFree(nextFree)
     },

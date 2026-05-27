@@ -126,13 +126,6 @@
   pointer-events: none;
 }
 
-.formation-lego__block--selected:not(.formation-lego__piece--drag) .formation-lego__brick-face {
-  filter:
-    drop-shadow(0 0 0.5px var(--color-accent, #e85d04))
-    drop-shadow(0 0 1px var(--color-accent, #e85d04))
-    drop-shadow(0 0 1.5px var(--color-accent, #e85d04));
-}
-
 .formation-lego__sprite {
   position: absolute;
   left: 0;
@@ -152,16 +145,8 @@
   cursor: grabbing;
 }
 
-.formation-lego__piece--drag .formation-lego__brick-face {
-  filter:
-    drop-shadow(0 0 0.5px var(--color-accent, #e85d04))
-    drop-shadow(0 0 1px var(--color-accent, #e85d04))
-    drop-shadow(0 0 2px var(--color-accent, #e85d04))
-    drop-shadow(0 3px 8px rgb(0 0 0 / 12%));
-}
-
+.formation-lego__piece--drag .formation-lego__brick-face,
 .formation-lego__piece--drag .formation-lego__sprite,
 .formation-lego__piece--drag .formation-lego__brick-img {
-  transform: none;
   filter: none;
 }
