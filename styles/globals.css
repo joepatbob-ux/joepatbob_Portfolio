@@ -789,8 +789,17 @@
 
 .sticker-pile-wrap {
   position: relative;
-  z-index: var(--z-stickers);
   max-width: min(100%, 560px);
+}
+
+/* In-flow spacer; interactive stack is portaled beside .sticker-layer */
+.sticker-pile-anchor {
+  margin: 0;
+}
+
+.sticker-pile-portal {
+  pointer-events: auto;
+  touch-action: none;
 }
 
 .sticker-pile__label {
@@ -1302,7 +1311,7 @@
 
 .eim-path-art {
   width: 100%;
-  max-width: min(420px, var(--cs-stage-max, 420px));
+  max-width: 100%;
   margin: 0 auto;
   aspect-ratio: 379 / 374;
   --dash-stagger: 42ms;

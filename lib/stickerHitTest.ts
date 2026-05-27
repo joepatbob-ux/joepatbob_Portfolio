@@ -78,6 +78,51 @@ function pointInPlacedStickerArt(
   )
 }
 
+function pointOnScrubber(
+  root: HTMLElement,
+  clientX: number,
+  clientY: number,
+): boolean {
+  const hits = root.querySelectorAll<SVGCircleElement>(
+    '.sticker-placed__scrubber-hit',
+  )
+  for (const hit of hits) {
+    if (svgCircleHit(clientX, clientY, hit, 4)) {
+      return true
+    }
+  }
+  return false
+}
+
+/** Selected sticker ring/body (outside art alpha) — keeps rotate UI and reselect from deselecting. */
+function pointInSelectedControlBody(
+  root: HTMLElement,
+  clientX: number,
+  clientY: number,
+): boolean {
+  if (!root.classList.contains('sticker-placed--selected')) return false
+  const body = root.querySelector('.sticker-placed__body')
+  if (!body) return false
+  const rect = body.getBoundingClientRect()
+  const pad = 6
+  return (
+    clientX >= rect.left - pad &&
+    clientX <= rect.right + pad &&
+    clientY >= rect.top - pad &&
+    clientY <= rect.bottom + pad
+  )
+}
+
+function pointOnPlacedSticker(
+  root: HTMLElement,
+  clientX: number,
+  clientY: number,
+): boolean {
+  if (pointOnScrubber(root, clientX, clientY)) return true
+  if (pointInPlacedStickerArt(root, clientX, clientY)) return true
+  return pointInSelectedControlBody(root, clientX, clientY)
+}
+
 export function stickerInstanceAtPoint(
   clientX: number,
   clientY: number,
@@ -88,7 +133,7 @@ export function stickerInstanceAtPoint(
   const hits: HTMLElement[] = []
   for (const root of placed) {
     if (root.dataset.stickerVisible === 'false') continue
-    if (pointInPlacedStickerArt(root, clientX, clientY)) {
+    if (pointOnPlacedSticker(root, clientX, clientY)) {
       hits.push(root)
     }
   }
@@ -107,6 +152,52 @@ export function stickerInstanceAtPoint(
     return bz - az
   })
   return hits[0]?.dataset.stickerInstance ?? null
+}
+
+export type StickerPointerTarget = {
+  instanceId: string
+  kind: 'scrubber' | 'body'
+}
+
+/** Resolve sticker under pointer for capture-phase routing (scrubber before art/body). */
+export function resolveStickerPointerTarget(
+  clientX: number,
+  clientY: number,
+): StickerPointerTarget | null {
+  const placed = Array.from(
+    document.querySelectorAll<HTMLElement>('[data-sticker-instance]'),
+  )
+    .filter((root) => root.dataset.stickerVisible !== 'false')
+    .sort((a, b) => {
+      const az =
+        Number.parseInt(a.style.zIndex || '', 10) ||
+        Number.parseInt(getComputedStyle(a).zIndex || '', 10) ||
+        0
+      const bz =
+        Number.parseInt(b.style.zIndex || '', 10) ||
+        Number.parseInt(getComputedStyle(b).zIndex || '', 10) ||
+        0
+      return bz - az
+    })
+
+  for (const root of placed) {
+    if (pointOnScrubber(root, clientX, clientY)) {
+      const id = root.dataset.stickerInstance
+      if (id) return { instanceId: id, kind: 'scrubber' }
+    }
+  }
+
+  for (const root of placed) {
+    if (
+      pointInPlacedStickerArt(root, clientX, clientY) ||
+      pointInSelectedControlBody(root, clientX, clientY)
+    ) {
+      const id = root.dataset.stickerInstance
+      if (id) return { instanceId: id, kind: 'body' }
+    }
+  }
+
+  return null
 }
 
 /** Orange scrubber dot only — not the full track ring (that blocked reposition drags). */

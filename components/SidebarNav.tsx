@@ -546,6 +546,9 @@ export function SidebarNav() {
 
     measureLayout()
     applyDesktopNavScroll(getScrollTop())
+    const inHero = isInHeroScrollZone()
+    document.documentElement.classList.toggle('in-hero-scroll', inHero)
+    document.documentElement.classList.toggle('past-hero-scroll', !inHero)
     setDesktopNavReady(true)
   }, [isMobile, isTablet, mobileInHero, mobileDrawerOpen, tabletSidebarOpen, tabletInHero, measureLayout, applyDesktopNavScroll, applyTabletHeroSidebarScroll, applyMobileHeroScroll])
 
@@ -561,6 +564,9 @@ export function SidebarNav() {
         mobileInHeroRef.current = inHero
         setMobileInHero(inHero)
       }
+
+      document.documentElement.classList.toggle('in-hero-scroll', inHero)
+      document.documentElement.classList.toggle('past-hero-scroll', !inHero)
 
       if (inHero && !mobileDrawerOpen) {
         applyMobileHeroScroll(y)
@@ -610,9 +616,11 @@ export function SidebarNav() {
 
     return scheduleScrollFrame(() => {
       const y = getScrollTop()
+      const inHero = isInHeroScrollZone()
+      document.documentElement.classList.toggle('in-hero-scroll', inHero)
+      document.documentElement.classList.toggle('past-hero-scroll', !inHero)
 
       if (isTablet) {
-        const inHero = isInHeroScrollZone()
         if (inHero !== tabletInHeroRef.current) {
           tabletInHeroRef.current = inHero
           setTabletInHero(inHero)
@@ -644,6 +652,13 @@ export function SidebarNav() {
     applyDesktopNavScroll,
     applyTabletHeroSidebarScroll,
   ])
+
+  useEffect(() => {
+    if (isMobile) return
+    return () => {
+      document.documentElement.classList.remove('in-hero-scroll', 'past-hero-scroll')
+    }
+  }, [isMobile])
 
   const syncScrollAfterNavigate = useCallback(() => {
     applyStuckState(getScrollTop())

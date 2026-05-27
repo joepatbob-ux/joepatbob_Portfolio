@@ -6,7 +6,7 @@ import { PlacedStickerControl } from '@/components/PlacedStickerControl'
 import { Sticker } from '@/components/Sticker'
 import { useStickers } from '@/components/StickerProvider'
 import { bindStickerLayerElement } from '@/lib/stickerScroll'
-import { stickerInstanceAtPoint } from '@/lib/stickerHitTest'
+import { resolveStickerPointerTarget } from '@/lib/stickerHitTest'
 import { flushScrollFrame } from '@/lib/scrollFrame'
 
 export function StickerLayer() {
@@ -32,14 +32,16 @@ export function StickerLayer() {
       if (activeDrag) return
       const target = e.target as HTMLElement
       if (
-        target.closest('.sticker-pile-wrap, .sticker-pile, .sticker-layer__drag')
+        target.closest(
+          '.sticker-pile-wrap, .sticker-pile-portal, .sticker-pile, .sticker-layer__drag',
+        )
       ) {
         return
       }
 
-      const instanceId = stickerInstanceAtPoint(e.clientX, e.clientY)
-      if (instanceId) {
-        dispatchPlacedPointer(instanceId, e)
+      const stickerHit = resolveStickerPointerTarget(e.clientX, e.clientY)
+      if (stickerHit) {
+        dispatchPlacedPointer(stickerHit.instanceId, e)
         e.stopPropagation()
         return
       }
