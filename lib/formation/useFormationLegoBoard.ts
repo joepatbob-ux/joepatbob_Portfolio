@@ -6,7 +6,7 @@ import {
   brickLayerLift,
   brickPlacement,
   brickIsoZIndex,
-  BRICK_VIEWBOX,
+  SELECTED_VIEWBOX,
   placementSnapAnchor,
   positionPinFits,
   positionPinFromBoardSnapPoint,
@@ -69,7 +69,7 @@ function placementFollowPointer(
     boardW,
     placementSnapAnchor(pivot),
     native,
-    BRICK_VIEWBOX,
+    SELECTED_VIEWBOX,
     renderLevel,
     layerLift,
   )
@@ -171,8 +171,18 @@ export function useFormationLegoBoard() {
 
   const isDragging = dragId != null && dragHasMoved
 
+  const isPiecePickedUp = useCallback(
+    (pieceId: BrickColor) => {
+      if (activeId !== pieceId && dragId !== pieceId) return false
+      const piece = pieces.find((p) => p.id === pieceId)
+      return piece != null && !hasBrickStackedAbove(piece, pieces)
+    },
+    [activeId, dragId, pieces],
+  )
+
   const placementForPiece = useCallback(
     (piece: FormationPiece, free?: { left: number; top: number } | null) => {
+      const pickedUp = isPiecePickedUp(piece.id)
       const snapped = brickPlacement(
         boardW,
         piece.gx,
@@ -180,13 +190,14 @@ export function useFormationLegoBoard() {
         piece.pivot,
         piece.level,
         layerLift,
+        pickedUp,
       )
       if (free && piece.id === dragId) {
         return { ...snapped, left: free.left, top: free.top }
       }
       return snapped
     },
-    [boardW, dragId, layerLift],
+    [boardW, dragId, isPiecePickedUp, layerLift],
   )
 
   const commitSnap = useCallback(
@@ -361,7 +372,7 @@ export function useFormationLegoBoard() {
         boardW,
         placementSnapAnchor(piece.pivot),
         anchorNative,
-        BRICK_VIEWBOX,
+        SELECTED_VIEWBOX,
         0,
         0,
       )
@@ -431,6 +442,7 @@ export function useFormationLegoBoard() {
               piece.pivot,
               piece.level,
               layerLift,
+              true,
             )
       const renderLevel =
         dragId === activeId && dragFree ? dragPreviewLevel : piece.level
@@ -489,8 +501,8 @@ export function useFormationLegoBoard() {
     boardRef,
     boardW,
     plate,
-    brickViewBox: BRICK_VIEWBOX,
     activePivot: activePiece?.pivot ?? 'left',
+    isPiecePickedUp,
     rotateActivePiece,
     toggleActivePivot,
     isDragging,

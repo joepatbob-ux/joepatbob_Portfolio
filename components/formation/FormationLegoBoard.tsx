@@ -1,5 +1,6 @@
 'use client'
 
+import { useTheme } from '@/components/ThemeProvider'
 import { BOARD_VIEWBOX } from '@/lib/formation/legoGrid'
 import {
   FORMATION_BRICK_COLORS,
@@ -9,6 +10,7 @@ import { FormationLegoBrickPiece } from '@/components/formation/FormationLegoBri
 import {
   BRICK_Z_INDEX_DRAG_BOOST,
   BRICK_Z_INDEX_SELECT_BOOST,
+  legoBoardSrc,
   type BrickColor,
 } from '@/lib/formation/legoBricks'
 import '@/styles/formation-lego-board.css'
@@ -25,11 +27,18 @@ const COLOR_LABEL: Record<BrickColor, string> = {
 }
 
 export function FormationLegoBoard() {
+  const { resolvedTheme } = useTheme()
   const board = useFormationLegoBoard()
   const { plate } = board
 
   return (
-    <div className="formation-lego formation-lego--single">
+    <div
+      className={[
+        'formation-lego',
+        'formation-lego--single',
+        `formation-lego--theme-${resolvedTheme}`,
+      ].join(' ')}
+    >
       <div className="formation-lego__controls">
         <span className="formation-lego__controls-label">Active block</span>
         {FORMATION_BRICK_COLORS.map((color) => {
@@ -90,8 +99,8 @@ export function FormationLegoBoard() {
               transform: `translate(${plate.panX}px, ${plate.panY}px)`,
             }}
           >
-                        <img
-              src="/Lego/Lego_Board.svg"
+            <img
+              src={legoBoardSrc(resolvedTheme)}
               alt=""
               width={BOARD_VIEWBOX.width}
               height={BOARD_VIEWBOX.height}
@@ -105,8 +114,9 @@ export function FormationLegoBoard() {
                 id={p.id}
                 pivot={p.pivot}
                 color={p.color}
+                boardTheme={resolvedTheme}
                 boardWidth={board.boardW}
-                brickViewBox={board.brickViewBox}
+                isPickedUp={board.isPiecePickedUp(p.id)}
                 placement={p.placement}
                 isDragging={board.draggingId === p.id && board.isDragging}
                 isSelected={board.activeId === p.id && !p.isAnchored}
