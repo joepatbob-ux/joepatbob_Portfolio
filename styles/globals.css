@@ -897,6 +897,7 @@
 
 .sticker-placed--dragging,
 .sticker-placed--rotating {
+  pointer-events: auto;
   touch-action: none;
 }
 
@@ -918,6 +919,7 @@
   border: none;
   background: transparent;
   padding: 0;
+  touch-action: none;
 }
 
 .sticker-placed--selected .sticker-placed__body {
@@ -948,7 +950,8 @@
 .sticker-placed--selected
   .sticker-placed__ring-stage--track
   .sticker-placed__track-hit {
-  pointer-events: stroke;
+  /* Visual only — scrubber dot handles rotation; body handles move. */
+  pointer-events: none;
 }
 
 .sticker-placed--selected .sticker-placed__scrubber-hit {
@@ -994,6 +997,7 @@
   transition: none;
 }
 
+.sticker-placed--layout-stable .sticker-placed__rotator,
 .sticker-placed--selected .sticker-placed__rotator {
   position: absolute;
   left: 50%;
@@ -1010,6 +1014,7 @@
   line-height: 0;
 }
 
+.sticker-placed--layout-stable .sticker-placed__sticker-center,
 .sticker-placed--selected .sticker-placed__sticker-center {
   position: absolute;
   left: 50%;

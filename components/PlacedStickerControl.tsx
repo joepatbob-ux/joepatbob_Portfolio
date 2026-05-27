@@ -1,18 +1,21 @@
 'use client'
 
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { rotateHandleAtPoint } from '@/lib/stickerHitTest'
 import { useChapterNav } from '@/components/ChapterNavProvider'
 import { Sticker } from '@/components/Sticker'
 import type { PlacedSticker } from '@/components/StickerProvider'
 import { useStickers } from '@/components/StickerProvider'
-import { measureStickerOpticalLayout } from '@/lib/stickerOptical'
+import {
+  measureStickerArt,
+  writeStickerPickData,
+  type StickerArtMetrics,
+} from '@/lib/stickerPickBounds'
 import {
   pointerAngleDeg,
   roundStickerRotation,
   shortestAngleDeltaDeg,
 } from '@/lib/stickerRotation'
-import { STICKER_SIZE_PLACED, stickerHeight } from '@/lib/stickers'
 
 const MOVE_THRESHOLD = 8
 const TRACK_GAP_PX = 8
@@ -21,15 +24,25 @@ const SCRUBBER_R_PX = 14
 const SCRUBBER_CENTER_R_PX = 5
 const SCRUBBER_HIT_R_PX = 28
 
-interface LockedRing {
+interface LockedRing extends StickerArtMetrics {
   ringSize: number
   trackR: number
   cx: number
   cy: number
-  bodyW: number
-  bodyH: number
-  artOffsetX: number
-  artOffsetY: number
+}
+
+function lockedRingFromArt(art: StickerArtMetrics): LockedRing {
+  const trackR = art.outerR + TRACK_GAP_PX + TRACK_STROKE_PX / 2
+  const ringSize = Math.ceil(
+    2 * (trackR + TRACK_STROKE_PX / 2 + SCRUBBER_R_PX),
+  )
+  return {
+    ...art,
+    ringSize,
+    trackR,
+    cx: ringSize / 2,
+    cy: ringSize / 2,
+  }
 }
 
 interface Props {
@@ -50,58 +63,36 @@ export function PlacedStickerControl({ sticker }: Props) {
   const bodyRef = useRef<HTMLDivElement>(null)
   const rotatorRef = useRef<HTMLDivElement>(null)
   const rotatingRef = useRef(false)
-  const [lockedRing, setLockedRing] = useState<LockedRing | null>(null)
+  const [artLayout, setArtLayout] = useState<LockedRing | null>(null)
 
+  // Measure once per asset — keeps layout stable between set/repickup (no jump on select).
   useLayoutEffect(() => {
-    if (!selected) {
-      setLockedRing(null)
-      return
-    }
-
     const img = bodyRef.current?.querySelector(
       'img.sticker__art',
     ) as HTMLImageElement | null
     if (!img) return
 
-    const lockFromImage = () => {
-      let w = img.offsetWidth
-      let h = img.offsetHeight
-      if (w <= 0 || h <= 0) {
-        h = stickerHeight(STICKER_SIZE_PLACED, sticker.assetId)
-        const aspect =
-          img.naturalWidth > 0 && img.naturalHeight > 0
-            ? img.naturalWidth / img.naturalHeight
-            : 1
-        w = h * aspect
+    const syncFromImage = () => {
+      const art = measureStickerArt(img, sticker.assetId)
+      const layout = lockedRingFromArt(art)
+      setArtLayout(layout)
+      if (rootRef.current) {
+        writeStickerPickData(rootRef.current, {
+          w: art.bodyW,
+          h: art.bodyH,
+          artOffsetX: art.artOffsetX,
+          artOffsetY: art.artOffsetY,
+        })
       }
-      const optical = measureStickerOpticalLayout(img, w, h)
-      const outerR = optical?.outerRadius ?? Math.hypot(w, h) / 2
-      const trackR = outerR + TRACK_GAP_PX + TRACK_STROKE_PX / 2
-      const ringSize = Math.ceil(
-        2 * (trackR + TRACK_STROKE_PX / 2 + SCRUBBER_R_PX),
-      )
-
-      const artOffsetX = optical?.offsetX ?? 0
-      const artOffsetY = optical?.offsetY ?? 0
-      setLockedRing({
-        ringSize,
-        trackR,
-        cx: ringSize / 2,
-        cy: ringSize / 2,
-        bodyW: w,
-        bodyH: h,
-        artOffsetX,
-        artOffsetY,
-      })
     }
 
     if (img.complete) {
-      lockFromImage()
+      syncFromImage()
     } else {
-      img.addEventListener('load', lockFromImage, { once: true })
-      return () => img.removeEventListener('load', lockFromImage)
+      img.addEventListener('load', syncFromImage, { once: true })
+      return () => img.removeEventListener('load', syncFromImage)
     }
-  }, [selected, sticker.instanceId, sticker.assetId])
+  }, [sticker.instanceId, sticker.assetId])
 
   useLayoutEffect(() => {
     if (rotatingRef.current || !rotatorRef.current) return
@@ -120,8 +111,8 @@ export function PlacedStickerControl({ sticker }: Props) {
     selectSticker(sticker.instanceId)
     const pointerId = e.pointerId
     const s = stickerRef.current
-    const offX = lockedRing?.artOffsetX ?? 0
-    const offY = lockedRing?.artOffsetY ?? 0
+    const offX = artLayout?.artOffsetX ?? 0
+    const offY = artLayout?.artOffsetY ?? 0
     const pivotX = s.x - offX
     const pivotY = s.y - offY
 
@@ -165,6 +156,8 @@ export function PlacedStickerControl({ sticker }: Props) {
   }
 
   const onBodyPointerDown = (e: PointerEvent) => {
+    if (e.button !== 0) return
+
     const rotateHit = rotateHandleAtPoint(e.clientX, e.clientY)
     if (rotateHit && selectedRef.current) {
       startRotateScrub(e, rotateHit)
@@ -174,25 +167,40 @@ export function PlacedStickerControl({ sticker }: Props) {
     const body = bodyRef.current
     if (!body) return
 
-    if (!selectedRef.current) {
+    const wasSelected = selectedRef.current
+    if (!wasSelected) {
       selectSticker(sticker.instanceId)
     }
 
     const pointerId = e.pointerId
     const startX = e.clientX
     const startY = e.clientY
+    const grabOffsetX = startX - stickerRef.current.x
+    const grabOffsetY = startY - stickerRef.current.y
     let mode: 'tap' | 'move' = 'tap'
+
+    const removeDragListeners = () => {
+      window.removeEventListener('pointermove', onMove)
+      window.removeEventListener('pointerup', end)
+      window.removeEventListener('pointercancel', end)
+    }
 
     const end = (ev: PointerEvent) => {
       if (ev.pointerId !== pointerId) return
 
-      if (body.hasPointerCapture(pointerId)) {
-        body.releasePointerCapture(pointerId)
+      const dx = ev.clientX - startX
+      const dy = ev.clientY - startY
+      // Tap on an already-selected sticker sets it (closes the ring).
+      if (
+        mode === 'tap' &&
+        Math.hypot(dx, dy) < MOVE_THRESHOLD &&
+        wasSelected
+      ) {
+        selectSticker(null)
       }
+
       rootRef.current?.classList.remove('sticker-placed--dragging')
-      body.removeEventListener('pointermove', onMove)
-      body.removeEventListener('pointerup', end)
-      body.removeEventListener('pointercancel', end)
+      removeDragListeners()
     }
 
     const onMove = (ev: PointerEvent) => {
@@ -201,69 +209,86 @@ export function PlacedStickerControl({ sticker }: Props) {
       const dy = ev.clientY - startY
       if (mode === 'tap' && Math.hypot(dx, dy) >= MOVE_THRESHOLD) {
         mode = 'move'
-        body.setPointerCapture(pointerId)
         rootRef.current?.classList.add('sticker-placed--dragging')
       }
       if (mode === 'move') {
         updatePlaced(stickerRef.current.instanceId, {
-          x: ev.clientX,
-          y: ev.clientY,
+          x: ev.clientX - grabOffsetX,
+          y: ev.clientY - grabOffsetY,
         })
       }
     }
 
-    body.addEventListener('pointermove', onMove)
-    body.addEventListener('pointerup', end)
-    body.addEventListener('pointercancel', end)
+    // Pointerdown is routed from StickerLayer (capture), not from the body node — use window
+    // listeners so move/up still fire while the sticker has pointer-events: none.
+    window.addEventListener('pointermove', onMove)
+    window.addEventListener('pointerup', end)
+    window.addEventListener('pointercancel', end)
   }
 
-  const onPlacedPointerDown = useCallback((e: PointerEvent) => {
+  const onPlacedPointerDownRef = useRef<(e: PointerEvent) => void>(() => {})
+
+  onPlacedPointerDownRef.current = (e: PointerEvent) => {
+    if (rotatingRef.current) return
     const rotateHit = rotateHandleAtPoint(e.clientX, e.clientY)
     if (rotateHit && selectedRef.current) {
       startRotateScrub(e, rotateHit)
       return
     }
     onBodyPointerDown(e)
-  }, [sticker.instanceId])
+  }
 
   useEffect(() => {
-    registerPlacedPointer(sticker.instanceId, onPlacedPointerDown)
+    const handler = (e: PointerEvent) => onPlacedPointerDownRef.current(e)
+    registerPlacedPointer(sticker.instanceId, handler)
     return () => registerPlacedPointer(sticker.instanceId, null)
-  }, [sticker.instanceId, onPlacedPointerDown, registerPlacedPointer])
+  }, [sticker.instanceId, registerPlacedPointer])
 
   useEffect(() => {
     if (!selected || !sticker.chapterId) return
-    if ((reveals[sticker.chapterId] ?? 0) < 0.12) {
+    const reveal = reveals[sticker.chapterId]
+    if (reveal !== undefined && reveal < 0.12) {
       selectSticker(null)
     }
   }, [reveals, selected, sticker.chapterId, selectSticker])
 
   const chapterReveal = sticker.chapterId
-    ? (reveals[sticker.chapterId] ?? 0)
+    ? (reveals[sticker.chapterId] ?? 1)
     : 1
   const stickerVisible = chapterReveal > 0.08
 
-  const ring = lockedRing
+  const ring = artLayout
   const scrubberX = ring ? ring.cx : 0
   const scrubberY = ring ? ring.cy - ring.trackR : 0
-  const bodyStyle =
-    selected && ring
-      ? ({
-          width: ring.bodyW,
-          height: ring.bodyH,
-          ['--ring-size' as string]: `${ring.ringSize}px`,
-          ['--art-offset-x' as string]: `${ring.artOffsetX}px`,
-          ['--art-offset-y' as string]: `${ring.artOffsetY}px`,
-        } as React.CSSProperties)
-      : undefined
+  const bodyStyle = ring
+    ? ({
+        width: ring.bodyW,
+        height: ring.bodyH,
+        ['--ring-size' as string]: `${ring.ringSize}px`,
+        ['--art-offset-x' as string]: `${ring.artOffsetX}px`,
+        ['--art-offset-y' as string]: `${ring.artOffsetY}px`,
+      } as React.CSSProperties)
+    : undefined
 
   return (
     <div
       ref={rootRef}
-      className={`sticker-placed${selected ? ' sticker-placed--selected' : ''}`}
+      className={[
+        'sticker-placed',
+        artLayout ? 'sticker-placed--layout-stable' : '',
+        selected ? 'sticker-placed--selected' : '',
+      ]
+        .filter(Boolean)
+        .join(' ')}
       data-sticker-instance={sticker.instanceId}
+      data-sticker-asset-id={sticker.assetId}
+      data-sticker-rotation={sticker.rotation}
       data-sticker-chapter-id={sticker.chapterId || undefined}
       data-sticker-visible={stickerVisible ? 'true' : 'false'}
+      data-pick-w={ring?.bodyW}
+      data-pick-h={ring?.bodyH}
+      data-pick-ox={ring?.artOffsetX}
+      data-pick-oy={ring?.artOffsetY}
       style={{
         zIndex: sticker.zIndex,
         left: sticker.x,
@@ -281,8 +306,8 @@ export function PlacedStickerControl({ sticker }: Props) {
         style={bodyStyle}
         aria-label={
           selected
-            ? `${sticker.alt}, selected. Drag to move, drag ring or dot to rotate. Click outside to deselect.`
-            : `Select ${sticker.alt}`
+            ? `${sticker.alt}, selected. Drag to move, drag orange dot to rotate, click sticker to set.`
+            : `${sticker.alt}. Click and drag to pick up and move.`
         }
         aria-pressed={selected}
         onKeyDown={(e) => {

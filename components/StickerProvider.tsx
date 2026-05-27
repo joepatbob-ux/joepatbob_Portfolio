@@ -65,6 +65,7 @@ interface StickerContextValue {
     instanceId: string,
     patch: Partial<Pick<PlacedSticker, 'x' | 'y' | 'rotation'>>,
   ) => void
+  removePlaced: (instanceId: string) => void
   moveDrag: (clientX: number, clientY: number) => void
   endDrag: () => void
   cancelDrag: () => void
@@ -192,6 +193,11 @@ export function StickerProvider({ children }: { children: ReactNode }) {
     [],
   )
 
+  const removePlaced = useCallback((instanceId: string) => {
+    setPlaced((prev) => prev.filter((s) => s.instanceId !== instanceId))
+    setSelectedInstanceId((prev) => (prev === instanceId ? null : prev))
+  }, [])
+
   const endDrag = useCallback(() => {
     const drag = dragRef.current
     if (!drag) return
@@ -222,8 +228,8 @@ export function StickerProvider({ children }: { children: ReactNode }) {
       }
       return [...prev, next]
     })
-    /* Stay unselected after drop so the edit ring does not block page scroll. */
-    setSelectedInstanceId(null)
+    /* Select newly dropped sticker so rotate/resize ring appears immediately. */
+    setSelectedInstanceId(instanceId)
 
     if (drag.fromPile) {
       commitDeck(deckRef.current.filter((s) => s.id !== drag.asset.id))
@@ -335,6 +341,7 @@ export function StickerProvider({ children }: { children: ReactNode }) {
       beginDragFromPile,
       selectSticker,
       updatePlaced,
+      removePlaced,
       moveDrag,
       endDrag,
       cancelDrag,
@@ -350,6 +357,7 @@ export function StickerProvider({ children }: { children: ReactNode }) {
       beginDragFromPile,
       selectSticker,
       updatePlaced,
+      removePlaced,
       moveDrag,
       endDrag,
       cancelDrag,
