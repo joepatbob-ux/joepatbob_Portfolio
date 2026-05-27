@@ -6,9 +6,11 @@ import {
   useFormationLegoBoard,
 } from '@/lib/formation/useFormationLegoBoard'
 import { FormationLegoBrickPiece } from '@/components/formation/FormationLegoBrickPiece'
-import { FormationLegoIsoPegOverlay } from '@/components/formation/FormationLegoIsoPegOverlay'
-import { FormationLegoTopDownGrid } from '@/components/formation/FormationLegoTopDownGrid'
-import type { BrickColor } from '@/lib/formation/legoBricks'
+import {
+  BRICK_Z_INDEX_DRAG_BOOST,
+  BRICK_Z_INDEX_SELECT_BOOST,
+  type BrickColor,
+} from '@/lib/formation/legoBricks'
 import '@/styles/formation-lego-board.css'
 
 function tabClass(active: boolean): string {
@@ -50,6 +52,7 @@ export function FormationLegoBoard() {
         <button
           type="button"
           className={tabClass(board.activePivot === 'left')}
+          disabled={!board.activeId}
           onClick={() => board.rotateActivePiece('left')}
         >
           Rotate left
@@ -57,6 +60,7 @@ export function FormationLegoBoard() {
         <button
           type="button"
           className={tabClass(board.activePivot === 'right')}
+          disabled={!board.activeId}
           onClick={() => board.rotateActivePiece('right')}
         >
           Rotate right
@@ -91,12 +95,6 @@ export function FormationLegoBoard() {
               draggable={false}
             />
 
-            <FormationLegoIsoPegOverlay
-              boardDisplayW={board.boardW}
-              pivot={board.activePivot}
-              positionPin={board.activePositionPin}
-            />
-
             {board.pieces.map((p) => (
               <FormationLegoBrickPiece
                 key={p.id}
@@ -106,25 +104,23 @@ export function FormationLegoBoard() {
                 boardWidth={board.boardW}
                 brickViewBox={board.brickViewBox}
                 placement={p.placement}
-                isDragging={board.draggingId === p.id}
+                isDragging={board.draggingId === p.id && board.isDragging}
                 isSelected={board.activeId === p.id}
-                zIndex={p.z + (board.activeId === p.id ? 10000 : 0)}
+                zIndex={
+                  p.z +
+                  (board.draggingId === p.id && board.isDragging
+                    ? BRICK_Z_INDEX_DRAG_BOOST
+                    : 0) +
+                  (board.activeId === p.id &&
+                  !(board.draggingId === p.id && board.isDragging)
+                    ? BRICK_Z_INDEX_SELECT_BOOST
+                    : 0)
+                }
                 onPointerDown={board.onBrickPointerDown(p.id)}
               />
             ))}
           </div>
         </div>
-
-        <FormationLegoTopDownGrid
-          pivot={board.activePivot}
-          positionPin={board.activePositionPin}
-          boardDisplayW={board.boardW}
-          brickPlacementScreen={{
-            left: board.brickPlace.left,
-            top: board.brickPlace.top,
-          }}
-          isDragging={board.isDragging}
-        />
       </div>
     </div>
   )

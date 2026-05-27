@@ -18,7 +18,6 @@ alwaysApply: false
 - 10×10 studs; **A0** = plate zero pin (bottom tip, cyan).
 - **Y-axis (A→J)**: +GY from cyan (A) to magenta (J) up the plate; **X-axis (0→9)**: +GX toward screen right.
 - `pegLabel(gx, gy)` → y letter + x digit (`A0` … `J9`); `PEG_MAP` = stud centers from `Lego_Board.svg`.
-- Board stud caps `#e6e7e8` (not orange — that was debug-only).
 
 ## Bricks (`lib/formation/legoBricks.ts`)
 
@@ -29,7 +28,7 @@ alwaysApply: false
 
 ## Depth and stacking
 
-- **Front → back**: A0 (front) … J9 (back). `drawOrderKey` uses the footprint stud closest to A0 (`min(gx+gy)`); higher `level` always paints on top.
+- Board art: `Lego/Lego_Board.svg` (plate + studs as one layer). Bricks use `brickIsoZIndex` for A0→J9 depth; board studs cannot interleave until studs are split into per-peg layers.
 - **Collision**: two bricks cannot share studs at the **same** `level`; overlapping placement auto-stacks via `snapToTopLevel` (same pegs, higher level).
 
 ## Do not
