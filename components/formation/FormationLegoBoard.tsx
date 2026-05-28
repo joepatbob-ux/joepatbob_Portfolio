@@ -81,7 +81,7 @@ export function FormationLegoBoard() {
         </button>
       </div>
 
-      <div className="formation-lego__stage">
+      <div ref={board.stageRef} className="formation-lego__stage">
         <div
           ref={board.boardRef}
           className="formation-lego__board formation-lego__board--clip"

@@ -28,6 +28,7 @@ import {
 } from '@/lib/formation/plateViewport'
 
 export const FORMATION_BOARD_DISPLAY_W = 720
+const FORMATION_BOARD_MIN_W = 280
 
 export const DEFAULT_POSITION_PIN = { gx: 2, gy: 2 }
 
@@ -113,6 +114,8 @@ function clampPieceToPlate(
 }
 
 export function useFormationLegoBoard() {
+  const stageRef = useRef<HTMLDivElement>(null)
+  const [boardW, setBoardW] = useState(FORMATION_BOARD_DISPLAY_W)
   const [pieces, setPieces] = useState<FormationPiece[]>(() => {
     const initial: FormationPiece[] = [
       { id: 'cyan', color: 'cyan', gx: 2, gy: 2, pivot: 'left', level: 0 },
@@ -140,9 +143,27 @@ export function useFormationLegoBoard() {
   const dragPieceIdRef = useRef<BrickColor | null>(null)
   const dragPreviewLevelRef = useRef(0)
 
-  const boardW = FORMATION_BOARD_DISPLAY_W
   const layerLift = useMemo(() => brickLayerLift(boardW), [boardW])
   const plate = useMemo(() => plateDisplayLayout(boardW), [boardW])
+
+  useEffect(() => {
+    const stageEl = stageRef.current
+    if (!stageEl || typeof ResizeObserver === 'undefined') return
+
+    const updateBoardWidth = () => {
+      const nextWidth = Math.max(
+        FORMATION_BOARD_MIN_W,
+        Math.min(FORMATION_BOARD_DISPLAY_W, Math.floor(stageEl.clientWidth)),
+      )
+      setBoardW((prev) => (prev === nextWidth ? prev : nextWidth))
+    }
+
+    updateBoardWidth()
+    const observer = new ResizeObserver(updateBoardWidth)
+    observer.observe(stageEl)
+
+    return () => observer.disconnect()
+  }, [])
 
   const activePiece = useMemo(
     () =>
@@ -498,6 +519,7 @@ export function useFormationLegoBoard() {
   }, [boardW, dragFree, dragHasMoved, dragId, dragPreviewLevel, pieces, placementForPiece])
 
   return {
+    stageRef,
     boardRef,
     boardW,
     plate,
