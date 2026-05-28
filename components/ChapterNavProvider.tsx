@@ -6,7 +6,7 @@ import {
   publishSlideScrollState,
   type SlideNavPhase,
 } from '@/lib/scrollOrchestration'
-import { ensureChapterCopyWheelListener } from '@/lib/chapterCopyWheel'
+import { useChapterCopyWheelTrap } from '@/lib/chapterCopyWheel'
 import { sectionEntryChapterId } from '@/lib/sectionEntryChapter'
 import { flushScrollFrame, scheduleScrollFrame } from '@/lib/scrollFrame'
 import {
@@ -58,7 +58,7 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
     phaseRef.current = phase
   }, [phase])
 
-  useEffect(() => ensureChapterCopyWheelListener(), [])
+  useChapterCopyWheelTrap()
 
   useEffect(() => {
     const measureSlides = () => {

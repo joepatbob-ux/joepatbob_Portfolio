@@ -68,6 +68,24 @@ export function MobileSectionHeader({
   )
 }
 
+export function MobileSubStoryHeading({
+  number,
+  heading,
+}: {
+  number: string
+  heading: string
+}) {
+  return (
+    <>
+      <h3 className="mobile-sub-story__heading">
+        <span className="mobile-sub-story__number">{number}</span>{' '}
+        {heading}
+      </h3>
+      <div className="mobile-sub-story__rule" aria-hidden />
+    </>
+  )
+}
+
 export function MobileSubStory({
   number,
   heading,
@@ -83,8 +101,7 @@ export function MobileSubStory({
         <span className="mobile-sub-story__number">{number}</span>
       </div>
       <div className="mobile-sub-story__body">
-        <h3 className="mobile-sub-story__heading">{heading}</h3>
-        <div className="mobile-sub-story__rule" aria-hidden />
+        <MobileSubStoryHeading number={number} heading={heading} />
         {children}
       </div>
     </article>

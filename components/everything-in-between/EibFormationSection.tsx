@@ -1,8 +1,6 @@
 'use client'
 
-import { ChapterCopyScroller } from '@/components/ChapterCopyScroller'
-import { ChapterViewport } from '@/components/ChapterViewport'
-import { CaseStudySplit } from '@/components/case-study/CaseStudySplit'
+import { FlowChapterSlideLayout } from '@/components/chapter-slide/FlowChapterSlideLayout'
 import { FormationLegoBoard } from '@/components/formation/FormationLegoBoard'
 import {
   EibPatentRow,
@@ -13,11 +11,9 @@ import {
   EIB_FORMATION,
   eibChapterId,
 } from '@/lib/everything-in-between/content'
-import { useCopyScrollActive } from '@/lib/useCopyScrollActive'
 
 export function EibFormationSection() {
   const chapterId = eibChapterId('formation')
-  const copyScrollActive = useCopyScrollActive(chapterId)
 
   const patents = EIB_FORMATION.patents.map((p) => ({
     number: p.number,
@@ -26,32 +22,21 @@ export function EibFormationSection() {
   }))
 
   return (
-    <ChapterViewport
+    <FlowChapterSlideLayout
       chapterId={chapterId}
       fillViewport
-      className="mobile-chapter-slot eib-section-slot eib-section-slot--formation"
-    >
-      <ChapterCopyScroller
-        active={copyScrollActive}
-        className="mobile-chapter-panel__scroll"
-      >
-        <div className="mobile-chapter-panel__content eib-section__content">
-          <CaseStudySplit
-            className="case-study-split--formation-lego"
-            copy={
-              <>
-                <EibSubSectionIntro>
-                  {splitParagraphs(EIB_FORMATION.intro).map((p, i) => (
-                    <p key={i}>{p}</p>
-                  ))}
-                </EibSubSectionIntro>
-                <EibPatentRow patents={patents} />
-              </>
-            }
-            stage={<FormationLegoBoard />}
-          />
-        </div>
-      </ChapterCopyScroller>
-    </ChapterViewport>
+      className="mobile-chapter-slot eib-section-slot eib-section-slot--formation flow-chapter-slide--formation"
+      stage={<FormationLegoBoard />}
+      copy={
+        <>
+          <EibSubSectionIntro>
+            {splitParagraphs(EIB_FORMATION.intro).map((p, i) => (
+              <p key={i}>{p}</p>
+            ))}
+          </EibSubSectionIntro>
+          <EibPatentRow patents={patents} />
+        </>
+      }
+    />
   )
 }
