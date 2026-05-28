@@ -57,15 +57,3 @@ html.past-hero-scroll:not(.in-hero-scroll) .sidebar-shell--fixed {
   }
 }
 
-/* Mobile: no scroll snap — normal scroll */
-@media (max-width: 767px) {
-  html {
-    scroll-snap-type: none;
-  }
-
-  #hero,
-  .portfolio-chapter-slot--fill {
-    scroll-snap-align: none;
-    scroll-snap-stop: normal;
-  }
-}

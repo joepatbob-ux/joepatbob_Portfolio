@@ -1,61 +1,78 @@
 'use client'
 
 import { CHAPTER_NAV_FADE_MS, useChapterNav } from '@/components/ChapterNavProvider'
-import { LAYOUT_MQ } from '@/lib/layout/breakpoints'
+import { isFlowChapterId } from '@/lib/chapterFlow'
 import { SCROLL_BLUR_PX, blurOutFromReveal } from '@/lib/scrollBlur'
 
 const SCROLL_EASE = 'cubic-bezier(0.16, 1, 0.3, 1)'
-
-import { isFlowChapterId } from '@/lib/chapterFlow'
-
-function chapterUsesFlowScroll(chapterId: string): boolean {
-  return isFlowChapterId(chapterId)
-}
 
 export function useChapterPanelOpacity(chapterId: string) {
   const { phase, targetId, activeSlideId, reveals } = useChapterNav()
 
   const scrollReveal = reveals[chapterId] ?? 0
+  const flowChapter = isFlowChapterId(chapterId)
+
+  if (phase === 'out') {
+    return {
+      opacity: 0,
+      isActive: false,
+      style: {
+        opacity: 0,
+        filter: blurOutFromReveal(0, SCROLL_BLUR_PX).filter,
+        zIndex: 0,
+        pointerEvents: 'none',
+        transition: `opacity ${CHAPTER_NAV_FADE_MS}ms ${SCROLL_EASE}, filter ${CHAPTER_NAV_FADE_MS}ms ${SCROLL_EASE}`,
+      } as const,
+    }
+  }
+
+  if (phase === 'in') {
+    const entering = chapterId === targetId
+    const { opacity, filter } = blurOutFromReveal(entering ? 1 : 0, SCROLL_BLUR_PX)
+    return {
+      opacity,
+      isActive: entering,
+      style: {
+        opacity,
+        filter,
+        zIndex: entering ? 2 : 0,
+        pointerEvents: entering ? 'auto' : 'none',
+        transition: `opacity ${CHAPTER_NAV_FADE_MS}ms ${SCROLL_EASE}, filter ${CHAPTER_NAV_FADE_MS}ms ${SCROLL_EASE}`,
+      } as const,
+    }
+  }
+
+  if (flowChapter) {
+    const onScreen = scrollReveal > 0
+    return {
+      opacity: onScreen ? 1 : 0,
+      isActive: onScreen,
+      style: {
+        opacity: onScreen ? 1 : 0,
+        filter: 'none',
+        zIndex: onScreen ? 1 : 0,
+        pointerEvents: onScreen ? 'auto' : 'none',
+        transition: 'none',
+      } as const,
+    }
+  }
 
   let reveal = scrollReveal
   let isActive = scrollReveal > 0.5
 
-  if (phase === 'out') {
-    reveal = 0
-    isActive = false
-  } else if (phase === 'in') {
-    const entering = chapterId === targetId
-    reveal = entering ? 1 : 0
-    isActive = entering
-  } else if (activeSlideId === chapterId) {
-    const mobileFlow =
-      typeof window !== 'undefined' &&
-      window.matchMedia(LAYOUT_MQ.mobile).matches
-    const flowScroll = chapterUsesFlowScroll(chapterId)
-    isActive =
-      mobileFlow || flowScroll ? scrollReveal > 0 : scrollReveal > 0.25
+  if (activeSlideId === chapterId) {
+    isActive = scrollReveal > 0.25
   }
-
-  if (chapterUsesFlowScroll(chapterId) && phase === 'idle') {
-    reveal = scrollReveal
-    isActive = scrollReveal > 0
-  }
-
-  const { opacity, filter } = blurOutFromReveal(reveal, SCROLL_BLUR_PX)
-  const transitioning = phase === 'out' || phase === 'in'
 
   return {
-    opacity,
+    opacity: reveal,
     isActive,
     style: {
-      opacity,
-      filter,
-      /* Stay below --z-stickers (105); only order panels relative to each other */
-      zIndex: opacity > 0.08 ? Math.round(1 + scrollReveal) : 0,
+      opacity: reveal,
+      filter: 'none',
+      zIndex: reveal > 0.08 ? Math.round(1 + reveal) : 0,
       pointerEvents: isActive ? 'auto' : 'none',
-      transition: transitioning
-        ? `opacity ${CHAPTER_NAV_FADE_MS}ms ${SCROLL_EASE}, filter ${CHAPTER_NAV_FADE_MS}ms ${SCROLL_EASE}`
-        : 'none',
+      transition: 'none',
     } as const,
   }
 }

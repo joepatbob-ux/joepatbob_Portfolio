@@ -1,3 +1,5 @@
+import { VIEWPORT_SNAP_SLOT_SELECTOR } from '@/lib/chapterFlow'
+
 /** Real snap slides only — excludes placed stickers (they use data-sticker-chapter-id). */
 export const CHAPTER_SLOT_SELECTOR = '.portfolio-chapter-slot[data-chapter-id]'
 
@@ -56,8 +58,10 @@ export function easeChapterReveal(t: number): number {
 
 type SlideAnchor = { id: string; centerY: number }
 
-function slideAnchors(): SlideAnchor[] {
-  return chapterSlots()
+function snapSlideAnchors(): SlideAnchor[] {
+  return Array.from(
+    document.querySelectorAll<HTMLElement>(VIEWPORT_SNAP_SLOT_SELECTOR),
+  )
     .map((el) => {
       const id = el.dataset.chapterId
       if (!id) return null
@@ -75,7 +79,7 @@ function slideAnchors(): SlideAnchor[] {
  * At most two adjacent chapters blend during a scroll transition.
  */
 export function computeChapterRevealMap(): Record<string, number> {
-  const slots = slideAnchors()
+  const slots = snapSlideAnchors()
   if (!slots.length) return {}
 
   const map: Record<string, number> = {}

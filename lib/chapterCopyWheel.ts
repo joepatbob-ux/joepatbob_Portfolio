@@ -1,10 +1,12 @@
+import { CHAPTER_SLOT_SELECTOR } from '@/lib/chapterSlideshow'
 import {
-  activeSlideIdPublished,
-  CHAPTER_SLOT_SELECTOR,
-} from '@/lib/chapterSlideshow'
-import { isFlowChapterSlot } from '@/lib/chapterFlow'
+  isFlowChapterSlot,
+  VIEWPORT_SNAP_SLOT_SELECTOR,
+} from '@/lib/chapterFlow'
 
 let listening = false
+
+const EDGE_EPSILON = 2
 
 function wheelDelta(e: WheelEvent, clientHeight: number): number {
   let delta = e.deltaY
@@ -16,13 +18,53 @@ function wheelDelta(e: WheelEvent, clientHeight: number): number {
   return delta
 }
 
+function isInContentColumn(e: WheelEvent): boolean {
+  const sidebar = document.querySelector<HTMLElement>('.sidebar-shell--fixed')
+  if (!sidebar) return true
+  return e.clientX >= sidebar.getBoundingClientRect().right - 4
+}
+
+function pointInRect(x: number, y: number, rect: DOMRect): boolean {
+  return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom
+}
+
+function isPanelHidden(slot: HTMLElement): boolean {
+  const panel = slot.querySelector<HTMLElement>('.portfolio-chapter-panel')
+  return panel?.getAttribute('aria-hidden') === 'true'
+}
+
+/** Scroll container for a viewport snap slide (copy scroller or overview panel). */
+function scrollTargetInSlot(slot: HTMLElement): HTMLElement | null {
+  const scroller = slot.querySelector<HTMLElement>('.chapter-copy-scroller')
+  if (scroller) return scroller
+
+  if (slot.classList.contains('case-study-overview')) {
+    return slot.querySelector<HTMLElement>('.portfolio-chapter-panel')
+  }
+
+  return null
+}
+
+function scrollerAtEdge(
+  el: HTMLElement,
+  direction: 'up' | 'down',
+): boolean {
+  const { scrollTop, scrollHeight, clientHeight } = el
+  if (scrollHeight <= clientHeight + EDGE_EPSILON) return true
+
+  if (direction === 'down') {
+    return scrollTop + clientHeight >= scrollHeight - EDGE_EPSILON
+  }
+  return scrollTop <= EDGE_EPSILON
+}
+
 function applyWheelScroll(el: HTMLElement, e: WheelEvent): boolean {
   const { scrollTop, scrollHeight, clientHeight } = el
-  if (scrollHeight <= clientHeight + 1) return false
+  if (scrollHeight <= clientHeight + EDGE_EPSILON) return false
 
   const delta = wheelDelta(e, clientHeight)
-  const atTop = scrollTop <= 0
-  const atBottom = scrollTop + clientHeight >= scrollHeight - 1
+  const atTop = scrollTop <= EDGE_EPSILON
+  const atBottom = scrollTop + clientHeight >= scrollHeight - EDGE_EPSILON
 
   if (delta > 0 && atBottom) return false
   if (delta < 0 && atTop) return false
@@ -36,124 +78,86 @@ function applyWheelScroll(el: HTMLElement, e: WheelEvent): boolean {
   return true
 }
 
-function chapterSlotsInOrder(): HTMLElement[] {
-  return Array.from(
-    document.querySelectorAll<HTMLElement>(CHAPTER_SLOT_SELECTOR),
+function snapSlotUnderPointer(e: WheelEvent): HTMLElement | null {
+  const x = e.clientX
+  const y = e.clientY
+
+  const slots = Array.from(
+    document.querySelectorAll<HTMLElement>(VIEWPORT_SNAP_SLOT_SELECTOR),
   )
+
+  for (let i = slots.length - 1; i >= 0; i--) {
+    const slot = slots[i]
+    if (isPanelHidden(slot)) continue
+    if (!pointInRect(x, y, slot.getBoundingClientRect())) continue
+    return slot
+  }
+
+  return null
 }
 
-function adjacentChapterSlot(
+function scrollTargetUnderPointer(
+  e: WheelEvent,
   slot: HTMLElement,
-  direction: 1 | -1,
 ): HTMLElement | null {
-  const slots = chapterSlotsInOrder()
-  const idx = slots.indexOf(slot)
-  if (idx < 0) return null
-  return slots[idx + direction] ?? null
-}
+  const target = scrollTargetInSlot(slot)
+  if (!target) return null
 
-function slotDocTop(slot: HTMLElement): number {
-  return slot.getBoundingClientRect().top + window.scrollY
-}
+  const x = e.clientX
+  const y = e.clientY
+  const targetRect = target.getBoundingClientRect()
+  if (pointInRect(x, y, targetRect)) {
+    return target
+  }
 
-/** Advance document scroll when in-slide copy is at an edge (or has no overflow). */
-function scrollPageAtCopyEdge(el: HTMLElement, e: WheelEvent): boolean {
-  const { scrollTop, scrollHeight, clientHeight } = el
-  const delta = wheelDelta(e, clientHeight)
-  const atTop = scrollTop <= 0
-  const atBottom = scrollTop + clientHeight >= scrollHeight - 1
+  const copyCol = slot.querySelector<HTMLElement>('.chapter-slide__copy')
+  if (copyCol && pointInRect(x, y, copyCol.getBoundingClientRect())) {
+    return target
+  }
 
-  const shortCopy = scrollHeight <= clientHeight + 1
-  const exitDown = delta > 0 && (atBottom || shortCopy)
-  const exitUp = delta < 0 && (atTop || shortCopy)
-  if (!exitDown && !exitUp) return false
-
-  const root = document.scrollingElement ?? document.documentElement
-  const slot = el.closest<HTMLElement>(CHAPTER_SLOT_SELECTOR)
-
-  if (slot && isFlowChapterSlot(slot)) {
-    const next = adjacentChapterSlot(slot, exitDown ? 1 : -1)
-    if (next) {
-      e.preventDefault()
-      e.stopPropagation()
-      const targetTop = slotDocTop(next)
-      if (exitDown) {
-        root.scrollTop = Math.min(
-          targetTop,
-          root.scrollTop + Math.max(Math.abs(delta), 48),
-        )
-      } else {
-        root.scrollTop = Math.max(
-          targetTop,
-          root.scrollTop - Math.max(Math.abs(delta), 48),
-        )
-      }
-      return true
+  if (slot.classList.contains('case-study-overview')) {
+    const panel = slot.querySelector<HTMLElement>('.portfolio-chapter-panel')
+    if (panel && pointInRect(x, y, panel.getBoundingClientRect())) {
+      return target
     }
   }
 
-  root.scrollTop += delta
+  return null
+}
+
+/**
+ * Viewport snap slides only: let the browser scroll long copy; at top/bottom,
+ * pass wheel to the document so scroll-snap can reach the next chapter.
+ */
+function handoffWheelAtCopyEdge(el: HTMLElement, e: WheelEvent): boolean {
+  const delta = wheelDelta(e, el.clientHeight)
+  const exitDown = delta > 0 && scrollerAtEdge(el, 'down')
+  const exitUp = delta < 0 && scrollerAtEdge(el, 'up')
+  if (!exitDown && !exitUp) return false
+
   e.preventDefault()
   e.stopPropagation()
+  const root = document.scrollingElement ?? document.documentElement
+  root.scrollTop += delta
   return true
 }
 
-function isPanelHidden(slot: HTMLElement): boolean {
-  const panel = slot.querySelector<HTMLElement>('.portfolio-chapter-panel')
-  return panel?.getAttribute('aria-hidden') === 'true'
-}
-
-function copyScrollerForActiveSlide(): HTMLElement | null {
-  const activeId = activeSlideIdPublished()
-  if (!activeId) return null
-
-  const slot = document.querySelector<HTMLElement>(
-    `${CHAPTER_SLOT_SELECTOR}[data-chapter-id="${activeId}"]`,
-  )
-  if (!slot || isPanelHidden(slot)) return null
-
-  return slot.querySelector<HTMLElement>('.chapter-copy-scroller')
-}
-
-/** Prefer the copy scroller under the pointer (stacked / in-flow sections). */
-function copyScrollerAtWheelTarget(e: WheelEvent): HTMLElement | null {
-  const x = e.clientX
-  const y = e.clientY
-  let best: HTMLElement | null = null
-  let bestArea = 0
-
-  document
-    .querySelectorAll<HTMLElement>(
-      `${CHAPTER_SLOT_SELECTOR} .chapter-copy-scroller`,
-    )
-    .forEach((el) => {
-      const slot = el.closest<HTMLElement>(CHAPTER_SLOT_SELECTOR)
-      if (!slot || isPanelHidden(slot)) return
-
-      const rect = el.getBoundingClientRect()
-      if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
-        return
-      }
-
-      const area = rect.width * rect.height
-      if (area > bestArea) {
-        bestArea = area
-        best = el
-      }
-    })
-
-  return best ?? copyScrollerForActiveSlide()
-}
-
 function onWheelCapture(e: WheelEvent) {
-  const el = copyScrollerAtWheelTarget(e)
-  if (!el) return
+  if (!isInContentColumn(e)) return
 
-  if (applyWheelScroll(el, e)) return
-  scrollPageAtCopyEdge(el, e)
+  const slot = snapSlotUnderPointer(e)
+  if (!slot || isFlowChapterSlot(slot)) return
+
+  const scrollEl = scrollTargetUnderPointer(e, slot)
+  if (!scrollEl) return
+
+  const slotFromEl = scrollEl.closest<HTMLElement>(CHAPTER_SLOT_SELECTOR)
+  if (!slotFromEl || isFlowChapterSlot(slotFromEl)) return
+
+  if (applyWheelScroll(scrollEl, e)) return
+  handoffWheelAtCopyEdge(scrollEl, e)
 }
 
-/** One listener for the whole site — ties in-slide copy scroll to the next chapter. */
 export function ensureChapterCopyWheelListener(): () => void {
   if (listening || typeof window === 'undefined') {
     return () => {}

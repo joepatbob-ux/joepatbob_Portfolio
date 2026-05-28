@@ -1,4 +1,7 @@
-/** In-flow case study slots (Mobile / Web Apps / EIB) — not snap slideshow slides. */
+/** Viewport-height snap slides (Hardware, etc.) — not in-flow case studies. */
+export const VIEWPORT_SNAP_SLOT_SELECTOR =
+  '.portfolio-chapter-slot--fill:not(.mobile-chapter-slot)[data-chapter-id]'
+
 export const FLOW_CHAPTER_SLOT_SELECTOR =
   '.mobile-chapter-slot.portfolio-chapter-slot[data-chapter-id]'
 

@@ -9,6 +9,14 @@ import { memo, useCallback, useEffect, useRef, useState } from 'react'
 export const TOUCH2_FRAME_WIDTH = 520
 export const TOUCH2_FRAME_HEIGHT = 580
 const AUTO_PLAY_MS = 5500
+const TOUCH2_DOT_SLOT_H = 80
+const TOUCH2_DOT_GAP = 8
+
+function touch2RailMetrics(slideCount: number) {
+  const railH = slideCount * TOUCH2_DOT_SLOT_H + (slideCount - 1) * TOUCH2_DOT_GAP
+  const slideW = Math.round((railH * TOUCH2_FRAME_WIDTH) / TOUCH2_FRAME_HEIGHT)
+  return { railH, slideW }
+}
 
 interface Slide {
   src: string
@@ -130,10 +138,17 @@ function Touch2CarouselInner({
 
   const showProgressBar = autoPlay && isActive && !reducedMotion
   const indicatorProgress = showProgressBar ? progress : 0
+  const { railH, slideW } = touch2RailMetrics(count)
 
   return (
     <div
       className={['touch2-carousel', className].filter(Boolean).join(' ')}
+      style={
+        {
+          '--touch2-rail-h': `${railH}px`,
+          '--touch2-slide-w': `${slideW}px`,
+        } as React.CSSProperties
+      }
       role="region"
       aria-roledescription="carousel"
       aria-label={ariaLabel}

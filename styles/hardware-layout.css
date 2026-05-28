@@ -13,26 +13,26 @@
   );
 }
 
-@media (min-width: 768px) {
-  .hardware-slideshow.portfolio-chapter-slot--fill,
-  [data-section-id='hardware'] .portfolio-chapter-slot--fill {
-    height: 100vh;
-    height: 100dvh;
-  }
-}
-
 .hardware-slideshow .portfolio-chapter-panel,
 [data-section-id='hardware'] .portfolio-chapter-slot--fill .portfolio-chapter-panel {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: stretch;
-  /* Fixed slideshow panels: fill space between left/right inset only */
   width: auto;
   max-width: none;
 }
 
-/* Desktop + tablet (768+): centered band, custom padding */
+@media (min-width: 768px) {
+  .hardware-slideshow.portfolio-chapter-slot--fill,
+  [data-section-id='hardware']
+    .portfolio-chapter-slot--fill:not(.mobile-chapter-slot) {
+    height: 100vh;
+    height: 100dvh;
+  }
+}
+
+/* Desktop + tablet (768+): viewport slideshow band */
 @media (min-width: 768px) {
   .hardware-slideshow .chapter-slide__viewport {
     flex: 1;
@@ -52,8 +52,7 @@
     justify-content: flex-start;
     padding: var(--hw-pad);
     box-sizing: border-box;
-    /* Fixed panels: respect left/right inset from globals — no width: 100% */
-    width: auto !important;
+    width: 100% !important;
     max-width: none !important;
   }
 
@@ -121,8 +120,12 @@
   }
 
   .hardware-slideshow .chapter-slide__copy .chapter-copy-scroller {
+    flex: 1 1 auto;
     min-height: 0;
     max-height: min(68dvh, calc(100dvh - var(--hw-pad) * 2 - 4rem));
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior-y: auto;
   }
 
   .hardware-slideshow .chapter-copy__rule {

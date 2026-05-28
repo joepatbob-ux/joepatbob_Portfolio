@@ -9,7 +9,7 @@ interface Props {
   children: ReactNode
 }
 
-/** Scroll container for long chapter copy; wheel trap is global (see chapterCopyWheel). */
+/** Scroll container for long copy; viewport slides hand off at edges (chapterCopyWheel). */
 export function ChapterCopyScroller({
   active = false,
   className,
