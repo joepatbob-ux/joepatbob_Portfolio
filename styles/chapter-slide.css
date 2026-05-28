@@ -37,6 +37,21 @@
     grid-template-columns: var(--cs-stage-col) var(--cs-copy-col);
     justify-items: stretch;
   }
+
+  .portfolio-chapter-slot--fill:not(.mobile-chapter-slot) .chapter-slide__copy {
+    max-height: var(--cs-copy-max-h);
+    overflow: hidden;
+  }
+
+  .portfolio-chapter-slot--fill:not(.mobile-chapter-slot)
+    .chapter-slide__copy
+    .chapter-copy-scroller {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: var(--cs-copy-max-h);
+    overflow-y: auto;
+    overscroll-behavior-y: auto;
+  }
 }
 
 .chapter-slide__stage {
@@ -110,6 +125,18 @@
   min-height: 0;
   max-height: var(--cs-copy-max-h);
   overflow-y: auto;
+  overscroll-behavior-y: auto;
+}
+
+/* Flow case studies: page scroll, no nested copy cage */
+.mobile-chapter-slot .chapter-slide__copy,
+.mobile-chapter-slot .chapter-slide__copy .chapter-copy-scroller {
+  max-height: none;
+  overflow: visible;
+}
+
+.mobile-chapter-slot .chapter-slide__copy .chapter-copy-scroller {
+  flex: none;
 }
 
 .chapter-slide .chapter-copy__headline {

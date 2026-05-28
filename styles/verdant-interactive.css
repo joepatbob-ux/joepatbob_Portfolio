@@ -25,7 +25,7 @@
   container-type: inline-size;
   container-name: verdant;
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto auto;
   grid-template-areas:
     'glyph'
@@ -35,6 +35,7 @@
   max-width: min(100%, var(--verdant-max-w));
   margin-inline: auto;
   min-width: 0;
+  align-items: start;
 }
 
 /* Fixed preview slot — same box for segments, sketch, and board */
@@ -132,7 +133,7 @@
 .verdant-keyboard__row--chars,
 .verdant-keyboard__row--mixed {
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   justify-content: center;
   align-items: center;
   gap: var(--verdant-key-gap);
@@ -215,7 +216,42 @@
   box-sizing: border-box;
 }
 
-/* Narrow component — smaller circles */
+/* Wide enough — keypad beside segment display */
+@container verdant (min-width: 480px) {
+  .verdant-interactive {
+    grid-template-columns: minmax(0, auto) minmax(0, 1fr);
+    grid-template-rows: auto;
+    grid-template-areas: 'glyph keys';
+    column-gap: clamp(16px, 4cqi, 28px);
+    max-width: min(100%, 720px);
+  }
+
+  .verdant-interactive__glyph-stage {
+    margin-inline: 0;
+    justify-self: start;
+  }
+
+  .verdant-keyboard {
+    align-self: center;
+    justify-self: stretch;
+  }
+
+  .verdant-keyboard__row--chars,
+  .verdant-keyboard__row--mixed {
+    justify-content: flex-start;
+  }
+}
+
+/* Narrow component — smaller circles, stacked layout */
+@container verdant (max-width: 479px) {
+  .verdant-interactive {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'glyph'
+      'keys';
+  }
+}
+
 @container verdant (max-width: 400px) {
   .verdant-interactive {
     --verdant-glyph-max-h: min(44dvh, 360px);
