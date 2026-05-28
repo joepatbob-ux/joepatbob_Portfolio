@@ -35,6 +35,7 @@
 @media (min-width: 768px) {
   .chapter-slide__inner {
     grid-template-columns: var(--cs-stage-col) var(--cs-copy-col);
+    column-gap: var(--cs-split-gap, var(--cs-section-gap));
     justify-items: stretch;
   }
 
@@ -62,6 +63,12 @@
   min-width: 0;
   max-width: none;
   justify-self: stretch;
+}
+
+.chapter-slide__stage > * {
+  width: 100%;
+  max-width: 100%;
+  margin-inline: auto;
 }
 
 .chapter-slide__copy {
@@ -166,7 +173,7 @@
 }
 
 .chapter-slide__copy:not(.chapter-slide__copy--lessons) .chapter-copy__body {
-  max-width: 46ch;
+  max-width: clamp(40ch, 42vw, 70ch);
   font-size: 14px;
   line-height: 1.65;
   margin: 0;
@@ -177,6 +184,31 @@
 @media (min-width: 768px) and (max-width: 1023px) {
   .chapter-slide {
     --cs-inner-max: min(100%, calc(100vw - var(--sidebar-width) - 2 * var(--content-pad-x) - 32px));
+  }
+}
+
+/* Desktop+: horizontal padding comes from shell (--content-pad-x / --content-pad-left) */
+@media (min-width: 1024px) {
+  .chapter-slide__viewport {
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 24px;
+    padding-bottom: 24px;
+  }
+
+  .chapter-slide__inner {
+    max-width: none;
+    width: 100%;
+  }
+
+  /* Desktop: keep stage component centered and responsive within stage column. */
+  .chapter-slide:not(.hardware-slideshow) .chapter-slide__stage {
+    display: flex;
+    justify-content: center;
+  }
+
+  .chapter-slide:not(.hardware-slideshow) .chapter-slide__stage > * {
+    width: min(100%, clamp(280px, 34vw, 560px));
   }
 }
 

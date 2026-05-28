@@ -48,11 +48,27 @@ html.past-hero-scroll:not(.in-hero-scroll) .sidebar-shell--fixed {
   }
 }
 
-/* Ultra-wide: cap content column width; sidebar stays browser-left */
+/*
+ * Cinema (2560+): 280px sidebar, 40px after rail, 1fr / 2fr, 80px column gap,
+ * 40px copy to screen edge; sidebar inset 32px / 20px to divider.
+ */
 @media (min-width: 2560px) {
+  :root {
+    --sidebar-width: 280px;
+    --sidebar-pad-inline: 32px;
+    --sidebar-pad-right: 20px;
+    --content-pad-left: 40px;
+    --content-pad-x: 40px;
+    --cs-stage-col: minmax(0, 1fr);
+    --cs-copy-col: minmax(0, 2fr);
+    --cs-split-gap: 80px;
+    --cs-section-gap: 80px;
+  }
+
   .content-area {
     max-width: calc(
-      var(--site-frame-max) - var(--sidebar-width) - 2 * var(--content-pad-x)
+      var(--site-frame-max) - var(--sidebar-width) - var(--content-pad-left) -
+        var(--content-pad-x)
     );
   }
 }

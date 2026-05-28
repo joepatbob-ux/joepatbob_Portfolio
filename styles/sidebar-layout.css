@@ -3,7 +3,7 @@
 :root {
   --sidebar-pad-inline: 24px;
   --sidebar-subnav-max: 220px;
-  --sidebar-divider-inset: 40px;
+  --sidebar-divider-inset: 24px;
 }
 
 /* Vertical rule — shared by expanded shell and collapsed tablet rail */

@@ -20,7 +20,7 @@
 .case-study-split__copy {
   min-width: 0;
   width: 100%;
-  max-width: 65ch;
+  max-width: clamp(44ch, 50vw, 80ch);
   text-align: left;
 }
 
@@ -37,11 +37,13 @@
 .case-study-split__stage > * {
   width: 100%;
   max-width: 100%;
+  margin-inline: auto;
 }
 
 @media (min-width: 768px) {
   .case-study-split {
     grid-template-columns: var(--cs-stage-col) var(--cs-copy-col);
+    column-gap: var(--cs-split-gap);
   }
 
   .case-study-split__stage {
@@ -55,8 +57,18 @@
   .case-study-split__copy {
     grid-column: 2;
     grid-row: 1;
-    max-width: none;
-    width: 100%;
+    max-width: clamp(44ch, 50vw, 86ch);
+    width: min(100%, 86ch);
+  }
+}
+
+@media (min-width: 1024px) {
+  .case-study-split__stage {
+    justify-content: center;
+  }
+
+  .case-study-split__stage > * {
+    width: min(100%, clamp(280px, 34vw, 560px));
   }
 }
 
