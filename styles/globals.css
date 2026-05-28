@@ -110,7 +110,7 @@
   /* Offset by sidebar + breathing room so dividers don’t touch edges */
   .content-area {
     margin-left: var(--sidebar-width);
-    padding-left: var(--content-pad-x);
+    padding-left: var(--content-pad-left, var(--content-pad-x));
     padding-right: var(--content-pad-x);
     padding-top: var(--mobile-nav-bar-height);
     min-width: 0;
@@ -121,6 +121,7 @@
     :root {
       --sidebar-width: 0px;
       --content-pad-x: 16px;
+      --content-pad-left: 16px;
       --mobile-nav-bar-height: 52px;
       --gutter: 24px;
     }
@@ -162,6 +163,7 @@
       --sidebar-width: 52px;
       --sidebar-overlay-width: 280px;
       --content-pad-x: 20px;
+      --content-pad-left: 0px;
       --gutter: 48px;
     }
 
@@ -172,6 +174,25 @@
     .content-area {
       transition: margin-left var(--tablet-sidebar-duration, 0.42s)
         var(--tablet-sidebar-ease, cubic-bezier(0.32, 0.72, 0, 1));
+    }
+  }
+
+  /*
+   * Desktop (1024–2559): 256px sidebar, 1fr stage / 2fr copy, 20px between columns,
+   * 32px copy to screen edge; sidebar inset 32px from edge, 20px to divider.
+   */
+  @media (min-width: 1024px) and (max-width: 2559px) {
+    :root {
+      --sidebar-width: 256px;
+      --sidebar-pad-inline: 32px;
+      --sidebar-pad-right: 20px;
+      --content-pad-x: 32px;
+      --content-pad-left: 0px;
+      --cs-stage-col: minmax(0, 1fr);
+      --cs-copy-col: minmax(0, 2fr);
+      --cs-split-gap: 20px;
+      --cs-section-gap: 20px;
+      --gutter: 72px;
     }
   }
 }
@@ -1183,7 +1204,7 @@ html {
   .portfolio-chapter-slot--fill:not(.mobile-chapter-slot) .portfolio-chapter-panel {
     position: fixed;
     top: 0;
-    left: calc(var(--sidebar-width) + var(--content-pad-x));
+    left: calc(var(--sidebar-width) + var(--content-pad-left, 0px));
     right: var(--content-pad-x);
     width: auto;
     height: 100dvh;
@@ -1286,7 +1307,7 @@ html {
 
 .chapter-copy__body {
   margin: 0;
-  max-width: 52ch;
+  max-width: clamp(42ch, 44vw, 72ch);
   font-family: var(--font-body);
   font-size: 15px;
   line-height: 1.7;

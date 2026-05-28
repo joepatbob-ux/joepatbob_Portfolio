@@ -34,8 +34,8 @@ const STAGGER_MS      = 60
 const TRANSITION_MS   = 320
 const SUBNAV_DELAY_MS = 280
 const BLUR_PX         = 6
-const NAV_TOP_PX      = 40
-const EMAIL_BOTTOM_PX = 40
+const NAV_TOP_PX      = 24
+const EMAIL_BOTTOM_PX = 24
 
 /** Phone overlay nav — keep in sync with `LAYOUT_MQ.mobile` / globals.css */
 const MOBILE_MAX = LAYOUT_MQ.mobile

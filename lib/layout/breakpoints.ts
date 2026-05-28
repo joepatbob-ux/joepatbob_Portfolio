@@ -9,7 +9,12 @@ export const LAYOUT_BP = {
   chapterWideMin: 1200,
   cinemaMin: 2560,
   siteFrameMax: 1400,
-  sidebarWidthDesktop: 280,
+  /** Desktop shell (1024–2559): divider at 256px rail */
+  sidebarWidthDesktop: 256,
+  sidebarPadInlineDesktop: 32,
+  sidebarPadToDividerDesktop: 20,
+  contentPadEndDesktop: 32,
+  stageCopyGapDesktop: 20,
   /** Collapsed tablet rail width (768–1023) */
   sidebarWidthCollapsed: 52,
   sidebarOverlayWidth: 280,
