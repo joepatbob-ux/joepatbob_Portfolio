@@ -9,8 +9,8 @@ export const LAYOUT_BP = {
   chapterWideMin: 1200,
   cinemaMin: 2560,
   siteFrameMax: 1400,
-  /** Desktop shell (1024–2559): divider at 256px rail */
-  sidebarWidthDesktop: 256,
+  /** Desktop shell (1024–2559): divider at 280px rail */
+  sidebarWidthDesktop: 280,
   sidebarPadInlineDesktop: 32,
   sidebarPadToDividerDesktop: 20,
   contentPadEndDesktop: 32,

@@ -4,6 +4,7 @@
 @import './case-study-content.css';
 @import './case-study-split.css';
 @import './mobile-chapter.css';
+@import './flow-chapter-slide.css';
 @import './web-apps-kelvin-chapter.css';
 @import './formation-lego-board.css';
 @import './eib-chapter.css';
@@ -178,12 +179,12 @@
   }
 
   /*
-   * Desktop (1024–2559): 256px sidebar, 1fr stage / 2fr copy, 20px between columns,
+   * Desktop (1024–2559): 280px sidebar, 1fr stage / 2fr copy, 20px between columns,
    * 32px copy to screen edge; sidebar inset 32px from edge, 20px to divider.
    */
   @media (min-width: 1024px) and (max-width: 2559px) {
     :root {
-      --sidebar-width: 256px;
+      --sidebar-width: 280px;
       --sidebar-pad-inline: 32px;
       --sidebar-pad-right: 20px;
       --content-pad-x: 32px;
@@ -1190,12 +1191,20 @@ html {
 @media (min-width: 768px) {
   html {
     scroll-snap-type: y proximity;
+    scroll-behavior: smooth;
+  }
+
+  /* Snap: hero, hardware slides, and first in-flow anchor per case study only */
+  #hero,
+  .portfolio-chapter-slot--fill:not(.mobile-chapter-slot),
+  .mobile-chapter-slot--sensi.portfolio-chapter-slot--fill,
+  .eib-chapter-intro-slot.portfolio-chapter-slot--fill {
+    scroll-snap-align: start;
+    scroll-snap-stop: normal;
   }
 
   #hero,
   .portfolio-chapter-slot--fill:not(.mobile-chapter-slot) {
-    scroll-snap-align: start;
-    scroll-snap-stop: normal;
     height: 100vh;
     height: 100dvh;
     position: relative;
@@ -1259,6 +1268,10 @@ html {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
   #hero,
   .hero,
   .sticker-layer,

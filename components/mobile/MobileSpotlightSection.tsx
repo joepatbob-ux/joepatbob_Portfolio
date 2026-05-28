@@ -1,9 +1,7 @@
 'use client'
 
-import { ChapterCopyScroller } from '@/components/ChapterCopyScroller'
-import { ChapterViewport } from '@/components/ChapterViewport'
+import { FlowChapterSlideLayout } from '@/components/chapter-slide/FlowChapterSlideLayout'
 import { SpotlightPhone } from '@/components/mobile/SpotlightPhone'
-import { CaseStudySplit } from '@/components/case-study/CaseStudySplit'
 import {
   MobileLabelGrid,
   MobileProse,
@@ -11,41 +9,33 @@ import {
   splitParagraphs,
 } from '@/components/mobile/MobileSectionParts'
 import { MOBILE_SPOTLIGHT, mobileChapterId } from '@/lib/mobile/content'
-import { useCopyScrollActive } from '@/lib/useCopyScrollActive'
 
 export function MobileSpotlightSection() {
   const chapterId = mobileChapterId('spotlight')
-  const copyScrollActive = useCopyScrollActive(chapterId)
   const paragraphs = splitParagraphs(MOBILE_SPOTLIGHT.body)
 
   return (
-    <ChapterViewport
+    <FlowChapterSlideLayout
       chapterId={chapterId}
       fillViewport
       className="mobile-chapter-slot mobile-chapter-slot--spotlight"
-    >
-      <ChapterCopyScroller
-        active={copyScrollActive}
-        className="mobile-chapter-panel__scroll"
-      >
-        <div className="mobile-chapter-panel__content">
+      stage={<SpotlightPhone />}
+      copy={
+        <>
           <MobileSectionHeader
             eyebrow={MOBILE_SPOTLIGHT.eyebrow}
             headline={MOBILE_SPOTLIGHT.headline}
             meta={MOBILE_SPOTLIGHT.meta}
           />
-          <MobileProse paragraphs={paragraphs.slice(0, 4)} />
-          <CaseStudySplit
-            copy={
-              <>
-                <MobileLabelGrid items={MOBILE_SPOTLIGHT.decisions} columns={2} />
-                <MobileProse paragraphs={paragraphs.slice(4)} />
-              </>
-            }
-            stage={<SpotlightPhone />}
-          />
-        </div>
-      </ChapterCopyScroller>
-    </ChapterViewport>
+          <MobileProse paragraphs={paragraphs.slice(0, 3)} />
+        </>
+      }
+      belowFold={
+        <>
+          <MobileProse paragraphs={paragraphs.slice(3)} />
+          <MobileLabelGrid items={MOBILE_SPOTLIGHT.decisions} columns={2} />
+        </>
+      }
+    />
   )
 }

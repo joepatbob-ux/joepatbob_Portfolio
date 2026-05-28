@@ -1,8 +1,6 @@
 'use client'
 
-import { ChapterCopyScroller } from '@/components/ChapterCopyScroller'
-import { ChapterViewport } from '@/components/ChapterViewport'
-import { CaseStudySplit } from '@/components/case-study/CaseStudySplit'
+import { FlowChapterSlideLayout } from '@/components/chapter-slide/FlowChapterSlideLayout'
 import { Touch2Carousel } from '@/components/touch2/Touch2Carousel'
 import {
   EibPracticeClose,
@@ -14,49 +12,37 @@ import {
   eibChapterId,
 } from '@/lib/everything-in-between/content'
 import { PRACTICE_CAROUSEL_IMAGES } from '@/lib/practiceCarouselImages'
-import { useCopyScrollActive } from '@/lib/useCopyScrollActive'
 
 export function EibPracticeSection() {
   const chapterId = eibChapterId('practice')
-  const copyScrollActive = useCopyScrollActive(chapterId)
 
   return (
-    <ChapterViewport
+    <FlowChapterSlideLayout
       chapterId={chapterId}
       fillViewport
       isLast={false}
       className="mobile-chapter-slot eib-section-slot eib-section-slot--practice"
-    >
-      <ChapterCopyScroller
-        active={copyScrollActive}
-        className="mobile-chapter-panel__scroll"
-      >
-        <div className="mobile-chapter-panel__content eib-section__content">
-          <CaseStudySplit
-            copy={
-              <>
-                <EibSubSectionIntro>
-                  {splitParagraphs(EIB_PRACTICE.intro).map((p, i) => (
-                    <p key={i}>{p}</p>
-                  ))}
-                </EibSubSectionIntro>
-                <EibPracticeClose
-                  statement={EIB_PRACTICE.close}
-                  email={EIB_PRACTICE.email}
-                  linkedIn={EIB_PRACTICE.linkedIn}
-                />
-              </>
-            }
-            stage={
-              <Touch2Carousel
-                slides={PRACTICE_CAROUSEL_IMAGES}
-                className="eib-practice-gallery"
-                ariaLabel="Practice photo gallery"
-              />
-            }
+      stage={
+        <Touch2Carousel
+          slides={PRACTICE_CAROUSEL_IMAGES}
+          className="eib-practice-gallery"
+          ariaLabel="Practice photo gallery"
+        />
+      }
+      copy={
+        <>
+          <EibSubSectionIntro>
+            {splitParagraphs(EIB_PRACTICE.intro).map((p, i) => (
+              <p key={i}>{p}</p>
+            ))}
+          </EibSubSectionIntro>
+          <EibPracticeClose
+            statement={EIB_PRACTICE.close}
+            email={EIB_PRACTICE.email}
+            linkedIn={EIB_PRACTICE.linkedIn}
           />
-        </div>
-      </ChapterCopyScroller>
-    </ChapterViewport>
+        </>
+      }
+    />
   )
 }
