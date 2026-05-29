@@ -6,6 +6,8 @@
 @import './case-study-section-header.css';
 @import './case-study-flow-overview.css';
 @import './mobile-chapter.css';
+@import './mobile-learn-more.css';
+@import './mobile-chapter-viewport.css';
 @import './flow-chapter-slide.css';
 @import './web-apps-kelvin-chapter.css';
 @import './formation-lego-board.css';
@@ -77,6 +79,7 @@
     --z-stickers:           105;
     --z-mobile-nav-backdrop: 108;
     --z-mobile-drawer:      110;
+    --z-mobile-learn-more:  112;
   }
 
   @media (prefers-color-scheme: dark) {
@@ -135,7 +138,7 @@
 
     html {
       scroll-padding-top: calc(var(--mobile-content-top-inset) + 12px);
-      scroll-snap-type: none;
+      scroll-snap-type: y proximity;
     }
 
     .site-frame,

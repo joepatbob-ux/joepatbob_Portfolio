@@ -125,18 +125,17 @@
 
 .verdant-keyboard__matrix {
   display: flex;
-  flex-direction: column;
-  gap: var(--verdant-key-gap);
-  min-width: 0;
-}
-
-.verdant-keyboard__row--chars,
-.verdant-keyboard__row--mixed {
-  display: flex;
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
   gap: var(--verdant-key-gap);
+  width: 100%;
+  min-width: 0;
+}
+
+/* Flatten logical rows so keys wrap across the full keypad width */
+.verdant-keyboard__matrix > .verdant-keyboard__row {
+  display: contents;
 }
 
 .verdant-keyboard__row--views {
@@ -228,7 +227,6 @@
 
   .verdant-interactive__glyph-stage {
     margin-inline: 0;
-    justify-self: start;
   }
 
   .verdant-keyboard {
@@ -236,8 +234,7 @@
     justify-self: stretch;
   }
 
-  .verdant-keyboard__row--chars,
-  .verdant-keyboard__row--mixed {
+  .verdant-keyboard__matrix {
     justify-content: flex-start;
   }
 }
@@ -266,21 +263,6 @@
     --verdant-glyph-max-h: min(40dvh, 300px);
     --verdant-key-size: 30px;
     --verdant-key-font: 10px;
-  }
-
-  .verdant-keyboard__matrix {
-    overflow-x: auto;
-    overscroll-behavior-x: contain;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: thin;
-    padding-bottom: 2px;
-  }
-
-  .verdant-keyboard__row--chars,
-  .verdant-keyboard__row--mixed {
-    width: max-content;
-    min-width: 100%;
-    justify-content: flex-start;
   }
 }
 
@@ -319,14 +301,21 @@
 /* Mobile hardware — full-width stage, inset keypad */
 @media (max-width: 767px) {
   .hardware-slideshow.chapter-slide--verdant .verdant-interactive {
-    --verdant-glyph-max-h: min(38dvh, 280px);
+    --verdant-glyph-max-h: min(44dvh, 340px);
+    --verdant-stage-w: 100%;
     max-width: 100%;
-    padding-inline: clamp(16px, 4vw, 24px);
+    padding-inline: 0;
     box-sizing: border-box;
   }
 
   .chapter-slide--verdant .verdant-interactive {
-    --verdant-glyph-max-h: min(40dvh, 300px);
+    --verdant-glyph-max-h: min(44dvh, 340px);
+    --verdant-stage-w: 100%;
+  }
+
+  .verdant-interactive__glyph-stage {
+    width: 100%;
+    margin-inline: 0;
   }
 }
 

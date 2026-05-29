@@ -2,10 +2,10 @@
 
 import { FlowChapterSlideLayout } from '@/components/chapter-slide/FlowChapterSlideLayout'
 import { SpotlightPhone } from '@/components/mobile/SpotlightPhone'
+import { MobileLearnMore } from '@/components/mobile/MobileLearnMore'
 import {
   MobileLabelGrid,
   MobileProse,
-  MobileSectionHeader,
   splitParagraphs,
 } from '@/components/mobile/MobileSectionParts'
 import { MOBILE_SPOTLIGHT, mobileChapterId } from '@/lib/mobile/content'
@@ -21,14 +21,13 @@ export function MobileSpotlightSection() {
       className="mobile-chapter-slot mobile-chapter-slot--spotlight"
       stage={<SpotlightPhone />}
       copy={
-        <>
-          <MobileSectionHeader
-            headline={MOBILE_SPOTLIGHT.headline}
-            meta={MOBILE_SPOTLIGHT.meta}
-          />
+        <MobileLearnMore
+          headline={MOBILE_SPOTLIGHT.headline}
+          meta={MOBILE_SPOTLIGHT.meta}
+        >
           <MobileProse paragraphs={paragraphs} />
           <MobileLabelGrid items={MOBILE_SPOTLIGHT.decisions} columns={2} />
-        </>
+        </MobileLearnMore>
       }
     />
   )

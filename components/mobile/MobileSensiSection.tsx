@@ -2,10 +2,10 @@
 
 import { DragScrubber } from '@/components/DragScrubber'
 import { FlowChapterSlideLayout } from '@/components/chapter-slide/FlowChapterSlideLayout'
+import { MobileLearnMore } from '@/components/mobile/MobileLearnMore'
 import {
   MobileLabelGrid,
   MobileProse,
-  MobileSectionHeader,
   MobileSubStory,
   splitParagraphs,
 } from '@/components/mobile/MobileSectionParts'
@@ -33,11 +33,10 @@ export function MobileSensiSection() {
         />
       }
       copy={
-        <>
-          <MobileSectionHeader
-            headline={MOBILE_SENSI.headline}
-            meta={MOBILE_SENSI.meta}
-          />
+        <MobileLearnMore
+          headline={MOBILE_SENSI.headline}
+          meta={MOBILE_SENSI.meta}
+        >
           <MobileProse paragraphs={intro} />
           <div className="mobile-sub-stories">
             <MobileSubStory heading={color.heading}>
@@ -64,7 +63,7 @@ export function MobileSensiSection() {
               </aside>
             </MobileSubStory>
           </div>
-        </>
+        </MobileLearnMore>
       }
     />
   )

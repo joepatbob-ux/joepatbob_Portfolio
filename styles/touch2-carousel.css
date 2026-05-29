@@ -23,7 +23,9 @@
   --touch2-dot-duration: 560ms;
   --touch2-dot-size: 8px;
   --touch2-dot-active-h: 56px;
+  --touch2-dot-active-w: 56px;
   --touch2-dot-slot-h: 80px;
+  --touch2-dot-slot-w: 80px;
   --touch2-dot-ring-size: 40px;
   --touch2-dot-gap: 8px;
   /* Set from JS: --touch2-rail-h, --touch2-slide-w (match dot column height) */
@@ -192,7 +194,58 @@
 
 @media (max-width: 767px) {
   .touch2-carousel {
-    gap: clamp(12px, 3vw, 20px);
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    justify-items: center;
+    gap: clamp(12px, 3vw, 16px);
+  }
+
+  .touch2-carousel__slides {
+    width: 100%;
+    max-width: min(100%, 420px);
+    height: auto;
+    min-height: min(48dvh, 380px);
+    max-height: min(56dvh, 440px);
+    aspect-ratio: var(--touch2-frame-aspect);
+  }
+
+  .touch2-carousel__dots {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+    width: 100%;
+    max-width: min(100%, 420px);
+    height: auto;
+    min-height: var(--touch2-dot-slot-w);
+    gap: clamp(6px, 2vw, 10px);
+  }
+
+  .touch2-carousel__dot {
+    width: var(--touch2-dot-ring-size);
+    height: var(--touch2-dot-ring-size);
+    min-height: 0;
+    padding: 0;
+    flex-shrink: 0;
+  }
+
+  .touch2-carousel__dot--active {
+    width: var(--touch2-dot-slot-w);
+    height: var(--touch2-dot-ring-size);
+  }
+
+  .touch2-carousel__dot-indicator {
+    width: var(--touch2-dot-size);
+    height: var(--touch2-dot-size);
+  }
+
+  /* Auto-advance: accent pill grows horizontally (desktop grows vertically). */
+  .touch2-carousel__dot--active .touch2-carousel__dot-indicator {
+    width: calc(
+      var(--touch2-dot-size) +
+        (var(--touch2-dot-active-w) - var(--touch2-dot-size)) *
+        (1 - var(--touch2-dot-progress, 0))
+    );
+    height: var(--touch2-dot-size);
   }
 }
 

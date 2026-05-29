@@ -270,16 +270,8 @@
   }
 }
 
-/* Mobile: normal scroll, no snap */
+/* Mobile: full-viewport slides — see mobile-chapter-viewport.css */
 @media (max-width: 767px) {
-  [data-section-id='hardware'] .portfolio-chapter-slot--fill,
-  .hardware-slideshow.portfolio-chapter-slot--fill {
-    height: auto;
-    min-height: 0;
-    scroll-snap-align: none;
-    scroll-snap-stop: normal;
-  }
-
   [data-section-id='hardware'] .portfolio-chapter-slot--fill .portfolio-chapter-panel,
   .hardware-slideshow.portfolio-chapter-slot--fill .portfolio-chapter-panel {
     position: relative !important;
@@ -287,70 +279,15 @@
     left: auto !important;
     right: auto !important;
     width: 100% !important;
-    height: auto !important;
-    min-height: auto;
     overflow: visible;
     opacity: 1 !important;
     filter: none !important;
     pointer-events: auto;
   }
 
-  .hardware-slideshow .chapter-slide__viewport {
-    padding: 0;
-    align-items: stretch;
-    justify-content: flex-start;
-  }
-
-  .hardware-slideshow .chapter-slide__inner {
-    flex-direction: column;
-    align-items: stretch;
-    justify-content: flex-start;
-    gap: clamp(20px, 5vw, 32px);
-    height: auto !important;
-    max-height: none !important;
-  }
-
-  .hardware-slideshow .chapter-slide__stage,
-  .hardware-slideshow.chapter-slide--touch-2 .chapter-slide__stage {
-    order: 1;
-    flex: none;
-    width: 100%;
-    max-width: 100%;
-    min-width: 0;
-    min-height: 0;
-    margin-inline: 0;
-  }
-
-  .hardware-slideshow .chapter-slide__copy,
-  .hardware-slideshow.chapter-slide--touch-2 .chapter-slide__copy {
-    order: 2;
-    flex: none;
-    width: 100%;
-    max-width: none;
-    height: auto;
-    max-height: none;
-    overflow: visible;
-    padding-inline: 0;
-    box-sizing: border-box;
-  }
-
   .hardware-slideshow .chapter-slide__copy .chapter-copy-scroller {
     flex: none;
     overflow: visible;
     max-height: none;
-  }
-
-  .hardware-slideshow.case-study-overview .portfolio-chapter-panel {
-    padding-inline: 0;
-    padding-top: 24px;
-  }
-
-  .hardware-slideshow.case-study-overview .case-study-overview__inner {
-    padding-inline: 0;
-  }
-
-  .hardware-slideshow.section-lessons .chapter-slide__viewport {
-    padding-inline: 0;
-    padding-top: 16px;
   }
 }

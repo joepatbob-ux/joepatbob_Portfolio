@@ -82,15 +82,4 @@
   max-width: 100%;
 }
 
-@media (max-width: 767px) {
-  .flow-chapter-slide .chapter-slide__viewport {
-    padding-block: clamp(28px, 4vh, 48px) clamp(24px, 4vh, 32px);
-    padding-inline: 0;
-  }
-
-  .hardware-slideshow.flow-chapter-slide .chapter-slide__inner {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 24px;
-  }
-}
+/* Mobile viewport layout — mobile-chapter-viewport.css */

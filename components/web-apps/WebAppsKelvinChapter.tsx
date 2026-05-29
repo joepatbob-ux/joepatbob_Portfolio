@@ -1,6 +1,7 @@
 'use client'
 
 import { FlowChapterSlideLayout } from '@/components/chapter-slide/FlowChapterSlideLayout'
+import { MobileLearnMore } from '@/components/mobile/MobileLearnMore'
 import { KelvinQuadScratch } from '@/components/web-apps/KelvinQuadScratch'
 import {
   MobileProse,
@@ -10,7 +11,6 @@ import {
   WebAppsNdaNote,
   WebAppsNumberedList,
   WebAppsProductGrid,
-  WebAppsSectionHeader,
   WebAppsThesisClose,
 } from '@/components/web-apps/WebAppsSectionParts'
 import {
@@ -30,12 +30,11 @@ export function WebAppsKelvinChapter() {
       className="mobile-chapter-slot web-apps-chapter-slot"
       stage={<KelvinQuadScratch />}
       copy={
-        <>
-          <WebAppsSectionHeader
-            headline={WEB_APPS_KELVIN.headline}
-            subhead={WEB_APPS_KELVIN.subhead}
-            meta={WEB_APPS_KELVIN.meta}
-          />
+        <MobileLearnMore
+          headline={WEB_APPS_KELVIN.headline}
+          subhead={WEB_APPS_KELVIN.subhead}
+          meta={WEB_APPS_KELVIN.meta}
+        >
           <MobileSubStory heading={s01.heading}>
             <MobileProse paragraphs={s01Intro} />
             <WebAppsProductGrid products={s01.products} />
@@ -63,7 +62,7 @@ export function WebAppsKelvinChapter() {
             <MobileProse paragraphs={splitParagraphs(s04.body)} />
             <WebAppsThesisClose>{s04.thesisClose}</WebAppsThesisClose>
           </MobileSubStory>
-        </>
+        </MobileLearnMore>
       }
     />
   )

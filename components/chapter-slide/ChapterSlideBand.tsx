@@ -2,6 +2,7 @@
 
 import { ChapterCopyScroller } from '@/components/ChapterCopyScroller'
 import { ChapterViewport } from '@/components/ChapterViewport'
+import { useLayoutMobile } from '@/lib/hooks/useLayoutMobile'
 import { useCopyScrollActive } from '@/lib/useCopyScrollActive'
 import type { ReactNode } from 'react'
 
@@ -28,6 +29,7 @@ export function ChapterSlideBand({
   copy,
 }: Props) {
   const copyScrollActive = useCopyScrollActive(chapterId)
+  const isMobile = useLayoutMobile()
   const modClass = modifier ? `chapter-slide--${modifier}` : ''
   const isFlow = className?.includes('flow-chapter-slide') ?? false
 
@@ -53,13 +55,18 @@ export function ChapterSlideBand({
               'chapter-slide__copy',
               'chapter-copy',
               isFlow ? 'flow-chapter-slide__copy' : '',
+              isMobile ? 'chapter-slide__copy--mobile-teaser mobile-learn-more-copy' : '',
             ]
               .filter(Boolean)
               .join(' ')}
           >
-            <ChapterCopyScroller active={copyScrollActive}>
-              {copy}
-            </ChapterCopyScroller>
+            {isMobile ? (
+              copy
+            ) : (
+              <ChapterCopyScroller active={copyScrollActive}>
+                {copy}
+              </ChapterCopyScroller>
+            )}
           </div>
         </div>
       </div>

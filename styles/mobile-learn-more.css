@@ -1,0 +1,148 @@
+/* Mobile — stage + headline + Learn more sheet */
+
+.mobile-learn-more__teaser {
+  min-width: 0;
+}
+
+/* Sits where the accent rule normally appears (chapter + flow headers). */
+.mobile-learn-more__link {
+  display: inline-block;
+  margin: clamp(16px, 2vw, 22px) 0;
+  padding: 0;
+  border: none;
+  background: none;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 180ms ease;
+}
+
+.mobile-learn-more__link:hover,
+.mobile-learn-more__link:focus-visible {
+  outline: none;
+  color: var(--color-accent-hover);
+}
+
+.case-study-section-header--center .mobile-learn-more__link {
+  display: block;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.mobile-learn-more-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-mobile-learn-more, 112);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
+  background: rgba(18, 18, 18, 0.45);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.mobile-learn-more-sheet__panel {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-height: min(88dvh, 720px);
+  border-radius: 20px 20px 0 0;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  box-shadow: 0 -12px 48px rgba(0, 0, 0, 0.18);
+}
+
+.mobile-learn-more-sheet__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-shrink: 0;
+  padding: clamp(20px, 3vh, 24px) clamp(16px, 4vw, 24px) 12px;
+  border-bottom: 1px solid var(--color-rule);
+}
+
+.mobile-learn-more-sheet__title {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: clamp(20px, 4.5vw, 26px);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+  white-space: pre-line;
+}
+
+.mobile-learn-more-sheet__close {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-ink);
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.mobile-learn-more-sheet__close:hover,
+.mobile-learn-more-sheet__close:focus-visible {
+  outline: none;
+  background: var(--color-nav-pill-muted-accent-1);
+  box-shadow: 0 0 0 1px var(--color-nav-pill-outline);
+}
+
+.mobile-learn-more-sheet__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: clamp(16px, 2.5vh, 24px) clamp(16px, 4vw, 24px)
+    max(20px, env(safe-area-inset-bottom));
+}
+
+@media (min-width: 768px) {
+  .mobile-learn-more__link,
+  .mobile-learn-more-sheet {
+    display: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .hardware-slideshow .chapter-slide__copy--mobile-teaser {
+    flex: none;
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .hardware-slideshow .chapter-slide__copy--mobile-teaser .chapter-copy-scroller {
+    flex: none;
+    overflow: visible;
+    max-height: none;
+  }
+
+  .flow-chapter-slide__copy.mobile-learn-more-copy {
+    flex: none;
+    height: auto;
+    min-height: 0;
+    max-height: none;
+  }
+}

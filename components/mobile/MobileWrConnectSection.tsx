@@ -1,7 +1,8 @@
 'use client'
 
 import { FlowChapterSlideLayout } from '@/components/chapter-slide/FlowChapterSlideLayout'
-import { MobileProse, MobileSectionHeader, splitParagraphs } from '@/components/mobile/MobileSectionParts'
+import { MobileLearnMore } from '@/components/mobile/MobileLearnMore'
+import { MobileProse, splitParagraphs } from '@/components/mobile/MobileSectionParts'
 import { MOBILE_WR_CONNECT, mobileChapterId } from '@/lib/mobile/content'
 
 export function MobileWrConnectSection() {
@@ -15,11 +16,10 @@ export function MobileWrConnectSection() {
       className="mobile-chapter-slot mobile-chapter-slot--wr-connect"
       stage={<div className="flow-chapter-slide__stage--empty" aria-hidden />}
       copy={
-        <>
-          <MobileSectionHeader
-            headline={MOBILE_WR_CONNECT.headline}
-            meta={MOBILE_WR_CONNECT.meta}
-          />
+        <MobileLearnMore
+          headline={MOBILE_WR_CONNECT.headline}
+          meta={MOBILE_WR_CONNECT.meta}
+        >
           <MobileProse paragraphs={paragraphs} />
           <div className="mobile-phase-panels" role="list">
             {MOBILE_WR_CONNECT.phases.map((phase) => (
@@ -36,7 +36,7 @@ export function MobileWrConnectSection() {
           <aside className="mobile-award-callout">
             <p>{MOBILE_WR_CONNECT.award}</p>
           </aside>
-        </>
+        </MobileLearnMore>
       }
     />
   )

@@ -1,7 +1,7 @@
 'use client'
 
 import { ChapterSlideBand } from '@/components/chapter-slide/ChapterSlideBand'
-import { CaseStudySectionHeader } from '@/components/case-study/CaseStudySectionHeader'
+import { MobileLearnMore } from '@/components/mobile/MobileLearnMore'
 import { parseChapterBody } from '@/lib/chapter-slide/parseChapterBody'
 
 interface Props {
@@ -47,21 +47,22 @@ export function CaseStudyFlowOverview({
               : 'case-study-flow-overview__inner'
           }
         >
-          <CaseStudySectionHeader
+          <MobileLearnMore
             headline={headline}
             meta={meta}
             subhead={subhead}
             align={align}
-          />
-          {paragraphs.length > 0 ? (
-            <div className="mobile-prose case-study-flow-overview__prose">
-              {paragraphs.map((p, i) => (
-                <p key={i} className="mobile-prose__p">
-                  {p}
-                </p>
-              ))}
-            </div>
-          ) : null}
+          >
+            {paragraphs.length > 0 ? (
+              <div className="mobile-prose case-study-flow-overview__prose">
+                {paragraphs.map((p, i) => (
+                  <p key={i} className="mobile-prose__p">
+                    {p}
+                  </p>
+                ))}
+              </div>
+            ) : null}
+          </MobileLearnMore>
         </div>
       }
     />

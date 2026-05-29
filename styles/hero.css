@@ -43,6 +43,7 @@
 @media (max-width: 767px) {
   .hero-portrait {
     object-fit: cover;
+    object-position: center center;
   }
 }
 

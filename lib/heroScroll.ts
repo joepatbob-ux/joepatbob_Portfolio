@@ -2,17 +2,33 @@ import { easeChapterReveal } from '@/lib/chapterSlideshow'
 
 /** Hero bottom must pass this far above the viewport top before we leave the zone. */
 const HERO_LEAVE_BOTTOM_PX = -56
-/** Re-enter only when the hero spacer intrudes back into view by at least this much. */
-const HERO_ENTER_BOTTOM_PX = 8
+/** Scroll past hero height minus this before we leave (pairs with bottom threshold). */
+const HERO_LEAVE_SCROLL_TAIL_PX = 80
+/** Re-enter only near the top — wide gap vs leaveScrollY stops rail toggling mid-handoff. */
+const HERO_REENTER_SCROLL_TOP_PX = 96
+/** Min visible hero height (px) to re-enter — avoids 8px peek re-triggering the rail. */
+const HERO_REENTER_BOTTOM_MIN_PX = 120
 
 let heroZoneCommitted: boolean | null = null
+let lastResizeInnerH = 0
 
 export function resetHeroScrollZoneHysteresis(): void {
   heroZoneCommitted = null
 }
 
+function onViewportResize(): void {
+  if (typeof window === 'undefined') return
+  const innerH = window.innerHeight
+  const prevInnerH = lastResizeInnerH
+  const delta = Math.abs(innerH - prevInnerH)
+  lastResizeInnerH = innerH
+  if (prevInnerH > 0 && delta < 80) return
+  resetHeroScrollZoneHysteresis()
+}
+
 if (typeof window !== 'undefined') {
-  window.addEventListener('resize', resetHeroScrollZoneHysteresis, { passive: true })
+  lastResizeInnerH = window.innerHeight
+  window.addEventListener('resize', onViewportResize, { passive: true })
 }
 
 /**
@@ -33,15 +49,24 @@ export function isInHeroScrollZone(): boolean {
   }
 
   const bottom = hero.getBoundingClientRect().bottom
+  const scrollY = window.scrollY
+  const heroH = hero.offsetHeight
+  const leaveScrollY = Math.max(0, heroH - HERO_LEAVE_SCROLL_TAIL_PX)
+  const reenterBottomPx = Math.max(
+    HERO_REENTER_BOTTOM_MIN_PX,
+    window.innerHeight * 0.18,
+  )
+
+  const shouldLeave =
+    bottom < HERO_LEAVE_BOTTOM_PX || scrollY > leaveScrollY
+  const shouldEnter =
+    bottom > reenterBottomPx && scrollY < HERO_REENTER_SCROLL_TOP_PX
 
   if (heroZoneCommitted === null) {
-    heroZoneCommitted = bottom > HERO_ENTER_BOTTOM_PX
-    return heroZoneCommitted
-  }
-
-  if (heroZoneCommitted) {
-    if (bottom < HERO_LEAVE_BOTTOM_PX) heroZoneCommitted = false
-  } else if (bottom > HERO_ENTER_BOTTOM_PX) {
+    heroZoneCommitted = !shouldLeave
+  } else if (heroZoneCommitted) {
+    if (shouldLeave) heroZoneCommitted = false
+  } else if (shouldEnter) {
     heroZoneCommitted = true
   }
 
