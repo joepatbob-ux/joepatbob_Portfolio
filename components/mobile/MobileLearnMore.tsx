@@ -22,7 +22,7 @@ export function MobileLearnMore({
   subhead,
   align = 'left',
   headerVariant = 'section',
-  triggerLabel = 'Learn more',
+  triggerLabel = 'More',
   children,
 }: Props) {
   const isMobile = useLayoutMobile()
@@ -30,10 +30,10 @@ export function MobileLearnMore({
 
   const accentRule = <div className="chapter-copy__rule" aria-hidden />
 
-  const learnMoreLink = (
+  const learnMorePill = (
     <button
       type="button"
-      className="mobile-learn-more__link"
+      className="mobile-learn-more__pill"
       aria-expanded={open}
       onClick={() => setOpen(true)}
     >
@@ -41,13 +41,13 @@ export function MobileLearnMore({
     </button>
   )
 
-  const ruleOrLink = isMobile ? learnMoreLink : accentRule
+  const ruleOrPill = isMobile ? learnMorePill : accentRule
 
   const header =
     headerVariant === 'chapter' ? (
       <>
         <h3 className="chapter-copy__headline">{headline}</h3>
-        {ruleOrLink}
+        {ruleOrPill}
       </>
     ) : (
       <CaseStudySectionHeader
@@ -55,7 +55,7 @@ export function MobileLearnMore({
         meta={meta}
         subhead={subhead}
         align={align}
-        ruleSlot={isMobile ? learnMoreLink : undefined}
+        ruleSlot={isMobile ? learnMorePill : undefined}
       />
     )
 
