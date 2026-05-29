@@ -249,6 +249,7 @@
   }
 }
 
+/* Narrow in-component width (non-mobile slideshow uses stacked layout) */
 @container verdant (max-width: 400px) {
   .verdant-interactive {
     --verdant-glyph-max-h: min(44dvh, 360px);
@@ -298,24 +299,97 @@
   }
 }
 
-/* Mobile hardware — full-width stage, inset keypad */
+/* Mobile — full-width keypad; glyph shrinks to fit viewport */
 @media (max-width: 767px) {
-  .hardware-slideshow.chapter-slide--verdant .verdant-interactive {
-    --verdant-glyph-max-h: min(44dvh, 340px);
-    --verdant-stage-w: 100%;
-    max-width: 100%;
-    padding-inline: 0;
-    box-sizing: border-box;
+  .chapter-slide--verdant .chapter-slide__stage,
+  .hardware-slideshow.chapter-slide--verdant .chapter-slide__stage {
+    align-items: stretch;
+    justify-content: center;
+    min-height: 0;
   }
 
-  .chapter-slide--verdant .verdant-interactive {
-    --verdant-glyph-max-h: min(44dvh, 340px);
+  .chapter-slide--verdant .verdant-interactive,
+  .hardware-slideshow.chapter-slide--verdant .verdant-interactive {
+    --verdant-max-w: 100%;
     --verdant-stage-w: 100%;
+    --verdant-gap: clamp(8px, 1.25vh, 12px);
+    --verdant-key-gap: clamp(4px, 1.1vw, 7px);
+    --verdant-key-size: min(42px, calc((100cqi - 9 * var(--verdant-key-gap)) / 10));
+    --verdant-key-font: clamp(10px, 2.8cqi, 13px);
+
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto;
+    grid-template-areas: 'glyph' 'keys';
+    gap: var(--verdant-gap);
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    max-height: min(52dvh, 460px);
+    min-height: 0;
+    margin-inline: 0;
+    padding-inline: 0;
+    box-sizing: border-box;
+    align-self: stretch;
   }
 
   .verdant-interactive__glyph-stage {
+    grid-area: glyph;
+    width: auto;
+    max-width: 100%;
+    height: 100%;
+    max-height: 100%;
+    min-height: 0;
+    margin-inline: auto;
+    align-self: end;
+    justify-self: center;
+    aspect-ratio: var(--verdant-aspect);
+  }
+
+  .verdant-keyboard {
+    grid-area: keys;
     width: 100%;
-    margin-inline: 0;
+    min-width: 0;
+  }
+
+  .verdant-keyboard__matrix {
+    display: grid;
+    grid-template-columns: repeat(10, minmax(0, 1fr));
+    justify-items: center;
+    align-items: center;
+    gap: var(--verdant-key-gap);
+    width: 100%;
+  }
+
+  .verdant-keyboard__key--char,
+  .verdant-keyboard__key--icon {
+    width: min(100%, var(--verdant-key-size));
+    height: auto;
+    aspect-ratio: 1;
+    min-width: 0;
+    max-width: min(100%, 44px);
+    min-height: 0;
+    max-height: none;
+  }
+
+  .verdant-keyboard__row--views {
+    margin-top: clamp(2px, 0.5vh, 4px);
+  }
+}
+
+@media (max-width: 767px) {
+  @container verdant (max-width: 400px) {
+    .verdant-interactive {
+      --verdant-key-size: min(38px, calc((100cqi - 9 * var(--verdant-key-gap)) / 10));
+      --verdant-key-font: clamp(9px, 2.6cqi, 12px);
+    }
+  }
+
+  @container verdant (max-width: 340px) {
+    .verdant-interactive {
+      --verdant-key-size: min(34px, calc((100cqi - 9 * var(--verdant-key-gap)) / 10));
+      --verdant-key-font: 10px;
+    }
   }
 }
 

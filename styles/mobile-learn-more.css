@@ -4,35 +4,40 @@
   min-width: 0;
 }
 
-/* Sits where the accent rule normally appears (chapter + flow headers). */
-.mobile-learn-more__link {
-  display: inline-block;
-  margin: clamp(16px, 2vw, 22px) 0;
-  padding: 0;
+/* Tight pill — sits where the accent rule normally appears */
+.mobile-learn-more__pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: clamp(14px, 2vw, 20px) 0 0;
+  padding: 5px 11px;
   border: none;
-  background: none;
+  border-radius: 9999px;
+  background: var(--color-nav-pill-muted-accent-1);
+  box-shadow: none;
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.04em;
+  line-height: 1.2;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
   color: var(--color-accent);
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.2em;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-  transition: color 180ms ease;
+  transition:
+    background 180ms ease,
+    box-shadow 180ms ease,
+    color 180ms ease;
 }
 
-.mobile-learn-more__link:hover,
-.mobile-learn-more__link:focus-visible {
+.mobile-learn-more__pill:hover,
+.mobile-learn-more__pill:focus-visible {
   outline: none;
   color: var(--color-accent-hover);
+  box-shadow: 0 0 0 1px var(--color-accent);
 }
 
-.case-study-section-header--center .mobile-learn-more__link {
-  display: block;
-  width: fit-content;
+.case-study-section-header--center .mobile-learn-more__pill {
   margin-left: auto;
   margin-right: auto;
 }
@@ -118,7 +123,7 @@
 }
 
 @media (min-width: 768px) {
-  .mobile-learn-more__link,
+  .mobile-learn-more__pill,
   .mobile-learn-more-sheet {
     display: none;
   }
