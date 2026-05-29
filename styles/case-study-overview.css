@@ -91,7 +91,5 @@
 @media (max-width: 767px) {
   .case-study-overview .portfolio-chapter-panel {
     padding-inline: 0;
-    padding-top: clamp(32px, 6vh, 56px);
-    padding-bottom: clamp(32px, 5vh, 64px);
   }
 }

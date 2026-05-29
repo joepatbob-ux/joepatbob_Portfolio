@@ -4,8 +4,12 @@
 .hero {
   position: relative;
   height: 100dvh;
+  height: 100svh;
   min-height: 100dvh;
+  min-height: 100svh;
+  min-height: -webkit-fill-available;
   max-height: 100dvh;
+  max-height: 100svh;
   background-color: var(--color-hero-canvas);
   /* Pull to viewport edges: sidebar is on .content-area, not padding — use pad-left on the left only */
   margin-left: calc(-1 * (var(--sidebar-width) + var(--content-pad-left, 0px)));
@@ -20,6 +24,8 @@
   /* Above fixed chapter panels (1–3) so portrait + canvas exit together */
   z-index: 4;
   height: 100dvh;
+  height: 100svh;
+  min-height: -webkit-fill-available;
   width: 100%;
   overflow: hidden;
   background-color: var(--color-hero-canvas);
