@@ -7,7 +7,8 @@
   min-height: 100dvh;
   max-height: 100dvh;
   background-color: var(--color-hero-canvas);
-  margin-left: calc(-1 * (var(--sidebar-width) + var(--content-pad-x)));
+  /* Pull to viewport edges: sidebar is on .content-area, not padding — use pad-left on the left only */
+  margin-left: calc(-1 * (var(--sidebar-width) + var(--content-pad-left, 0px)));
   margin-right: calc(-1 * var(--content-pad-x));
   width: 100vw;
   max-width: 100vw;

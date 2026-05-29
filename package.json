@@ -12,9 +12,11 @@
     "lint": "tsc --noEmit"
   },
   "dependencies": {
+    "@vercel/node": "^5.8.7",
     "react": "^18",
     "react-dom": "^18",
-    "react-scratchcard-v2": "^2.0.0"
+    "react-scratchcard-v2": "^2.0.0",
+    "resend": "^6.12.4"
   },
   "devDependencies": {
     "@types/node": "^20",

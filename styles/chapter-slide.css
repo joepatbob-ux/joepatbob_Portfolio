@@ -3,7 +3,7 @@
 
 .chapter-slide {
   --cs-copy-max-h: min(70dvh, 100%);
-  --cs-inner-max: min(1120px, 100%);
+  --cs-inner-max: min(var(--cs-band-max), 100%);
   --cs-section-gap: clamp(28px, 4vw, 56px);
 }
 
@@ -39,19 +39,19 @@
     justify-items: stretch;
   }
 
-  .portfolio-chapter-slot--fill:not(.mobile-chapter-slot) .chapter-slide__copy {
+  .portfolio-chapter-slot--fill.hardware-slideshow .chapter-slide__copy {
     max-height: var(--cs-copy-max-h);
     overflow: hidden;
   }
 
-  .portfolio-chapter-slot--fill:not(.mobile-chapter-slot)
+  .portfolio-chapter-slot--fill.hardware-slideshow
     .chapter-slide__copy
     .chapter-copy-scroller {
     flex: 1 1 auto;
     min-height: 0;
     max-height: var(--cs-copy-max-h);
     overflow-y: auto;
-    overscroll-behavior-y: auto;
+    overscroll-behavior-y: contain;
   }
 }
 
@@ -76,13 +76,6 @@
   grid-row: 1;
   min-width: 0;
   text-align: left;
-}
-
-/* Wide: larger inner cap; copy body still splits into two columns inside the 70% band */
-@media (min-width: 1200px) {
-  .chapter-slide {
-    --cs-inner-max: min(1280px, 100%);
-  }
 }
 
 .chapter-slide__stage .touch2-carousel,
@@ -132,18 +125,7 @@
   min-height: 0;
   max-height: var(--cs-copy-max-h);
   overflow-y: auto;
-  overscroll-behavior-y: auto;
-}
-
-/* Flow case studies: page scroll, no nested copy cage */
-.mobile-chapter-slot .chapter-slide__copy,
-.mobile-chapter-slot .chapter-slide__copy .chapter-copy-scroller {
-  max-height: none;
-  overflow: visible;
-}
-
-.mobile-chapter-slot .chapter-slide__copy .chapter-copy-scroller {
-  flex: none;
+  overscroll-behavior-y: contain;
 }
 
 .chapter-slide .chapter-copy__headline {
@@ -173,7 +155,7 @@
 }
 
 .chapter-slide__copy:not(.chapter-slide__copy--lessons) .chapter-copy__body {
-  max-width: clamp(40ch, 42vw, 70ch);
+  max-width: var(--cs-copy-measure-max);
   font-size: 14px;
   line-height: 1.65;
   margin: 0;
@@ -187,28 +169,46 @@
   }
 }
 
-/* Desktop+: horizontal padding comes from shell (--content-pad-x / --content-pad-left) */
+/* Desktop+: band capped and centered in content pane; shell supplies horizontal pad */
 @media (min-width: 1024px) {
   .chapter-slide__viewport {
     padding-left: 0;
     padding-right: 0;
     padding-top: 24px;
     padding-bottom: 24px;
+    justify-content: center;
   }
 
   .chapter-slide__inner {
-    max-width: none;
     width: 100%;
+    max-width: min(var(--cs-band-max), 100%);
+    margin-inline: auto;
   }
 
-  /* Desktop: keep stage component centered and responsive within stage column. */
+  .hardware-slideshow .chapter-slide__inner {
+    max-width: 100% !important;
+    width: 100%;
+    margin-inline: 0;
+  }
+
+  .hardware-slideshow .chapter-slide__viewport {
+    justify-content: flex-start;
+  }
+
+  .hardware-slideshow
+    .chapter-slide__copy:not(.chapter-slide__copy--lessons)
+    .chapter-copy__body {
+    max-width: 100%;
+  }
+
+  /* Desktop: stage artifact centered within fluid stage column */
   .chapter-slide:not(.hardware-slideshow) .chapter-slide__stage {
     display: flex;
     justify-content: center;
   }
 
   .chapter-slide:not(.hardware-slideshow) .chapter-slide__stage > * {
-    width: min(100%, clamp(280px, 34vw, 560px));
+    width: var(--cs-stage-artifact-w);
   }
 }
 

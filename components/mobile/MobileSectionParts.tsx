@@ -43,65 +43,28 @@ export function MobileLabelGrid({
   )
 }
 
-export function MobileSectionHeader({
-  eyebrow,
-  headline,
-  meta,
-}: {
-  eyebrow: string
-  headline: string
-  meta: readonly { label: string; value: string }[]
-}) {
-  return (
-    <header className="mobile-section-header">
-      <p className="mobile-section-header__eyebrow">{eyebrow}</p>
-      <h2 className="mobile-section-header__headline">
-        {headline.split('\n').map((line, i) => (
-          <span key={i} className="mobile-section-header__headline-line">
-            {line}
-          </span>
-        ))}
-      </h2>
-      <div className="mobile-section-header__rule" aria-hidden />
-      <MobileMetaRow items={meta} />
-    </header>
-  )
-}
+export { CaseStudySectionHeader as MobileSectionHeader } from '@/components/case-study/CaseStudySectionHeader'
 
-export function MobileSubStoryHeading({
-  number,
-  heading,
-}: {
-  number: string
-  heading: string
-}) {
+export function MobileSubStoryHeading({ heading }: { heading: string }) {
   return (
     <>
-      <h3 className="mobile-sub-story__heading">
-        <span className="mobile-sub-story__number">{number}</span>{' '}
-        {heading}
-      </h3>
+      <h3 className="mobile-sub-story__heading">{heading}</h3>
       <div className="mobile-sub-story__rule" aria-hidden />
     </>
   )
 }
 
 export function MobileSubStory({
-  number,
   heading,
   children,
 }: {
-  number: string
   heading: string
   children: ReactNode
 }) {
   return (
     <article className="mobile-sub-story">
-      <div className="mobile-sub-story__marker" aria-hidden>
-        <span className="mobile-sub-story__number">{number}</span>
-      </div>
       <div className="mobile-sub-story__body">
-        <MobileSubStoryHeading number={number} heading={heading} />
+        <MobileSubStoryHeading heading={heading} />
         {children}
       </div>
     </article>

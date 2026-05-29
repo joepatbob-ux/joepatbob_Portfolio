@@ -11,23 +11,16 @@ export function MobileWrConnectSection() {
   return (
     <FlowChapterSlideLayout
       chapterId={chapterId}
-      isLast={false}
       fillViewport
       className="mobile-chapter-slot mobile-chapter-slot--wr-connect"
       stage={<div className="flow-chapter-slide__stage--empty" aria-hidden />}
       copy={
         <>
           <MobileSectionHeader
-            eyebrow={MOBILE_WR_CONNECT.eyebrow}
             headline={MOBILE_WR_CONNECT.headline}
             meta={MOBILE_WR_CONNECT.meta}
           />
-          <MobileProse paragraphs={paragraphs.slice(0, 2)} />
-        </>
-      }
-      belowFold={
-        <>
-          <MobileProse paragraphs={paragraphs.slice(2)} />
+          <MobileProse paragraphs={paragraphs} />
           <div className="mobile-phase-panels" role="list">
             {MOBILE_WR_CONNECT.phases.map((phase) => (
               <div

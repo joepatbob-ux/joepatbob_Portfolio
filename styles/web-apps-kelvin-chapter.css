@@ -4,6 +4,7 @@
   max-width: min(1120px, 100%);
 }
 
+.web-apps-section-header .case-study-section-header__subhead,
 .web-apps-section-header__subhead {
   margin: clamp(12px, 2vh, 16px) 0 0;
   font-family: var(--font-body);

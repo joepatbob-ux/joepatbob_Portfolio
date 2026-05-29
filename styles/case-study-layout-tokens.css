@@ -1,0 +1,40 @@
+/* Case-study layout tokens — fluid 1fr / 2fr tracks with min/max on artifacts and band.
+   Figma breakpoints frame: orange sidebar | red stage | grey copy (~1∶2). */
+
+:root {
+  --cs-stage-min: 200px;
+  --cs-stage-max: 560px;
+  --cs-stage-artifact-w: min(
+    100%,
+    clamp(var(--cs-stage-min), 34vw, var(--cs-stage-max))
+  );
+
+  --cs-copy-measure-min: 28ch;
+  /* Copy column grows in flex band; ~2∶1 vs stage (Figma desktop reference) */
+  --cs-copy-column-max: min(96ch, calc(100vw - var(--sidebar-width, 280px) - var(--content-pad-x, 32px) - var(--content-pad-left, 0px) - var(--cs-stage-max) - var(--cs-split-gap, 20px) - 3rem));
+  --cs-copy-measure-max: min(96ch, 100%);
+
+  --cs-band-max-raw: calc(
+    var(--cs-stage-max) + var(--cs-split-gap, clamp(24px, 3.5vw, 56px)) +
+      var(--cs-copy-column-max)
+  );
+  --cs-band-max: var(--cs-band-max-raw);
+}
+
+@media (min-width: 768px) {
+  :root {
+    --cs-stage-col: minmax(min(var(--cs-stage-min), 100%), 1fr);
+    --cs-copy-col: minmax(min(var(--cs-copy-measure-min), 100%), 2fr);
+  }
+}
+
+@media (min-width: 2560px) {
+  :root {
+    --cs-stage-max: 640px;
+    --cs-band-viewport-cap: calc(
+      var(--site-frame-max, 1400px) - var(--sidebar-width, 280px) -
+        var(--content-pad-left, 40px) - var(--content-pad-x, 40px)
+    );
+    --cs-band-max: min(var(--cs-band-max-raw), var(--cs-band-viewport-cap));
+  }
+}

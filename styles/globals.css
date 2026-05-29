@@ -1,8 +1,10 @@
+@import './case-study-layout-tokens.css';
 @import './hero.css';
 @import './touch2-carousel.css';
 @import './case-study-overview.css';
 @import './case-study-content.css';
-@import './case-study-split.css';
+@import './case-study-section-header.css';
+@import './case-study-flow-overview.css';
 @import './mobile-chapter.css';
 @import './flow-chapter-slide.css';
 @import './web-apps-kelvin-chapter.css';
@@ -15,6 +17,7 @@
 @import './verdant-interactive.css';
 @import './sidebar-layout.css';
 @import './sidebar-mobile.css';
+@import './contact-dialog.css';
 
 @tailwind base;
 @tailwind components;
@@ -189,8 +192,8 @@
       --sidebar-pad-right: 20px;
       --content-pad-x: 32px;
       --content-pad-left: 0px;
-      --cs-stage-col: minmax(0, 1fr);
-      --cs-copy-col: minmax(0, 2fr);
+      --cs-stage-col: minmax(min(var(--cs-stage-min), 100%), 1fr);
+      --cs-copy-col: minmax(min(var(--cs-copy-measure-min), 100%), 2fr);
       --cs-split-gap: 20px;
       --cs-section-gap: 20px;
       --gutter: 72px;
@@ -296,8 +299,11 @@
   justify-content: center;
   min-width: 0;
   padding: 0 14px;
+  border: none;
   border-radius: calc(var(--contact-radius) - 4px);
   background: transparent;
+  cursor: pointer;
+  font: inherit;
   font-family: var(--font-mono), ui-monospace, monospace;
   font-weight: 700;
   font-size: 11px;
@@ -1169,7 +1175,8 @@ html {
   will-change: auto;
 }
 
-.portfolio-chapter-slot--fill .portfolio-chapter-panel {
+/* In-flow chapters only — slideshow shells override at 768px+ below */
+.portfolio-chapter-slot--fill:not(.hardware-slideshow) .portfolio-chapter-panel {
   position: relative !important;
   top: auto !important;
   left: auto !important;
@@ -1182,41 +1189,35 @@ html {
   z-index: auto !important;
 }
 
-.mobile-chapter-slot.portfolio-chapter-slot--fill .portfolio-chapter-panel {
-  display: flex;
-  flex-direction: column;
-}
-
-/* Viewport snap slideshow — tablet/desktop (Hardware, etc.; not flow chapters) */
+/* Viewport snap slideshow — tablet/desktop (Hardware + flow slideshow chapters) */
 @media (min-width: 768px) {
   html {
     scroll-snap-type: y proximity;
-    scroll-behavior: smooth;
+    scroll-behavior: auto;
   }
 
-  /* Snap: hero, hardware slides, and first in-flow anchor per case study only */
+  /* Snap: hero, slideshow chapters, EIB intro */
   #hero,
-  .portfolio-chapter-slot--fill:not(.mobile-chapter-slot),
-  .mobile-chapter-slot--sensi.portfolio-chapter-slot--fill,
+  .portfolio-chapter-slot--fill.hardware-slideshow,
   .eib-chapter-intro-slot.portfolio-chapter-slot--fill {
     scroll-snap-align: start;
     scroll-snap-stop: normal;
   }
 
   #hero,
-  .portfolio-chapter-slot--fill:not(.mobile-chapter-slot) {
+  .portfolio-chapter-slot--fill.hardware-slideshow {
     height: 100vh;
     height: 100dvh;
     position: relative;
   }
 
-  .portfolio-chapter-slot--fill:not(.mobile-chapter-slot) .portfolio-chapter-panel {
-    position: fixed;
-    top: 0;
-    left: calc(var(--sidebar-width) + var(--content-pad-left, 0px));
-    right: var(--content-pad-x);
-    width: auto;
-    height: 100dvh;
+  .portfolio-chapter-slot--fill.hardware-slideshow .portfolio-chapter-panel {
+    position: fixed !important;
+    top: 0 !important;
+    left: calc(var(--sidebar-width) + var(--content-pad-left, 0px)) !important;
+    right: var(--content-pad-x) !important;
+    width: auto !important;
+    height: 100dvh !important;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -1228,30 +1229,30 @@ html {
   }
 
   /* Long copy scrolls inside the slide before snap advances the page */
-  .portfolio-chapter-slot--fill:not(.mobile-chapter-slot) .chapter-slide__viewport {
+  .portfolio-chapter-slot--fill.hardware-slideshow .chapter-slide__viewport {
     flex: 1 1 auto;
     min-height: 0;
     max-height: 100%;
     overflow: hidden;
   }
 
-  .portfolio-chapter-slot--fill:not(.mobile-chapter-slot) .chapter-slide__inner {
+  .portfolio-chapter-slot--fill.hardware-slideshow .chapter-slide__inner {
     max-height: min(86dvh, calc(100dvh - 3rem));
   }
 
-  .portfolio-chapter-slot--fill:not(.mobile-chapter-slot) .chapter-slide__copy {
+  .portfolio-chapter-slot--fill.hardware-slideshow .chapter-slide__copy {
     min-height: 0;
     max-height: min(72dvh, calc(100dvh - 5rem));
     overflow: hidden;
   }
 
-  .portfolio-chapter-slot--fill:not(.mobile-chapter-slot) .chapter-copy-scroller {
+  .portfolio-chapter-slot--fill.hardware-slideshow .chapter-copy-scroller {
     flex: 1 1 auto;
     min-height: 0;
-    max-height: min(70dvh, calc(100dvh - 7rem));
+    max-height: min(78dvh, calc(100dvh - 5rem));
     overflow-x: hidden;
     overflow-y: auto;
-    overscroll-behavior-y: auto;
+    overscroll-behavior-y: contain;
     -webkit-overflow-scrolling: touch;
   }
 
@@ -1338,7 +1339,7 @@ html {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  overscroll-behavior-y: auto;
+  overscroll-behavior-y: contain;
   -webkit-overflow-scrolling: touch;
   scrollbar-gutter: stable;
   outline: none;

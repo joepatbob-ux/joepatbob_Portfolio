@@ -10,7 +10,12 @@ const LESSONS_CHAPTER = { id: 'lessons', label: 'Lessons' } as const
 
 function sectionToNav(section: Section): NavSection {
   const chapters: NavSection['chapters'] = []
-  if (section.id === 'hardware' || section.id === 'everything-else') {
+  if (
+    section.id === 'hardware' ||
+    section.id === 'everything-else' ||
+    section.id === 'mobile' ||
+    section.id === 'web-apps'
+  ) {
     chapters.push({ id: 'overview', label: 'Overview' })
   }
   for (const ch of section.chapters) {

@@ -12,13 +12,10 @@ interface Props {
   chapterId: string
   isLast: boolean
   stage: ReactNode
-  /** BEM modifier, e.g. touch-2, eim, full-width */
   modifier?: string
   stageId?: string
   stageAriaLabel?: string
-  /** DOM order: stage before copy (default) or copy before stage. */
   copyFirst?: boolean
-  /** Sensi Lite dot cursor while hovering the stage. */
   interactiveCursor?: boolean
 }
 
@@ -67,17 +64,12 @@ export function ChapterSlideLayout({
   )
 
   const modClass = modifier ? `chapter-slide--${modifier}` : ''
-  const hardwareSlideshow = chapterId.startsWith('hardware-')
 
   return (
     <ChapterViewport
       chapterId={chapterId}
       isLast={isLast}
-      className={[
-        'chapter-slide',
-        modClass,
-        hardwareSlideshow ? 'hardware-slideshow' : '',
-      ]
+      className={['chapter-slide', modClass, 'hardware-slideshow']
         .filter(Boolean)
         .join(' ')}
       fillViewport

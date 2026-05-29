@@ -3,6 +3,10 @@
   padding-top: 2rem;
 }
 
+.flow-chapter-slide.hardware-slideshow .eib-chapter-intro {
+  max-width: 100%;
+}
+
 .eib-chapter-intro__eyebrow {
   font-family: var(--font-mono);
   font-size: 11px;
@@ -107,12 +111,14 @@
   margin: 0;
 }
 
-.eib-practice-close__cta a {
+.eib-practice-close__cta a,
+.eib-practice-close__email {
   color: var(--color-accent);
   text-decoration: none;
 }
 
-.eib-practice-close__cta a:hover {
+.eib-practice-close__cta a:hover,
+.eib-practice-close__email:hover {
   text-decoration: underline;
 }
 

@@ -2,6 +2,7 @@
 
 import { FlowChapterSlideLayout } from '@/components/chapter-slide/FlowChapterSlideLayout'
 import { StickerPile } from '@/components/StickerPile'
+import { CaseStudySectionHeader } from '@/components/case-study/CaseStudySectionHeader'
 import {
   EibPrinciplesList,
   EibSubSectionIntro,
@@ -23,6 +24,7 @@ export function EibConvictionSection() {
       stage={<StickerPile />}
       copy={
         <>
+          <CaseStudySectionHeader headline={EIB_CONVICTION.headline} />
           <EibSubSectionIntro>
             {splitParagraphs(EIB_CONVICTION.intro).map((p, i) => (
               <p key={i}>{p}</p>

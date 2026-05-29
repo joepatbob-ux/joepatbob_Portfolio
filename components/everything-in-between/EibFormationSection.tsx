@@ -1,5 +1,6 @@
 'use client'
 
+import { CaseStudySectionHeader } from '@/components/case-study/CaseStudySectionHeader'
 import { FlowChapterSlideLayout } from '@/components/chapter-slide/FlowChapterSlideLayout'
 import { FormationLegoBoard } from '@/components/formation/FormationLegoBoard'
 import {
@@ -29,6 +30,7 @@ export function EibFormationSection() {
       stage={<FormationLegoBoard />}
       copy={
         <>
+          <CaseStudySectionHeader headline={EIB_FORMATION.headline} />
           <EibSubSectionIntro>
             {splitParagraphs(EIB_FORMATION.intro).map((p, i) => (
               <p key={i}>{p}</p>

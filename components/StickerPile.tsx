@@ -18,7 +18,7 @@ const CONVICTION_CHAPTER_ID = eibChapterId('conviction')
 
 export function StickerPile() {
   const { deck, deckReady, activeDrag, beginDragFromPile } = useStickers()
-  const { reveals } = useChapterNav()
+  const { reveals, activeSlideId } = useChapterNav()
   const rotationsRef = useRef<Map<string, number>>(new Map())
   const anchorRef = useRef<HTMLDivElement>(null)
   const anchorRect = useAnchorViewportRect(anchorRef)
@@ -49,7 +49,8 @@ export function StickerPile() {
 
   const pileSize = STICKER_SIZE_PILE + 48
   const chapterReveal = reveals[CONVICTION_CHAPTER_ID] ?? 0
-  const pileVisible = chapterReveal > 0.08
+  const pileVisible =
+    activeSlideId === CONVICTION_CHAPTER_ID && chapterReveal > 0.08
 
   const pileStack = (
     <div
@@ -145,7 +146,15 @@ export function StickerPile() {
     )
 
   return (
-    <div className="sticker-pile-wrap">
+    <div
+      className="sticker-pile-wrap"
+      aria-hidden={!pileVisible}
+      style={{
+        opacity: pileVisible ? 1 : 0,
+        visibility: pileVisible ? 'visible' : 'hidden',
+        pointerEvents: pileVisible ? undefined : 'none',
+      }}
+    >
       <p className="sticker-pile__label">Launch swag — grab one</p>
       <p className="sticker-pile__hint">
         Random stack — grab from the top down, one at a time. Tap a placed sticker to

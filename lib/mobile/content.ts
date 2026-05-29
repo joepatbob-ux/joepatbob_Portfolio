@@ -13,7 +13,6 @@ export function mobileChapterId(sectionId: MobileSectionId): string {
 }
 
 export const MOBILE_SENSI = {
-  eyebrow: 'Case Study — Mobile',
   headline: "Don't just redesign.\nFix the foundation.",
   meta: [
     { label: 'Role', value: 'Principal Product Designer' },
@@ -30,7 +29,6 @@ The first phase was a ground-up redesign of the core experience: simplified ther
 But shipping the redesign was the easy part. Keeping it good over time — that's the harder problem. The platform migrations to SwiftUI on iOS and Material Expressive on Android were the opportunity to actually fix the foundation. This isn't a big-bang rewrite. The strategy is screen-by-screen: when a new feature touches a screen, that screen gets migrated. Two birds, one stone, every time.`,
   subStories: [
     {
-      number: '01',
       heading: 'When a design decision breaks three things at once.',
       body: `The legacy app used full-screen color to communicate HVAC mode. Orange for heat, blue for cool, neutral for passive. The intent was right: mode state is important information, and making it ambient rather than buried in a label is good instinct.
 
@@ -56,12 +54,10 @@ The solution: move the color to the number. Instead of the background adopting t
         afterSrc: '/images/mobile-android-v1-dark-orange-number.png',
         beforeAlt: 'Legacy full-bleed orange heat mode screen',
         afterAlt: 'Refined UI with mode color on the temperature number',
-        caption:
-          'Drag to compare — full-bleed mode color vs. temperature-number color',
+        caption: 'Drag — orange full-bleed vs. dark mode with color on the number',
       },
     },
     {
-      number: '02',
       heading: "Removing a button that was doing someone else's job.",
       body: `The installation flow is one of the highest-stakes experiences in the app. A homeowner selecting the wrong wires in the wirepicker means the app infers the wrong equipment configuration. Getting it wrong has real consequences.
 
@@ -79,7 +75,6 @@ App Store reviewers picked up on the install experience without prompting.`,
         'Wirepicker before and after — removing one button clarified the entire screen hierarchy',
     },
     {
-      number: '03',
       heading: 'What ongoing modernization actually looks like.',
       body: `The app is better than it was, and it keeps getting better. Not because of a single launch, but because the strategy creates steady compounding improvement over time.
 
@@ -92,7 +87,6 @@ When a dark mode rendering issue surfaced post-launch in the schedules view, it 
 } as const
 
 export const MOBILE_SPOTLIGHT = {
-  eyebrow: 'Feature — Mobile',
   headline: "A content surface that doesn't feel like an ad.",
   meta: [
     { label: 'Feature', value: 'Spotlight' },
@@ -130,7 +124,6 @@ Energy program enrollment increased measurably after launch. App store ratings h
 } as const
 
 export const MOBILE_WR_CONNECT = {
-  eyebrow: 'Case Study — Mobile · Greenfield',
   headline: 'Greenfield design for a high-stakes technical audience.',
   meta: [
     { label: 'Product', value: 'WR Connect' },

@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
+import { CaseStudySectionHeader } from '@/components/case-study/CaseStudySectionHeader'
 import {
   MobileLabelGrid,
-  MobileMetaRow,
   MobileProse,
   MobileSubStory,
   splitParagraphs,
@@ -10,30 +10,21 @@ import {
 export { splitParagraphs, MobileProse, MobileSubStory, MobileLabelGrid }
 
 export function WebAppsSectionHeader({
-  eyebrow,
   headline,
   subhead,
   meta,
 }: {
-  eyebrow: string
   headline: string
   subhead: string
   meta: readonly { label: string; value: string }[]
 }) {
   return (
-    <header className="mobile-section-header web-apps-section-header">
-      <p className="mobile-section-header__eyebrow">{eyebrow}</p>
-      <h2 className="mobile-section-header__headline">
-        {headline.split('\n').map((line, i) => (
-          <span key={i} className="mobile-section-header__headline-line">
-            {line}
-          </span>
-        ))}
-      </h2>
-      <p className="web-apps-section-header__subhead">{subhead}</p>
-      <div className="mobile-section-header__rule" aria-hidden />
-      <MobileMetaRow items={meta} />
-    </header>
+    <CaseStudySectionHeader
+      className="web-apps-section-header"
+      headline={headline}
+      subhead={subhead}
+      meta={meta}
+    />
   )
 }
 

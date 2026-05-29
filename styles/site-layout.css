@@ -59,8 +59,8 @@ html.past-hero-scroll:not(.in-hero-scroll) .sidebar-shell--fixed {
     --sidebar-pad-right: 20px;
     --content-pad-left: 40px;
     --content-pad-x: 40px;
-    --cs-stage-col: minmax(0, 1fr);
-    --cs-copy-col: minmax(0, 2fr);
+    --cs-stage-col: minmax(min(var(--cs-stage-min), 100%), 1fr);
+    --cs-copy-col: minmax(min(var(--cs-copy-measure-min), 100%), 2fr);
     --cs-split-gap: 80px;
     --cs-section-gap: 80px;
   }

@@ -1,6 +1,7 @@
 import './vite-font.css'
 import '@/styles/globals.css'
 import { CaseStudy } from '@/components/CaseStudy'
+import { ContactFormProvider } from '@/components/ContactFormProvider'
 import { ChapterNavProvider } from '@/components/ChapterNavProvider'
 import { Hero } from '@/components/Hero'
 import { SidebarNav } from '@/components/SidebarNav'
@@ -16,8 +17,9 @@ export default function App() {
   return (
     <div className="vite-font-mono">
       <ThemeProvider>
-        <StickerProvider>
-          <ChapterNavProvider>
+        <ContactFormProvider>
+          <StickerProvider>
+            <ChapterNavProvider>
             <div className="site-frame">
               <SidebarNav />
               <main className="content-area">
@@ -32,8 +34,9 @@ export default function App() {
               </main>
             </div>
             <StickerLayer />
-          </ChapterNavProvider>
-        </StickerProvider>
+            </ChapterNavProvider>
+          </StickerProvider>
+        </ContactFormProvider>
       </ThemeProvider>
     </div>
   )

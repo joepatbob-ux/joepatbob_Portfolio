@@ -76,14 +76,15 @@ export function CaseStudy({ section, sectionId }: Props) {
         ))
       )}
 
-      {useCustomChapter || !section.lessonTitle?.trim() ? null : (
+      {section.lessonTitle?.trim() &&
+      (isMobileSection || !useCustomChapter) ? (
         <SectionLessons
           sectionId={sectionId}
           lessonTitle={section.lessonTitle}
           lessonBody={section.lessonBody}
           isLast={!section.closingQuote}
         />
-      )}
+      ) : null}
 
       {section.closingQuote ? (
         <ChapterViewport
