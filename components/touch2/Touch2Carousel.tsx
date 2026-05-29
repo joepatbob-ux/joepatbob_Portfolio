@@ -186,7 +186,7 @@ function Touch2CarouselInner({
               .join(' ')}
             aria-hidden={i !== index}
           >
-                        <img
+            <img
               src={slide.src}
               alt={i === index ? slide.alt : ''}
               className="touch2-carousel__img"

@@ -2,6 +2,9 @@
 
 import { ChapterViewport } from '@/components/ChapterViewport'
 import { ChapterSlideCopy } from '@/components/chapter-slide/ChapterSlideCopy'
+import { MobileLearnMore } from '@/components/mobile/MobileLearnMore'
+import { parseChapterBody } from '@/lib/chapter-slide/parseChapterBody'
+import { useLayoutMobile } from '@/lib/hooks/useLayoutMobile'
 import { useCopyScrollActive } from '@/lib/useCopyScrollActive'
 import type { ReactNode } from 'react'
 
@@ -22,6 +25,30 @@ export function SectionLessons({
 }: Props) {
   const chapterId = `${sectionId}-lessons`
   const copyScrollActive = useCopyScrollActive(chapterId)
+  const isMobile = useLayoutMobile()
+  const bodyParagraphs = parseChapterBody(lessonBody)
+
+  const lessonsCopy = isMobile ? (
+    <div className="section-lessons__copy chapter-slide__copy chapter-slide__copy--lessons chapter-slide__copy--mobile-teaser mobile-learn-more-copy">
+      <MobileLearnMore headline={lessonTitle} headerVariant="chapter">
+        <div className="chapter-slide__body">
+          {bodyParagraphs.map((paragraph, index) => (
+            <p key={index} className="chapter-copy__body">
+              {paragraph}
+            </p>
+          ))}
+        </div>
+      </MobileLearnMore>
+    </div>
+  ) : (
+    <ChapterSlideCopy
+      active={copyScrollActive}
+      headline={lessonTitle}
+      body={lessonBody}
+      layout="lessons"
+      className="section-lessons__copy chapter-slide__copy"
+    />
+  )
 
   return (
     <ChapterViewport
@@ -37,23 +64,9 @@ export function SectionLessons({
     >
       {children}
       {sectionId === 'hardware' ? (
-        <div className="chapter-slide__viewport">
-          <ChapterSlideCopy
-            active={copyScrollActive}
-            headline={lessonTitle}
-            body={lessonBody}
-            layout="lessons"
-            className="section-lessons__copy chapter-slide__copy"
-          />
-        </div>
+        <div className="chapter-slide__viewport">{lessonsCopy}</div>
       ) : (
-        <ChapterSlideCopy
-          active={copyScrollActive}
-          headline={lessonTitle}
-          body={lessonBody}
-          layout="lessons"
-          className="section-lessons__copy"
-        />
+        lessonsCopy
       )}
     </ChapterViewport>
   )

@@ -445,7 +445,7 @@ export function SidebarNav() {
         if (mobileInHero) {
           applyMobileHeroScroll(y)
         } else {
-          resetSidebarShellFade(mobileHeroRef.current)
+          hideSidebarShell(mobileHeroRef.current)
         }
       }
       return
@@ -498,7 +498,7 @@ export function SidebarNav() {
       if (inHero && !mobileDrawerOpen) {
         applyMobileHeroScroll(y)
       } else {
-        resetSidebarShellFade(mobileHeroRef.current)
+        hideSidebarShell(mobileHeroRef.current)
       }
 
       if (!inHero && !overlayOpenRef.current) applyScrollSpy()

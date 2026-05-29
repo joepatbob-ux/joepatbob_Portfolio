@@ -2,7 +2,7 @@
 
 import { FlowChapterSlideLayout } from '@/components/chapter-slide/FlowChapterSlideLayout'
 import { StickerPile } from '@/components/StickerPile'
-import { CaseStudySectionHeader } from '@/components/case-study/CaseStudySectionHeader'
+import { MobileLearnMore } from '@/components/mobile/MobileLearnMore'
 import {
   EibPrinciplesList,
   EibSubSectionIntro,
@@ -23,15 +23,14 @@ export function EibConvictionSection() {
       className="mobile-chapter-slot eib-section-slot eib-section-slot--conviction"
       stage={<StickerPile />}
       copy={
-        <>
-          <CaseStudySectionHeader headline={EIB_CONVICTION.headline} />
+        <MobileLearnMore headline={EIB_CONVICTION.headline}>
           <EibSubSectionIntro>
             {splitParagraphs(EIB_CONVICTION.intro).map((p, i) => (
               <p key={i}>{p}</p>
             ))}
           </EibSubSectionIntro>
           <EibPrinciplesList items={EIB_CONVICTION.principles} />
-        </>
+        </MobileLearnMore>
       }
     />
   )

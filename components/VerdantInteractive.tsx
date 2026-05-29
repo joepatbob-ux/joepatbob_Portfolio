@@ -30,11 +30,19 @@ export function VerdantInteractive({ isActive = true }: Props) {
   const previewKind =
     selection.kind === 'character' ? 'segments' : selection.kind
 
+  const stageLabel =
+    selection.kind === 'character'
+      ? `Character ${selection.code}`
+      : selection.kind === 'sketch'
+        ? 'Sketch'
+        : 'Board'
+
   return (
     <div className="verdant-interactive">
       <div
         className="verdant-interactive__glyph-stage"
         aria-live="polite"
+        aria-label={stageLabel}
         data-preview={previewKind}
       >
         {selection.kind === 'character' ? (

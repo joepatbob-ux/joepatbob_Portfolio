@@ -1,7 +1,7 @@
 'use client'
 
-import { CaseStudySectionHeader } from '@/components/case-study/CaseStudySectionHeader'
 import { FlowChapterSlideLayout } from '@/components/chapter-slide/FlowChapterSlideLayout'
+import { MobileLearnMore } from '@/components/mobile/MobileLearnMore'
 import { FormationLegoBoard } from '@/components/formation/FormationLegoBoard'
 import {
   EibPatentRow,
@@ -29,15 +29,14 @@ export function EibFormationSection() {
       className="mobile-chapter-slot eib-section-slot eib-section-slot--formation flow-chapter-slide--formation"
       stage={<FormationLegoBoard />}
       copy={
-        <>
-          <CaseStudySectionHeader headline={EIB_FORMATION.headline} />
+        <MobileLearnMore headline={EIB_FORMATION.headline}>
           <EibSubSectionIntro>
             {splitParagraphs(EIB_FORMATION.intro).map((p, i) => (
               <p key={i}>{p}</p>
             ))}
           </EibSubSectionIntro>
           <EibPatentRow patents={patents} />
-        </>
+        </MobileLearnMore>
       }
     />
   )

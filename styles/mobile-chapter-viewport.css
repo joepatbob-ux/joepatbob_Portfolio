@@ -1,0 +1,143 @@
+/* Mobile — each chapter page fills the viewport, centered with gutter padding */
+
+@media (max-width: 767px) {
+  #hero,
+  .portfolio-chapter-slot--fill.hardware-slideshow {
+    scroll-snap-align: start;
+    scroll-snap-stop: normal;
+  }
+
+  .portfolio-chapter-slot--fill.hardware-slideshow {
+    min-height: 100dvh;
+    min-height: 100svh;
+    box-sizing: border-box;
+  }
+
+  /* First slide in a section sits below article top inset for the fixed rail */
+  article[data-section-id]
+    > .portfolio-chapter-slot--fill.hardware-slideshow:first-child {
+    min-height: calc(100dvh - var(--mobile-content-top-inset, 52px));
+    min-height: calc(100svh - var(--mobile-content-top-inset, 52px));
+  }
+
+  .portfolio-chapter-slot--fill.hardware-slideshow .portfolio-chapter-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100dvh;
+    min-height: 100svh;
+    box-sizing: border-box;
+    padding: clamp(20px, 4vh, 32px) var(--content-pad-x, 16px);
+    padding-bottom: max(clamp(20px, 4vh, 32px), env(safe-area-inset-bottom, 0px));
+  }
+
+  article[data-section-id]
+    > .portfolio-chapter-slot--fill.hardware-slideshow:first-child
+    .portfolio-chapter-panel {
+    min-height: calc(100dvh - var(--mobile-content-top-inset, 52px));
+    min-height: calc(100svh - var(--mobile-content-top-inset, 52px));
+  }
+
+  .hardware-slideshow .chapter-slide__viewport {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 100%;
+    min-height: 0;
+    padding: 0;
+  }
+
+  .hardware-slideshow .chapter-slide__inner {
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(20px, 3vh, 28px);
+    width: 100%;
+    max-width: min(440px, 100%);
+    margin-inline: auto;
+    height: auto !important;
+    max-height: none !important;
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
+  .hardware-slideshow .chapter-slide__stage {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 100%;
+    flex: 1 1 auto;
+    min-height: min(38dvh, 320px);
+    max-height: min(56dvh, 480px);
+    margin-inline: 0;
+  }
+
+  .hardware-slideshow .chapter-slide__stage > * {
+    margin-inline: auto;
+  }
+
+  .hardware-slideshow .chapter-slide__copy--mobile-teaser,
+  .hardware-slideshow .flow-chapter-slide__copy.mobile-learn-more-copy {
+    flex: none;
+    width: 100%;
+    max-width: 100%;
+    text-align: center;
+  }
+
+  .hardware-slideshow .mobile-learn-more {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+
+  .hardware-slideshow .mobile-learn-more__teaser {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+
+  .hardware-slideshow .mobile-learn-more__teaser .case-study-section-header,
+  .hardware-slideshow .mobile-learn-more__teaser .chapter-copy__headline {
+    text-align: center;
+  }
+
+  .hardware-slideshow .mobile-learn-more__teaser .case-study-section-header__headline-line {
+    margin-inline: auto;
+  }
+
+  .hardware-slideshow .mobile-learn-more__teaser .mobile-learn-more__link {
+    margin-inline: auto;
+  }
+
+  .hardware-slideshow .mobile-learn-more__teaser .mobile-meta-row {
+    justify-content: center;
+    max-width: 100%;
+  }
+
+  /* Overview slides (optional empty stage) */
+  .hardware-slideshow.case-study-flow-overview .chapter-slide__inner {
+    justify-content: center;
+  }
+
+  .hardware-slideshow.case-study-flow-overview .flow-chapter-slide__stage--empty {
+    display: none;
+  }
+
+  .hardware-slideshow.case-study-flow-overview
+    .case-study-flow-overview__inner--center
+    .mobile-learn-more__teaser {
+    align-items: center;
+  }
+
+  .hardware-slideshow.section-lessons .chapter-slide__viewport {
+    padding: 0;
+  }
+}
