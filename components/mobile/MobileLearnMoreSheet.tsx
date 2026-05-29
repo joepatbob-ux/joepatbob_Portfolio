@@ -53,16 +53,31 @@ export function MobileLearnMoreSheet({ open, onClose, title, children }: Props) 
           <h2 id={titleId} className="mobile-learn-more-sheet__title">
             {title}
           </h2>
+          <div
+            className="mobile-learn-more-sheet__rule mobile-section-header__rule"
+            aria-hidden
+          />
+        </div>
+        <div className="mobile-learn-more-sheet__scroll">
+          <span
+            className="mobile-learn-more-sheet__edge-blur mobile-learn-more-sheet__edge-blur--top"
+            aria-hidden
+          />
+          <div className="mobile-learn-more-sheet__body">{children}</div>
+          <span
+            className="mobile-learn-more-sheet__edge-blur mobile-learn-more-sheet__edge-blur--bottom"
+            aria-hidden
+          />
+        </div>
+        <div className="mobile-learn-more-sheet__footer">
           <button
             type="button"
-            className="mobile-learn-more-sheet__close"
-            aria-label="Close"
+            className="mobile-learn-more-sheet__close sidebar-action--secondary"
             onClick={onClose}
           >
-            <span aria-hidden>×</span>
+            Close
           </button>
         </div>
-        <div className="mobile-learn-more-sheet__body">{children}</div>
       </div>
     </div>,
     document.body,
