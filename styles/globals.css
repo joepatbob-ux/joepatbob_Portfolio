@@ -127,13 +127,20 @@
       --content-pad-x: 16px;
       --content-pad-left: 16px;
       --mobile-nav-bar-height: 52px;
+      --mobile-content-top-inset: calc(
+        var(--mobile-nav-bar-height) + env(safe-area-inset-top, 0px)
+      );
       --gutter: 24px;
     }
 
     html {
-      /* Offset anchor scrolling when the compact bar is pinned */
-      scroll-padding-top: calc(var(--mobile-nav-bar-height) + 12px);
+      scroll-padding-top: calc(var(--mobile-content-top-inset) + 12px);
       scroll-snap-type: none;
+    }
+
+    .site-frame,
+    .content-area {
+      overflow-x: clip;
     }
 
     .content-area {
@@ -141,19 +148,19 @@
       padding-top: 0;
     }
 
-    html.mobile-top-nav-active .content-area {
-      padding-top: calc(var(--mobile-nav-bar-height) + env(safe-area-inset-top, 0px));
+    /* Static inset below fixed top rail — never toggled on scroll (avoids hero feedback loop). */
+    .content-area > :not(#hero) {
+      padding-top: var(--mobile-content-top-inset);
+      box-sizing: border-box;
     }
 
-    html.mobile-nav-panel-open .content-area {
+    html.mobile-nav-panel-open .content-area > :not(#hero) {
       padding-top: 0;
     }
 
-    html.mobile-top-nav-active [data-chapter-id],
-    html.mobile-top-nav-active article[data-section-id] {
-      scroll-margin-top: calc(
-        var(--mobile-nav-bar-height) + env(safe-area-inset-top, 0px) + 12px
-      );
+    [data-chapter-id],
+    article[data-section-id] {
+      scroll-margin-top: calc(var(--mobile-content-top-inset) + 12px);
     }
 
     #hero {

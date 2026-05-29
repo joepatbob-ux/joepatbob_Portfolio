@@ -1,16 +1,51 @@
 import { easeChapterReveal } from '@/lib/chapterSlideshow'
 
+/** Hero bottom must pass this far above the viewport top before we leave the zone. */
+const HERO_LEAVE_BOTTOM_PX = -56
+/** Re-enter only when the hero spacer intrudes back into view by at least this much. */
+const HERO_ENTER_BOTTOM_PX = 8
+
+let heroZoneCommitted: boolean | null = null
+
+export function resetHeroScrollZoneHysteresis(): void {
+  heroZoneCommitted = null
+}
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('resize', resetHeroScrollZoneHysteresis, { passive: true })
+}
+
 /**
  * True while the hero spacer still intersects the viewport (canvas + portrait
  * stay locked; chapter panels stay hidden until the hero has fully scrolled away).
+ *
+ * Uses hysteresis on hero bottom so mobile address-bar resize / layout shifts
+ * do not flip nav visibility at the boundary.
  */
 export function isInHeroScrollZone(): boolean {
   if (typeof window === 'undefined') return false
 
   const hero = document.getElementById('hero')
-  if (!hero) return window.scrollY < window.innerHeight
+  if (!hero) {
+    const fallback = window.scrollY < window.innerHeight * 0.85
+    if (heroZoneCommitted === null) heroZoneCommitted = fallback
+    return heroZoneCommitted
+  }
 
-  return hero.getBoundingClientRect().bottom > 0
+  const bottom = hero.getBoundingClientRect().bottom
+
+  if (heroZoneCommitted === null) {
+    heroZoneCommitted = bottom > HERO_ENTER_BOTTOM_PX
+    return heroZoneCommitted
+  }
+
+  if (heroZoneCommitted) {
+    if (bottom < HERO_LEAVE_BOTTOM_PX) heroZoneCommitted = false
+  } else if (bottom > HERO_ENTER_BOTTOM_PX) {
+    heroZoneCommitted = true
+  }
+
+  return heroZoneCommitted
 }
 
 const HERO_NAME_FADE_VH = 0.62

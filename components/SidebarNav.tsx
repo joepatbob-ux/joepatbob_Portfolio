@@ -375,12 +375,11 @@ export function SidebarNav() {
   }, [isMobile, mobileInHero, mobileDrawerOpen])
 
   useEffect(() => {
-    document.documentElement.classList.toggle('mobile-top-nav-active', isMobile && !mobileInHero)
     document.documentElement.classList.toggle('mobile-nav-panel-open', isMobile && mobileDrawerOpen)
     return () => {
-      document.documentElement.classList.remove('mobile-top-nav-active', 'mobile-nav-panel-open')
+      document.documentElement.classList.remove('mobile-nav-panel-open')
     }
-  }, [isMobile, mobileInHero, mobileDrawerOpen])
+  }, [isMobile, mobileDrawerOpen])
 
   useEffect(() => {
     if (!isMobile || !mobileDrawerOpen) return

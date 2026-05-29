@@ -215,7 +215,8 @@
 /* Mobile: single-column section, framed stage above copy */
 @media (max-width: 767px) {
   .chapter-slide__viewport {
-    padding: clamp(24px, 4vw, 40px) clamp(16px, 4vw, 32px);
+    padding-block: clamp(24px, 4vw, 40px);
+    padding-inline: 0;
     justify-content: flex-start;
   }
 
