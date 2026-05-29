@@ -84,8 +84,8 @@
 
 @media (max-width: 767px) {
   .flow-chapter-slide .chapter-slide__viewport {
-    padding: clamp(28px, 4vh, 48px) var(--content-pad-x, 16px)
-      clamp(24px, 4vh, 32px);
+    padding-block: clamp(28px, 4vh, 48px) clamp(24px, 4vh, 32px);
+    padding-inline: 0;
   }
 
   .hardware-slideshow.flow-chapter-slide .chapter-slide__inner {

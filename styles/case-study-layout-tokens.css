@@ -21,6 +21,14 @@
   --cs-band-max: var(--cs-band-max-raw);
 }
 
+@media (max-width: 767px) {
+  :root {
+    --cs-inner-max: 100%;
+    --cs-copy-column-max: 100%;
+    --cs-band-max: 100%;
+  }
+}
+
 @media (min-width: 768px) {
   :root {
     --cs-stage-col: minmax(min(var(--cs-stage-min), 100%), 1fr);
