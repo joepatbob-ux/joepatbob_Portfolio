@@ -3,7 +3,7 @@ import type { Section } from '@/lib/types'
 import { Fragment } from 'react'
 import { insertsAfterChapter } from '@/lib/chapterInserts'
 import { LazySectionChapter } from './case-study/LazySectionChapter'
-import { CaseStudyOverview } from './CaseStudyOverview'
+import { CaseStudyFlowOverview } from '@/components/case-study/CaseStudyFlowOverview'
 import { Chapter } from './Chapter'
 import { ChapterInsertSlide } from './chapter-registry'
 import { ChapterViewport } from './ChapterViewport'
@@ -43,9 +43,8 @@ export function CaseStudy({ section, sectionId }: Props) {
       }}
     >
       {useCustomChapter ? null : (
-        <CaseStudyOverview
-          sectionId={sectionId}
-          eyebrow={section.eyebrow}
+        <CaseStudyFlowOverview
+          chapterId={`${sectionId}-overview`}
           headline={section.headline}
           body={section.overviewBody}
         />

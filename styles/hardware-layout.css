@@ -1,7 +1,7 @@
 /* Hardware case study — slideshow layout only (scoped via .hardware-slideshow) */
 
 .hardware-slideshow {
-  --hw-pad: clamp(28px, 3vw, 56px);
+  --hw-pad: var(--cs-hw-pad);
   --hw-gap: var(--cs-split-gap, clamp(24px, 2.5vw, 48px));
   --hw-copy-gap: 0.85rem;
   --hw-stage-min-w: clamp(200px, 24vw, var(--cs-stage-min));
@@ -42,7 +42,6 @@
     box-sizing: border-box;
   }
 
-  .case-study-overview.hardware-slideshow .portfolio-chapter-panel,
   .section-lessons.hardware-slideshow .portfolio-chapter-panel {
     display: flex;
     align-items: stretch;
@@ -154,50 +153,6 @@
   .flow-chapter-slide.hardware-slideshow .chapter-slide__copy .eib-sub-intro,
   .flow-chapter-slide.hardware-slideshow .chapter-slide__copy .web-apps-numbered-list {
     max-width: 100%;
-  }
-
-  .case-study-overview.hardware-slideshow .portfolio-chapter-panel {
-    justify-content: center;
-    align-items: stretch;
-    padding: var(--hw-pad);
-    overflow-x: hidden;
-    overflow-y: auto;
-    width: auto !important;
-    max-width: none !important;
-  }
-
-  .case-study-overview.hardware-slideshow .case-study-overview__inner {
-    width: 100%;
-    max-width: min(var(--hw-copy-max-w), 100%);
-    margin-inline: 0;
-    flex: 0 1 auto;
-    min-width: 0;
-    box-sizing: border-box;
-    gap: clamp(16px, 2.5vw, 24px);
-  }
-
-  .case-study-overview.hardware-slideshow .case-study-overview__header {
-    width: 100%;
-    max-width: none;
-    margin: 0;
-    text-align: left;
-  }
-
-  .case-study-overview.hardware-slideshow .case-study-overview__headline {
-    font-size: clamp(28px, 3.2vw, 40px);
-    line-height: 1.15;
-  }
-
-  .case-study-overview.hardware-slideshow .case-study-overview__rule {
-    margin: 16px 0 20px;
-  }
-
-  .case-study-overview.hardware-slideshow .case-study-overview__body {
-    column-count: 1;
-    max-width: none;
-    width: 100%;
-    margin: 0;
-    min-width: 0;
   }
 
   .section-lessons.hardware-slideshow .portfolio-chapter-panel {

@@ -70,9 +70,6 @@ With the redundant button gone, Continue became the clear primary action. The he
 App Store reviewers picked up on the install experience without prompting.`,
       quote:
         'One long-term user specifically called out the step-by-step install guidance as "a little touch that made me fall in love with it."',
-      imageSrc: '/images/mobile-wirepicker-before-after.png',
-      imageAlt:
-        'Wirepicker before and after — removing one button clarified the entire screen hierarchy',
     },
     {
       heading: 'What ongoing modernization actually looks like.',

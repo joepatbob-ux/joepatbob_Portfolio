@@ -19,7 +19,7 @@
   margin: 0;
   font-family: var(--font-body);
   font-weight: 600;
-  font-size: clamp(28px, 3.2vw, 40px);
+  font-size: var(--cs-mobile-headline-size);
   line-height: 1.12;
   letter-spacing: -0.02em;
   color: var(--color-ink);
@@ -388,22 +388,6 @@
   font-size: 15px;
   line-height: 1.6;
   color: var(--color-ink);
-}
-
-/* Sensi — single orange ↔ dark-mode comparison (stage artifact, not full column) */
-.mobile-chapter-slot--sensi .chapter-slide__stage .drag-scrubber {
-  width: auto;
-  max-width: min(240px, 100%);
-  margin-inline: auto;
-}
-
-.mobile-chapter-slot--sensi .drag-scrubber__frame {
-  max-width: min(240px, 100%);
-}
-
-.mobile-chapter-slot--sensi .drag-scrubber__caption {
-  max-width: 28ch;
-  margin-inline: auto;
 }
 
 /* Legacy alias for chapter-slide stage */

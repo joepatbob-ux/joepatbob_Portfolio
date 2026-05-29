@@ -14,20 +14,20 @@
 
 .touch2-carousel {
   position: relative;
-  --touch2-frame-max-w: 520px;
-  --touch2-frame-aspect: 520 / 580;
-  --touch2-radius: clamp(24px, 5vw, 40px);
+  --touch2-frame-max-w: var(--cs-touch2-frame-max-w);
+  --touch2-frame-aspect: var(--cs-touch2-frame-aspect);
+  --touch2-radius: var(--cs-touch2-radius);
   --touch2-morph-ease: cubic-bezier(0.34, 1.22, 0.64, 1);
   --touch2-fade-ease: cubic-bezier(0.16, 1, 0.3, 1);
   --touch2-dot-ease: cubic-bezier(0.22, 1, 0.36, 1);
   --touch2-dot-duration: 560ms;
-  --touch2-dot-size: 8px;
-  --touch2-dot-active-h: 56px;
-  --touch2-dot-active-w: 56px;
-  --touch2-dot-slot-h: 80px;
-  --touch2-dot-slot-w: 80px;
-  --touch2-dot-ring-size: 40px;
-  --touch2-dot-gap: 8px;
+  --touch2-dot-size: var(--cs-touch2-dot-size);
+  --touch2-dot-active-h: var(--cs-touch2-dot-active);
+  --touch2-dot-active-w: var(--cs-touch2-dot-active);
+  --touch2-dot-slot-h: var(--cs-touch2-dot-slot);
+  --touch2-dot-slot-w: var(--cs-touch2-dot-slot);
+  --touch2-dot-ring-size: var(--cs-touch2-dot-ring);
+  --touch2-dot-gap: var(--cs-touch2-dot-gap);
   /* Set from JS: --touch2-rail-h, --touch2-slide-w (match dot column height) */
   --touch2-rail-h: 432px;
   --touch2-slide-w: 387px;
@@ -36,7 +36,7 @@
   grid-template-columns: auto auto;
   align-items: center;
   justify-content: center;
-  gap: clamp(20px, 2.5vw, 32px);
+  gap: var(--cs-touch2-gap);
   width: 100%;
   box-sizing: border-box;
 }
@@ -197,15 +197,15 @@
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto auto;
     justify-items: center;
-    gap: clamp(12px, 3vw, 16px);
+    gap: var(--cs-touch2-mobile-gap);
   }
 
   .touch2-carousel__slides {
     width: 100%;
-    max-width: min(100%, 420px);
+    max-width: var(--cs-touch2-mobile-max-w);
     height: auto;
-    min-height: min(48dvh, 380px);
-    max-height: min(56dvh, 440px);
+    min-height: var(--cs-touch2-mobile-min-h);
+    max-height: var(--cs-touch2-mobile-max-h);
     aspect-ratio: var(--touch2-frame-aspect);
   }
 
@@ -214,7 +214,7 @@
     flex-wrap: nowrap;
     justify-content: center;
     width: 100%;
-    max-width: min(100%, 420px);
+    max-width: var(--cs-touch2-mobile-max-w);
     height: auto;
     min-height: var(--touch2-dot-slot-w);
     gap: clamp(6px, 2vw, 10px);

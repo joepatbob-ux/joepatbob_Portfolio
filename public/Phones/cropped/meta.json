@@ -1,0 +1,12 @@
+{
+  "pixel": {
+    "canvasW": 1364,
+    "canvasH": 2801,
+    "aspect": 0.487
+  },
+  "iphone": {
+    "canvasW": 1313,
+    "canvasH": 2604,
+    "aspect": 0.5042
+  }
+}

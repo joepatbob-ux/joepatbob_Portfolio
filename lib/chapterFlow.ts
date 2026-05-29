@@ -6,13 +6,22 @@ export const VIEWPORT_SNAP_SLOT_SELECTOR =
 export const FLOW_CHAPTER_SLOT_SELECTOR =
   '.portfolio-chapter-slot.flow-chapter-slide[data-chapter-id]'
 
+const FLOW_CHAPTER_PREFIXES = [
+  'mobile-',
+  'everything-else-',
+  'web-apps-',
+] as const
+
+/** Flow case-study chapter ids (avoid DOM query — slot may not exist on first paint). */
 export function isFlowChapterId(chapterId: string): boolean {
-  if (typeof document === 'undefined') return false
-  return !!document.querySelector(
-    `${FLOW_CHAPTER_SLOT_SELECTOR}[data-chapter-id="${CSS.escape(chapterId)}"]`,
-  )
+  return FLOW_CHAPTER_PREFIXES.some((prefix) => chapterId.startsWith(prefix))
 }
 
 export function isFlowChapterSlot(el: Element | null): boolean {
   return el?.classList.contains('flow-chapter-slide') ?? false
+}
+
+/** Flow chapters use the fixed hardware-slideshow shell on tablet/desktop. */
+export function isFixedSlideshowFlowChapter(chapterId: string): boolean {
+  return isFlowChapterId(chapterId)
 }

@@ -239,7 +239,7 @@
   }
 
   .chapter-slide:not(.hardware-slideshow) .chapter-slide__stage {
-    max-width: min(480px, 100%);
+    max-width: min(var(--cs-stage-max), 100%);
     margin: 0;
   }
 
@@ -261,7 +261,7 @@
   }
 
   .chapter-slide:not(.hardware-slideshow).chapter-slide--eim .chapter-slide__stage {
-    max-width: min(72vw, 280px);
+    max-width: var(--cs-eim-stage-max-w);
   }
 
   .chapter-slide:not(.hardware-slideshow)

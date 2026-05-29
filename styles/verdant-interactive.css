@@ -13,14 +13,14 @@
 }
 
 .verdant-interactive {
-  --verdant-aspect: 350 / 582;
-  --verdant-max-w: 480px;
-  --verdant-gap: clamp(8px, 2cqi, 16px);
-  --verdant-glyph-max-h: min(52dvh, 480px);
+  --verdant-aspect: var(--cs-verdant-aspect);
+  --verdant-max-w: var(--cs-verdant-max-w);
+  --verdant-gap: var(--cs-verdant-gap);
+  --verdant-glyph-max-h: var(--cs-verdant-glyph-max-h);
   --verdant-stage-w: min(100%, calc(var(--verdant-glyph-max-h) * 350 / 582));
-  --verdant-key-gap: 6px;
-  --verdant-key-size: 36px;
-  --verdant-key-font: clamp(11px, 2.4cqi, 14px);
+  --verdant-key-gap: var(--cs-verdant-key-gap);
+  --verdant-key-size: var(--cs-verdant-key-size);
+  --verdant-key-font: var(--cs-verdant-key-font);
 
   container-type: inline-size;
   container-name: verdant;
@@ -281,18 +281,6 @@
   }
 }
 
-@media (min-width: 768px) and (max-width: 1024px) {
-  .hardware-slideshow.chapter-slide--verdant .verdant-interactive {
-    --verdant-glyph-max-h: min(46dvh, 400px);
-  }
-}
-
-@media (min-width: 1025px) {
-  .hardware-slideshow.chapter-slide--verdant .verdant-interactive {
-    --verdant-glyph-max-h: min(50dvh, 440px);
-  }
-}
-
 @container verdant (max-width: 280px) {
   .hardware-slideshow.chapter-slide--verdant .verdant-interactive {
     --verdant-glyph-max-h: min(36dvh, 260px);
@@ -312,9 +300,12 @@
   .hardware-slideshow.chapter-slide--verdant .verdant-interactive {
     --verdant-max-w: 100%;
     --verdant-stage-w: 100%;
-    --verdant-gap: clamp(8px, 1.25vh, 12px);
+    --verdant-gap: var(--cs-verdant-mobile-gap);
     --verdant-key-gap: clamp(4px, 1.1vw, 7px);
-    --verdant-key-size: min(42px, calc((100cqi - 9 * var(--verdant-key-gap)) / 10));
+    --verdant-key-size: min(
+      var(--cs-verdant-mobile-key-max),
+      calc((100cqi - 9 * var(--verdant-key-gap)) / 10)
+    );
     --verdant-key-font: clamp(10px, 2.8cqi, 13px);
 
     display: grid;
@@ -325,7 +316,7 @@
     width: 100%;
     max-width: 100%;
     height: 100%;
-    max-height: min(52dvh, 460px);
+    max-height: var(--cs-verdant-mobile-max-h);
     min-height: 0;
     margin-inline: 0;
     padding-inline: 0;
@@ -367,7 +358,7 @@
     height: auto;
     aspect-ratio: 1;
     min-width: 0;
-    max-width: min(100%, 44px);
+    max-width: min(100%, var(--cs-verdant-mobile-key-max));
     min-height: 0;
     max-height: none;
   }
@@ -380,14 +371,20 @@
 @media (max-width: 767px) {
   @container verdant (max-width: 400px) {
     .verdant-interactive {
-      --verdant-key-size: min(38px, calc((100cqi - 9 * var(--verdant-key-gap)) / 10));
+      --verdant-key-size: min(
+        38px,
+        calc((100cqi - 9 * var(--verdant-key-gap)) / 10)
+      );
       --verdant-key-font: clamp(9px, 2.6cqi, 12px);
     }
   }
 
   @container verdant (max-width: 340px) {
     .verdant-interactive {
-      --verdant-key-size: min(34px, calc((100cqi - 9 * var(--verdant-key-gap)) / 10));
+      --verdant-key-size: min(
+        var(--cs-verdant-mobile-key-min),
+        calc((100cqi - 9 * var(--verdant-key-gap)) / 10)
+      );
       --verdant-key-font: 10px;
     }
   }

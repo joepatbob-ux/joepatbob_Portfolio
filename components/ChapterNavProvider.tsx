@@ -7,6 +7,7 @@ import {
   type SlideNavPhase,
 } from '@/lib/scrollOrchestration'
 import { useChapterCopyWheelTrap } from '@/lib/chapterCopyWheel'
+import { waitForChapterSlot } from '@/lib/chapterNav/waitForChapterSlot'
 import { sectionEntryChapterId } from '@/lib/sectionEntryChapter'
 import { flushScrollFrame, scheduleScrollFrame } from '@/lib/scrollFrame'
 import {
@@ -91,7 +92,18 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
   const runNavigate = useCallback(
     async (selector: string, chapterId: string) => {
       if (busyRef.current) return
-      const target = document.querySelector<HTMLElement>(selector)
+
+      let target =
+        document.querySelector<HTMLElement>(selector) ??
+        (await waitForChapterSlot(chapterId))
+
+      if (!target && chapterId.endsWith('-overview')) {
+        const sectionId = chapterId.slice(0, -'-overview'.length)
+        target = document.querySelector<HTMLElement>(
+          `article[data-section-id="${CSS.escape(sectionId)}"]`,
+        )
+      }
+
       if (!target) {
         if (import.meta.env.DEV) {
           console.warn(

@@ -8,7 +8,7 @@ import { memo, useCallback, useEffect, useRef, useState } from 'react'
 /** Fixed stage — images crop with object-fit: cover inside this box. */
 export const TOUCH2_FRAME_WIDTH = 520
 export const TOUCH2_FRAME_HEIGHT = 580
-const AUTO_PLAY_MS = 5500
+const AUTO_PLAY_MS = 6200
 const TOUCH2_DOT_SLOT_H = 80
 const TOUCH2_DOT_GAP = 8
 

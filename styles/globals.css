@@ -1,7 +1,6 @@
 @import './case-study-layout-tokens.css';
 @import './hero.css';
 @import './touch2-carousel.css';
-@import './case-study-overview.css';
 @import './case-study-content.css';
 @import './case-study-section-header.css';
 @import './case-study-flow-overview.css';
@@ -13,6 +12,7 @@
 @import './formation-lego-board.css';
 @import './eib-chapter.css';
 @import './spotlight-phone.css';
+@import './phone-swap.css';
 @import './chapter-slide.css';
 @import './site-layout.css';
 @import './hardware-layout.css';
@@ -140,7 +140,7 @@
     html {
       scroll-padding-top: var(--mobile-content-top-inset);
       scroll-padding-bottom: 0;
-      scroll-snap-type: y proximity;
+      scroll-snap-type: y mandatory;
     }
 
     .site-frame,
@@ -1205,7 +1205,7 @@ html {
   .portfolio-chapter-slot--fill.hardware-slideshow,
   .eib-chapter-intro-slot.portfolio-chapter-slot--fill {
     scroll-snap-align: start;
-    scroll-snap-stop: normal;
+    scroll-snap-stop: always;
   }
 
   #hero,
@@ -1213,6 +1213,11 @@ html {
     height: 100vh;
     height: 100dvh;
     position: relative;
+  }
+
+  .portfolio-chapter-slot--fill.hardware-slideshow,
+  .eib-chapter-intro-slot.portfolio-chapter-slot--fill {
+    min-height: calc(100dvh + var(--cs-screen-gap));
   }
 
   .portfolio-chapter-slot--fill.hardware-slideshow .portfolio-chapter-panel {
@@ -1260,12 +1265,6 @@ html {
     -webkit-overflow-scrolling: touch;
   }
 
-  .case-study-overview.hardware-slideshow .portfolio-chapter-panel {
-    justify-content: flex-start;
-    overflow-x: hidden;
-    overflow-y: auto;
-    overscroll-behavior-y: auto;
-  }
 }
 
 .chapter-slide .portfolio-chapter-panel {

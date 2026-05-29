@@ -57,6 +57,18 @@ export function easeChapterReveal(t: number): number {
   return x * x * (3 - 2 * x)
 }
 
+/** Hold each slide at full opacity before crossfading to the next (0–1 scroll progress). */
+const CROSSFADE_HOLD = 0.24
+
+function crossfadeWeights(t: number): { outgoing: number; incoming: number } {
+  const x = Math.max(0, Math.min(1, t))
+  if (x <= CROSSFADE_HOLD) return { outgoing: 1, incoming: 0 }
+  if (x >= 1 - CROSSFADE_HOLD) return { outgoing: 0, incoming: 1 }
+  const local = (x - CROSSFADE_HOLD) / (1 - 2 * CROSSFADE_HOLD)
+  const eased = easeChapterReveal(local)
+  return { outgoing: 1 - eased, incoming: eased }
+}
+
 type SlideAnchor = { id: string; centerY: number }
 
 function snapSlideAnchors(): SlideAnchor[] {
@@ -107,9 +119,9 @@ export function computeChapterRevealMap(): Record<string, number> {
     if (centerY >= a.centerY && centerY <= b.centerY) {
       const span = b.centerY - a.centerY
       const t = span > 0 ? (centerY - a.centerY) / span : 0
-      const eased = easeChapterReveal(t)
-      map[a.id] = 1 - eased
-      map[b.id] = eased
+      const { outgoing, incoming } = crossfadeWeights(t)
+      map[a.id] = outgoing
+      map[b.id] = incoming
       return map
     }
   }
