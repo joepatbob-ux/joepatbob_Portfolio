@@ -1,37 +1,24 @@
-/* In-flow chapters (Mobile, EIB) — above-fold band matches Hardware chapter-slide grid */
+/* Flow case studies — extends .hardware-slideshow (see hardware-layout.css) */
 
-.flow-chapter-slide__panel-scroll {
-  flex: none;
-  width: 100%;
-  min-height: 0;
-  overflow: visible;
+@media (min-width: 768px) {
+  .flow-chapter-slide.hardware-slideshow .chapter-slide__viewport {
+    padding-left: 0;
+    padding-right: 0;
+    justify-content: flex-start;
+  }
+
+  .flow-chapter-slide.hardware-slideshow .chapter-slide__inner {
+    max-width: 100% !important;
+    width: 100%;
+  }
 }
 
-.flow-chapter-slide__content {
-  box-sizing: border-box;
-  width: 100%;
-  max-width: none;
-  margin: 0;
-  padding: 0;
-  text-align: left;
-}
-
-.flow-chapter-slide__viewport {
-  box-sizing: border-box;
-  width: 100%;
-}
-
-.flow-chapter-slide__below {
-  padding: clamp(32px, 5vh, 56px) var(--content-pad-x, 24px)
-    clamp(48px, 8vh, 96px);
-  max-width: min(1120px, 100%);
-}
-
-/* Section lead inside copy column (not full-width above stage) */
+.flow-chapter-slide__copy .case-study-section-header,
 .flow-chapter-slide__copy .mobile-section-header {
   margin-bottom: clamp(16px, 2.5vh, 24px);
 }
 
+.flow-chapter-slide__copy .case-study-section-header__headline,
 .flow-chapter-slide__copy .mobile-section-header__headline {
   font-size: clamp(22px, 2.4vw, 34px);
   line-height: 1.15;
@@ -51,15 +38,6 @@
   color: var(--color-ink);
 }
 
-.flow-chapter-slide__copy .mobile-sub-story__number {
-  font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: 0.75em;
-  letter-spacing: 0.06em;
-  color: var(--color-accent);
-  margin-right: 0.35em;
-}
-
 .flow-chapter-slide__copy .mobile-sub-story__rule {
   width: 32px;
   height: 2px;
@@ -75,85 +53,44 @@
   min-height: 1px;
 }
 
-.flow-chapter-slide .chapter-slide__stage .drag-scrubber__frame,
+.flow-chapter-slide .chapter-slide__stage .drag-scrubber {
+  width: var(--cs-stage-artifact-w);
+  max-width: 100%;
+  margin-inline: auto;
+}
+
+.flow-chapter-slide .chapter-slide__stage .drag-scrubber__frame {
+  width: 100%;
+  max-width: min(280px, 100%);
+  margin-inline: auto;
+}
+
 .flow-chapter-slide .chapter-slide__stage .spotlight-phone,
 .flow-chapter-slide .chapter-slide__stage .sticker-pile-wrap,
 .flow-chapter-slide .chapter-slide__stage .formation-lego,
 .flow-chapter-slide .chapter-slide__stage .touch2-carousel,
-.flow-chapter-slide .chapter-slide__stage .mobile-figure__img {
+.flow-chapter-slide .chapter-slide__stage .mobile-figure__img,
+.flow-chapter-slide .chapter-slide__stage .kelvin-quad-scratch {
   width: 100%;
   max-width: 100%;
   margin-inline: 0;
 }
 
-@media (min-width: 1024px) {
-  .flow-chapter-slide .chapter-slide__stage {
-    justify-content: center;
-  }
-
-  .flow-chapter-slide .chapter-slide__stage > * {
-    width: min(100%, clamp(280px, 34vw, 560px));
-  }
-
-  .flow-chapter-slide--formation .chapter-slide__stage > *,
-  .flow-chapter-slide--formation .chapter-slide__stage .formation-lego {
-    width: 100%;
-    max-width: 100%;
-  }
-}
-
-@media (min-width: 768px) {
-  .flow-chapter-slide__viewport {
-    min-height: min(86dvh, calc(100dvh - 3rem));
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    padding: clamp(24px, 4vw, 48px) var(--content-pad-x, 24px);
-    box-sizing: border-box;
-  }
-
-  .flow-chapter-slide .chapter-slide__inner {
-    width: 100%;
-    max-width: var(--cs-inner-max, min(1120px, 100%));
-    min-height: 0;
-    max-height: min(88dvh, 100%);
-  }
-
-  .flow-chapter-slide__copy {
-    min-height: 0;
-    max-height: min(72dvh, calc(100dvh - 5rem));
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .flow-chapter-slide__copy .mobile-prose,
-  .flow-chapter-slide__copy .eib-sub-intro {
-    font-size: 14px;
-    line-height: 1.65;
-  }
+.flow-chapter-slide--formation .chapter-slide__stage > *,
+.flow-chapter-slide--formation .chapter-slide__stage .formation-lego {
+  width: 100%;
+  max-width: 100%;
 }
 
 @media (max-width: 767px) {
-  .flow-chapter-slide__viewport {
+  .flow-chapter-slide .chapter-slide__viewport {
     padding: clamp(28px, 4vh, 48px) var(--content-pad-x, 16px)
       clamp(24px, 4vh, 32px);
   }
 
-  .flow-chapter-slide .chapter-slide__stage {
-    margin-bottom: 24px;
-  }
-
-  .flow-chapter-slide .chapter-slide__inner {
-    display: flex;
-    flex-direction: column;
+  .hardware-slideshow.flow-chapter-slide .chapter-slide__inner {
+    display: flex !important;
+    flex-direction: column !important;
     gap: 24px;
-  }
-
-  .flow-chapter-slide .chapter-slide__stage,
-  .flow-chapter-slide .chapter-slide__copy {
-    grid-column: 1;
-    width: 100%;
-    max-width: 100%;
   }
 }

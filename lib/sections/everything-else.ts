@@ -5,7 +5,7 @@ export const everythingElse: Section = {
   id: 'everything-else',
   label: 'Everything In Between',
   eyebrow: '',
-  headline: '',
+  headline: 'Everything In Between',
   overviewBody: '',
   lessonTitle: '',
   lessonBody: '',

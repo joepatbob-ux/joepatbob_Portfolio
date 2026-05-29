@@ -11,6 +11,8 @@ interface Props {
   style?: CSSProperties
   fillViewport?: boolean
   children: ReactNode
+  /** In-flow content after the fixed viewport panel (sub-stories, etc.). */
+  afterPanel?: ReactNode
 }
 
 function ChapterViewportInner({
@@ -20,6 +22,7 @@ function ChapterViewportInner({
   style,
   fillViewport = false,
   children,
+  afterPanel,
 }: Props) {
   const { style: panelStyle, isActive } = useChapterPanelOpacity(chapterId)
 
@@ -48,6 +51,7 @@ function ChapterViewportInner({
           {children}
         </ChapterActiveProvider>
       </div>
+      {afterPanel}
     </section>
   )
 }

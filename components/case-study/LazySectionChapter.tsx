@@ -10,10 +10,10 @@ const MobileChapter = dynamic(
   { loading: () => null },
 )
 
-const WebAppsKelvinChapter = dynamic(
+const WebAppsChapter = dynamic(
   () =>
-    import('@/components/web-apps/WebAppsKelvinChapter').then((m) => ({
-      default: m.WebAppsKelvinChapter,
+    import('@/components/web-apps/WebAppsChapter').then((m) => ({
+      default: m.WebAppsChapter,
     })),
   { loading: () => null },
 )
@@ -31,7 +31,7 @@ export function LazySectionChapter({ sectionId }: { sectionId: string }) {
     case 'mobile':
       return <MobileChapter />
     case 'web-apps':
-      return <WebAppsKelvinChapter />
+      return <WebAppsChapter />
     case 'everything-else':
       return <EverythingInBetweenChapter />
     default:

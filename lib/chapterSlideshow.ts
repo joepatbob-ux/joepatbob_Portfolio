@@ -1,4 +1,5 @@
 import { VIEWPORT_SNAP_SLOT_SELECTOR } from '@/lib/chapterFlow'
+import { LAYOUT_MQ } from '@/lib/layout/breakpoints'
 
 /** Real snap slides only — excludes placed stickers (they use data-sticker-chapter-id). */
 export const CHAPTER_SLOT_SELECTOR = '.portfolio-chapter-slot[data-chapter-id]'
@@ -152,7 +153,53 @@ function pickActiveSlideIdByVisibility(): string | null {
   return bestId
 }
 
+/**
+ * Active chapter from scroll reveal weights (matches panel crossfade).
+ * Hysteresis stops sidebar highlight flipping between adjacent snap slides.
+ */
+export function pickActiveSlideIdFromRevealMap(
+  map: Record<string, number>,
+  hysteresis = 0.12,
+): string | null {
+  let bestId: string | null = null
+  let bestReveal = 0
+
+  for (const [id, reveal] of Object.entries(map)) {
+    if (reveal > bestReveal) {
+      bestReveal = reveal
+      bestId = id
+    }
+  }
+
+  const current = publishedActiveSlideId
+  if (current && bestId && current !== bestId) {
+    const currentReveal = map[current] ?? 0
+    if (bestReveal - currentReveal < hysteresis) {
+      return current
+    }
+  }
+
+  if (!bestId || bestReveal < 0.02) {
+    return pickActiveSlideIdByVisibility()
+  }
+
+  return bestId
+}
+
+function isMobileViewport(): boolean {
+  if (typeof window === 'undefined') return false
+  return window.matchMedia(LAYOUT_MQ.mobile).matches
+}
+
 /** Chapter with the largest visible area (snap slides and in-flow sections). */
-export function pickActiveSlideId(): string | null {
+export function pickActiveSlideId(
+  revealMap?: Record<string, number>,
+): string | null {
+  if (revealMap && Object.keys(revealMap).length > 0) {
+    return pickActiveSlideIdFromRevealMap(
+      revealMap,
+      isMobileViewport() ? 0 : 0.12,
+    )
+  }
   return pickActiveSlideIdByVisibility()
 }

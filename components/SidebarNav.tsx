@@ -12,7 +12,7 @@
 'use client'
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { pickHardwareChapterFromScroll } from '@/lib/hardware/chapters'
+import { activeSlideIdPublished } from '@/lib/chapterSlideshow'
 import { applySidebarHeroNameFade, applySidebarShellFade, hideSidebarShell, isInHeroScrollZone, resetSidebarShellFade } from '@/lib/heroScroll'
 import { NAV_SECTIONS, sectionIdForChapter } from '@/lib/nav'
 import { sectionEntryChapterId } from '@/lib/sectionEntryChapter'
@@ -148,71 +148,13 @@ function getScrollTop(): number {
   return document.scrollingElement?.scrollTop ?? window.scrollY
 }
 
-/** Viewport band aligned with sub-nav spy (matches former IO rootMargin). */
-const SPY_BAND_TOP = 0.15
-const SPY_BAND_BOTTOM = 0.15
-const SPY_MIN_SCORE = 0.02
-
-function visibleBandScore(rect: DOMRect, vh: number): number {
-  const bandTop = vh * SPY_BAND_TOP
-  const bandBottom = vh * (1 - SPY_BAND_BOTTOM)
-  const bandHeight = bandBottom - bandTop
-  const visibleTop = Math.max(rect.top, bandTop)
-  const visibleBottom = Math.min(rect.bottom, bandBottom)
-  const visible = Math.max(0, visibleBottom - visibleTop)
-  if (visible <= 0) return 0
-  return visible / Math.min(rect.height, bandHeight)
-}
-
-function pickActiveSpyTarget(): { chapterId: string | null; sectionId: string | null } {
-  const vh = window.innerHeight
-
-  let bestChapterId: string | null = null
-  let bestChapterScore = 0
-  document.querySelectorAll<HTMLElement>('.portfolio-chapter-slot[data-chapter-id]').forEach((el) => {
-    const id = el.dataset.chapterId
-    if (!id) return
-    const score = visibleBandScore(el.getBoundingClientRect(), vh)
-    if (score > bestChapterScore) {
-      bestChapterScore = score
-      bestChapterId = id
-    }
-  })
-
-  if (bestChapterId && bestChapterScore >= SPY_MIN_SCORE) {
-    return { chapterId: bestChapterId, sectionId: sectionIdForChapter(bestChapterId) }
-  }
-
-  let bestSectionId: string | null = null
-  let bestSectionScore = 0
-  document.querySelectorAll<HTMLElement>('[data-section-id]').forEach((el) => {
-    const id = el.dataset.sectionId
-    if (!id) return
-    const score = visibleBandScore(el.getBoundingClientRect(), vh)
-    if (score > bestSectionScore) {
-      bestSectionScore = score
-      bestSectionId = id
-    }
-  })
-
-  if (bestSectionId && bestSectionScore >= SPY_MIN_SCORE) {
-    const sec = NAV_SECTIONS.find((s) => s.id === bestSectionId)
-    const first = sec?.chapters[0]
-    return {
-      sectionId: bestSectionId,
-      chapterId: first ? toChapterId(bestSectionId, first.id) : null,
-    }
-  }
-
-  return { chapterId: null, sectionId: null }
-}
-
 // ── COMPONENT ─────────────────────────────────────────────────────────────────
 export function SidebarNav() {
   const dark = useDarkMode()
   const isMobile = useIsMobile()
   const isTablet = useIsTablet()
-  const { navigateToChapter, navigateToSection } = useChapterNav()
+  const { navigateToChapter, navigateToSection, phase: chapterNavPhase } =
+    useChapterNav()
   const C = {
     ink:     dark ? '#f0eeea' : '#0d0d0d',
     divider: 'var(--color-rule)',
@@ -370,30 +312,13 @@ export function SidebarNav() {
 
   const applyScrollSpy = useCallback(() => {
     if (overlayOpenRef.current) return
+    if (chapterNavPhase !== 'idle') return
 
-    const hardwareArticle = document.querySelector('[data-section-id="hardware"]')
-    if (hardwareArticle) {
-      const rect = hardwareArticle.getBoundingClientRect()
-      const vh = window.innerHeight
-      if (rect.top < vh * 0.85 && rect.bottom > vh * 0.15) {
-        const chapterId = pickHardwareChapterFromScroll()
-        if (activeChapterRef.current !== chapterId) {
-          activeChapterRef.current = chapterId
-          setActiveChapter(chapterId)
-        }
-        if (activeSectionRef.current !== 'hardware') {
-          activeSectionRef.current = 'hardware'
-          setActiveSection('hardware')
-          if (subNavVisibleRef.current) staggerOut(() => staggerIn('hardware'))
-        }
-        return
-      }
-    }
-
-    const { chapterId, sectionId } = pickActiveSpyTarget()
+    const chapterId = activeSlideIdPublished()
+    const sectionId = chapterId ? sectionIdForChapter(chapterId) : null
     if (!sectionId) return
 
-    if (chapterId && activeChapterRef.current !== chapterId) {
+    if (activeChapterRef.current !== chapterId) {
       activeChapterRef.current = chapterId
       setActiveChapter(chapterId)
     }
@@ -403,7 +328,7 @@ export function SidebarNav() {
       setActiveSection(sectionId)
       if (subNavVisibleRef.current) staggerOut(() => staggerIn(sectionId))
     }
-  }, [staggerIn, staggerOut])
+  }, [chapterNavPhase, staggerIn, staggerOut])
 
   const applyStuckState = useCallback(
     (y: number) => {
@@ -416,7 +341,10 @@ export function SidebarNav() {
         setDimActive(true)
         subNavTimer.current = setTimeout(() => {
           setSubNavVisible(true)
-          const { sectionId, chapterId } = pickActiveSpyTarget()
+          const chapterId = activeSlideIdPublished()
+          const sectionId = chapterId
+            ? sectionIdForChapter(chapterId)
+            : null
           const id = sectionId || NAV_SECTIONS[0].id
           activeSectionRef.current = id
           setActiveSection(id)

@@ -1,4 +1,6 @@
 import type { ReactNode } from 'react'
+import { ContactFormLink } from '@/components/ContactFormLink'
+import { CONTACT_LINKEDIN_HOST_PATH, CONTACT_LINKEDIN_URL } from '@/lib/contact'
 import { splitParagraphs } from '@/components/mobile/MobileSectionParts'
 
 export { splitParagraphs }
@@ -56,29 +58,21 @@ export function EibPatentRow({
   )
 }
 
-export function EibPracticeClose({
-  statement,
-  email,
-  linkedIn,
-}: {
-  statement: string
-  email: string
-  linkedIn: string
-}) {
+export function EibPracticeClose({ statement }: { statement: string }) {
   return (
     <footer className="eib-practice-close">
       <p className="eib-practice-close__statement">{statement}</p>
       <p className="eib-practice-close__cta">
-        <a href={`mailto:${email}`}>{email}</a>
+        <ContactFormLink className="eib-practice-close__email" />
         <span className="eib-practice-close__sep" aria-hidden>
           ·
         </span>
         <a
-          href={`https://${linkedIn}`}
+          href={CONTACT_LINKEDIN_URL}
           target="_blank"
           rel="noopener noreferrer"
         >
-          {linkedIn}
+          {CONTACT_LINKEDIN_HOST_PATH}
         </a>
       </p>
     </footer>

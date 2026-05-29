@@ -29,6 +29,8 @@ function computeFlowChapterRevealMap(): Record<string, number> {
   document.querySelectorAll<HTMLElement>(FLOW_CHAPTER_SLOT_SELECTOR).forEach((el) => {
     const id = el.dataset.chapterId
     if (!id) return
+    // Viewport snap slides (Mobile / EIB / Web Apps) use computeChapterRevealMap crossfade.
+    if (el.classList.contains('hardware-slideshow')) return
     const rect = el.getBoundingClientRect()
     const onScreen = rect.bottom > 0 && rect.top < vh
     map[id] = onScreen ? 1 : 0
@@ -64,19 +66,21 @@ export function measureSlideScrollState(phase: SlideNavPhase): SlideScrollState 
   }
 
   if (isMobileViewport()) {
+    const revealMap = computeMobileRevealMap()
     return {
-      revealMap: computeMobileRevealMap(),
-      activeSlideId: pickActiveSlideId(),
+      revealMap,
+      activeSlideId: pickActiveSlideId(revealMap),
       inHero: false,
     }
   }
 
+  const revealMap = {
+    ...computeChapterRevealMap(),
+    ...computeFlowChapterRevealMap(),
+  }
   return {
-    revealMap: {
-      ...computeChapterRevealMap(),
-      ...computeFlowChapterRevealMap(),
-    },
-    activeSlideId: pickActiveSlideId(),
+    revealMap,
+    activeSlideId: pickActiveSlideId(revealMap),
     inHero: false,
   }
 }

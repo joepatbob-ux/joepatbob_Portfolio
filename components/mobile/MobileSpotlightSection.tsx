@@ -23,16 +23,10 @@ export function MobileSpotlightSection() {
       copy={
         <>
           <MobileSectionHeader
-            eyebrow={MOBILE_SPOTLIGHT.eyebrow}
             headline={MOBILE_SPOTLIGHT.headline}
             meta={MOBILE_SPOTLIGHT.meta}
           />
-          <MobileProse paragraphs={paragraphs.slice(0, 3)} />
-        </>
-      }
-      belowFold={
-        <>
-          <MobileProse paragraphs={paragraphs.slice(3)} />
+          <MobileProse paragraphs={paragraphs} />
           <MobileLabelGrid items={MOBILE_SPOTLIGHT.decisions} columns={2} />
         </>
       }
