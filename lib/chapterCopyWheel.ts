@@ -5,7 +5,7 @@ const CHAPTER_SLOT_SELECTOR = '.portfolio-chapter-slot[data-chapter-id]'
 /** Only nested copy scrollers — never the fixed panel (avoids scroll fighting). */
 const SCROLL_TRAP_SELECTOR = '.chapter-copy-scroller'
 
-const HANDOFF_COOLDOWN_MS = 520
+const HANDOFF_COOLDOWN_MS = 560
 const EDGE_EPSILON_PX = 4
 
 let bindGeneration = 0

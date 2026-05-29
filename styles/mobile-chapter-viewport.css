@@ -4,13 +4,12 @@
   #hero,
   .portfolio-chapter-slot--fill.hardware-slideshow {
     scroll-snap-align: start;
-    scroll-snap-stop: normal;
+    scroll-snap-stop: always;
   }
 
   .portfolio-chapter-slot--fill.hardware-slideshow {
-    min-height: 100dvh;
-    min-height: 100svh;
-    min-height: -webkit-fill-available;
+    min-height: calc(100dvh + var(--cs-screen-gap));
+    min-height: calc(100svh + var(--cs-screen-gap));
     box-sizing: border-box;
   }
 
@@ -43,9 +42,9 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: clamp(20px, 3vh, 28px);
+    gap: var(--cs-mobile-section-gap);
     width: 100%;
-    max-width: min(440px, 100%);
+    max-width: var(--cs-inner-max);
     margin-inline: auto;
     height: auto !important;
     max-height: none !important;
@@ -64,8 +63,8 @@
     width: 100%;
     max-width: 100%;
     flex: 1 1 auto;
-    min-height: min(38dvh, 320px);
-    max-height: min(56dvh, 480px);
+    min-height: var(--cs-mobile-stage-min-h);
+    max-height: var(--cs-mobile-stage-max-h);
     margin-inline: 0;
   }
 

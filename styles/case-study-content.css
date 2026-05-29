@@ -18,26 +18,7 @@
   --cs-quote-bg: rgba(245, 67, 27, 0.06);
 }
 
-/* ── Hardware: overview + chapter copy ───────────────────────────────────── */
-
-[data-section-id='hardware'] .case-study-overview__eyebrow {
-  margin: 0 0 10px;
-  font-size: var(--cs-eyebrow-size);
-  letter-spacing: var(--cs-eyebrow-tracking);
-  color: var(--color-accent);
-}
-
-[data-section-id='hardware'] .case-study-overview__rule {
-  width: var(--cs-rule-width);
-  height: var(--cs-rule-height);
-  margin: 16px auto 20px;
-}
-
-[data-section-id='hardware'] .case-study-overview__body {
-  color: var(--cs-body-color);
-  font-size: var(--cs-body-size);
-  line-height: var(--cs-body-leading);
-}
+/* ── Hardware: chapter copy ──────────────────────────────────────────────── */
 
 [data-section-id='hardware'] .chapter-copy__headline,
 .hardware-slideshow .chapter-copy__headline {

@@ -12,11 +12,14 @@
     "lint": "tsc --noEmit"
   },
   "dependencies": {
+    "@react-three/drei": "^9.122.0",
+    "@react-three/fiber": "^8.18.0",
     "@vercel/node": "^5.8.7",
     "react": "^18",
     "react-dom": "^18",
     "react-scratchcard-v2": "^2.0.0",
-    "resend": "^6.12.4"
+    "resend": "^6.12.4",
+    "three": "^0.184.0"
   },
   "devDependencies": {
     "@types/node": "^20",

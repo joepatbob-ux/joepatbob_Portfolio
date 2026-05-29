@@ -1,0 +1,205 @@
+/* PhoneSwap — R3F canvas + label UI; chapter integration */
+
+.phone-swap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  width: 100%;
+  max-width: min(500px, 100%);
+  margin-inline: auto;
+  padding: 24px 16px 32px;
+  box-sizing: border-box;
+  background: #f5f5f5;
+  border-radius: 12px;
+  border: 0.5px solid rgba(0, 0, 0, 0.1);
+}
+
+.phone-swap__labels {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.phone-swap__sep {
+  font-size: 11px;
+  color: #bbb;
+}
+
+.phone-swap__stage-2d {
+  position: relative;
+  width: 100%;
+  height: 500px;
+  min-height: 500px;
+  max-width: 440px;
+  margin-inline: auto;
+  cursor: pointer;
+  overflow: visible;
+  perspective: 900px;
+  perspective-origin: 50% 42%;
+}
+
+.phone-swap__device {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(46%, 210px);
+  transform-style: preserve-3d;
+  transition:
+    transform 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
+}
+
+/* Default: Android front (center), iPhone back (right) */
+.phone-swap__device--pixel {
+  z-index: 2;
+  opacity: 1;
+  filter: none;
+  transform: translate3d(-50%, -50%, 0) translate3d(0, 0, 0) rotateY(0deg)
+    scale(1);
+}
+
+.phone-swap__device--iphone {
+  z-index: 1;
+  opacity: 0.9;
+  filter: brightness(0.94);
+  transform: translate3d(-50%, -50%, 0) translate3d(32%, 8%, -40px)
+    rotateY(-18deg) scale(0.8);
+}
+
+/* Swapped: iPhone front (center), Android back (left) */
+.phone-swap__stage-2d--swapped .phone-swap__device--pixel {
+  z-index: 1;
+  opacity: 0.9;
+  filter: brightness(0.94);
+  transform: translate3d(-50%, -50%, 0) translate3d(-32%, 8%, -40px)
+    rotateY(18deg) scale(0.8);
+}
+
+.phone-swap__stage-2d--swapped .phone-swap__device--iphone {
+  z-index: 2;
+  opacity: 1;
+  filter: none;
+  transform: translate3d(-50%, -50%, 0) translate3d(0, 0, 0) rotateY(0deg)
+    scale(1);
+}
+
+.phone-swap__device-inner {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 0.49;
+}
+
+.phone-swap__face {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  pointer-events: none;
+  user-select: none;
+}
+
+.phone-swap__face--back {
+  z-index: 0;
+}
+
+.phone-swap__face--front {
+  z-index: 1;
+}
+
+.phone-swap--animating .phone-swap__device {
+  transition-duration: 0.75s;
+}
+
+.phone-swap--placeholder {
+  width: 100%;
+  max-width: min(500px, 100%);
+  margin-inline: auto;
+}
+
+.phone-swap__canvas-hit {
+  width: 100%;
+  height: 500px;
+  min-height: 500px;
+  cursor: pointer;
+  overflow: visible;
+  line-height: 0;
+  position: relative;
+}
+
+.phone-swap__canvas-hit canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+  position: relative;
+  z-index: 1;
+}
+
+/* WebGL can fail to composite when an ancestor uses filter (chapter nav blur). */
+.hardware-slideshow .phone-swap,
+.flow-chapter-slide .phone-swap {
+  filter: none;
+  -webkit-filter: none;
+}
+
+.hardware-slideshow .phone-swap__canvas-hit,
+.flow-chapter-slide .phone-swap__canvas-hit {
+  transform: translateZ(0);
+}
+
+.phone-swap__btn {
+  font-size: 13px;
+  color: #555;
+  background: #fff;
+  border: 0.5px solid rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.phone-swap__btn:hover {
+  border-color: rgba(0, 0, 0, 0.35);
+}
+
+.phone-swap__fallback {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--color-muted);
+  text-align: center;
+  margin: 0;
+  padding: 24px 16px;
+}
+
+.phone-swap__fallback-detail {
+  display: block;
+  margin-top: 8px;
+  font-size: 10px;
+  word-break: break-word;
+}
+
+.mobile-chapter-slot--sensi .chapter-slide__stage:has(.phone-swap),
+.flow-chapter-slide .chapter-slide__stage:has(.phone-swap) {
+  overflow: visible;
+  max-height: none;
+}
+
+.mobile-chapter-slot--sensi .hardware-slideshow .chapter-slide__stage {
+  max-height: none;
+  min-height: 0;
+}
+
+@media (max-width: 767px) {
+  .phone-swap {
+    padding: 20px 12px 28px;
+  }
+
+  .phone-swap__canvas-hit canvas {
+    height: min(420px, 48dvh) !important;
+  }
+}
