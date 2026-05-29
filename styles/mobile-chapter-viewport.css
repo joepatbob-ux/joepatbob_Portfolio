@@ -1,4 +1,4 @@
-/* Mobile — each chapter page fills the viewport, centered with gutter padding */
+/* Mobile — full viewport slides; content scrolls under nav + home indicator */
 
 @media (max-width: 767px) {
   #hero,
@@ -10,14 +10,8 @@
   .portfolio-chapter-slot--fill.hardware-slideshow {
     min-height: 100dvh;
     min-height: 100svh;
+    min-height: -webkit-fill-available;
     box-sizing: border-box;
-  }
-
-  /* First slide in a section sits below article top inset for the fixed rail */
-  article[data-section-id]
-    > .portfolio-chapter-slot--fill.hardware-slideshow:first-child {
-    min-height: calc(100dvh - var(--mobile-content-top-inset, 52px));
-    min-height: calc(100svh - var(--mobile-content-top-inset, 52px));
   }
 
   .portfolio-chapter-slot--fill.hardware-slideshow .portfolio-chapter-panel {
@@ -27,16 +21,9 @@
     align-items: center;
     min-height: 100dvh;
     min-height: 100svh;
+    min-height: -webkit-fill-available;
     box-sizing: border-box;
-    padding: clamp(20px, 4vh, 32px) var(--content-pad-x, 16px);
-    padding-bottom: max(clamp(20px, 4vh, 32px), env(safe-area-inset-bottom, 0px));
-  }
-
-  article[data-section-id]
-    > .portfolio-chapter-slot--fill.hardware-slideshow:first-child
-    .portfolio-chapter-panel {
-    min-height: calc(100dvh - var(--mobile-content-top-inset, 52px));
-    min-height: calc(100svh - var(--mobile-content-top-inset, 52px));
+    padding: 0 var(--content-pad-x, 16px);
   }
 
   .hardware-slideshow .chapter-slide__viewport {
@@ -64,6 +51,10 @@
     max-height: none !important;
     flex: 1 1 auto;
     min-height: 0;
+    box-sizing: border-box;
+    /* Readable when snapped; panel still full-bleed while scrolling */
+    padding-top: var(--mobile-content-top-inset);
+    padding-bottom: var(--mobile-content-bottom-inset);
   }
 
   .hardware-slideshow .chapter-slide__stage {

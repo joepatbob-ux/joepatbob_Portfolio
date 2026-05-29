@@ -133,11 +133,13 @@
       --mobile-content-top-inset: calc(
         var(--mobile-nav-bar-height) + env(safe-area-inset-top, 0px)
       );
+      --mobile-content-bottom-inset: env(safe-area-inset-bottom, 0px);
       --gutter: 24px;
     }
 
     html {
-      scroll-padding-top: calc(var(--mobile-content-top-inset) + 12px);
+      scroll-padding-top: var(--mobile-content-top-inset);
+      scroll-padding-bottom: 0;
       scroll-snap-type: y proximity;
     }
 
@@ -151,19 +153,11 @@
       padding-top: 0;
     }
 
-    /* Static inset below fixed top rail — never toggled on scroll (avoids hero feedback loop). */
-    .content-area > :not(#hero) {
-      padding-top: var(--mobile-content-top-inset);
-      box-sizing: border-box;
-    }
-
-    html.mobile-nav-panel-open .content-area > :not(#hero) {
-      padding-top: 0;
-    }
-
+    /* Full-bleed scroll — content passes under fixed nav + home indicator; snap uses scroll-margin. */
     [data-chapter-id],
     article[data-section-id] {
-      scroll-margin-top: calc(var(--mobile-content-top-inset) + 12px);
+      scroll-margin-top: var(--mobile-content-top-inset);
+      scroll-margin-bottom: 0;
     }
 
     #hero {
