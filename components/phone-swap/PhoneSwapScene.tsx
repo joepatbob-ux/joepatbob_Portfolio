@@ -1,126 +1,112 @@
 'use client'
 
-import { Environment } from '@react-three/drei'
+import { PhoneModel } from '@/components/phone-swap/PhoneModel'
+import { Environment, OrbitControls } from '@react-three/drei'
 import { useLoader } from '@react-three/fiber'
-import { useEffect, useMemo, type ComponentProps } from 'react'
+import { useEffect, useLayoutEffect, useMemo, type ComponentProps } from 'react'
 import * as THREE from 'three'
 import { debugLog } from '@/lib/phone-swap/debugLog'
-import { applyAndroidScreen, applyIPhoneScreen } from '@/lib/phone-swap/applyScreenTextures'
-import { normalizeModel } from '@/lib/phone-swap/normalizeModel'
-import { prepareModelMaterialsOnce } from '@/lib/phone-swap/prepareModelMaterials'
+import { prepareAndroidScene } from '@/lib/phone-swap/prepareAndroidScene'
+import { IPHONE16_TEXTURES } from '@/lib/phone-swap/iphone16Assets'
+import { prepareIPhone16Scene } from '@/lib/phone-swap/prepareIPhone16Scene'
 import { useObjMtl } from '@/lib/phone-swap/useObjMtl'
-import { PhoneModel } from '@/components/phone-swap/PhoneModel'
-import { SingleAndroidDebugScene } from '@/components/phone-swap/SingleAndroidDebugScene'
 
-/** Set true to debug one Android model with manual textures (no swap). */
-const DEBUG_SINGLE_ANDROID = true
+const ANDROID_TEXTURES = {
+  baseColor: '/models/smartphone_03/smartphone_03_baseColor.png',
+  screen: '/models/Android.png',
+} as const
 
 interface Props {
   swapped: boolean
 }
 
-function modelStats(root: THREE.Object3D) {
-  const box = new THREE.Box3().setFromObject(root)
-  const size = box.getSize(new THREE.Vector3())
-  let meshCount = 0
-  let withMap = 0
-  root.traverse((child) => {
-    if (!(child instanceof THREE.Mesh)) return
-    meshCount += 1
-    const mat = child.material
-    const m = Array.isArray(mat) ? mat[0] : mat
-    if (m && 'map' in m && m.map) withMap += 1
-  })
-  return {
-    meshCount,
-    withMap,
-    maxDim: Math.max(size.x, size.y, size.z),
-    boxEmpty: box.isEmpty(),
-  }
-}
-
-function useScreenTexture(path: string) {
-  const texture = useLoader(THREE.TextureLoader, path)
-  texture.colorSpace = THREE.SRGBColorSpace
-  texture.flipY = true
-  return texture
-}
-
-function useIPhoneModel() {
-  const raw = useObjMtl('/models/iPhone.obj', '/models/iPhone.mtl')
-  const screenTexture = useScreenTexture('/models/Iphone.png')
-
-  return useMemo(() => {
-    const matStats = prepareModelMaterialsOnce(raw)
-    const clone = raw.clone(true)
-    normalizeModel(clone)
-    applyIPhoneScreen(clone, screenTexture)
-    debugLog(
-      'PhoneSwapScene.tsx:prepareIPhone',
-      'materials prepared',
-      matStats,
-      'T',
-      'post-fix',
-    )
-    return clone
-  }, [raw, screenTexture])
-}
-
-function useAndroidModel() {
+function useAndroidScene() {
   const raw = useObjMtl('/models/android.obj', '/models/android.mtl')
-  const screenTexture = useScreenTexture('/models/Android.png')
+  const textures = useLoader(THREE.TextureLoader, [
+    ANDROID_TEXTURES.baseColor,
+    ANDROID_TEXTURES.screen,
+  ])
+
+  useLayoutEffect(() => {
+    textures.forEach((tex) => {
+      tex.colorSpace = THREE.SRGBColorSpace
+      tex.needsUpdate = true
+    })
+  }, [textures])
 
   return useMemo(() => {
-    const matStats = prepareModelMaterialsOnce(raw)
-    const clone = raw.clone(true)
-    normalizeModel(clone)
-    applyAndroidScreen(clone, screenTexture)
-    debugLog(
-      'PhoneSwapScene.tsx:prepareAndroid',
-      'materials prepared',
-      matStats,
-      'T',
-      'post-fix',
-    )
-    return clone
-  }, [raw, screenTexture])
+    const [baseColor, screenTexture] = textures
+    return prepareAndroidScene(raw, baseColor, screenTexture).scene
+  }, [raw, textures])
+}
+
+function useIPhoneScene() {
+  const raw = useObjMtl(IPHONE16_TEXTURES.obj, IPHONE16_TEXTURES.mtl)
+  const textures = useLoader(THREE.TextureLoader, [
+    IPHONE16_TEXTURES.screen,
+    IPHONE16_TEXTURES.brushNormalRough,
+    IPHONE16_TEXTURES.brushNormalSatin,
+    IPHONE16_TEXTURES.flash,
+    IPHONE16_TEXTURES.screwGrooves,
+    IPHONE16_TEXTURES.frontCamera,
+    IPHONE16_TEXTURES.speakerAlpha,
+    IPHONE16_TEXTURES.speakerBump,
+  ])
+
+  useLayoutEffect(() => {
+    const [screen, ...rest] = textures
+    screen.colorSpace = THREE.SRGBColorSpace
+    rest.forEach((tex, i) => {
+      tex.colorSpace =
+        i < 2 ? THREE.NoColorSpace : THREE.SRGBColorSpace
+      tex.needsUpdate = true
+    })
+    screen.needsUpdate = true
+  }, [textures])
+
+  return useMemo(() => {
+    const [
+      screenTexture,
+      brushNormalRough,
+      brushNormalSatin,
+      flash,
+      screwGrooves,
+      frontCamera,
+      speakerAlpha,
+      speakerBump,
+    ] = textures
+    return prepareIPhone16Scene(
+      raw,
+      {
+        brushNormalRough,
+        brushNormalSatin,
+        flash,
+        screwGrooves,
+        frontCamera,
+        speakerAlpha,
+        speakerBump,
+      },
+      screenTexture,
+    ).scene
+  }, [raw, textures])
 }
 
 export function IPhoneModel(props: Omit<ComponentProps<typeof PhoneModel>, 'scene'>) {
-  const scene = useIPhoneModel()
-  // #region agent log
-  useEffect(() => {
-    const stats = modelStats(scene)
-    debugLog('PhoneSwapScene.tsx:IPhoneModel', 'iPhone model ready', stats, 'B', 'post-fix')
-  }, [scene])
-  // #endregion
+  const scene = useIPhoneScene()
   return <PhoneModel scene={scene} {...props} />
 }
 
 export function AndroidModel(props: Omit<ComponentProps<typeof PhoneModel>, 'scene'>) {
-  const scene = useAndroidModel()
-  // #region agent log
-  useEffect(() => {
-    const stats = modelStats(scene)
-    debugLog('PhoneSwapScene.tsx:AndroidModel', 'Android model ready', stats, 'B', 'post-fix')
-  }, [scene])
-  // #endregion
+  const scene = useAndroidScene()
   return <PhoneModel scene={scene} {...props} />
 }
 
 export function PhoneSwapScene({ swapped }: Props) {
-  if (DEBUG_SINGLE_ANDROID) {
-    return <SingleAndroidDebugScene />
-  }
-  return <PhoneSwapSceneDual swapped={swapped} />
-}
-
-function PhoneSwapSceneDual({ swapped }: Props) {
   // #region agent log
   useEffect(() => {
     debugLog(
       'PhoneSwapScene.tsx:mount',
-      'PhoneSwapScene rendered (Suspense resolved)',
+      'dual phone swap scene',
       { swapped },
       'C',
       'post-fix',
@@ -166,15 +152,14 @@ function PhoneSwapSceneDual({ swapped }: Props) {
 
   return (
     <>
-      <color attach="background" args={['#d4d4d4']} />
+      <color attach="background" args={['#d8d8d8']} />
       <Environment preset="city" />
-      <ambientLight intensity={0.65} />
-      <directionalLight position={[5, 8, 5]} intensity={1.4} castShadow={false} />
-      <directionalLight position={[-4, 2, -3]} intensity={0.5} />
-      <group>
-        <AndroidModel {...android} />
-        <IPhoneModel {...iphone} />
-      </group>
+      <ambientLight intensity={0.75} />
+      <directionalLight position={[5, 8, 6]} intensity={1.4} />
+      <directionalLight position={[-4, 2, -4]} intensity={0.4} />
+      <AndroidModel {...android} />
+      <IPhoneModel {...iphone} />
+      <OrbitControls makeDefault enablePan={false} target={[0, 0, 0]} />
     </>
   )
 }
