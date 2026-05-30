@@ -1,8 +1,9 @@
 import * as THREE from 'three'
 import {
-  isPhoneDisplayMesh,
   applyModelHoverGlow,
+  applyScreenPngHoverTint,
   isPhoneHoverMesh,
+  isPhoneScreenPngMesh,
   PHONE_HOVER,
   PHONE_SWAP_ACCENT_COLOR,
 } from '@/lib/phone-swap/phoneAccentHover'
@@ -132,7 +133,19 @@ export function applyFocusToPhoneRoot(
 
   root.traverse((child) => {
     if (!(child instanceof THREE.Mesh)) return
-    if (isPhoneDisplayMesh(child)) return
+
+    if (isPhoneScreenPngMesh(child)) {
+      const materials = Array.isArray(child.material)
+        ? child.material
+        : [child.material]
+      for (const material of materials) {
+        if (material instanceof THREE.MeshBasicMaterial) {
+          applyScreenPngHoverTint(material, hover)
+        }
+      }
+      return
+    }
+
     const materials = Array.isArray(child.material) ? child.material : [child.material]
 
     for (const material of materials) {
