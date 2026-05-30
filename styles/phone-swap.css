@@ -31,9 +31,13 @@
     calc(var(--phone-viewbox-base-h) * var(--phone-swap-height, 1))
   );
   overflow: hidden;
-  cursor: pointer;
+  cursor: default;
   line-height: 0;
   background: transparent;
+}
+
+.phone-swap__viewbox--swap-target {
+  cursor: pointer;
 }
 
 .phone-swap__viewbox canvas {
@@ -673,25 +677,52 @@
   --cs-stage-max: var(--hw-stage-max-w);
 }
 
-.mobile-chapter-slot--sensi {
+.hardware-slideshow.mobile-chapter-slot--sensi {
   --cs-mobile-stage-min-h: 0;
   --cs-mobile-stage-max-h: none;
 }
 
-/* Shrink-wrap stage to the viewbox — avoid a full-width flex column with dead space */
-.mobile-chapter-slot--sensi .hardware-slideshow .chapter-slide__stage:has(.phone-swap) {
-  display: flex;
-  justify-content: flex-start;
-  align-items: flex-start;
-  width: auto;
-  max-width: min(100%, var(--hw-stage-max-w));
-  min-height: 0;
-  min-width: 0;
-  flex: 0 0 auto;
+@media (min-width: 768px) {
+  /* Shrink-wrap stage to the viewbox — avoid a full-width flex column with dead space */
+  .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__stage:has(.phone-swap) {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    width: auto;
+    max-width: min(100%, var(--hw-stage-max-w));
+    min-height: 0;
+    min-width: 0;
+    flex: 0 0 auto;
+  }
+
+  .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__stage:has(.phone-swap) > .phone-swap {
+    margin-inline: 0;
+  }
 }
 
-.mobile-chapter-slot--sensi .hardware-slideshow .chapter-slide__stage:has(.phone-swap) > .phone-swap {
-  margin-inline: 0;
+@media (max-width: 767px) {
+  .hardware-slideshow.mobile-chapter-slot--sensi {
+    --phone-viewbox-base-w: 100svw;
+    --phone-viewbox-base-h: clamp(300px, 72dvh, 760px);
+    --phone-mobile-bleed: 1.32;
+    --phone-swap-width: 1;
+    --phone-swap-height: 1;
+    --hw-stage-max-w: none;
+  }
+
+  .hardware-slideshow.mobile-chapter-slot--sensi .phone-swap--mobile-bleed {
+    width: calc(100svw * var(--phone-mobile-bleed));
+    max-width: none;
+  }
+
+  .hardware-slideshow.mobile-chapter-slot--sensi .phone-swap--mobile-bleed .phone-swap__viewbox {
+    width: calc(100svw * var(--phone-mobile-bleed));
+    max-width: none;
+    height: min(
+      96dvh,
+      calc(var(--phone-viewbox-base-h) * var(--phone-swap-height, 1))
+    );
+  }
 }
 
 @media (min-width: 768px) and (max-width: 1023px) {

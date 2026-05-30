@@ -76,6 +76,12 @@
   max-width: 100%;
 }
 
+@media (max-width: 767px) {
+  .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__stage > .phone-swap {
+    max-width: none;
+  }
+}
+
 .chapter-slide__copy {
   grid-column: 2;
   grid-row: 1;

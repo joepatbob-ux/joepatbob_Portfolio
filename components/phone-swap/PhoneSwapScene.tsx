@@ -1,19 +1,27 @@
 'use client'
 
-import { OrbitControls, TransformControls } from '@react-three/drei'
+import { OrbitControls, TransformControls, useCursor } from '@react-three/drei'
 import { useFrame, useLoader, useThree } from '@react-three/fiber'
 import {
+  useCallback,
   useEffect,
   useLayoutEffect,
   useMemo,
   useRef,
   useState,
+  type Ref,
   type RefObject,
+  type MutableRefObject,
 } from 'react'
 import * as THREE from 'three'
 import { NoColorSpace, SRGBColorSpace, TextureLoader } from 'three'
+import type { ThreeEvent } from '@react-three/fiber'
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 import { debugLog } from '@/lib/phone-swap/debugLog'
+import {
+  backDeviceFromSnapshot,
+  setPhonePointerHits,
+} from '@/lib/phone-swap/phoneDeviceRoles'
 import {
   applyPoseToGroup,
   readPoseFromGroup,
@@ -71,6 +79,8 @@ interface Props {
   animSession?: number
   animSettings?: PhoneSwapAnimSettings
   onAnimationComplete?: () => void
+  onSwapRequest?: () => void
+  onBackHoverChange?: (hovering: boolean) => void
   showGuides?: boolean
   viewLocked?: boolean
   sceneApiRef?: RefObject<PhoneSwapSceneApi | null>
@@ -150,6 +160,8 @@ export function PhoneSwapScene({
   animSession = 0,
   animSettings = DEFAULT_PHONE_SWAP_ANIM,
   onAnimationComplete,
+  onSwapRequest,
+  onBackHoverChange,
   showGuides = false,
   viewLocked = true,
   sceneApiRef,
@@ -173,6 +185,51 @@ export function PhoneSwapScene({
   const [orbitEnabled, setOrbitEnabled] = useState(true)
   const [gizmoTarget, setGizmoTarget] = useState<THREE.Object3D | null>(null)
   const gizmoDragging = useRef(false)
+  const backDeviceRef = useRef<PhoneDevice>('iphone')
+  const hoverBackRef = useRef(false)
+  const [hoverBack, setHoverBack] = useState(false)
+  const [backDevice, setBackDevice] = useState<PhoneDevice>('iphone')
+
+  const interactionEnabled = !layoutMode && !animating
+  useCursor(interactionEnabled && hoverBack)
+
+  const onSwapRef = useRef(onSwapRequest)
+  onSwapRef.current = onSwapRequest
+  const onHoverRef = useRef(onBackHoverChange)
+  onHoverRef.current = onBackHoverChange
+
+  const setBackHover = useCallback((next: boolean) => {
+    hoverBackRef.current = next
+    setHoverBack(next)
+    onHoverRef.current?.(next)
+  }, [])
+
+  const handleBackClick = useCallback(
+    (device: PhoneDevice) => (e: ThreeEvent<MouseEvent>) => {
+      if (!interactionEnabled || backDeviceRef.current !== device) return
+      e.stopPropagation()
+      onSwapRef.current?.()
+    },
+    [interactionEnabled],
+  )
+
+  const handleBackOver = useCallback(
+    (device: PhoneDevice) => (e: ThreeEvent<PointerEvent>) => {
+      if (!interactionEnabled || backDeviceRef.current !== device) return
+      e.stopPropagation()
+      setBackHover(true)
+    },
+    [interactionEnabled, setBackHover],
+  )
+
+  const handleBackOut = useCallback(
+    (device: PhoneDevice) => (e: ThreeEvent<PointerEvent>) => {
+      if (backDeviceRef.current !== device) return
+      e.stopPropagation()
+      setBackHover(false)
+    },
+    [setBackHover],
+  )
 
   const cameraView = layout.camera
   const orbitAllowed = layoutMode && !viewLocked
@@ -181,7 +238,8 @@ export function PhoneSwapScene({
 
   useLayoutEffect(() => {
     if (!sceneApiRef) return
-    sceneApiRef.current = {
+    const apiSlot = sceneApiRef as MutableRefObject<PhoneSwapSceneApi | null>
+    apiSlot.current = {
       saveCameraView: () => readCameraView(camera, controlsRef.current),
       zoomAllOut: () => {
         if (!(camera instanceof THREE.PerspectiveCamera)) return null
@@ -196,7 +254,7 @@ export function PhoneSwapScene({
       },
     }
     return () => {
-      sceneApiRef.current = null
+      apiSlot.current = null
     }
   }, [camera, sceneApiRef, cameraView, androidRef, iphoneRef])
 
@@ -275,19 +333,35 @@ export function PhoneSwapScene({
         animSettings,
       )
       const settled = !animating
+      const back = backDeviceFromSnapshot(snapshot)
+      backDeviceRef.current = back
+      if (back !== backDevice) setBackDevice(back)
+
+      if (!layoutMode) {
+        setPhonePointerHits(androidRef.current, back === 'android')
+        setPhonePointerHits(iphoneRef.current, back === 'iphone')
+      }
+
+      const glow =
+        interactionEnabled && hoverBackRef.current ? 1 : 0
 
       applyPoseToGroup(androidRef.current, snapshot.android)
       applyPoseToGroup(iphoneRef.current, snapshot.iphone)
       applyFocusToPhoneRoot(
         androidRef.current,
         focusForSnapshot(snapshot, 'android'),
-        settled,
+        !settled,
+        { glowStrength: back === 'android' ? glow : 0 },
       )
       applyFocusToPhoneRoot(
         iphoneRef.current,
         focusForSnapshot(snapshot, 'iphone'),
-        settled,
+        !settled,
+        { glowStrength: back === 'iphone' ? glow : 0 },
       )
+    } else if (!layoutMode) {
+      setPhonePointerHits(androidRef.current, true)
+      setPhonePointerHits(iphoneRef.current, true)
     }
 
     const lockCamera = layoutMode ? viewLocked : true
@@ -308,6 +382,25 @@ export function PhoneSwapScene({
     }
   })
 
+  useLayoutEffect(() => {
+    if (layoutMode) {
+      setPhonePointerHits(androidRef.current, true)
+      setPhonePointerHits(iphoneRef.current, true)
+      return
+    }
+    setPhonePointerHits(androidRef.current, backDevice === 'android')
+    setPhonePointerHits(iphoneRef.current, backDevice === 'iphone')
+  }, [layoutMode, backDevice, androidRef, iphoneRef])
+
+  useEffect(() => {
+    if (layoutMode) setBackHover(false)
+  }, [layoutMode, setBackHover])
+
+  useEffect(() => {
+    if (!animating) return
+    setBackHover(false)
+  }, [animating, setBackHover])
+
   return (
     <>
       {layoutMode && showGuides ? <PhoneLayoutSceneGuides /> : null}
@@ -315,10 +408,20 @@ export function PhoneSwapScene({
       <directionalLight position={[5, 8, 6]} intensity={1.5} />
       <directionalLight position={[-4, 2, -4]} intensity={0.45} />
       <hemisphereLight args={['#f0f0f4', '#404048', 0.35]} />
-      <group ref={androidRef}>
+      <group
+        ref={androidRef as Ref<THREE.Group>}
+        onClick={handleBackClick('android')}
+        onPointerOver={handleBackOver('android')}
+        onPointerOut={handleBackOut('android')}
+      >
         <primitive object={androidScene} frustumCulled={false} />
       </group>
-      <group ref={iphoneRef}>
+      <group
+        ref={iphoneRef as Ref<THREE.Group>}
+        onClick={handleBackClick('iphone')}
+        onPointerOver={handleBackOver('iphone')}
+        onPointerOut={handleBackOut('iphone')}
+      >
         <primitive object={iphoneScene} frustumCulled={false} />
       </group>
       {layoutMode && gizmoTarget ? (
