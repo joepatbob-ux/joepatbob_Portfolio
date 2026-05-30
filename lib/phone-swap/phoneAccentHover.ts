@@ -90,6 +90,8 @@ export const PHONE_HOVER = {
   colorTint: 0.52,
   emissiveIntensity: 0.62,
   hoverLerp: 0.38,
+  /** Swap timeline progress (0–1) when click-glow reaches zero. */
+  swapGlowFadeEnd: 0.72,
 } as const
 
 export function applyModelHoverGlow(
