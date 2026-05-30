@@ -475,8 +475,8 @@
 
 .phone-swap__canvas-hit {
   width: 100%;
-  height: min(720px, 82dvh);
-  min-height: min(640px, 76dvh);
+  height: min(780px, 88dvh);
+  min-height: min(680px, 80dvh);
   cursor: pointer;
   overflow: visible;
   line-height: 0;
@@ -490,6 +490,27 @@
   display: block;
   position: relative;
   z-index: 1;
+  overflow: visible;
+}
+
+/* Desktop slideshow panel clips by default — release for sensi stage only */
+@media (min-width: 768px) {
+  .portfolio-chapter-slot--fill.hardware-slideshow.mobile-chapter-slot--sensi
+    .portfolio-chapter-panel {
+    overflow: visible !important;
+  }
+
+  .portfolio-chapter-slot--fill.hardware-slideshow.mobile-chapter-slot--sensi
+    .chapter-slide__viewport {
+    overflow: visible !important;
+    max-height: none !important;
+  }
+
+  .portfolio-chapter-slot--fill.hardware-slideshow.mobile-chapter-slot--sensi
+    .chapter-slide__inner {
+    max-height: none !important;
+    overflow: visible !important;
+  }
 }
 
 /* WebGL can fail to composite when an ancestor uses filter (chapter nav blur). */
@@ -536,6 +557,12 @@
   word-break: break-word;
 }
 
+/* Sensi — taller stage + no mobile max-height cap during phone arc */
+.mobile-chapter-slot--sensi {
+  --cs-mobile-stage-max-h: min(88dvh, 780px);
+  --cs-mobile-stage-min-h: min(50dvh, 520px);
+}
+
 /* Sensi slide — allow phones to extend outside slideshow viewport */
 .portfolio-chapter-slot--fill.hardware-slideshow.mobile-chapter-slot--sensi
   .portfolio-chapter-panel,
@@ -571,11 +598,11 @@
 @media (max-width: 767px) {
   .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__stage {
     max-height: none !important;
-    min-height: min(560px, 70dvh);
+    min-height: min(680px, 80dvh);
   }
 
   .phone-swap__canvas-hit {
-    height: min(600px, 74dvh);
-    min-height: min(540px, 68dvh);
+    height: min(720px, 86dvh);
+    min-height: min(640px, 78dvh);
   }
 }

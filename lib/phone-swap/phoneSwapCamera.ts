@@ -30,6 +30,27 @@ export function readCameraView(
   }
 }
 
+/** Pull back slightly mid-swap so arc paths stay inside the canvas. */
+export function cameraViewForSwap(
+  base: PhoneCameraView,
+  progress: number,
+  animating: boolean,
+): PhoneCameraView {
+  if (!animating && progress <= 0.001) return base
+  if (!animating && progress >= 0.999) return base
+
+  const t = Math.max(0, Math.min(1, progress))
+  const arc = Math.sin(t * Math.PI)
+  const pullZ = arc * 0.62
+  const fovBump = arc * 2.5
+
+  return {
+    position: [base.position[0], base.position[1], base.position[2] + pullZ],
+    target: [...base.target],
+    fov: base.fov + fovBump,
+  }
+}
+
 export function applyCameraView(
   camera: Camera,
   controls: OrbitControlsImpl | null,
