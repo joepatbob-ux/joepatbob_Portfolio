@@ -13,15 +13,17 @@ export const PIXEL8_MESH = {
 export const PIXEL8_DISPLAY = {
   backing: 0x050508,
   bezel: 0x121216,
+  /** Lift glass frame above body (screen uses {@link surfaceNudge}). */
+  bezelNudge: 0.006,
   /** Push screenshot above overlapping glass from the settled camera. */
   surfaceNudge: 0.004,
 } as const
 
-/** Draw order — display must win over overlapping bezel geometry. */
+/** Draw order — well above body (0); screen wins over bezel in overlap. */
 export const PIXEL8_DISPLAY_RENDER_ORDER = {
-  backing: 29,
-  bezel: 31,
-  screen: 35,
+  backing: 40,
+  bezel: 42,
+  screen: 44,
 } as const
 
 /** Max export textures (logo, speaker alphas, body atlases). */

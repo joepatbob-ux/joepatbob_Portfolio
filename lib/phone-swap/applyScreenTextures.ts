@@ -322,7 +322,7 @@ export function applyPixel8ScreenBacking(
       color: PIXEL8_DISPLAY.backing,
       toneMapped: false,
       depthTest: true,
-      depthWrite: true,
+      depthWrite: false,
       side: THREE.FrontSide,
     }),
   )
@@ -364,8 +364,8 @@ export function applyPixel8Screen(
       depthWrite: true,
       side: THREE.FrontSide,
       polygonOffset: true,
-      polygonOffsetFactor: -4,
-      polygonOffsetUnits: -8,
+      polygonOffsetFactor: -2,
+      polygonOffsetUnits: -4,
     })
     child.renderOrder = PIXEL8_DISPLAY_RENDER_ORDER.screen
     child.frustumCulled = false
@@ -376,7 +376,48 @@ export function applyPixel8Screen(
     applyPixel8ScreenBacking(root, backingGeometry)
   }
 
+  finalizePixel8DisplayStack(root)
+
   return count
+}
+
+/** Keep OLED backing → bezel → PNG as the last-drawn subtree on the model. */
+export function finalizePixel8DisplayStack(root: THREE.Object3D): void {
+  const stackNames = new Set<string>([
+    PIXEL8_MESH.displayBacking,
+    PIXEL8_MESH.glass,
+    PIXEL8_MESH.display,
+  ])
+  const meshes: THREE.Mesh[] = []
+
+  root.traverse((child) => {
+    if (child instanceof THREE.Mesh && stackNames.has(child.name)) {
+      meshes.push(child)
+    }
+  })
+
+  if (meshes.length === 0) return
+
+  const parent = meshes[0].parent
+  if (!parent) return
+
+  const existing = parent.getObjectByName('pixel8DisplayStack')
+  if (existing) existing.parent?.remove(existing)
+
+  const stack = new THREE.Group()
+  stack.name = 'pixel8DisplayStack'
+  stack.renderOrder = PIXEL8_DISPLAY_RENDER_ORDER.backing
+  parent.add(stack)
+
+  const order = [
+    PIXEL8_MESH.displayBacking,
+    PIXEL8_MESH.glass,
+    PIXEL8_MESH.display,
+  ]
+  for (const name of order) {
+    const mesh = meshes.find((m) => m.name === name)
+    if (mesh) stack.attach(mesh)
+  }
 }
 
 export type AndroidGlassMaps = {

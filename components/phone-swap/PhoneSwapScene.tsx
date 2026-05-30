@@ -382,18 +382,21 @@ export function PhoneSwapScene({
 
       applyPoseToGroup(androidRef.current, snapshot.android)
       applyPoseToGroup(iphoneRef.current, snapshot.iphone)
-      applyFocusToPhoneRoot(
-        androidRef.current,
-        focusForSnapshot(snapshot, 'android'),
-        !settled,
-        { glowStrength: back === 'android' ? backHover : 0 },
-      )
-      applyFocusToPhoneRoot(
-        iphoneRef.current,
-        focusForSnapshot(snapshot, 'iphone'),
-        !settled,
-        { glowStrength: back === 'iphone' ? backHover : 0 },
-      )
+
+      if (settled || backHover > 0.01) {
+        applyFocusToPhoneRoot(
+          androidRef.current,
+          focusForSnapshot(snapshot, 'android'),
+          !settled,
+          { glowStrength: back === 'android' ? backHover : 0 },
+        )
+        applyFocusToPhoneRoot(
+          iphoneRef.current,
+          focusForSnapshot(snapshot, 'iphone'),
+          !settled,
+          { glowStrength: back === 'iphone' ? backHover : 0 },
+        )
+      }
     }
 
     if (hasAndroidMaterialTunes) {

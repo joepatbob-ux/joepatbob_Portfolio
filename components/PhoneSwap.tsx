@@ -1,6 +1,7 @@
 'use client'
 
 import { PhoneAnimTunePanel } from '@/components/phone-swap/PhoneAnimTunePanel'
+import { PhoneDevToolsMenu, type PhoneDevToolsAction } from '@/components/phone-swap/PhoneDevToolsMenu'
 import { PhoneLayoutPanel } from '@/components/phone-swap/PhoneLayoutPanel'
 import { PhoneMaterialTunePanel } from '@/components/phone-swap/PhoneMaterialTunePanel'
 import { PhoneLayoutGuides } from '@/components/phone-swap/PhoneLayoutGuides'
@@ -34,7 +35,7 @@ import {
   EMPTY_PHONE_MATERIAL_TUNES,
   type PhoneMaterialTunesByDevice,
 } from '@/lib/phone-swap/phoneMaterialTune'
-import { usePhoneLayoutMode } from '@/lib/phone-swap/usePhoneLayoutMode'
+import { readPhoneLayoutMode } from '@/lib/phone-swap/usePhoneLayoutMode'
 import { useLayoutMobile } from '@/lib/hooks/useLayoutMobile'
 import type { PhoneSwapSceneApi } from '@/components/phone-swap/PhoneSwapScene'
 import {
@@ -44,11 +45,14 @@ import {
   useRef,
   useState,
   type CSSProperties,
+  type MouseEvent,
 } from 'react'
 import type * as THREE from 'three'
 
-/** 3D Pixel / iPhone swap — tap canvas to swap; layout tools via ?phone-layout=1 */
+/** 3D Pixel / iPhone swap — tap back phone to swap; right-click for dev tools. */
 export function PhoneSwap() {
+  const [devToolsEnabled, setDevToolsEnabled] = useState(() => readPhoneLayoutMode())
+  const [devMenu, setDevMenu] = useState<{ x: number; y: number } | null>(null)
   const [layoutMode, setLayoutMode] = useState(false)
   const [animTuneOpen, setAnimTuneOpen] = useState(false)
   const [materialTuneOpen, setMaterialTuneOpen] = useState(false)
@@ -65,7 +69,6 @@ export function PhoneSwap() {
   const [selectedDevice, setSelectedDevice] = useState<PhoneDevice>('android')
   const [gizmoMode, setGizmoMode] = useState<'translate' | 'rotate' | 'scale'>('translate')
   const [showGuides, setShowGuides] = useState(false)
-  const devControls = usePhoneLayoutMode()
   const isMobile = useLayoutMobile()
   const [locks, setLocks] = useState<LayoutLocks>(() => ({ ...DEFAULT_LAYOUT_LOCKS }))
   const [liveSnapshot, setLiveSnapshot] = useState<PhoneSwapSnapshot>(() =>
@@ -174,6 +177,42 @@ export function PhoneSwap() {
     setLayout((prev) => ({ ...prev, stageWidth: clampStageWidth(width) }))
   }, [])
 
+  const closeDevTools = useCallback(() => {
+    setDevMenu(null)
+    setDevToolsEnabled(false)
+    setLayoutMode(false)
+    setAnimTuneOpen(false)
+    setMaterialTuneOpen(false)
+  }, [])
+
+  const handleDevToolsAction = useCallback(
+    (action: PhoneDevToolsAction) => {
+      setDevMenu(null)
+      if (action === 'hide') {
+        closeDevTools()
+        return
+      }
+
+      setDevToolsEnabled(true)
+      if (action === 'layout') {
+        setEditFocus(swapped ? 'iphoneFocus' : 'androidFocus')
+        setLayoutMode(true)
+        return
+      }
+      if (action === 'anim') {
+        setAnimTuneOpen(true)
+        return
+      }
+      setMaterialTuneOpen(true)
+    },
+    [closeDevTools, swapped],
+  )
+
+  const handleViewboxContextMenu = useCallback((event: MouseEvent<HTMLDivElement>) => {
+      event.preventDefault()
+    setDevMenu({ x: event.clientX, y: event.clientY })
+  }, [])
+
   const useAuthoredStageScale = layoutMode || !isMobile
   const viewBoxVars = useAuthoredStageScale
     ? ({
@@ -187,7 +226,7 @@ export function PhoneSwap() {
       className={`phone-swap${isMobile && !layoutMode ? ' phone-swap--mobile-bleed' : ''}${layoutMode ? ' phone-swap--layout-mode' : ''}${animTuneOpen ? ' phone-swap--anim-tune' : ''}${materialTuneOpen ? ' phone-swap--material-tune' : ''}${layoutMode && showGuides ? ' phone-swap--guides' : ''}`}
       style={viewBoxVars}
     >
-      {devControls ? (
+      {devToolsEnabled ? (
         <div className="phone-swap__toolbar">
           <button
             type="button"
@@ -220,7 +259,7 @@ export function PhoneSwap() {
         </div>
       ) : null}
 
-      {devControls && materialTuneOpen ? (
+      {devToolsEnabled && materialTuneOpen ? (
         <PhoneMaterialTunePanel
           androidRef={androidRef}
           iphoneRef={iphoneRef}
@@ -230,7 +269,7 @@ export function PhoneSwap() {
         />
       ) : null}
 
-      {devControls && animTuneOpen ? (
+      {devToolsEnabled && animTuneOpen ? (
         <PhoneAnimTunePanel
           settings={animSettings}
           onChange={setAnimSettings}
@@ -241,7 +280,7 @@ export function PhoneSwap() {
         />
       ) : null}
 
-      {devControls && layoutMode ? (
+      {devToolsEnabled && layoutMode ? (
         <PhoneLayoutPanel
           layout={layout}
           editFocus={editFocus}
@@ -273,6 +312,7 @@ export function PhoneSwap() {
       <div
         className={`phone-swap__viewbox${backPhoneHover ? ' phone-swap__viewbox--swap-target' : ''}`}
         tabIndex={layoutMode ? undefined : 0}
+        onContextMenu={handleViewboxContextMenu}
         onKeyDown={
           layoutMode
             ? undefined
@@ -303,6 +343,7 @@ export function PhoneSwap() {
               alpha: true,
               antialias: true,
               powerPreference: 'high-performance',
+              logarithmicDepthBuffer: true,
             }}
             dpr={[1, 2]}
             frameloop="always"
@@ -344,6 +385,16 @@ export function PhoneSwap() {
             </Suspense>
         </Canvas>
       </div>
+
+      {devMenu ? (
+        <PhoneDevToolsMenu
+          x={devMenu.x}
+          y={devMenu.y}
+          devToolsEnabled={devToolsEnabled}
+          onSelect={handleDevToolsAction}
+          onClose={() => setDevMenu(null)}
+        />
+      ) : null}
 
     </div>
   )
