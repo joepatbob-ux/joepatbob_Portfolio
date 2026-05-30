@@ -255,7 +255,14 @@ export function PhoneSwapScene({
         progressRef.current = targetProgress.current
       }
 
-      const snapshot = snapshotForProgress(layout, progressRef.current)
+      const forward = animating
+        ? animTo.current >= animFrom.current
+        : true
+      const snapshot = snapshotForProgress(
+        layout,
+        progressRef.current,
+        forward,
+      )
       const settled = !animating
 
       applyPoseToGroup(androidRef.current, snapshot.android)

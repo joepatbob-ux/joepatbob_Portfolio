@@ -130,7 +130,8 @@ export function PhoneLayoutPanel({
       <div className="phone-layout-panel__scroll">
         <p className="phone-layout-panel__hint">
           Drag the header bar to move this panel. View lock fixes the camera — use the gizmo or
-          coordinates to move phones. Save Android focus, Swap midpoint, and iPhone focus.
+          coordinates to move phones. Save both focus states and both swap midpoints
+          (Android→iPhone and iPhone→Android).
         </p>
 
         <fieldset className="phone-layout-panel__view-box">
@@ -223,10 +224,17 @@ export function PhoneLayoutPanel({
         </button>
         <button
           type="button"
-          className={editFocus === 'swapMidpoint' ? 'is-active' : ''}
-          onClick={() => onEditFocusChange('swapMidpoint')}
+          className={editFocus === 'androidToIphoneMidpoint' ? 'is-active' : ''}
+          onClick={() => onEditFocusChange('androidToIphoneMidpoint')}
         >
-          Swap midpoint
+          A→i mid
+        </button>
+        <button
+          type="button"
+          className={editFocus === 'iphoneToAndroidMidpoint' ? 'is-active' : ''}
+          onClick={() => onEditFocusChange('iphoneToAndroidMidpoint')}
+        >
+          i→A mid
         </button>
       </div>
 

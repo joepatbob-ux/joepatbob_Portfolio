@@ -72,31 +72,46 @@ function snapshotAtSegment(
   return { android, iphone }
 }
 
-/**
- * Android focus → swap midpoint → iPhone focus (authored pass-around, no crossing).
- */
-export function interpolatePhoneSwapLayout(
+/** Android focus → android→iPhone midpoint → iPhone focus. */
+function interpolateAndroidToIphone(
   layout: PhoneSwapLayout,
   progress: number,
 ): PhoneSwapSnapshot {
   const t = clamp01(progress)
   const from = layout.androidFocus
-  const mid = layout.swapMidpoint
+  const mid = layout.androidToIphoneMidpoint
   const to = layout.iphoneFocus
   if (t <= 0.5) {
     return snapshotAtSegment(from, mid, t / 0.5, false, to)
   }
-
   return snapshotAtSegment(mid, to, (t - 0.5) / 0.5, true, to)
+}
+
+/** iPhone focus → iPhone→Android midpoint → Android focus (progress still 0 = Android, 1 = iPhone). */
+function interpolateIphoneToAndroid(
+  layout: PhoneSwapLayout,
+  progress: number,
+): PhoneSwapSnapshot {
+  const t = clamp01(progress)
+  const from = layout.androidFocus
+  const mid = layout.iphoneToAndroidMidpoint
+  const to = layout.iphoneFocus
+  if (t >= 0.5) {
+    return snapshotAtSegment(to, mid, (1 - t) / 0.5, false, from)
+  }
+  return snapshotAtSegment(mid, from, (0.5 - t) / 0.5, true, from)
 }
 
 export function snapshotForProgress(
   layout: PhoneSwapLayout,
   progress: number,
+  forward = true,
 ): PhoneSwapSnapshot {
   if (progress <= 0) return layout.androidFocus
   if (progress >= 1) return layout.iphoneFocus
-  return interpolatePhoneSwapLayout(layout, progress)
+  return forward
+    ? interpolateAndroidToIphone(layout, progress)
+    : interpolateIphoneToAndroid(layout, progress)
 }
 
 export function applyPoseToGroup(group: THREE.Group | null, pose: PhonePose) {
@@ -126,11 +141,20 @@ export function defaultRenderOrders(focus: 'androidFocus' | 'iphoneFocus') {
   return { android: 1, iphone: 2 }
 }
 
-export function renderOrdersForEdit(focus: PhoneSwapEditFocus, layout: PhoneSwapLayout) {
-  if (focus === 'swapMidpoint') {
+export function renderOrdersForEdit(
+  focus: PhoneSwapEditFocus,
+  layout: PhoneSwapLayout,
+) {
+  if (focus === 'androidToIphoneMidpoint') {
     return {
-      android: layout.swapMidpoint.android.renderOrder,
-      iphone: layout.swapMidpoint.iphone.renderOrder,
+      android: layout.androidToIphoneMidpoint.android.renderOrder,
+      iphone: layout.androidToIphoneMidpoint.iphone.renderOrder,
+    }
+  }
+  if (focus === 'iphoneToAndroidMidpoint') {
+    return {
+      android: layout.iphoneToAndroidMidpoint.android.renderOrder,
+      iphone: layout.iphoneToAndroidMidpoint.iphone.renderOrder,
     }
   }
   return defaultRenderOrders(focus)
