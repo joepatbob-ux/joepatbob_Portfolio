@@ -68,6 +68,14 @@
     margin-inline: 0;
   }
 
+  .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__stage:has(.phone-swap) {
+    width: auto;
+    max-width: 100%;
+    max-height: none;
+    min-height: 0;
+    flex: 0 0 auto;
+  }
+
   .hardware-slideshow .chapter-slide__stage > * {
     margin-inline: auto;
   }

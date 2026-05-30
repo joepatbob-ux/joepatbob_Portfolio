@@ -1,5 +1,10 @@
 import * as THREE from 'three'
-import type { PhonePose, PhoneSwapLayout, PhoneSwapSnapshot } from '@/lib/phone-swap/phoneSwapLayout'
+import type {
+  PhonePose,
+  PhoneSwapEditFocus,
+  PhoneSwapLayout,
+  PhoneSwapSnapshot,
+} from '@/lib/phone-swap/phoneSwapLayout'
 
 const _qa = new THREE.Quaternion()
 const _qb = new THREE.Quaternion()
@@ -10,8 +15,8 @@ function clamp01(t: number): number {
   return Math.max(0, Math.min(1, t))
 }
 
-function smoothstep(edge0: number, edge1: number, t: number): number {
-  const x = clamp01((t - edge0) / (edge1 - edge0))
+function smoothstep(t: number): number {
+  const x = clamp01(t)
   return x * x * (3 - 2 * x)
 }
 
@@ -33,13 +38,6 @@ function lerpRotation(
   return [_euler.x, _euler.y, _euler.z]
 }
 
-/** Staggered but same global ease — avoids phones meeting at center simultaneously. */
-function staggerT(t: number, lead: boolean): number {
-  const delay = lead ? 0 : 0.1
-  const span = 0.9
-  return clamp01((t - delay) / span)
-}
-
 function lerpPose(from: PhonePose, to: PhonePose, t: number): PhonePose {
   return {
     position: [
@@ -53,30 +51,29 @@ function lerpPose(from: PhonePose, to: PhonePose, t: number): PhonePose {
   }
 }
 
-function detourOffset(
-  from: [number, number, number],
-  to: [number, number, number],
+function snapshotAtSegment(
+  from: PhoneSwapSnapshot,
+  to: PhoneSwapSnapshot,
   t: number,
-  side: 1 | -1,
-  strength: number,
-): [number, number, number] {
-  const dx = to[0] - from[0]
-  const dy = to[1] - from[1]
-  const len = Math.hypot(dx, dy) || 1
-  const bulge = Math.sin(t * Math.PI) * strength
-  return [(-dy / len) * side * bulge, (dx / len) * side * bulge, 0]
-}
+  useEndFocusDepth: boolean,
+  endFocus: PhoneSwapSnapshot,
+): PhoneSwapSnapshot {
+  const u = smoothstep(t)
+  const android = lerpPose(from.android, to.android, u)
+  const iphone = lerpPose(from.iphone, to.iphone, u)
 
-function travelDistance(
-  a: [number, number, number],
-  b: [number, number, number],
-): number {
-  return Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2])
+  const depthRef = useEndFocusDepth ? endFocus : from
+  const androidIsFront =
+    depthRef.android.renderOrder > depthRef.iphone.renderOrder
+
+  android.renderOrder = androidIsFront ? 2 : 1
+  iphone.renderOrder = androidIsFront ? 1 : 2
+
+  return { android, iphone }
 }
 
 /**
- * Swap with opposing arcs, quaternion rotation, and smooth depth handoff
- * (no hard render-order flip or Z clamps that cause jitter).
+ * Android focus → swap midpoint → iPhone focus (authored pass-around, no crossing).
  */
 export function interpolatePhoneSwapLayout(
   layout: PhoneSwapLayout,
@@ -84,60 +81,13 @@ export function interpolatePhoneSwapLayout(
 ): PhoneSwapSnapshot {
   const t = clamp01(progress)
   const from = layout.androidFocus
+  const mid = layout.swapMidpoint
   const to = layout.iphoneFocus
+  if (t <= 0.5) {
+    return snapshotAtSegment(from, mid, t / 0.5, false, to)
+  }
 
-  const androidStartsFront = from.android.renderOrder > from.iphone.renderOrder
-
-  const tAndroid = staggerT(t, androidStartsFront)
-  const tIphone = staggerT(t, !androidStartsFront)
-
-  const android = lerpPose(from.android, to.android, tAndroid)
-  const iphone = lerpPose(from.iphone, to.iphone, tIphone)
-
-  const arcStrength = Math.max(
-    0.48,
-    Math.min(
-      travelDistance(from.android.position, to.android.position),
-      travelDistance(from.iphone.position, to.iphone.position),
-    ) *
-      0.5 +
-      0.32,
-  )
-
-  android.position[0] += detourOffset(from.android.position, to.android.position, tAndroid, 1, arcStrength)[0]
-  android.position[1] += detourOffset(from.android.position, to.android.position, tAndroid, 1, arcStrength)[1]
-  iphone.position[0] += detourOffset(from.iphone.position, to.iphone.position, tIphone, -1, arcStrength)[0]
-  iphone.position[1] += detourOffset(from.iphone.position, to.iphone.position, tIphone, -1, arcStrength)[1]
-
-  /** Zero at t=0 and t=1 so rest poses match saved layout exactly. */
-  const pass = Math.sin(t * Math.PI)
-  const edgeTurn = pass * 0.38
-  const edgeTilt = pass * 0.12
-
-  android.rotation[0] += edgeTilt
-  android.rotation[1] += edgeTurn
-  android.rotation[2] += edgeTilt * 0.25
-
-  iphone.rotation[0] -= edgeTilt
-  iphone.rotation[1] -= edgeTurn
-  iphone.rotation[2] -= edgeTilt * 0.25
-
-  const androidFrontBlend = androidStartsFront
-    ? 1 - smoothstep(0.36, 0.64, t)
-    : smoothstep(0.36, 0.64, t)
-
-  const depthSpread = (androidFrontBlend - 0.5) * 0.55 * pass
-  android.position[2] += depthSpread
-  iphone.position[2] -= depthSpread
-
-  android.position[1] += pass * 0.08
-  iphone.position[1] += pass * 0.05
-
-  const androidIsFront = androidFrontBlend >= 0.5
-  android.renderOrder = androidIsFront ? 2 : 1
-  iphone.renderOrder = androidIsFront ? 1 : 2
-
-  return { android, iphone }
+  return snapshotAtSegment(mid, to, (t - 0.5) / 0.5, true, to)
 }
 
 export function snapshotForProgress(
@@ -174,4 +124,14 @@ export function defaultRenderOrders(focus: 'androidFocus' | 'iphoneFocus') {
     return { android: 2, iphone: 1 }
   }
   return { android: 1, iphone: 2 }
+}
+
+export function renderOrdersForEdit(focus: PhoneSwapEditFocus, layout: PhoneSwapLayout) {
+  if (focus === 'swapMidpoint') {
+    return {
+      android: layout.swapMidpoint.android.renderOrder,
+      iphone: layout.swapMidpoint.iphone.renderOrder,
+    }
+  }
+  return defaultRenderOrders(focus)
 }

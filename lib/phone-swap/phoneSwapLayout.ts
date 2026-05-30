@@ -1,5 +1,11 @@
 import type { PhoneCameraView } from '@/lib/phone-swap/phoneSwapCamera'
 import { DEFAULT_PHONE_CAMERA, formatCameraTs } from '@/lib/phone-swap/phoneSwapCamera'
+import {
+  clampStageSize,
+  clampStageWidth,
+  DEFAULT_PHONE_STAGE_SIZE,
+  DEFAULT_PHONE_STAGE_WIDTH,
+} from '@/lib/phone-swap/phoneSwapStageSize'
 
 /** Transform for one phone in the scene. */
 export type PhonePose = {
@@ -22,13 +28,22 @@ export type PhoneSwapSnapshot = {
 
 export type PhoneSwapFocus = 'androidFocus' | 'iphoneFocus'
 
+/** Layout edit target — includes pass-around pose at t = 0.5. */
+export type PhoneSwapEditFocus = PhoneSwapFocus | 'swapMidpoint'
+
 export type PhoneSwapLayout = {
   /** Android featured (start). */
   androidFocus: PhoneSwapSnapshot
   /** iPhone featured (end). */
   iphoneFocus: PhoneSwapSnapshot
+  /** Pass-around pose — phones stay on opposite sides (no crossing). */
+  swapMidpoint: PhoneSwapSnapshot
   /** Fixed stage camera — orbit when unlocked in layout mode. */
   camera: PhoneCameraView
+  /** View box height scale (0.42–1.05, default ~0.68). */
+  stageSize: number
+  /** View box width scale (0.42–1.05; defaults to stageSize when omitted). */
+  stageWidth: number
 }
 
 export const PHONE_SWAP_LAYOUT: PhoneSwapLayout = {
@@ -60,7 +75,23 @@ export const PHONE_SWAP_LAYOUT: PhoneSwapLayout = {
       renderOrder: 2,
     },
   },
+  swapMidpoint: {
+    android: {
+      position: [-0.78, 0.06, -0.5],
+      rotation: [0.1, 1.35, 0.06],
+      scale: 0.84,
+      renderOrder: 1,
+    },
+    iphone: {
+      position: [0.78, 0.06, -0.5],
+      rotation: [-0.1, -1.35, -0.06],
+      scale: 0.84,
+      renderOrder: 1,
+    },
+  },
   camera: DEFAULT_PHONE_CAMERA,
+  stageSize: DEFAULT_PHONE_STAGE_SIZE,
+  stageWidth: DEFAULT_PHONE_STAGE_WIDTH,
 }
 
 function normalizeSnapshot(raw: PhoneSwapSnapshot): PhoneSwapSnapshot {
@@ -77,7 +108,16 @@ export function cloneLayout(layout: PhoneSwapLayout): PhoneSwapLayout {
       cloned.androidFocus ?? PHONE_SWAP_LAYOUT.androidFocus,
     ),
     iphoneFocus: normalizeSnapshot(cloned.iphoneFocus ?? PHONE_SWAP_LAYOUT.iphoneFocus),
+    swapMidpoint: normalizeSnapshot(
+      cloned.swapMidpoint ?? PHONE_SWAP_LAYOUT.swapMidpoint,
+    ),
     camera: cloned.camera ?? DEFAULT_PHONE_CAMERA,
+    stageSize: clampStageSize(cloned.stageSize ?? DEFAULT_PHONE_STAGE_SIZE),
+    stageWidth: clampStageWidth(
+      cloned.stageWidth ??
+        cloned.stageSize ??
+        DEFAULT_PHONE_STAGE_WIDTH,
+    ),
   }
 }
 
@@ -112,8 +152,18 @@ export const DEFAULT_LAYOUT_LOCKS: LayoutLocks = {
   viewAngle: true,
 }
 
-export function focusLabel(focus: PhoneSwapFocus): string {
-  return focus === 'androidFocus' ? 'Android focus' : 'iPhone focus'
+export function focusLabel(focus: PhoneSwapEditFocus): string {
+  if (focus === 'androidFocus') return 'Android focus'
+  if (focus === 'iphoneFocus') return 'iPhone focus'
+  return 'Swap midpoint'
+}
+
+export function layoutSnapshotForEdit(
+  layout: PhoneSwapLayout,
+  focus: PhoneSwapEditFocus,
+): PhoneSwapSnapshot {
+  if (focus === 'swapMidpoint') return layout.swapMidpoint
+  return layout[focus]
 }
 
 export function formatLayoutTs(layout: PhoneSwapLayout): string {
@@ -129,6 +179,12 @@ export function formatLayoutTs(layout: PhoneSwapLayout): string {
     android: ${fmt(layout.iphoneFocus.android)},
     iphone: ${fmt(layout.iphoneFocus.iphone)},
   },
+  swapMidpoint: {
+    android: ${fmt(layout.swapMidpoint.android)},
+    iphone: ${fmt(layout.swapMidpoint.iphone)},
+  },
   camera: ${formatCameraTs(layout.camera)},
+  stageSize: ${clampStageSize(layout.stageSize).toFixed(2)},
+  stageWidth: ${clampStageWidth(layout.stageWidth).toFixed(2)},
 }`
 }

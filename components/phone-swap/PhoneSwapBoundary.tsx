@@ -40,22 +40,22 @@ export class PhoneSwapBoundary extends Component<Props, State> {
 
   render() {
     if (this.state.hasError) {
+      const detail = this.state.errorMessage.trim()
+      const hint = detail.includes('.hdr')
+        ? 'Lighting environment failed to download — retry or check network.'
+        : detail.includes('/models/')
+          ? 'A model or texture under /models/ did not load.'
+          : 'WebGL or scene setup failed.'
+
       return (
         <p className="phone-swap__fallback">
-          3D preview could not load.
-          {import.meta.env.DEV && this.state.errorMessage ? (
+          3D preview could not load. {hint}
+          {detail ? (
             <>
               {' '}
-              <span className="phone-swap__fallback-detail">
-                ({this.state.errorMessage})
-              </span>
+              <span className="phone-swap__fallback-detail">({detail})</span>
             </>
-          ) : (
-            <>
-              {' '}
-              Check model files in <code>public/models/</code>.
-            </>
-          )}
+          ) : null}
         </p>
       )
     }

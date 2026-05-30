@@ -29,7 +29,7 @@ export function MobileSensiSection() {
     const panelEl = slot?.querySelector<HTMLElement>('.portfolio-chapter-panel')
     const overviewReveal = reveals['mobile-overview'] ?? 0
     const canvas = slot?.querySelector<HTMLCanvasElement>(
-      '.phone-swap__canvas-hit canvas',
+      '.phone-swap__viewbox canvas',
     )
     const canvasRect = canvas?.getBoundingClientRect()
     debugLog(

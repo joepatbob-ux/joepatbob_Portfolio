@@ -31,15 +31,16 @@
 
 /* Desktop + tablet (768+): viewport slideshow band */
 @media (min-width: 768px) {
+  /* Shared shell: Hardware + Flow slideshow (Mobile, EIB, Web Apps, etc.) */
   .hardware-slideshow .chapter-slide__viewport {
     flex: 1;
     min-height: 0;
     width: 100%;
     display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    padding: var(--hw-pad);
     box-sizing: border-box;
+    padding: var(--hw-pad);
+    justify-content: flex-start;
+    align-items: center;
   }
 
   .section-lessons.hardware-slideshow .portfolio-chapter-panel {
@@ -63,6 +64,8 @@
     max-height: 100% !important;
     margin-inline: 0;
     box-sizing: border-box;
+    align-self: center;
+    height: auto;
     align-items: flex-start;
     justify-content: flex-start;
     gap: var(--hw-gap);
@@ -91,6 +94,12 @@
   .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__stage,
   .hardware-slideshow .chapter-slide__stage:has(.phone-swap) {
     overflow: visible;
+  }
+
+  .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__stage:has(.phone-swap) {
+    flex: 0 0 auto;
+    width: auto;
+    max-width: min(100%, var(--hw-stage-max-w));
   }
 
   .hardware-slideshow .chapter-slide__stage .chapter-slide__interactive-wrap,

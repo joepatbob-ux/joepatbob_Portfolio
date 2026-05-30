@@ -71,6 +71,11 @@
   margin-inline: auto;
 }
 
+.chapter-slide__stage > .phone-swap {
+  width: auto;
+  max-width: 100%;
+}
+
 .chapter-slide__copy {
   grid-column: 2;
   grid-row: 1;
@@ -185,15 +190,7 @@
     margin-inline: auto;
   }
 
-  .hardware-slideshow .chapter-slide__inner {
-    max-width: 100% !important;
-    width: 100%;
-    margin-inline: 0;
-  }
-
-  .hardware-slideshow .chapter-slide__viewport {
-    justify-content: flex-start;
-  }
+  /* Slideshow chapters: full-width band, left-aligned — see hardware-layout.css */
 
   .hardware-slideshow
     .chapter-slide__copy:not(.chapter-slide__copy--lessons)
