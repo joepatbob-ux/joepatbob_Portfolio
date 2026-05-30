@@ -7,7 +7,12 @@ import {
 } from '@/lib/phone-swap/fitScreenTextureToMesh'
 import { debugLog } from '@/lib/phone-swap/debugLog'
 
-import { IPHONE16_MESH } from '@/lib/phone-swap/iphone16Assets'
+import {
+  IPHONE16_DISPLAY,
+  IPHONE16_DISPLAY_RENDER_ORDER,
+  IPHONE16_FRONT_OVERLAY_OBJECTS,
+  IPHONE16_MESH,
+} from '@/lib/phone-swap/iphone16Assets'
 import { PIXEL8_DISPLAY, PIXEL8_DISPLAY_RENDER_ORDER, PIXEL8_MESH } from '@/lib/phone-swap/pixel8Assets'
 import { PIXEL9_MESH } from '@/lib/phone-swap/pixel9Assets'
 import { meshMaterialSlot } from '@/lib/phone-swap/mergeMeshesByMaterial'
@@ -76,6 +81,7 @@ export function applyIPhone16Screen(
   screenTexture: THREE.Texture,
 ): number {
   let count = 0
+  let backingGeometry: THREE.BufferGeometry | null = null
 
   root.traverse((child) => {
     if (!(child instanceof THREE.Mesh)) return
@@ -83,6 +89,8 @@ export function applyIPhone16Screen(
 
     child.geometry = child.geometry.clone()
     const atlasUV = remapDisplayUVFlipV(child)
+    backingGeometry = child.geometry.clone()
+    nudgeGeometryAlongNormals(child.geometry, IPHONE16_DISPLAY.surfaceNudge)
     const map = screenTextureForDisplay(screenTexture)
     if (map.image) map.needsUpdate = true
 
@@ -98,12 +106,116 @@ export function applyIPhone16Screen(
 
     child.material = new THREE.MeshBasicMaterial({
       map,
+      color: 0xffffff,
       toneMapped: false,
       depthTest: true,
       depthWrite: true,
       side: THREE.FrontSide,
+      polygonOffset: true,
+      polygonOffsetFactor: -4,
+      polygonOffsetUnits: -8,
     })
-    child.renderOrder = 30
+    child.renderOrder = IPHONE16_DISPLAY_RENDER_ORDER.screen
+    child.frustumCulled = false
+    count += 1
+  })
+
+  if (count > 0 && backingGeometry) {
+    applyIPhone16ScreenBacking(root, backingGeometry)
+  }
+
+  return count
+}
+
+function findIPhone16DisplayMesh(root: THREE.Object3D): THREE.Mesh | null {
+  const mesh = root.getObjectByName(IPHONE16_MESH.display)
+  return mesh instanceof THREE.Mesh ? mesh : null
+}
+
+function applyIPhone16ScreenBacking(
+  root: THREE.Object3D,
+  backingGeometry: THREE.BufferGeometry,
+): number {
+  const display = findIPhone16DisplayMesh(root)
+  if (!display?.parent) return 0
+
+  const parent = display.parent
+  const existing = parent.getObjectByName(IPHONE16_MESH.displayBacking)
+  if (existing) {
+    existing.parent?.remove(existing)
+    if (existing instanceof THREE.Mesh) {
+      existing.geometry.dispose()
+      const mat = existing.material
+      if (Array.isArray(mat)) mat.forEach((m) => m.dispose())
+      else mat.dispose()
+    }
+  }
+
+  const backing = new THREE.Mesh(
+    backingGeometry,
+    new THREE.MeshBasicMaterial({
+      name: IPHONE16_MESH.displayBacking,
+      color: IPHONE16_DISPLAY.backing,
+      toneMapped: false,
+      depthTest: true,
+      depthWrite: true,
+      side: THREE.FrontSide,
+    }),
+  )
+  backing.name = IPHONE16_MESH.displayBacking
+  backing.position.copy(display.position)
+  backing.quaternion.copy(display.quaternion)
+  backing.scale.copy(display.scale)
+  backing.renderOrder = IPHONE16_DISPLAY_RENDER_ORDER.backing
+  backing.frustumCulled = false
+  parent.add(backing)
+
+  return 1
+}
+
+function iphone16BezelMaterial(): THREE.MeshStandardMaterial {
+  return new THREE.MeshStandardMaterial({
+    name: IPHONE16_MESH.glass,
+    color: IPHONE16_DISPLAY.bezel,
+    metalness: 0.12,
+    roughness: 0.58,
+    envMapIntensity: 0.45,
+    side: THREE.FrontSide,
+    depthTest: true,
+    depthWrite: false,
+    polygonOffset: true,
+    polygonOffsetFactor: 2,
+    polygonOffsetUnits: 6,
+  })
+}
+
+/** Black front glass frame (`Glass` mesh — was hidden). */
+export function applyIPhone16FrontBezel(root: THREE.Object3D): number {
+  let count = 0
+
+  root.traverse((child) => {
+    if (!(child instanceof THREE.Mesh)) return
+    if (child.name !== IPHONE16_MESH.glass) return
+
+    child.material = iphone16BezelMaterial()
+    child.visible = true
+    child.renderOrder = IPHONE16_DISPLAY_RENDER_ORDER.bezel
+    child.frustumCulled = false
+    count += 1
+  })
+
+  return count
+}
+
+/** Dynamic Island + front sensors render above the screenshot. */
+export function applyIPhone16FrontOverlays(root: THREE.Object3D): number {
+  let count = 0
+
+  root.traverse((child) => {
+    if (!(child instanceof THREE.Mesh)) return
+    if (!IPHONE16_FRONT_OVERLAY_OBJECTS.has(child.name)) return
+
+    child.renderOrder = IPHONE16_DISPLAY_RENDER_ORDER.overlay
     child.frustumCulled = false
     count += 1
   })

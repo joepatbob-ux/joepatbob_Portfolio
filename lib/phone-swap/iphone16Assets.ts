@@ -4,7 +4,33 @@ export const IPHONE16_MESH = {
   body: 'Body',
   display: 'Display',
   glass: 'Glass',
+  /** Solid fill behind the UI screenshot (bezel / island gaps). */
+  displayBacking: 'Display_backing',
 } as const
+
+/** Front OLED well + glass frame. */
+export const IPHONE16_DISPLAY = {
+  backing: 0x050508,
+  bezel: 0x121216,
+  /** Push screenshot above overlapping glass from the settled camera. */
+  surfaceNudge: 0.004,
+} as const
+
+/** Draw order — display must win over overlapping glass. */
+export const IPHONE16_DISPLAY_RENDER_ORDER = {
+  backing: 29,
+  bezel: 31,
+  screen: 35,
+  /** Dynamic Island + front sensors sit on the glass stack. */
+  overlay: 37,
+} as const
+
+/** Island / sensor meshes rendered above the screenshot PNG. */
+export const IPHONE16_FRONT_OVERLAY_OBJECTS = new Set([
+  'Dynamic_Island',
+  'Front_Sensors',
+  'Front_Camera',
+])
 
 export const IPHONE16_PRO_TEX = '/models/iphone16-pro-tex' as const
 

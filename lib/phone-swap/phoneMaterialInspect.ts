@@ -10,6 +10,7 @@ import {
   PIXEL8_SPEAKER_SLOTS,
 } from '@/lib/phone-swap/pixel8Assets'
 import {
+  IPHONE16_FRONT_OVERLAY_OBJECTS,
   IPHONE16_MESH,
   IPHONE16_RING_OBJECTS,
   IPHONE16_SIDE_OBJECTS,
@@ -90,8 +91,11 @@ export function classifyIPhoneSlot(
   meshName: string,
   materialName: string,
 ): PhoneMaterialRole {
-  if (meshName === IPHONE16_MESH.display) return 'display'
+  if (meshName === IPHONE16_MESH.display || meshName === IPHONE16_MESH.displayBacking) {
+    return 'display'
+  }
   if (meshName === IPHONE16_MESH.glass) return 'glass'
+  if (IPHONE16_FRONT_OVERLAY_OBJECTS.has(meshName)) return 'black'
   if (IPHONE16_SIDE_OBJECTS.has(meshName)) return 'side'
   if (IPHONE16_RING_OBJECTS.has(meshName)) return 'ring'
   if (meshName === IPHONE16_MESH.body) return 'body'

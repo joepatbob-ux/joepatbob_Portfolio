@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { ANDROID_MESH } from '@/lib/phone-swap/applyScreenTextures'
-import { IPHONE16_MESH } from '@/lib/phone-swap/iphone16Assets'
+import { IPHONE16_FRONT_OVERLAY_OBJECTS, IPHONE16_MESH } from '@/lib/phone-swap/iphone16Assets'
 import { PIXEL8_MESH } from '@/lib/phone-swap/pixel8Assets'
 
 /** Site accent — keep in sync with `--color-accent` in globals.css */
@@ -10,6 +10,7 @@ export const PHONE_SWAP_ACCENT_COLOR = new THREE.Color(PHONE_SWAP_ACCENT)
 
 const DISPLAY_MESH_NAMES = new Set<string>([
   IPHONE16_MESH.display,
+  IPHONE16_MESH.displayBacking,
   PIXEL8_MESH.display,
   PIXEL8_MESH.displayBacking,
   ANDROID_MESH.display,
@@ -20,6 +21,11 @@ const HIDDEN_GLASS_NAMES = new Set<string>([
   IPHONE16_MESH.glass,
   PIXEL8_MESH.glass,
   ANDROID_MESH.glass,
+])
+
+const HOVER_SKIP_MESH_NAMES = new Set<string>([
+  ...HIDDEN_GLASS_NAMES,
+  ...IPHONE16_FRONT_OVERLAY_OBJECTS,
 ])
 
 export function isPhoneDisplayMesh(mesh: THREE.Mesh): boolean {
@@ -36,7 +42,7 @@ export function isPhoneHoverMesh(
   mesh: THREE.Mesh,
   material: THREE.Material,
 ): boolean {
-  if (HIDDEN_GLASS_NAMES.has(mesh.name)) return false
+  if (HOVER_SKIP_MESH_NAMES.has(mesh.name)) return false
   if (material instanceof THREE.MeshPhysicalMaterial) return false
   if (material instanceof THREE.ShaderMaterial && isPhoneDisplayMesh(mesh)) {
     return false
