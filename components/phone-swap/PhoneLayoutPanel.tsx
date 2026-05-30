@@ -1,25 +1,34 @@
 'use client'
 
+import { useFloatingPanelDrag } from '@/lib/phone-swap/useFloatingPanelDrag'
+import { createPortal } from 'react-dom'
+import { useEffect, useState } from 'react'
 import {
   focusLabel,
   formatLayoutTs,
   type PhoneCameraView,
   type PhoneDevice,
   type PhonePose,
-  type PhoneSwapFocus,
+  type PhoneSwapEditFocus,
   type PhoneSwapLayout,
   type PhoneSwapSnapshot,
 } from '@/lib/phone-swap/phoneSwapLayout'
 import { PhonePoseFields } from '@/components/phone-swap/PhonePoseFields'
+import {
+  PHONE_STAGE_SIZE_MAX,
+  PHONE_STAGE_SIZE_MIN,
+  stageSizePercent,
+  stageWidthPercent,
+} from '@/lib/phone-swap/phoneSwapStageSize'
 
 type GizmoMode = 'translate' | 'rotate' | 'scale'
 
 type Props = {
   layout: PhoneSwapLayout
-  editFocus: PhoneSwapFocus
+  editFocus: PhoneSwapEditFocus
   selected: PhoneDevice
   gizmoMode: GizmoMode
-  onEditFocusChange: (focus: PhoneSwapFocus) => void
+  onEditFocusChange: (focus: PhoneSwapEditFocus) => void
   onSelect: (device: PhoneDevice) => void
   onGizmoModeChange: (mode: GizmoMode) => void
   onSaveFocus: () => void
@@ -31,6 +40,11 @@ type Props = {
   onViewLockToggle: () => void
   onSaveView: () => void
   onResetView: () => void
+  onZoomAllOut: () => void
+  stageSize: number
+  onStageSizeChange: (size: number) => void
+  stageWidth: number
+  onStageWidthChange: (width: number) => void
   camera: PhoneCameraView
   liveSnapshot: PhoneSwapSnapshot
   onDevicePoseChange: (device: PhoneDevice, pose: PhonePose) => void
@@ -55,11 +69,30 @@ export function PhoneLayoutPanel({
   onViewLockToggle,
   onSaveView,
   onResetView,
+  onZoomAllOut,
+  stageSize,
+  onStageSizeChange,
+  stageWidth,
+  onStageWidthChange,
   camera,
   liveSnapshot,
   onDevicePoseChange,
 }: Props) {
   const snap = liveSnapshot
+  const [portalReady, setPortalReady] = useState(false)
+  const {
+    panelRef,
+    panelStyle,
+    dragging,
+    onHeaderPointerDown,
+    onHeaderPointerMove,
+    onHeaderPointerUp,
+    onHeaderPointerCancel,
+  } = useFloatingPanelDrag()
+
+  useEffect(() => {
+    setPortalReady(true)
+  }, [])
 
   async function copyLayout() {
     const text = formatLayoutTs(layout)
@@ -70,35 +103,92 @@ export function PhoneLayoutPanel({
     }
   }
 
-  return (
-    <div className={panelClass}>
-      <div className="phone-layout-panel__header">
+  const panel = (
+    <div
+      ref={panelRef}
+      className={`${panelClass}${dragging ? ' phone-layout-panel--dragging' : ''}`}
+      style={panelStyle}
+      role="dialog"
+      aria-label="Phone layout controls"
+    >
+      <div
+        className="phone-layout-panel__header"
+        onPointerDown={onHeaderPointerDown}
+        onPointerMove={onHeaderPointerMove}
+        onPointerUp={onHeaderPointerUp}
+        onPointerCancel={onHeaderPointerCancel}
+      >
+        <span className="phone-layout-panel__drag-hint" aria-hidden>
+          ⋮⋮
+        </span>
         <strong>Position phones</strong>
         <button type="button" className="phone-layout-panel__close" onClick={onClose}>
           Done
         </button>
       </div>
 
-      <p className="phone-layout-panel__hint">
-        View lock only fixes the camera — use the gizmo or type coordinates to move phones.
-        Save each focus state when done.
-      </p>
+      <div className="phone-layout-panel__scroll">
+        <p className="phone-layout-panel__hint">
+          Drag the header bar to move this panel. View lock fixes the camera — use the gizmo or
+          coordinates to move phones. Save Android focus, Swap midpoint, and iPhone focus.
+        </p>
 
-      <div className="phone-layout-panel__row">
-        <button
-          type="button"
-          className={viewLocked ? 'is-active' : ''}
-          onClick={onViewLockToggle}
-        >
-          {viewLocked ? 'View locked' : 'View unlocked'}
-        </button>
-        <button type="button" onClick={onSaveView}>
-          Save view
-        </button>
-        <button type="button" onClick={onResetView}>
-          Reset view
-        </button>
-      </div>
+        <fieldset className="phone-layout-panel__view-box">
+          <legend>View box</legend>
+          <label className="phone-layout-panel__view-box-row">
+            <span>Height</span>
+            <input
+              type="range"
+              min={Math.round(PHONE_STAGE_SIZE_MIN * 100)}
+              max={Math.round(PHONE_STAGE_SIZE_MAX * 100)}
+              step={1}
+              value={stageSizePercent(stageSize)}
+              onChange={(e) => onStageSizeChange(Number(e.target.value) / 100)}
+              aria-valuemin={Math.round(PHONE_STAGE_SIZE_MIN * 100)}
+              aria-valuemax={Math.round(PHONE_STAGE_SIZE_MAX * 100)}
+              aria-valuenow={stageSizePercent(stageSize)}
+            />
+            <output>{stageSizePercent(stageSize)}%</output>
+          </label>
+          <label className="phone-layout-panel__view-box-row">
+            <span>Width</span>
+            <input
+              type="range"
+              min={Math.round(PHONE_STAGE_SIZE_MIN * 100)}
+              max={Math.round(PHONE_STAGE_SIZE_MAX * 100)}
+              step={1}
+              value={stageWidthPercent(stageWidth)}
+              onChange={(e) => onStageWidthChange(Number(e.target.value) / 100)}
+              aria-valuemin={Math.round(PHONE_STAGE_SIZE_MIN * 100)}
+              aria-valuemax={Math.round(PHONE_STAGE_SIZE_MAX * 100)}
+              aria-valuenow={stageWidthPercent(stageWidth)}
+            />
+            <output>{stageWidthPercent(stageWidth)}%</output>
+          </label>
+          <p className="phone-layout-panel__view-box-hint">
+            Sets the visible viewport (phones clip to this box). Default 68% each — Copy
+            TS persists <code>stageSize</code> (height) and <code>stageWidth</code>.
+          </p>
+        </fieldset>
+
+        <div className="phone-layout-panel__row">
+          <button
+            type="button"
+            className={viewLocked ? 'is-active' : ''}
+            onClick={onViewLockToggle}
+          >
+            {viewLocked ? 'View locked' : 'View unlocked'}
+          </button>
+          <button type="button" onClick={onZoomAllOut}>
+            Zoom all out
+          </button>
+          <button type="button" onClick={onSaveView}>
+            Save view
+          </button>
+          <button type="button" onClick={onResetView}>
+            Reset view
+          </button>
+        </div>
 
       <p className="phone-layout-panel__status phone-layout-panel__status--camera">
         Camera: [{camera.position.map((n) => n.toFixed(2)).join(', ')}] → target [
@@ -130,6 +220,13 @@ export function PhoneLayoutPanel({
           onClick={() => onEditFocusChange('iphoneFocus')}
         >
           iPhone focus
+        </button>
+        <button
+          type="button"
+          className={editFocus === 'swapMidpoint' ? 'is-active' : ''}
+          onClick={() => onEditFocusChange('swapMidpoint')}
+        >
+          Swap midpoint
         </button>
       </div>
 
@@ -218,17 +315,21 @@ export function PhoneLayoutPanel({
         </div>
       </dl>
 
-      <div className="phone-layout-panel__row phone-layout-panel__row--actions">
-        <button type="button" className="is-primary" onClick={onSaveFocus}>
-          Save {focusLabel(editFocus)}
-        </button>
-        <button type="button" onClick={copyLayout}>
-          Copy TS
-        </button>
-        <button type="button" onClick={onReset}>
-          Reset
-        </button>
+        <div className="phone-layout-panel__row phone-layout-panel__row--actions">
+          <button type="button" className="is-primary" onClick={onSaveFocus}>
+            Save {focusLabel(editFocus)}
+          </button>
+          <button type="button" onClick={copyLayout}>
+            Copy TS
+          </button>
+          <button type="button" onClick={onReset}>
+            Reset
+          </button>
+        </div>
       </div>
     </div>
   )
+
+  if (!portalReady) return null
+  return createPortal(panel, document.body)
 }

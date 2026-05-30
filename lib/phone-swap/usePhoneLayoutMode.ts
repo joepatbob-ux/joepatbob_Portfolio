@@ -5,8 +5,10 @@ function readPhoneLayoutMode(): boolean {
   return new URLSearchParams(window.location.search).has('phone-layout')
 }
 
-/** True when URL has `?phone-layout=1` — enables transform capture UI. */
+/** Dev build or `?phone-layout=1` — enables position maker UI. */
 export function usePhoneLayoutMode(): boolean {
-  const [layoutMode] = useState(readPhoneLayoutMode)
+  const [layoutMode] = useState(
+    () => import.meta.env.DEV || readPhoneLayoutMode(),
+  )
   return layoutMode
 }

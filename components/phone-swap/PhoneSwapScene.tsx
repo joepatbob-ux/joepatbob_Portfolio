@@ -1,6 +1,6 @@
 'use client'
 
-import { Environment, OrbitControls, TransformControls } from '@react-three/drei'
+import { OrbitControls, TransformControls } from '@react-three/drei'
 import { useFrame, useLoader, useThree } from '@react-three/fiber'
 import {
   useEffect,
@@ -26,13 +26,15 @@ import {
   readCameraView,
   type PhoneCameraView,
 } from '@/lib/phone-swap/phoneSwapCamera'
+import { cameraViewZoomAllOut } from '@/lib/phone-swap/phoneSwapCameraFit'
 import {
   applyFocusToPhoneRoot,
   focusForSnapshot,
 } from '@/lib/phone-swap/phoneFocusVisuals'
 import {
   type PhoneDevice,
-  type PhoneSwapFocus,
+  layoutSnapshotForEdit,
+  type PhoneSwapEditFocus,
   type PhoneSwapLayout,
   type PhoneSwapSnapshot,
 } from '@/lib/phone-swap/phoneSwapLayout'
@@ -46,6 +48,7 @@ type GizmoMode = 'translate' | 'rotate' | 'scale'
 
 export type PhoneSwapSceneApi = {
   saveCameraView: () => PhoneCameraView
+  zoomAllOut: () => PhoneCameraView | null
 }
 
 interface Props {
@@ -53,7 +56,7 @@ interface Props {
   /** 0 = Android focus, 1 = iPhone focus */
   swapProgress: number
   layoutMode?: boolean
-  editFocus?: PhoneSwapFocus
+  editFocus?: PhoneSwapEditFocus
   liveSnapshot?: PhoneSwapSnapshot
   onGizmoChange?: () => void
   selectedDevice?: PhoneDevice
@@ -165,17 +168,29 @@ export function PhoneSwapScene({
 
   const cameraView = layout.camera
   const orbitAllowed = layoutMode && !viewLocked
-  const layoutSnapshot = liveSnapshot ?? layout[editFocus]
+  const layoutSnapshot =
+    liveSnapshot ?? layoutSnapshotForEdit(layout, editFocus)
 
   useLayoutEffect(() => {
     if (!sceneApiRef) return
     sceneApiRef.current = {
       saveCameraView: () => readCameraView(camera, controlsRef.current),
+      zoomAllOut: () => {
+        if (!(camera instanceof THREE.PerspectiveCamera)) return null
+        const view = cameraViewZoomAllOut(
+          cameraView,
+          androidRef.current,
+          iphoneRef.current,
+          camera.aspect,
+        )
+        applyCameraView(camera, controlsRef.current, view)
+        return readCameraView(camera, controlsRef.current)
+      },
     }
     return () => {
       sceneApiRef.current = null
     }
-  }, [camera, sceneApiRef])
+  }, [camera, sceneApiRef, cameraView, androidRef, iphoneRef])
 
   useLayoutEffect(() => {
     applyCameraView(camera, controlsRef.current, cameraView)
@@ -222,57 +237,66 @@ export function PhoneSwapScene({
   }, [layoutMode, layoutSnapshot, androidRef, iphoneRef])
 
   useFrame(() => {
-    const lockCamera = layoutMode ? viewLocked : true
-    if (lockCamera) {
-      const activeCamera = layoutMode
-        ? cameraView
-        : cameraViewForSwap(cameraView, progressRef.current, animating)
-      applyCameraView(camera, controlsRef.current, activeCamera)
-    }
-
-    if (layoutMode) return
-
-    if (animating) {
-      const linear = (performance.now() - animStart.current) / PHONE_SWAP_ANIM_MS
-      if (linear >= 1) {
-        progressRef.current = animTo.current
-        if (!animCompleteFired.current) {
-          animCompleteFired.current = true
-          queueMicrotask(() => onCompleteRef.current?.())
+    if (!layoutMode) {
+      if (animating) {
+        const linear = (performance.now() - animStart.current) / PHONE_SWAP_ANIM_MS
+        if (linear >= 1) {
+          progressRef.current = animTo.current
+          if (!animCompleteFired.current) {
+            animCompleteFired.current = true
+            queueMicrotask(() => onCompleteRef.current?.())
+          }
+        } else {
+          const u = easeInOutSine(linear)
+          progressRef.current =
+            animFrom.current + (animTo.current - animFrom.current) * u
         }
       } else {
-        const u = easeInOutSine(linear)
-        progressRef.current =
-          animFrom.current + (animTo.current - animFrom.current) * u
+        progressRef.current = targetProgress.current
       }
-    } else {
-      progressRef.current = targetProgress.current
+
+      const snapshot = snapshotForProgress(layout, progressRef.current)
+      const settled = !animating
+
+      applyPoseToGroup(androidRef.current, snapshot.android)
+      applyPoseToGroup(iphoneRef.current, snapshot.iphone)
+      applyFocusToPhoneRoot(
+        androidRef.current,
+        focusForSnapshot(snapshot, 'android'),
+        settled,
+      )
+      applyFocusToPhoneRoot(
+        iphoneRef.current,
+        focusForSnapshot(snapshot, 'iphone'),
+        settled,
+      )
     }
 
-    const snapshot = snapshotForProgress(layout, progressRef.current)
-    const settled = !animating
-
-    applyPoseToGroup(androidRef.current, snapshot.android)
-    applyPoseToGroup(iphoneRef.current, snapshot.iphone)
-    applyFocusToPhoneRoot(
-      androidRef.current,
-      focusForSnapshot(snapshot, 'android'),
-      settled,
-    )
-    applyFocusToPhoneRoot(
-      iphoneRef.current,
-      focusForSnapshot(snapshot, 'iphone'),
-      settled,
-    )
+    const lockCamera = layoutMode ? viewLocked : true
+    if (lockCamera) {
+      const aspect =
+        camera instanceof THREE.PerspectiveCamera ? camera.aspect : 1
+      const activeCamera = layoutMode
+        ? cameraView
+        : cameraViewForSwap(
+            cameraView,
+            progressRef.current,
+            animating,
+            androidRef.current,
+            iphoneRef.current,
+            aspect,
+          )
+      applyCameraView(camera, controlsRef.current, activeCamera)
+    }
   })
 
   return (
     <>
-      <Environment preset="city" />
       {layoutMode && showGuides ? <PhoneLayoutSceneGuides /> : null}
-      <ambientLight intensity={0.75} />
-      <directionalLight position={[5, 8, 6]} intensity={1.4} />
-      <directionalLight position={[-4, 2, -4]} intensity={0.4} />
+      <ambientLight intensity={0.85} />
+      <directionalLight position={[5, 8, 6]} intensity={1.5} />
+      <directionalLight position={[-4, 2, -4]} intensity={0.45} />
+      <hemisphereLight args={['#f0f0f4', '#404048', 0.35]} />
       <group ref={androidRef}>
         <primitive object={androidScene} frustumCulled={false} />
       </group>

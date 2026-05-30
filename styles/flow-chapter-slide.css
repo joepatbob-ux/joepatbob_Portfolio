@@ -1,17 +1,4 @@
-/* Flow case studies — extends .hardware-slideshow (see hardware-layout.css) */
-
-@media (min-width: 768px) {
-  .flow-chapter-slide.hardware-slideshow .chapter-slide__viewport {
-    padding-left: 0;
-    padding-right: 0;
-    justify-content: flex-start;
-  }
-
-  .flow-chapter-slide.hardware-slideshow .chapter-slide__inner {
-    max-width: 100% !important;
-    width: 100%;
-  }
-}
+/* Flow case studies — stage/copy shell in hardware-layout.css (shared with Hardware) */
 
 .flow-chapter-slide__copy .case-study-section-header,
 .flow-chapter-slide__copy .mobile-section-header {

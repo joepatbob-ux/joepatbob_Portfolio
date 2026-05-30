@@ -1,6 +1,11 @@
-import type { Camera } from 'three'
+import type { Camera, Object3D } from 'three'
 import * as THREE from 'three'
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
+import {
+  cameraViewFittingPhones,
+  enclosingCameraView,
+  lerpCameraView,
+} from '@/lib/phone-swap/phoneSwapCameraFit'
 
 /** Saved orbit camera for the phone swap stage. */
 export type PhoneCameraView = {
@@ -10,9 +15,9 @@ export type PhoneCameraView = {
 }
 
 export const DEFAULT_PHONE_CAMERA: PhoneCameraView = {
-  position: [0, 0, 3.2],
+  position: [0, 0, 2.55],
   target: [0, 0, 0],
-  fov: 42,
+  fov: 40,
 }
 
 export function readCameraView(
@@ -30,25 +35,26 @@ export function readCameraView(
   }
 }
 
-/** Pull back slightly mid-swap so arc paths stay inside the canvas. */
+/** Frame both phones — back phone (e.g. offset iPhone) must stay inside canvas. */
 export function cameraViewForSwap(
   base: PhoneCameraView,
   progress: number,
   animating: boolean,
+  android: Object3D | null,
+  iphone: Object3D | null,
+  aspect: number,
 ): PhoneCameraView {
-  if (!animating && progress <= 0.001) return base
-  if (!animating && progress >= 0.999) return base
+  if (!animating) {
+    return base
+  }
 
   const t = Math.max(0, Math.min(1, progress))
   const arc = Math.sin(t * Math.PI)
-  const pullZ = arc * 0.62
-  const fovBump = arc * 2.5
+  if (arc < 0.001) return base
 
-  return {
-    position: [base.position[0], base.position[1], base.position[2] + pullZ],
-    target: [...base.target],
-    fov: base.fov + fovBump,
-  }
+  const fitted = cameraViewFittingPhones(base, android, iphone, aspect, 1.22)
+  const blend = arc * 0.55
+  return lerpCameraView(base, fitted, blend)
 }
 
 export function applyCameraView(

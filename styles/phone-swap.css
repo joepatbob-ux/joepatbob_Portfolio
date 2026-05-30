@@ -1,29 +1,56 @@
 /* PhoneSwap — R3F canvas + label UI; chapter integration */
 
 .phone-swap {
+  --phone-viewbox-base-w: clamp(380px, 58vw, 960px);
+  --phone-viewbox-base-h: clamp(480px, 74dvh, 880px);
+  --phone-swap-width: 1;
+  --phone-swap-height: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0;
-  width: 100%;
+  width: auto;
   max-width: 100%;
   margin-inline: auto;
   padding: 0;
   box-sizing: border-box;
   background: transparent;
-  overflow: visible;
 }
 
-.phone-swap__stage {
+/* Single viewport: width/height sliders map here; overflow clips the 3D scene */
+.phone-swap__viewbox {
   position: relative;
-  width: 100%;
-  overflow: visible;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  width: min(
+    100%,
+    calc(var(--phone-viewbox-base-w) * var(--phone-swap-width, 1))
+  );
+  height: min(
+    96dvh,
+    calc(var(--phone-viewbox-base-h) * var(--phone-swap-height, 1))
+  );
+  overflow: hidden;
+  cursor: pointer;
+  line-height: 0;
+  background: transparent;
+}
+
+.phone-swap__viewbox canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+  position: relative;
+  z-index: 1;
 }
 
 .phone-swap__toolbar {
   width: 100%;
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
+  align-items: center;
+  gap: 10px 14px;
   position: relative;
   z-index: 10;
 }
@@ -51,33 +78,73 @@
 }
 
 .phone-layout-panel {
-  width: 100%;
-  max-width: 360px;
-  margin-inline: auto;
-  padding: 14px 16px;
+  position: fixed;
+  width: min(400px, calc(100vw - 32px));
+  margin: 0;
+  padding: 0;
   border-radius: 12px;
   border: 0.5px solid rgba(0, 0, 0, 0.12);
-  background: rgba(18, 18, 20, 0.94);
+  background: rgba(18, 18, 20, 0.96);
   color: #f2f2f2;
   font-size: 12px;
   line-height: 1.45;
-  position: relative;
-  z-index: 10;
+  z-index: 10050;
   pointer-events: auto;
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.22);
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.35),
+    0 0 0 1px rgba(255, 255, 255, 0.06) inset;
+  display: flex;
+  flex-direction: column;
+  max-height: min(calc(100dvh - 2rem), 720px);
+  overflow: hidden;
+}
+
+.phone-layout-panel--dragging {
+  user-select: none;
+  cursor: grabbing;
+}
+
+.phone-layout-panel__scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: 0 16px 14px;
+  scrollbar-gutter: stable;
 }
 
 .phone-layout-panel__header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 8px;
+  gap: 10px;
+  flex-shrink: 0;
+  padding: 12px 14px 8px;
+  cursor: grab;
+  touch-action: none;
+  border-bottom: 0.5px solid rgba(255, 255, 255, 0.08);
+}
+
+.phone-layout-panel__header:active {
+  cursor: grabbing;
+}
+
+.phone-layout-panel__drag-hint {
+  flex-shrink: 0;
+  font-size: 14px;
+  line-height: 1;
+  letter-spacing: -0.12em;
+  color: rgba(255, 255, 255, 0.35);
+  padding-right: 2px;
 }
 
 .phone-layout-panel__header strong {
+  flex: 1 1 auto;
   font-size: 13px;
   font-weight: 600;
+  min-width: 0;
 }
 
 .phone-layout-panel__close {
@@ -226,18 +293,89 @@
   border-color: rgba(0, 170, 255, 0.55);
 }
 
+.phone-layout-panel__view-box {
+  margin: 0 0 12px;
+  padding: 10px;
+  border-radius: 8px;
+  border: 0.5px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.phone-layout-panel__view-box legend {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #999;
+  margin-bottom: 8px;
+}
+
+.phone-layout-panel__view-box-row {
+  display: grid;
+  grid-template-columns: 3.25rem 1fr 2.75rem;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.phone-layout-panel__view-box-row:last-of-type {
+  margin-bottom: 0;
+}
+
+.phone-layout-panel__view-box-row span {
+  font-size: 10px;
+  color: #999;
+}
+
+.phone-layout-panel__view-box-row input[type='range'] {
+  min-width: 0;
+  accent-color: #7dd3fc;
+}
+
+.phone-layout-panel__view-box-row output {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 11px;
+  color: #ccc;
+  text-align: right;
+}
+
+.phone-layout-panel__view-box-hint {
+  margin: 8px 0 0;
+  font-size: 10px;
+  color: #888;
+  line-height: 1.4;
+}
+
 @media (max-width: 400px) {
   .phone-layout-panel__inputs {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-.phone-swap--layout-mode .phone-swap__canvas-hit {
+.phone-swap--layout-mode {
+  position: relative;
+  z-index: 20;
+}
+
+.phone-swap--layout-mode .phone-swap__toolbar {
+  position: relative;
+  z-index: 31;
+  flex-shrink: 0;
+}
+
+.phone-swap--layout-mode .phone-swap__viewbox {
   cursor: default;
 }
 
-/* Layout guides — dev only (?phone-layout=1), no filled viewbox */
-.phone-swap--guides .phone-swap__stage {
+/* Layout panel scrolls; chapter shell must not steal vertical wheel */
+.portfolio-chapter-slot--fill.hardware-slideshow.mobile-chapter-slot--sensi
+  .portfolio-chapter-panel:has(.phone-swap--layout-mode),
+.portfolio-chapter-slot--fill.hardware-slideshow.mobile-chapter-slot--sensi
+  .chapter-slide__viewport:has(.phone-swap--layout-mode) {
+  overflow: visible !important;
+}
+
+/* Layout guides — dev only (?phone-layout=1) */
+.phone-swap--guides .phone-swap__viewbox {
   outline: none;
 }
 
@@ -473,46 +611,6 @@
   margin-inline: auto;
 }
 
-.phone-swap__canvas-hit {
-  width: 100%;
-  height: min(780px, 88dvh);
-  min-height: min(680px, 80dvh);
-  cursor: pointer;
-  overflow: visible;
-  line-height: 0;
-  position: relative;
-  background: transparent;
-}
-
-.phone-swap__canvas-hit canvas {
-  width: 100% !important;
-  height: 100% !important;
-  display: block;
-  position: relative;
-  z-index: 1;
-  overflow: visible;
-}
-
-/* Desktop slideshow panel clips by default — release for sensi stage only */
-@media (min-width: 768px) {
-  .portfolio-chapter-slot--fill.hardware-slideshow.mobile-chapter-slot--sensi
-    .portfolio-chapter-panel {
-    overflow: visible !important;
-  }
-
-  .portfolio-chapter-slot--fill.hardware-slideshow.mobile-chapter-slot--sensi
-    .chapter-slide__viewport {
-    overflow: visible !important;
-    max-height: none !important;
-  }
-
-  .portfolio-chapter-slot--fill.hardware-slideshow.mobile-chapter-slot--sensi
-    .chapter-slide__inner {
-    max-height: none !important;
-    overflow: visible !important;
-  }
-}
-
 /* WebGL can fail to composite when an ancestor uses filter (chapter nav blur). */
 .hardware-slideshow .phone-swap,
 .flow-chapter-slide .phone-swap {
@@ -520,8 +618,8 @@
   -webkit-filter: none;
 }
 
-.hardware-slideshow .phone-swap__canvas-hit,
-.flow-chapter-slide .phone-swap__canvas-hit {
+.hardware-slideshow .phone-swap__viewbox,
+.flow-chapter-slide .phone-swap__viewbox {
   transform: translateZ(0);
 }
 
@@ -557,52 +655,51 @@
   word-break: break-word;
 }
 
-/* Sensi — taller stage + no mobile max-height cap during phone arc */
+/* Sensi — viewbox sizes the stage column; band uses full panel width */
+.hardware-slideshow.mobile-chapter-slot--sensi {
+  --phone-viewbox-base-w: min(100%, clamp(380px, 58vw, min(960px, 100%)));
+  --phone-viewbox-base-h: clamp(480px, 74dvh, 880px);
+  --phone-swap-height: 0.68;
+  --phone-swap-width: 0.68;
+  --hw-stage-max-w: min(
+    100%,
+    calc(var(--phone-viewbox-base-w) * var(--phone-swap-width, 1))
+  );
+  --hw-stage-min-w: 0;
+  --cs-stage-max: var(--hw-stage-max-w);
+}
+
 .mobile-chapter-slot--sensi {
-  --cs-mobile-stage-max-h: min(88dvh, 780px);
-  --cs-mobile-stage-min-h: min(50dvh, 520px);
+  --cs-mobile-stage-min-h: 0;
+  --cs-mobile-stage-max-h: none;
 }
 
-/* Sensi slide — allow phones to extend outside slideshow viewport */
-.portfolio-chapter-slot--fill.hardware-slideshow.mobile-chapter-slot--sensi
-  .portfolio-chapter-panel,
-.portfolio-chapter-slot--fill.hardware-slideshow.mobile-chapter-slot--sensi
-  .chapter-slide__viewport,
-.mobile-chapter-slot--sensi .chapter-slide__stage:has(.phone-swap),
-.flow-chapter-slide.mobile-chapter-slot--sensi .chapter-slide__stage:has(.phone-swap),
-.hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__stage,
-.hardware-slideshow .chapter-slide__stage:has(.phone-swap) {
-  overflow: visible !important;
-  max-height: none !important;
+/* Shrink-wrap stage to the viewbox — avoid a full-width flex column with dead space */
+.mobile-chapter-slot--sensi .hardware-slideshow .chapter-slide__stage:has(.phone-swap) {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  width: auto;
+  max-width: min(100%, var(--hw-stage-max-w));
+  min-height: 0;
+  min-width: 0;
+  flex: 0 0 auto;
 }
 
-.portfolio-chapter-slot--fill.hardware-slideshow.mobile-chapter-slot--sensi
-  .chapter-slide__inner,
-.mobile-chapter-slot--sensi .chapter-slide__inner,
-.flow-chapter-slide.mobile-chapter-slot--sensi .chapter-slide__inner {
-  overflow: visible !important;
-  max-height: none !important;
+.mobile-chapter-slot--sensi .hardware-slideshow .chapter-slide__stage:has(.phone-swap) > .phone-swap {
+  margin-inline: 0;
 }
 
-.mobile-chapter-slot--sensi .hardware-slideshow .chapter-slide__stage {
-  min-height: min(640px, 76dvh);
-  overflow: visible !important;
-}
-
-.mobile-chapter-slot--sensi .phone-swap,
-.mobile-chapter-slot--sensi .phone-swap__stage,
-.mobile-chapter-slot--sensi .phone-swap__canvas-hit {
-  overflow: visible !important;
-}
-
-@media (max-width: 767px) {
-  .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__stage {
-    max-height: none !important;
-    min-height: min(680px, 80dvh);
+@media (min-width: 768px) and (max-width: 1023px) {
+  .hardware-slideshow.mobile-chapter-slot--sensi {
+    --phone-viewbox-base-w: min(100%, clamp(320px, 56vw, 780px));
+    --phone-viewbox-base-h: clamp(400px, 66dvh, 760px);
   }
+}
 
-  .phone-swap__canvas-hit {
-    height: min(720px, 86dvh);
-    min-height: min(640px, 78dvh);
+@media (min-width: 2560px) {
+  .hardware-slideshow.mobile-chapter-slot--sensi {
+    --phone-viewbox-base-w: min(100%, clamp(480px, 44vw, 1000px));
+    --phone-viewbox-base-h: clamp(480px, 72dvh, 880px);
   }
 }

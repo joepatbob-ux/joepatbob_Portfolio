@@ -6,25 +6,34 @@ import { PhoneSwapScene } from '@/components/phone-swap/PhoneSwapScene'
 import { Html } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 import {
-  defaultRenderOrders,
   readPoseFromGroup,
+  renderOrdersForEdit,
 } from '@/lib/phone-swap/phoneSwapAnimation'
 import {
   PHONE_SWAP_LAYOUT,
   DEFAULT_LAYOUT_LOCKS,
   cloneLayout,
   cloneSnapshot,
+  layoutSnapshotForEdit,
   type PhoneDevice,
-  type PhoneSwapFocus,
+  type PhoneSwapEditFocus,
   type PhoneSwapLayout,
   type PhoneSwapSnapshot,
   type LayoutLocks,
   type PhonePose,
 } from '@/lib/phone-swap/phoneSwapLayout'
 import { DEFAULT_PHONE_CAMERA } from '@/lib/phone-swap/phoneSwapCamera'
+import { clampStageSize, clampStageWidth } from '@/lib/phone-swap/phoneSwapStageSize'
 import { usePhoneLayoutMode } from '@/lib/phone-swap/usePhoneLayoutMode'
 import type { PhoneSwapSceneApi } from '@/components/phone-swap/PhoneSwapScene'
-import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
+import {
+  Suspense,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+} from 'react'
 import type * as THREE from 'three'
 
 /** 3D Pixel / iPhone swap — tap canvas to swap; layout tools via ?phone-layout=1 */
@@ -32,7 +41,7 @@ export function PhoneSwap() {
   const [layoutMode, setLayoutMode] = useState(false)
   const [swapped, setSwapped] = useState(false)
   const [layout, setLayout] = useState<PhoneSwapLayout>(() => cloneLayout(PHONE_SWAP_LAYOUT))
-  const [editFocus, setEditFocus] = useState<PhoneSwapFocus>('androidFocus')
+  const [editFocus, setEditFocus] = useState<PhoneSwapEditFocus>('androidFocus')
   const [selectedDevice, setSelectedDevice] = useState<PhoneDevice>('android')
   const [gizmoMode, setGizmoMode] = useState<'translate' | 'rotate' | 'scale'>('translate')
   const [showGuides, setShowGuides] = useState(false)
@@ -53,7 +62,7 @@ export function PhoneSwap() {
 
   useEffect(() => {
     if (!layoutMode) return
-    setLiveSnapshot(cloneSnapshot(layoutRef.current[editFocus]))
+    setLiveSnapshot(cloneSnapshot(layoutSnapshotForEdit(layoutRef.current, editFocus)))
   }, [layoutMode, editFocus])
 
   const syncFromGizmo = useCallback(() => {
@@ -61,7 +70,7 @@ export function PhoneSwap() {
     const iphone = iphoneRef.current
     if (!android || !iphone) return
 
-    const orders = defaultRenderOrders(editFocus)
+    const orders = renderOrdersForEdit(editFocus, layoutRef.current)
     setLiveSnapshot({
       android: readPoseFromGroup(android, orders.android),
       iphone: readPoseFromGroup(iphone, orders.iphone),
@@ -91,10 +100,13 @@ export function PhoneSwap() {
     }))
   }, [editFocus, liveSnapshot])
 
+  const layoutPreviewProgress =
+    editFocus === 'iphoneFocus' ? 1 : editFocus === 'swapMidpoint' ? 0.5 : 0
+
   const resetLayout = useCallback(() => {
     const next = cloneLayout(PHONE_SWAP_LAYOUT)
     setLayout(next)
-    setLiveSnapshot(cloneSnapshot(next[editFocus]))
+    setLiveSnapshot(cloneSnapshot(layoutSnapshotForEdit(next, editFocus)))
   }, [editFocus])
 
   const saveView = useCallback(() => {
@@ -109,13 +121,34 @@ export function PhoneSwap() {
     setLocks((prev) => ({ ...prev, viewAngle: true }))
   }, [])
 
+  const zoomAllOut = useCallback(() => {
+    const view = sceneApiRef.current?.zoomAllOut()
+    if (!view) return
+    setLayout((prev) => ({ ...prev, camera: view }))
+    setLocks((prev) => ({ ...prev, viewAngle: true }))
+  }, [])
+
   const toggleViewLock = useCallback(() => {
     setLocks((prev) => ({ ...prev, viewAngle: !prev.viewAngle }))
   }, [])
 
+  const setStageSize = useCallback((size: number) => {
+    setLayout((prev) => ({ ...prev, stageSize: clampStageSize(size) }))
+  }, [])
+
+  const setStageWidth = useCallback((width: number) => {
+    setLayout((prev) => ({ ...prev, stageWidth: clampStageWidth(width) }))
+  }, [])
+
+  const viewBoxVars = {
+    '--phone-swap-height': String(layout.stageSize),
+    '--phone-swap-width': String(layout.stageWidth),
+  } as CSSProperties
+
   return (
     <div
       className={`phone-swap${layoutMode ? ' phone-swap--layout-mode' : ''}${layoutMode && showGuides ? ' phone-swap--guides' : ''}`}
+      style={viewBoxVars}
     >
       {devControls ? (
         <div className="phone-swap__toolbar">
@@ -124,7 +157,9 @@ export function PhoneSwap() {
             className={`phone-swap__layout-toggle${layoutMode ? ' is-active' : ''}`}
             onClick={() => {
               setLayoutMode((on) => {
-                if (!on) setEditFocus(swapped ? 'iphoneFocus' : 'androidFocus')
+                if (!on) {
+                  setEditFocus(swapped ? 'iphoneFocus' : 'androidFocus')
+                }
                 return !on
               })
             }}
@@ -152,28 +187,32 @@ export function PhoneSwap() {
           onViewLockToggle={toggleViewLock}
           onSaveView={saveView}
           onResetView={resetView}
+          onZoomAllOut={zoomAllOut}
+          stageSize={layout.stageSize}
+          onStageSizeChange={setStageSize}
+          stageWidth={layout.stageWidth}
+          onStageWidthChange={setStageWidth}
           camera={layout.camera}
           liveSnapshot={liveSnapshot}
           onDevicePoseChange={updateDevicePose}
         />
       ) : null}
 
-      <div className="phone-swap__stage">
-        <div
-          className="phone-swap__canvas-hit"
-          onClick={layoutMode ? undefined : doSwap}
-          role={layoutMode ? undefined : 'button'}
-          tabIndex={layoutMode ? undefined : 0}
-          aria-label={
-            layoutMode
-              ? undefined
-              : swapped
-                ? 'Phone models: iPhone in front. Activate to show Android in front.'
-                : 'Phone models: Android in front. Activate to show iPhone in front.'
-          }
-        >
-          {layoutMode && showGuides ? <PhoneLayoutGuides /> : null}
-          <Canvas
+      <div
+        className="phone-swap__viewbox"
+        onClick={layoutMode ? undefined : doSwap}
+        role={layoutMode ? undefined : 'button'}
+        tabIndex={layoutMode ? undefined : 0}
+        aria-label={
+          layoutMode
+            ? undefined
+            : swapped
+              ? 'Phone models: iPhone in front. Activate to show Android in front.'
+              : 'Phone models: Android in front. Activate to show iPhone in front.'
+        }
+      >
+        {layoutMode && showGuides ? <PhoneLayoutGuides /> : null}
+        <Canvas
             camera={{
               position: layout.camera.position,
               fov: layout.camera.fov,
@@ -201,7 +240,7 @@ export function PhoneSwap() {
             >
               <PhoneSwapScene
                 layout={layout}
-                swapProgress={layoutMode ? (editFocus === 'iphoneFocus' ? 1 : 0) : swapProgress}
+                swapProgress={layoutMode ? layoutPreviewProgress : swapProgress}
                 layoutMode={layoutMode}
                 editFocus={editFocus}
                 liveSnapshot={liveSnapshot}
@@ -217,8 +256,7 @@ export function PhoneSwap() {
                 sceneApiRef={sceneApiRef}
               />
             </Suspense>
-          </Canvas>
-        </div>
+        </Canvas>
       </div>
 
     </div>
