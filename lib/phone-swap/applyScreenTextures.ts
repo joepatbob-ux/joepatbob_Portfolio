@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import {
-  remapDisplayUVsTo01Flipped,
+  remapDisplayUVFlipV,
   remapMeshUVsTo01,
   screenTextureForDisplay,
 } from '@/lib/phone-swap/fitScreenTextureToMesh'
@@ -77,17 +77,17 @@ export function applyIPhone16Screen(
     if (child.name !== IPHONE16_MESH.display) return
 
     child.geometry = child.geometry.clone()
-    const atlasUV = remapDisplayUVsTo01Flipped(child)
+    const atlasUV = remapDisplayUVFlipV(child)
     const map = screenTextureForDisplay(screenTexture)
     if (map.image) map.needsUpdate = true
 
     // #region agent log
     debugLog(
       'applyScreenTextures.tsx:iPhone16Screen',
-      'display UV remapped + 180° flip',
-      { meshName: child.name, atlasUV, flipY: map.flipY, uvFlipped: true },
+      'display UV remapped, V flipped',
+      { meshName: child.name, atlasUV, flipY: map.flipY, uvFlipV: true },
       'U',
-      'iphone-screen-rotate',
+      'iphone-screen-flip-v',
     )
     // #endregion
 
