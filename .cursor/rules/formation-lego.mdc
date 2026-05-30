@@ -1,0 +1,37 @@
+---
+description: Formation LEGO — peg grid (legoGrid) + bricks (legoBricks) on /Lego/ SVGs
+globs: components/formation/**/*,lib/formation/**/*,styles/formation-lego-board.css,public/Lego/**
+
+## Layout (components)
+
+- `FormationLegoBoard.tsx` — board + left/right pivot controls
+- `FormationLegoBrickPiece.tsx` — draggable brick sprite
+- `useFormationLegoBoard.ts` — placement, drag, peg snap on release / board click
+- `spritePlacement.ts` — anchor→board positioning math
+alwaysApply: false
+---
+
+# Formation LEGO board
+
+## Peg map (`lib/formation/legoGrid.ts`)
+
+- 10×10 studs; **A0** = plate zero pin (bottom tip, cyan).
+- **Y-axis (A→J)**: +GY from cyan (A) to magenta (J) up the plate; **X-axis (0→9)**: +GX toward screen right.
+- `pegLabel(gx, gy)` → y letter + x digit (`A0` … `J9`); `PEG_MAP` = stud centers from `Lego_Board.svg`.
+
+## Bricks (`lib/formation/legoBricks.ts`)
+
+- Assets: `public/Lego/Lego_Left_*.svg`, `Lego_Right_*.svg`.
+- **Left snap**: position-pin orange → position-pin peg; block 0,0 uses the same peg for footprint.
+- **Right snap**: block 0,0 orange → block-origin peg + nudge; corner `pin+(1,1)` for block, else pin ≡ block peg; snap ties prefer colocated pin.
+- **Left** pivot: 4×2 along +GY. **Right** pivot: 4×2 along +GX.
+
+## Depth and stacking
+
+- Board art: `Lego_Board_White.svg` (dark mode) / `Lego_Board_Black.svg` (light mode); same viewBox. Neutral brick (`black` color): `Lego_*_Black` on white board, `Lego_Brick_*_White` on black board. Active / dragging piece uses `Lego_Brick_*_Selected.svg` + `SELECTED_VIEWBOX` for placement (orange snap guides). Bricks use `brickIsoZIndex` for A0→J9 depth; board studs cannot interleave until studs are split into per-peg layers.
+- **Collision**: two bricks cannot share studs at the **same** `level`; overlapping placement auto-stacks via `snapToTopLevel` (same pegs, higher level).
+
+## Do not
+
+- Procedural placeholder bricks or `public/images/formation/` PNGs (removed).
+- CSS `rotate` for brick orientation — art is already aligned to the plate axes.
