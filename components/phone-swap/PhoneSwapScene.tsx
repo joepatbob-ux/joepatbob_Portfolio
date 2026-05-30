@@ -54,14 +54,17 @@ function useIPhoneScene() {
   ])
 
   useLayoutEffect(() => {
-    const [screen, ...rest] = textures
+    const [screen, brushRough, brushSatin, ...colorMaps] = textures
     screen.colorSpace = THREE.SRGBColorSpace
-    rest.forEach((tex, i) => {
-      tex.colorSpace =
-        i < 2 ? THREE.NoColorSpace : THREE.SRGBColorSpace
+    brushRough.colorSpace = THREE.NoColorSpace
+    brushSatin.colorSpace = THREE.NoColorSpace
+    colorMaps.forEach((tex) => {
+      tex.colorSpace = THREE.SRGBColorSpace
       tex.needsUpdate = true
     })
     screen.needsUpdate = true
+    brushRough.needsUpdate = true
+    brushSatin.needsUpdate = true
   }, [textures])
 
   return useMemo(() => {

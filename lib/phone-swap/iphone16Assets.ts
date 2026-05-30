@@ -8,6 +8,14 @@ export const IPHONE16_MESH = {
 
 export const IPHONE16_PRO_TEX = '/models/iphone16-pro-tex' as const
 
+/** Natural titanium palette (warm light gray — not black). */
+export const NATURAL_TITANIUM = {
+  body: 0xc9c4bc,
+  bodyLight: 0xd8d3cb,
+  side: 0xbfb9b1,
+  ring: 0xd0ccc6,
+} as const
+
 export const IPHONE16_TEXTURES = {
   obj: '/models/APPLE_iPhone 16 Pro.obj',
   mtl: '/models/APPLE_iPhone 16 Pro.mtl',
@@ -30,3 +38,18 @@ export type IPhone16ProMaps = {
   speakerAlpha: THREE.Texture
   speakerBump: THREE.Texture
 }
+
+/** Side / button meshes — brush normals stretch badly on these UVs. */
+export const IPHONE16_SIDE_OBJECTS = new Set([
+  'Side_Button',
+  'Volume_Up',
+  'Volume_Down',
+  'Action_Button',
+  'Camera_Control',
+])
+
+export const IPHONE16_RING_OBJECTS = new Set([
+  'Camera_Ring',
+  'Camera_Ring_2',
+  'Camera_Ring_3',
+])
