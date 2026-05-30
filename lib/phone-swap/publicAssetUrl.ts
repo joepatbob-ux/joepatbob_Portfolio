@@ -8,3 +8,18 @@ export function publicAssetUrl(path: string): string {
     .map((segment, index) => (index === 0 ? segment : encodeURIComponent(segment)))
     .join('/')
 }
+
+/** Split an encoded public URL for Three.js loaders (setPath + fileName). */
+export function splitPublicAssetUrl(assetPath: string): {
+  directory: string
+  fileName: string
+} {
+  const lastSlash = assetPath.lastIndexOf('/')
+  if (lastSlash < 0) {
+    return { directory: '/', fileName: assetPath }
+  }
+  return {
+    directory: assetPath.slice(0, lastSlash + 1),
+    fileName: assetPath.slice(lastSlash + 1),
+  }
+}
