@@ -49,7 +49,7 @@ import {
 } from 'react'
 import type * as THREE from 'three'
 
-/** 3D Pixel / iPhone swap — tap back phone to swap; right-click for dev tools. */
+/** 3D Pixel / iPhone swap — tap back phone to swap; right-click for design debug tools. */
 export function PhoneSwap() {
   const [devToolsEnabled, setDevToolsEnabled] = useState(() => readPhoneLayoutMode())
   const [devMenu, setDevMenu] = useState<{ x: number; y: number } | null>(null)

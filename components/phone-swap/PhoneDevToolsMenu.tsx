@@ -55,7 +55,7 @@ export function PhoneDevToolsMenu({
       <button
         type="button"
         className="phone-dev-tools-menu__backdrop"
-        aria-label="Close developer menu"
+        aria-label="Close design debug menu"
         onClick={onClose}
       />
       <div
@@ -65,7 +65,7 @@ export function PhoneDevToolsMenu({
         role="menu"
         onClick={(event) => event.stopPropagation()}
       >
-        <p className="phone-dev-tools-menu__label">Phone dev tools</p>
+        <p className="phone-dev-tools-menu__label">Design debug tools</p>
         <button
           type="button"
           role="menuitem"
@@ -97,7 +97,7 @@ export function PhoneDevToolsMenu({
             className="phone-dev-tools-menu__item phone-dev-tools-menu__item--muted"
             onClick={() => onSelect('hide')}
           >
-            Hide developer tools
+            Hide design debug tools
           </button>
         ) : null}
       </div>
