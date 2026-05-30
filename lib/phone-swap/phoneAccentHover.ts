@@ -37,6 +37,9 @@ export function isPhoneHoverMesh(
 ): boolean {
   if (HIDDEN_GLASS_NAMES.has(mesh.name)) return false
   if (material instanceof THREE.MeshPhysicalMaterial) return false
+  if (material instanceof THREE.ShaderMaterial && isPhoneDisplayMesh(mesh)) {
+    return false
+  }
   if (
     material instanceof THREE.MeshStandardMaterial ||
     material instanceof THREE.MeshBasicMaterial
@@ -49,8 +52,7 @@ export function isPhoneHoverMesh(
 export const PHONE_HOVER = {
   colorTint: 0.52,
   emissiveIntensity: 0.62,
-  /** Ease defocus while hovered so the glow reads on the back phone. */
-  defocusEase: 0.55,
+  hoverLerp: 0.38,
 } as const
 
 export function applyModelHoverGlow(
