@@ -1,0 +1,20 @@
+.case-study-flow-overview__inner {
+  width: 100%;
+  max-width: min(var(--cs-copy-column-max), 100%);
+}
+
+.case-study-flow-overview__inner--center {
+  max-width: min(680px, 100%);
+  margin-inline: auto;
+  text-align: center;
+}
+
+.case-study-flow-overview__inner--center .case-study-flow-overview__prose {
+  text-align: left;
+  margin-inline: auto;
+  max-width: min(72ch, 100%);
+}
+
+.case-study-flow-overview__prose {
+  margin-bottom: 0;
+}

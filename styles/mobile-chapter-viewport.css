@@ -1,0 +1,133 @@
+/* Mobile — full viewport slides; content scrolls under nav + home indicator */
+
+@media (max-width: 767px) {
+  #hero,
+  .portfolio-chapter-slot--fill.hardware-slideshow {
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+
+  .portfolio-chapter-slot--fill.hardware-slideshow {
+    min-height: calc(100dvh + var(--cs-screen-gap));
+    min-height: calc(100svh + var(--cs-screen-gap));
+    box-sizing: border-box;
+  }
+
+  .portfolio-chapter-slot--fill.hardware-slideshow .portfolio-chapter-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100dvh;
+    min-height: 100svh;
+    min-height: -webkit-fill-available;
+    box-sizing: border-box;
+    padding: 0 var(--content-pad-x, 16px);
+  }
+
+  .hardware-slideshow .chapter-slide__viewport {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 100%;
+    min-height: 0;
+    padding: 0;
+  }
+
+  .hardware-slideshow .chapter-slide__inner {
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--cs-mobile-section-gap);
+    width: 100%;
+    max-width: var(--cs-inner-max);
+    margin-inline: auto;
+    height: auto !important;
+    max-height: none !important;
+    flex: 1 1 auto;
+    min-height: 0;
+    box-sizing: border-box;
+    /* Readable when snapped; panel still full-bleed while scrolling */
+    padding-top: var(--mobile-content-top-inset);
+    padding-bottom: var(--mobile-content-bottom-inset);
+  }
+
+  .hardware-slideshow .chapter-slide__stage {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 100%;
+    flex: 1 1 auto;
+    min-height: var(--cs-mobile-stage-min-h);
+    max-height: var(--cs-mobile-stage-max-h);
+    margin-inline: 0;
+  }
+
+  .hardware-slideshow .chapter-slide__stage > * {
+    margin-inline: auto;
+  }
+
+  .hardware-slideshow .chapter-slide__copy--mobile-teaser,
+  .hardware-slideshow .flow-chapter-slide__copy.mobile-learn-more-copy {
+    flex: none;
+    width: 100%;
+    max-width: 100%;
+    text-align: center;
+  }
+
+  .hardware-slideshow .mobile-learn-more {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+
+  .hardware-slideshow .mobile-learn-more__teaser {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+
+  .hardware-slideshow .mobile-learn-more__teaser .case-study-section-header,
+  .hardware-slideshow .mobile-learn-more__teaser .chapter-copy__headline {
+    text-align: center;
+  }
+
+  .hardware-slideshow .mobile-learn-more__teaser .case-study-section-header__headline-line {
+    margin-inline: auto;
+  }
+
+  .hardware-slideshow .mobile-learn-more__teaser .mobile-learn-more__pill {
+    margin-inline: auto;
+  }
+
+  .hardware-slideshow .mobile-learn-more__teaser .mobile-meta-row {
+    justify-content: center;
+    max-width: 100%;
+  }
+
+  /* Overview slides (optional empty stage) */
+  .hardware-slideshow.case-study-flow-overview .chapter-slide__inner {
+    justify-content: center;
+  }
+
+  .hardware-slideshow.case-study-flow-overview .flow-chapter-slide__stage--empty {
+    display: none;
+  }
+
+  .hardware-slideshow.case-study-flow-overview
+    .case-study-flow-overview__inner--center
+    .mobile-learn-more__teaser {
+    align-items: center;
+  }
+
+  .hardware-slideshow.section-lessons .chapter-slide__viewport {
+    padding: 0;
+  }
+}

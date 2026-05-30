@@ -1,0 +1,75 @@
+/* Site shell — cinema frame, sidebar right padding, panel offsets */
+
+:root {
+  --sidebar-pad-right: clamp(12px, 1.5vw, 32px);
+  --site-frame-max: 1400px;
+}
+
+.site-frame {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  min-height: 100dvh;
+}
+
+/* Sidebar: no fill over hero portrait; paper only after hero scrolls away */
+.sidebar-shell--fixed {
+  left: 0 !important;
+  padding-right: var(--sidebar-pad-right);
+  box-sizing: border-box;
+  background: transparent;
+  transition: background-color 280ms ease;
+}
+
+html.in-hero-scroll .sidebar-shell--fixed,
+html.sidebar-tablet-hero-active .sidebar-shell--fixed {
+  background-color: transparent !important;
+}
+
+html.past-hero-scroll:not(.in-hero-scroll) .sidebar-shell--fixed {
+  background-color: var(--color-paper);
+}
+
+.sidebar-subnav--fixed {
+  left: 40px !important;
+  box-sizing: border-box;
+}
+
+/* Hide main nav until useLayoutEffect positions it (prevents hero flash at top: 0). */
+.sidebar-shell--fixed:not([data-nav-positioned='true']) [data-sidebar-main-nav] {
+  visibility: hidden;
+}
+
+/* Viewport-based shell visibility — desktop nav hidden on mobile unless expanded overlay */
+@media (max-width: 767px) {
+  .sidebar-desktop-shell:not(.sidebar-mobile-expanded),
+  .sidebar-desktop-subnav:not(.sidebar-mobile-expanded) {
+    display: none !important;
+  }
+}
+
+/*
+ * Cinema (2560+): 280px sidebar, 40px after rail, 1fr / 2fr, 80px column gap,
+ * 40px copy to screen edge; sidebar inset 32px / 20px to divider.
+ */
+@media (min-width: 2560px) {
+  :root {
+    --sidebar-width: 280px;
+    --sidebar-pad-inline: 32px;
+    --sidebar-pad-right: 20px;
+    --content-pad-left: 40px;
+    --content-pad-x: 40px;
+    --cs-stage-col: minmax(min(var(--cs-stage-min), 100%), 1fr);
+    --cs-copy-col: minmax(min(var(--cs-copy-measure-min), 100%), 2fr);
+    --cs-split-gap: 80px;
+    --cs-section-gap: 80px;
+  }
+
+  .content-area {
+    max-width: calc(
+      var(--site-frame-max) - var(--sidebar-width) - var(--content-pad-left) -
+        var(--content-pad-x)
+    );
+  }
+}
+

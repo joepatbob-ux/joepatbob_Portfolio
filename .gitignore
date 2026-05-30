@@ -1,0 +1,29 @@
+# dependencies
+node_modules/
+
+# build
+dist/
+.next/
+out/
+.vite/
+
+# env
+.env
+.env*.local
+
+# typescript
+*.tsbuildinfo
+
+# debug / os
+.DS_Store
+.tmp/
+public/favicon/~ai-*.tmp
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# vercel
+.vercel
+
+# local python venv (blob crop tooling)
+.venv-blob/

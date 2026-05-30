@@ -1,0 +1,125 @@
+/* Case-study layout tokens — fluid 1fr / 2fr tracks with min/max on artifacts and band.
+   Breakpoints: lib/layout/breakpoints.ts (767 / 768–1023 / 1024+ / 2560+)
+   Chapter columns: lib/chapter-slide/breakpoints.ts (1200+ wide copy) */
+
+:root {
+  /* ── Stage column (desktop 1024+ default) ─────────────────────────────── */
+  --cs-stage-min: 220px;
+  --cs-stage-max: 560px;
+  --cs-stage-artifact-w: min(
+    100%,
+    clamp(var(--cs-stage-min), 34vw, var(--cs-stage-max))
+  );
+
+  /* ── Copy column ──────────────────────────────────────────────────────── */
+  --cs-copy-measure-min: 28ch;
+  --cs-copy-column-max: min(
+    96ch,
+    calc(
+      100vw - var(--sidebar-width, 280px) - var(--content-pad-x, 32px) -
+        var(--content-pad-left, 0px) - var(--cs-stage-max) -
+        var(--cs-split-gap, 20px) - 3rem
+    )
+  );
+  --cs-copy-measure-max: min(96ch, 100%);
+
+  --cs-band-max-raw: calc(
+    var(--cs-stage-max) + var(--cs-split-gap, clamp(24px, 3.5vw, 56px)) +
+      var(--cs-copy-column-max)
+  );
+  --cs-band-max: var(--cs-band-max-raw);
+
+  /* Extra scroll between snap slides (hold before next screen) */
+  --cs-screen-gap: clamp(16px, 3vh, 40px);
+
+  /* ── Mobile full-bleed slides (≤767) ──────────────────────────────────── */
+  --cs-mobile-inner-max: 440px;
+  --cs-mobile-section-gap: clamp(20px, 3vh, 28px);
+  --cs-mobile-stage-min-h: min(38dvh, 320px);
+  --cs-mobile-stage-max-h: min(56dvh, 480px);
+  --cs-mobile-headline-size: clamp(28px, 3.2vw, 36px);
+
+  /* ── Touch 2 carousel ─────────────────────────────────────────────────── */
+  --cs-touch2-frame-w: 520px;
+  --cs-touch2-frame-h: 580px;
+  --cs-touch2-frame-aspect: 520 / 580;
+  --cs-touch2-frame-max-w: min(var(--cs-touch2-frame-w), var(--cs-stage-max));
+  --cs-touch2-radius: clamp(24px, 5vw, 40px);
+  --cs-touch2-gap: clamp(20px, 2.5vw, 32px);
+  --cs-touch2-mobile-max-w: min(100%, var(--cs-mobile-inner-max));
+  --cs-touch2-mobile-min-h: min(48dvh, 380px);
+  --cs-touch2-mobile-max-h: min(56dvh, 440px);
+  --cs-touch2-mobile-gap: clamp(12px, 3vw, 16px);
+  --cs-touch2-dot-size: 8px;
+  --cs-touch2-dot-active: 56px;
+  --cs-touch2-dot-slot: 80px;
+  --cs-touch2-dot-ring: 40px;
+  --cs-touch2-dot-gap: 8px;
+
+  /* ── Verdant interactive ──────────────────────────────────────────────── */
+  --cs-verdant-aspect: 350 / 582;
+  --cs-verdant-max-w: 480px;
+  --cs-verdant-glyph-max-h: min(52dvh, 480px);
+  --cs-verdant-gap: clamp(8px, 2cqi, 16px);
+  --cs-verdant-key-gap: 6px;
+  --cs-verdant-key-size: 36px;
+  --cs-verdant-key-font: clamp(11px, 2.4cqi, 14px);
+  --cs-verdant-mobile-max-h: min(52dvh, 460px);
+  --cs-verdant-mobile-gap: clamp(8px, 1.25vh, 12px);
+  --cs-verdant-mobile-key-max: 42px;
+  --cs-verdant-mobile-key-min: 34px;
+
+  /* ── EIM / narrow stage media (mobile) ──────────────────────────────────── */
+  --cs-eim-stage-max-w: min(72vw, 280px);
+
+  /* ── Hardware slideshow pad (768+) ──────────────────────────────────────── */
+  --cs-hw-pad-min: 28px;
+  --cs-hw-pad-max: 56px;
+  --cs-hw-pad: clamp(var(--cs-hw-pad-min), 3vw, var(--cs-hw-pad-max));
+}
+
+@media (max-width: 767px) {
+  :root {
+    --cs-inner-max: min(var(--cs-mobile-inner-max), 100%);
+    --cs-copy-column-max: 100%;
+    --cs-band-max: 100%;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  :root {
+    --cs-stage-min: 200px;
+    --cs-stage-max: 500px;
+    --cs-touch2-frame-max-w: min(var(--cs-touch2-frame-w), var(--cs-stage-max));
+    --cs-verdant-glyph-max-h: min(46dvh, 400px);
+    --cs-hw-pad-max: 40px;
+  }
+}
+
+@media (min-width: 768px) {
+  :root {
+    --cs-stage-col: minmax(min(var(--cs-stage-min), 100%), 1fr);
+    --cs-copy-col: minmax(min(var(--cs-copy-measure-min), 100%), 2fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --cs-stage-min: 220px;
+    --cs-stage-max: 560px;
+    --cs-verdant-glyph-max-h: min(50dvh, 440px);
+  }
+}
+
+@media (min-width: 2560px) {
+  :root {
+    --cs-stage-max: 640px;
+    --cs-touch2-frame-max-w: min(var(--cs-touch2-frame-w), var(--cs-stage-max));
+    --cs-band-viewport-cap: calc(
+      var(--site-frame-max, 1400px) - var(--sidebar-width, 280px) -
+        var(--content-pad-left, 40px) - var(--content-pad-x, 40px)
+    );
+    --cs-band-max: min(var(--cs-band-max-raw), var(--cs-band-viewport-cap));
+    --cs-hw-pad-max: 56px;
+  }
+}

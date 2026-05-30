@@ -1,0 +1,144 @@
+import * as THREE from 'three'
+import { applyPixel8CreamColors } from '@/lib/phone-swap/applyPixel8CreamColors'
+import {
+  applyPixel8DetailMaps,
+  applyPixel8MtlMaterials,
+  countPhongMaterials,
+} from '@/lib/phone-swap/applyPixel8MtlMaterials'
+import { applyPixel8Screen } from '@/lib/phone-swap/applyScreenTextures'
+import { consolidateMeshesBySlot } from '@/lib/phone-swap/consolidateMeshesBySlot'
+import { debugLog } from '@/lib/phone-swap/debugLog'
+import {
+  fixInvertedMeshNormals,
+  rebuildMeshNormals,
+} from '@/lib/phone-swap/mtlPhongToStandard'
+import { mirrorModelX } from '@/lib/phone-swap/mirrorModelX'
+import { normalizeModel } from '@/lib/phone-swap/normalizeModel'
+import {
+  PIXEL8_COLOR_VARIANT,
+  PIXEL8_MESH,
+  PIXEL8_MIRROR_X,
+  type Pixel8MaterialMaps,
+} from '@/lib/phone-swap/pixel8Assets'
+import { meshMaterialSlot } from '@/lib/phone-swap/mergeMeshesByMaterial'
+import { splitMeshesByMaterial } from '@/lib/phone-swap/splitMeshByMaterial'
+import {
+  collectFbxMaterialSummary,
+  upgradeFbxMaterialsToStandard,
+} from '@/lib/phone-swap/upgradeFbxMaterials'
+
+function isolateMeshGeometries(root: THREE.Object3D) {
+  root.traverse((child) => {
+    if (child instanceof THREE.Mesh) {
+      child.geometry = child.geometry.clone()
+    }
+  })
+}
+
+function sampleMaterialColor(mesh: THREE.Mesh | undefined): string | null {
+  if (!mesh) return null
+  const mat = mesh.material
+  const m = Array.isArray(mat) ? mat[0] : mat
+  if (m && 'color' in m && m.color instanceof THREE.Color) {
+    return `#${m.color.getHexString()}`
+  }
+  return null
+}
+
+export type PreparePixel8Options = {
+  applyScreen?: boolean
+  /** Keep materials parsed from FBX (DiffuseColor + maps). */
+  useFbxMaterials?: boolean
+}
+
+export function preparePixel8Scene(
+  raw: THREE.Object3D,
+  screenTexture?: THREE.Texture,
+  materialMaps?: Pixel8MaterialMaps,
+  options: PreparePixel8Options = {},
+) {
+  const clone = raw.clone(true)
+  isolateMeshGeometries(clone)
+
+  const { splitCount } = splitMeshesByMaterial(clone)
+  const consolidateResults = consolidateMeshesBySlot(clone)
+  rebuildMeshNormals(clone)
+  const normalsFixed = fixInvertedMeshNormals(clone)
+
+  const { radius, maxDim } = normalizeModel(clone)
+  if (PIXEL8_MIRROR_X) mirrorModelX(clone)
+
+  const useFbxMaterials = options.useFbxMaterials ?? false
+  const mtlMeshes = useFbxMaterials
+    ? upgradeFbxMaterialsToStandard(clone)
+    : materialMaps
+      ? applyPixel8MtlMaterials(clone, materialMaps)
+      : 0
+
+  if (useFbxMaterials) {
+    clone.traverse((child) => {
+      if (!(child instanceof THREE.Mesh)) return
+      const slot = meshMaterialSlot(child).toLowerCase()
+      const name = child.name.toLowerCase()
+      if (name.includes('glass') || slot.includes('glass')) {
+        child.visible = false
+        child.frustumCulled = false
+      }
+    })
+  }
+
+  const detailMaps = materialMaps
+    ? applyPixel8DetailMaps(clone, materialMaps)
+    : 0
+
+  const creamMeshes = applyPixel8CreamColors(clone)
+
+  const applyScreen = options.applyScreen ?? true
+  const screenMeshes =
+    applyScreen && screenTexture
+      ? applyPixel8Screen(clone, screenTexture)
+      : 0
+  const phongRemaining = countPhongMaterials(clone)
+
+  const slotNames: string[] = []
+  clone.traverse((child) => {
+    if (child instanceof THREE.Mesh) slotNames.push(child.name)
+  })
+
+  const frameMesh = clone.getObjectByName(PIXEL8_MESH.body) as THREE.Mesh | undefined
+
+  const fbxMaterials = useFbxMaterials
+    ? collectFbxMaterialSummary(clone).slice(0, 12)
+    : undefined
+
+  // #region agent log
+  debugLog(
+    'preparePixel8Scene.ts:ready',
+    'Pixel 8 Pro scene prepared',
+    {
+      mtlMeshes,
+      screenMeshes,
+      phongRemaining,
+      slotNames,
+      applyScreen,
+      useFbxMaterials,
+      detailMaps,
+      creamMeshes,
+      colorVariant: PIXEL8_COLOR_VARIANT,
+      fbxMaterials,
+      modelMirroredX: PIXEL8_MIRROR_X && clone.scale.x < 0,
+      frameMeshFound: !!frameMesh,
+      frameColor: sampleMaterialColor(frameMesh),
+      maxDim,
+      fitRadius: radius,
+      consolidateResults,
+      splitCount,
+      normalsFixed,
+    },
+    'M',
+    useFbxMaterials ? 'pixel8-fbx' : 'pixel8-mtl',
+  )
+  // #endregion
+
+  return { scene: clone, fitRadius: radius }
+}

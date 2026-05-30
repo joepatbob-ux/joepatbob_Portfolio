@@ -1,0 +1,107 @@
+/* Shared case study text rhythm (mobile chapter + hardware slideshow) */
+
+:root {
+  --cs-eyebrow-size: 10px;
+  --cs-eyebrow-tracking: 0.12em;
+  --cs-rule-width: 48px;
+  --cs-rule-height: 3px;
+  --cs-body-size: 15px;
+  --cs-body-leading: 1.65;
+  --cs-body-color: var(--color-ink);
+  --cs-subhead-size: clamp(20px, 2.4vw, 26px);
+  --cs-subhead-leading: 1.2;
+  --cs-label-size: 9px;
+  --cs-label-tracking: 0.1em;
+  --cs-grid-cell-bg: rgba(26, 26, 26, 0.04);
+  --cs-callout-border: rgba(245, 67, 27, 0.35);
+  --cs-callout-bg: rgba(245, 67, 27, 0.05);
+  --cs-quote-bg: rgba(245, 67, 27, 0.06);
+}
+
+/* ── Hardware: chapter copy ──────────────────────────────────────────────── */
+
+[data-section-id='hardware'] .chapter-copy__headline,
+.hardware-slideshow .chapter-copy__headline {
+  line-height: 1.12;
+}
+
+[data-section-id='hardware'] .chapter-copy__rule,
+.hardware-slideshow .chapter-copy__rule {
+  width: var(--cs-rule-width);
+  height: var(--cs-rule-height);
+  margin: 16px 0 20px;
+}
+
+[data-section-id='hardware'] .chapter-copy__body,
+.hardware-slideshow
+  .chapter-slide__copy:not(.chapter-slide__copy--lessons)
+  .chapter-copy__body {
+  color: var(--cs-body-color);
+  font-size: var(--cs-body-size);
+  line-height: var(--cs-body-leading);
+}
+
+[data-section-id='hardware'] .chapter-slide__body {
+  gap: 1em;
+}
+
+/* Pull quotes / emphasis blocks inside hardware copy (opt-in class) */
+[data-section-id='hardware'] .chapter-copy__body--quote,
+[data-section-id='hardware'] .cs-blockquote {
+  margin: 0.25em 0 1em;
+  padding: 16px 20px;
+  border-left: 3px solid var(--color-accent);
+  background: var(--cs-quote-bg);
+  font-style: italic;
+}
+
+[data-section-id='hardware'] .cs-callout {
+  margin: 0.5em 0 1em;
+  padding: 18px 20px;
+  border: 1px solid var(--cs-callout-border);
+  border-radius: 8px;
+  background: var(--cs-callout-bg);
+  font-weight: 500;
+}
+
+[data-section-id='hardware'] .cs-label-grid {
+  display: grid;
+  gap: 16px 20px;
+  margin: 1.25em 0 1.5em;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 600px) {
+  [data-section-id='hardware'] .cs-label-grid--2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  [data-section-id='hardware'] .cs-label-grid--3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+[data-section-id='hardware'] .cs-label-grid__cell {
+  margin: 0;
+  padding: 14px 16px;
+  background: var(--cs-grid-cell-bg);
+  border-radius: 6px;
+}
+
+[data-section-id='hardware'] .cs-label-grid__label {
+  margin: 0 0 8px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: var(--cs-label-size);
+  letter-spacing: var(--cs-label-tracking);
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+[data-section-id='hardware'] .cs-label-grid__text {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--cs-body-color);
+}

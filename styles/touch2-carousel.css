@@ -1,0 +1,264 @@
+/* Touch 2 vertical carousel (hardware-touch-2 stage) */
+
+.touch2-carousel__sr-status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.touch2-carousel {
+  position: relative;
+  --touch2-frame-max-w: var(--cs-touch2-frame-max-w);
+  --touch2-frame-aspect: var(--cs-touch2-frame-aspect);
+  --touch2-radius: var(--cs-touch2-radius);
+  --touch2-morph-ease: cubic-bezier(0.34, 1.22, 0.64, 1);
+  --touch2-fade-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --touch2-dot-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --touch2-dot-duration: 560ms;
+  --touch2-dot-size: var(--cs-touch2-dot-size);
+  --touch2-dot-active-h: var(--cs-touch2-dot-active);
+  --touch2-dot-active-w: var(--cs-touch2-dot-active);
+  --touch2-dot-slot-h: var(--cs-touch2-dot-slot);
+  --touch2-dot-slot-w: var(--cs-touch2-dot-slot);
+  --touch2-dot-ring-size: var(--cs-touch2-dot-ring);
+  --touch2-dot-gap: var(--cs-touch2-dot-gap);
+  /* Set from JS: --touch2-rail-h, --touch2-slide-w (match dot column height) */
+  --touch2-rail-h: 432px;
+  --touch2-slide-w: 387px;
+
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: center;
+  justify-content: center;
+  gap: var(--cs-touch2-gap);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.touch2-carousel__slides {
+  position: relative;
+  margin: 0;
+  isolation: isolate;
+  width: min(var(--touch2-frame-max-w), var(--touch2-slide-w));
+  max-width: 100%;
+  height: var(--touch2-rail-h);
+  min-height: var(--touch2-rail-h);
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: var(--touch2-radius);
+  corner-shape: squircle;
+  background: var(--color-paper);
+}
+
+.touch2-carousel__slides--instant .touch2-carousel__slide {
+  transition: none;
+}
+
+.touch2-carousel__slide {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  border-radius: var(--touch2-radius);
+  corner-shape: squircle;
+  overflow: hidden;
+  opacity: 0;
+  z-index: 0;
+  pointer-events: none;
+  transform: scale(1);
+  box-shadow: none;
+  transition: opacity 640ms var(--touch2-fade-ease);
+}
+
+.touch2-carousel__slide--active {
+  opacity: 1;
+  z-index: 1;
+  pointer-events: auto;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.22);
+}
+
+.touch2-carousel__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  user-select: none;
+  pointer-events: none;
+}
+
+.touch2-carousel__dots {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--touch2-dot-gap);
+  width: var(--touch2-dot-ring-size);
+  height: var(--touch2-rail-h);
+  flex-shrink: 0;
+}
+
+.touch2-carousel__dot {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--touch2-dot-ring-size);
+  height: var(--touch2-dot-slot-h);
+  padding: 0;
+  border: none;
+  border-radius: 9999px;
+  background-color: transparent;
+  box-shadow: none;
+  cursor: pointer;
+  overflow: visible;
+  -webkit-tap-highlight-color: transparent;
+  transition: box-shadow 220ms ease;
+}
+
+.touch2-carousel__dot:focus-visible {
+  outline: none;
+}
+
+/* Layer 1: circular hover ring (unselected only) */
+.touch2-carousel__dot-ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--touch2-dot-ring-size);
+  height: var(--touch2-dot-ring-size);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  transition: box-shadow 220ms ease;
+}
+
+.touch2-carousel__dot:not(.touch2-carousel__dot--active):hover .touch2-carousel__dot-ring,
+.touch2-carousel__dot:not(.touch2-carousel__dot--active):focus-visible
+  .touch2-carousel__dot-ring {
+  box-shadow: 0 0 0 1px var(--color-nav-pill-outline);
+}
+
+.touch2-carousel__dot--active .touch2-carousel__dot-ring {
+  opacity: 0;
+}
+
+/* Layer 2: muted pill fill — capsule ends match hover ring radius */
+.touch2-carousel__dot-fill {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background-color: var(--color-nav-pill-muted-accent-1);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms ease;
+}
+
+.touch2-carousel__dot--active .touch2-carousel__dot-fill {
+  opacity: 1;
+}
+
+.touch2-carousel__dot--active:hover,
+.touch2-carousel__dot--active:focus-visible {
+  box-shadow: 0 0 0 1px var(--color-nav-pill-outline);
+}
+
+/* Layer 3: accent indicator — pill shape snaps, height counts down only */
+.touch2-carousel__dot-indicator {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: var(--touch2-dot-size);
+  height: var(--touch2-dot-size);
+  border-radius: 999px;
+  background-color: var(--color-accent);
+  pointer-events: none;
+}
+
+.touch2-carousel__dot--active .touch2-carousel__dot-indicator {
+  height: calc(
+    var(--touch2-dot-size) +
+      (var(--touch2-dot-active-h) - var(--touch2-dot-size)) *
+      (1 - var(--touch2-dot-progress, 0))
+  );
+}
+
+@media (max-width: 767px) {
+  .touch2-carousel {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    justify-items: center;
+    gap: var(--cs-touch2-mobile-gap);
+  }
+
+  .touch2-carousel__slides {
+    width: 100%;
+    max-width: var(--cs-touch2-mobile-max-w);
+    height: auto;
+    min-height: var(--cs-touch2-mobile-min-h);
+    max-height: var(--cs-touch2-mobile-max-h);
+    aspect-ratio: var(--touch2-frame-aspect);
+  }
+
+  .touch2-carousel__dots {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+    width: 100%;
+    max-width: var(--cs-touch2-mobile-max-w);
+    height: auto;
+    min-height: var(--touch2-dot-slot-w);
+    gap: clamp(6px, 2vw, 10px);
+  }
+
+  .touch2-carousel__dot {
+    width: var(--touch2-dot-ring-size);
+    height: var(--touch2-dot-ring-size);
+    min-height: 0;
+    padding: 0;
+    flex-shrink: 0;
+  }
+
+  .touch2-carousel__dot--active {
+    width: var(--touch2-dot-slot-w);
+    height: var(--touch2-dot-ring-size);
+  }
+
+  .touch2-carousel__dot-indicator {
+    width: var(--touch2-dot-size);
+    height: var(--touch2-dot-size);
+  }
+
+  /* Auto-advance: accent pill grows horizontally (desktop grows vertically). */
+  .touch2-carousel__dot--active .touch2-carousel__dot-indicator {
+    width: calc(
+      var(--touch2-dot-size) +
+        (var(--touch2-dot-active-w) - var(--touch2-dot-size)) *
+        (1 - var(--touch2-dot-progress, 0))
+    );
+    height: var(--touch2-dot-size);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .touch2-carousel {
+    --touch2-morph-ease: ease;
+  }
+
+  .touch2-carousel__slide {
+    transition-duration: 0.15s;
+  }
+
+  .touch2-carousel__dot-fill {
+    transition: none;
+  }
+}
