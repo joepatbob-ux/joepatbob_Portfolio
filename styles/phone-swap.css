@@ -77,6 +77,10 @@
   background: #fff;
 }
 
+.phone-anim-tune-panel {
+  z-index: 10051;
+}
+
 .phone-layout-panel {
   position: fixed;
   width: min(400px, calc(100vw - 32px));

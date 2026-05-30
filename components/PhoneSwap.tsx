@@ -1,5 +1,6 @@
 'use client'
 
+import { PhoneAnimTunePanel } from '@/components/phone-swap/PhoneAnimTunePanel'
 import { PhoneLayoutPanel } from '@/components/phone-swap/PhoneLayoutPanel'
 import { PhoneLayoutGuides } from '@/components/phone-swap/PhoneLayoutGuides'
 import { PhoneSwapScene } from '@/components/phone-swap/PhoneSwapScene'
@@ -23,6 +24,10 @@ import {
   type PhonePose,
 } from '@/lib/phone-swap/phoneSwapLayout'
 import { DEFAULT_PHONE_CAMERA } from '@/lib/phone-swap/phoneSwapCamera'
+import {
+  clampAnimSettings,
+  DEFAULT_PHONE_SWAP_ANIM,
+} from '@/lib/phone-swap/phoneSwapAnimSettings'
 import { clampStageSize, clampStageWidth } from '@/lib/phone-swap/phoneSwapStageSize'
 import { usePhoneLayoutMode } from '@/lib/phone-swap/usePhoneLayoutMode'
 import type { PhoneSwapSceneApi } from '@/components/phone-swap/PhoneSwapScene'
@@ -39,6 +44,10 @@ import type * as THREE from 'three'
 /** 3D Pixel / iPhone swap — tap canvas to swap; layout tools via ?phone-layout=1 */
 export function PhoneSwap() {
   const [layoutMode, setLayoutMode] = useState(false)
+  const [animTuneOpen, setAnimTuneOpen] = useState(false)
+  const [animSettings, setAnimSettings] = useState(() =>
+    clampAnimSettings(DEFAULT_PHONE_SWAP_ANIM),
+  )
   const [swapped, setSwapped] = useState(false)
   const [layout, setLayout] = useState<PhoneSwapLayout>(() => cloneLayout(PHONE_SWAP_LAYOUT))
   const [editFocus, setEditFocus] = useState<PhoneSwapEditFocus>('androidFocus')
@@ -51,6 +60,7 @@ export function PhoneSwap() {
     cloneSnapshot(PHONE_SWAP_LAYOUT.androidFocus),
   )
   const [animating, setAnimating] = useState(false)
+  const [animSession, setAnimSession] = useState(0)
   const busy = useRef(false)
   const androidRef = useRef<THREE.Group>(null)
   const iphoneRef = useRef<THREE.Group>(null)
@@ -86,12 +96,18 @@ export function PhoneSwap() {
     setAnimating(false)
   }, [])
 
+  const triggerSwap = useCallback(() => {
+    if (busy.current) return
+    busy.current = true
+    setSwapped((s) => !s)
+    setAnimSession((n) => n + 1)
+    setAnimating(true)
+  }, [])
+
   const doSwap = useCallback(() => {
     if (layoutMode || busy.current) return
-    busy.current = true
-    setAnimating(true)
-    setSwapped((s) => !s)
-  }, [layoutMode])
+    triggerSwap()
+  }, [layoutMode, triggerSwap])
 
   const saveFocus = useCallback(() => {
     setLayout((prev) => ({
@@ -152,7 +168,7 @@ export function PhoneSwap() {
 
   return (
     <div
-      className={`phone-swap${layoutMode ? ' phone-swap--layout-mode' : ''}${layoutMode && showGuides ? ' phone-swap--guides' : ''}`}
+      className={`phone-swap${layoutMode ? ' phone-swap--layout-mode' : ''}${animTuneOpen ? ' phone-swap--anim-tune' : ''}${layoutMode && showGuides ? ' phone-swap--guides' : ''}`}
       style={viewBoxVars}
     >
       {devControls ? (
@@ -171,7 +187,25 @@ export function PhoneSwap() {
           >
             {layoutMode ? 'Done positioning' : 'Adjust positions'}
           </button>
+          <button
+            type="button"
+            className={`phone-swap__layout-toggle${animTuneOpen ? ' is-active' : ''}`}
+            onClick={() => setAnimTuneOpen((on) => !on)}
+          >
+            {animTuneOpen ? 'Done animation' : 'Tune animation'}
+          </button>
         </div>
+      ) : null}
+
+      {devControls && animTuneOpen ? (
+        <PhoneAnimTunePanel
+          settings={animSettings}
+          onChange={setAnimSettings}
+          onReset={() => setAnimSettings(clampAnimSettings(DEFAULT_PHONE_SWAP_ANIM))}
+          onClose={() => setAnimTuneOpen(false)}
+          onPreviewSwap={triggerSwap}
+          swapped={swapped}
+        />
       ) : null}
 
       {devControls && layoutMode ? (
@@ -245,7 +279,9 @@ export function PhoneSwap() {
             >
               <PhoneSwapScene
                 layout={layout}
-                swapProgress={layoutMode ? layoutPreviewProgress : swapProgress}
+                swapProgress={
+                  layoutMode && !animating ? layoutPreviewProgress : swapProgress
+                }
                 layoutMode={layoutMode}
                 editFocus={editFocus}
                 liveSnapshot={liveSnapshot}
@@ -255,6 +291,8 @@ export function PhoneSwap() {
                 androidRef={androidRef}
                 iphoneRef={iphoneRef}
                 animating={animating}
+                animSession={animSession}
+                animSettings={animSettings}
                 onAnimationComplete={handleAnimationComplete}
                 showGuides={showGuides}
                 viewLocked={layoutMode ? locks.viewAngle : true}

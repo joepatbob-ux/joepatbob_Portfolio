@@ -14,12 +14,15 @@ import * as THREE from 'three'
 import { NoColorSpace, SRGBColorSpace, TextureLoader } from 'three'
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 import { debugLog } from '@/lib/phone-swap/debugLog'
-import { PHONE_SWAP_ANIM_MS, easeInOutQuint } from '@/lib/phone-swap/phoneSwapTiming'
 import {
   applyPoseToGroup,
   readPoseFromGroup,
   snapshotForProgress,
 } from '@/lib/phone-swap/phoneSwapAnimation'
+import {
+  DEFAULT_PHONE_SWAP_ANIM,
+  type PhoneSwapAnimSettings,
+} from '@/lib/phone-swap/phoneSwapAnimSettings'
 import {
   applyCameraView,
   cameraViewForSwap,
@@ -64,6 +67,9 @@ interface Props {
   androidRef?: RefObject<THREE.Group | null>
   iphoneRef?: RefObject<THREE.Group | null>
   animating?: boolean
+  /** Bumped on each swap trigger so preview can restart the timeline. */
+  animSession?: number
+  animSettings?: PhoneSwapAnimSettings
   onAnimationComplete?: () => void
   showGuides?: boolean
   viewLocked?: boolean
@@ -141,6 +147,8 @@ export function PhoneSwapScene({
   androidRef: androidRefProp,
   iphoneRef: iphoneRefProp,
   animating = false,
+  animSession = 0,
+  animSettings = DEFAULT_PHONE_SWAP_ANIM,
   onAnimationComplete,
   showGuides = false,
   viewLocked = true,
@@ -196,17 +204,17 @@ export function PhoneSwapScene({
     applyCameraView(camera, controlsRef.current, cameraView)
   }, [camera, cameraView])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     targetProgress.current = swapProgress
   }, [swapProgress])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!animating) return
     animFrom.current = progressRef.current
-    animTo.current = targetProgress.current
+    animTo.current = swapProgress
     animStart.current = performance.now()
     animCompleteFired.current = false
-  }, [animating, swapProgress])
+  }, [animating, swapProgress, animSession])
 
   useEffect(() => {
     debugLog(
@@ -229,17 +237,20 @@ export function PhoneSwapScene({
   }, [layoutMode, selectedDevice, editFocus, androidRef, iphoneRef])
 
   useLayoutEffect(() => {
-    if (!layoutMode || gizmoDragging.current) return
+    if (!layoutMode || animating || gizmoDragging.current) return
     applyPoseToGroup(androidRef.current, layoutSnapshot.android)
     applyPoseToGroup(iphoneRef.current, layoutSnapshot.iphone)
     applyFocusToPhoneRoot(androidRef.current, 1)
     applyFocusToPhoneRoot(iphoneRef.current, 1)
-  }, [layoutMode, layoutSnapshot, androidRef, iphoneRef])
+  }, [layoutMode, animating, layoutSnapshot, androidRef, iphoneRef])
+
+  const runSwapTimeline = !layoutMode || animating
 
   useFrame(() => {
-    if (!layoutMode) {
+    if (runSwapTimeline) {
       if (animating) {
-        const linear = (performance.now() - animStart.current) / PHONE_SWAP_ANIM_MS
+        const linear =
+          (performance.now() - animStart.current) / animSettings.durationMs
         if (linear >= 1) {
           progressRef.current = animTo.current
           if (!animCompleteFired.current) {
@@ -247,9 +258,8 @@ export function PhoneSwapScene({
             queueMicrotask(() => onCompleteRef.current?.())
           }
         } else {
-          const u = easeInOutQuint(linear)
           progressRef.current =
-            animFrom.current + (animTo.current - animFrom.current) * u
+            animFrom.current + (animTo.current - animFrom.current) * linear
         }
       } else {
         progressRef.current = targetProgress.current
@@ -262,6 +272,7 @@ export function PhoneSwapScene({
         layout,
         progressRef.current,
         forward,
+        animSettings,
       )
       const settled = !animating
 
