@@ -101,7 +101,12 @@ export function PhoneSwap() {
   }, [editFocus, liveSnapshot])
 
   const layoutPreviewProgress =
-    editFocus === 'iphoneFocus' ? 1 : editFocus === 'swapMidpoint' ? 0.5 : 0
+    editFocus === 'iphoneFocus'
+      ? 1
+      : editFocus === 'androidToIphoneMidpoint' ||
+          editFocus === 'iphoneToAndroidMidpoint'
+        ? 0.5
+        : 0
 
   const resetLayout = useCallback(() => {
     const next = cloneLayout(PHONE_SWAP_LAYOUT)
