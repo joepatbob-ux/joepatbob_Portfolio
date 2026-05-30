@@ -5,10 +5,8 @@ function readPhoneLayoutMode(): boolean {
   return new URLSearchParams(window.location.search).has('phone-layout')
 }
 
-/** Dev build or `?phone-layout=1` — enables position maker UI. */
+/** `?phone-layout=1` — enables position / animation maker UI (hidden by default). */
 export function usePhoneLayoutMode(): boolean {
-  const [layoutMode] = useState(
-    () => import.meta.env.DEV || readPhoneLayoutMode(),
-  )
+  const [layoutMode] = useState(() => readPhoneLayoutMode())
   return layoutMode
 }

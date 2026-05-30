@@ -8,11 +8,14 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from 'react'
 
-const STORAGE_KEY = 'phone-layout-panel-position'
-
 type Point = { x: number; y: number }
 
-function defaultPosition(): Point {
+export type FloatingPanelDragOptions = {
+  storageKey?: string
+  defaultPosition?: () => Point
+}
+
+function layoutPanelDefault(): Point {
   if (typeof window === 'undefined') return { x: 16, y: 72 }
   const width = Math.min(400, window.innerWidth - 32)
   return {
@@ -21,10 +24,10 @@ function defaultPosition(): Point {
   }
 }
 
-function readStoredPosition(): Point | null {
+function readStoredPosition(storageKey: string): Point | null {
   if (typeof window === 'undefined') return null
   try {
-    const raw = sessionStorage.getItem(STORAGE_KEY)
+    const raw = sessionStorage.getItem(storageKey)
     if (!raw) return null
     const parsed = JSON.parse(raw) as Point
     if (typeof parsed.x !== 'number' || typeof parsed.y !== 'number') return null
@@ -48,7 +51,10 @@ function clampToViewport(
   }
 }
 
-export function useFloatingPanelDrag() {
+export function useFloatingPanelDrag(options?: FloatingPanelDragOptions) {
+  const storageKey = options?.storageKey ?? 'phone-layout-panel-position'
+  const defaultPosition = options?.defaultPosition ?? layoutPanelDefault
+
   const panelRef = useRef<HTMLDivElement>(null)
   const posRef = useRef<Point>(defaultPosition())
   const [position, setPosition] = useState<Point>(() => defaultPosition())
@@ -73,9 +79,9 @@ export function useFloatingPanelDrag() {
   }, [])
 
   useEffect(() => {
-    const stored = readStoredPosition()
+    const stored = readStoredPosition(storageKey)
     if (stored) syncClamped(stored)
-  }, [syncClamped])
+  }, [storageKey, syncClamped])
 
   useEffect(() => {
     const onResize = () => syncClamped(posRef.current)
@@ -125,9 +131,9 @@ export function useFloatingPanelDrag() {
       if (e.currentTarget.hasPointerCapture(e.pointerId)) {
         e.currentTarget.releasePointerCapture(e.pointerId)
       }
-      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(posRef.current))
+      sessionStorage.setItem(storageKey, JSON.stringify(posRef.current))
     },
-    [],
+    [storageKey],
   )
 
   const panelStyle = {

@@ -5,6 +5,12 @@ import type {
   PhoneSwapLayout,
   PhoneSwapSnapshot,
 } from '@/lib/phone-swap/phoneSwapLayout'
+import {
+  clampAnimSettings,
+  DEFAULT_PHONE_SWAP_ANIM,
+  type PhoneSwapAnimSettings,
+} from '@/lib/phone-swap/phoneSwapAnimSettings'
+import { easeInOutSine } from '@/lib/phone-swap/phoneSwapTiming'
 
 const _qa = new THREE.Quaternion()
 const _qb = new THREE.Quaternion()
@@ -13,6 +19,11 @@ const _euler = new THREE.Euler(0, 0, 0, 'XYZ')
 
 function clamp01(t: number): number {
   return Math.max(0, Math.min(1, t))
+}
+
+function smoothstep(t: number): number {
+  const x = clamp01(t)
+  return x * x * (3 - 2 * x)
 }
 
 function lerp(a: number, b: number, t: number): number {
@@ -46,67 +57,111 @@ function lerpPose(from: PhonePose, to: PhonePose, t: number): PhonePose {
   }
 }
 
-function snapshotAtSegment(
-  from: PhoneSwapSnapshot,
-  to: PhoneSwapSnapshot,
-  t: number,
-  useEndFocusDepth: boolean,
-  endFocus: PhoneSwapSnapshot,
-): PhoneSwapSnapshot {
-  const u = clamp01(t)
-  const android = lerpPose(from.android, to.android, u)
-  const iphone = lerpPose(from.iphone, to.iphone, u)
-
-  const depthRef = useEndFocusDepth ? endFocus : from
-  const androidIsFront =
-    depthRef.android.renderOrder > depthRef.iphone.renderOrder
-
-  android.renderOrder = androidIsFront ? 2 : 1
-  iphone.renderOrder = androidIsFront ? 1 : 2
-
-  return { android, iphone }
+/** Quadratic Bézier through three poses (de Casteljau — smooth velocity at the middle control). */
+function quadraticBezierPose(p0: PhonePose, p1: PhonePose, p2: PhonePose, s: number): PhonePose {
+  const t = clamp01(s)
+  const a = lerpPose(p0, p1, t)
+  const b = lerpPose(p1, p2, t)
+  return lerpPose(a, b, t)
 }
 
-/** Android focus → android→iPhone midpoint → iPhone focus. */
+function quadraticBezierSnapshot(
+  p0: PhoneSwapSnapshot,
+  p1: PhoneSwapSnapshot,
+  p2: PhoneSwapSnapshot,
+  s: number,
+): PhoneSwapSnapshot {
+  return {
+    android: quadraticBezierPose(p0.android, p1.android, p2.android, s),
+    iphone: quadraticBezierPose(p0.iphone, p1.iphone, p2.iphone, s),
+  }
+}
+
+/** Soft depth handoff — blend render orders through the midpoint band instead of a hard flip. */
+function applyRenderOrdersSmooth(
+  snapshot: PhoneSwapSnapshot,
+  start: PhoneSwapSnapshot,
+  mid: PhoneSwapSnapshot,
+  end: PhoneSwapSnapshot,
+  s: number,
+  anim: PhoneSwapAnimSettings,
+) {
+  const t = clamp01(s)
+  const bandStart = anim.depthBlendStart
+  const bandEnd = anim.depthBlendEnd
+
+  if (t < bandStart) {
+    const u = smoothstep(t / bandStart)
+    snapshot.android.renderOrder = Math.round(
+      lerp(start.android.renderOrder, mid.android.renderOrder, u),
+    )
+    snapshot.iphone.renderOrder = Math.round(
+      lerp(start.iphone.renderOrder, mid.iphone.renderOrder, u),
+    )
+    return
+  }
+
+  if (t > bandEnd) {
+    const u = smoothstep((t - bandEnd) / (1 - bandEnd))
+    snapshot.android.renderOrder = Math.round(
+      lerp(mid.android.renderOrder, end.android.renderOrder, u),
+    )
+    snapshot.iphone.renderOrder = Math.round(
+      lerp(mid.iphone.renderOrder, end.iphone.renderOrder, u),
+    )
+    return
+  }
+
+  snapshot.android.renderOrder = mid.android.renderOrder
+  snapshot.iphone.renderOrder = mid.iphone.renderOrder
+}
+
+/** Map layout progress (0 = Android, 1 = iPhone) to eased curve parameter. */
+function curveParameter(progress: number, forward: boolean): number {
+  const eased = easeInOutSine(progress)
+  return forward ? eased : 1 - eased
+}
+
 function interpolateAndroidToIphone(
   layout: PhoneSwapLayout,
   progress: number,
+  anim: PhoneSwapAnimSettings,
 ): PhoneSwapSnapshot {
-  const t = clamp01(progress)
-  const from = layout.androidFocus
+  const s = curveParameter(progress, true)
+  const start = layout.androidFocus
   const mid = layout.androidToIphoneMidpoint
-  const to = layout.iphoneFocus
-  if (t <= 0.5) {
-    return snapshotAtSegment(from, mid, t / 0.5, false, to)
-  }
-  return snapshotAtSegment(mid, to, (t - 0.5) / 0.5, true, to)
+  const end = layout.iphoneFocus
+  const snapshot = quadraticBezierSnapshot(start, mid, end, s)
+  applyRenderOrdersSmooth(snapshot, start, mid, end, s, anim)
+  return snapshot
 }
 
-/** iPhone focus → iPhone→Android midpoint → Android focus (progress still 0 = Android, 1 = iPhone). */
 function interpolateIphoneToAndroid(
   layout: PhoneSwapLayout,
   progress: number,
+  anim: PhoneSwapAnimSettings,
 ): PhoneSwapSnapshot {
-  const t = clamp01(progress)
-  const from = layout.androidFocus
+  const s = curveParameter(progress, false)
+  const start = layout.iphoneFocus
   const mid = layout.iphoneToAndroidMidpoint
-  const to = layout.iphoneFocus
-  if (t >= 0.5) {
-    return snapshotAtSegment(to, mid, (1 - t) / 0.5, false, from)
-  }
-  return snapshotAtSegment(mid, from, (0.5 - t) / 0.5, true, from)
+  const end = layout.androidFocus
+  const snapshot = quadraticBezierSnapshot(start, mid, end, s)
+  applyRenderOrdersSmooth(snapshot, start, mid, end, s, anim)
+  return snapshot
 }
 
 export function snapshotForProgress(
   layout: PhoneSwapLayout,
   progress: number,
   forward = true,
+  anim: PhoneSwapAnimSettings = DEFAULT_PHONE_SWAP_ANIM,
 ): PhoneSwapSnapshot {
+  const settings = clampAnimSettings(anim)
   if (progress <= 0) return layout.androidFocus
   if (progress >= 1) return layout.iphoneFocus
   return forward
-    ? interpolateAndroidToIphone(layout, progress)
-    : interpolateIphoneToAndroid(layout, progress)
+    ? interpolateAndroidToIphone(layout, progress, settings)
+    : interpolateIphoneToAndroid(layout, progress, settings)
 }
 
 export function applyPoseToGroup(group: THREE.Group | null, pose: PhonePose) {
