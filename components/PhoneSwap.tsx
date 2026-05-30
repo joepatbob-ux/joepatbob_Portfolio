@@ -30,6 +30,7 @@ import {
 } from '@/lib/phone-swap/phoneSwapAnimSettings'
 import { clampStageSize, clampStageWidth } from '@/lib/phone-swap/phoneSwapStageSize'
 import { usePhoneLayoutMode } from '@/lib/phone-swap/usePhoneLayoutMode'
+import { useLayoutMobile } from '@/lib/hooks/useLayoutMobile'
 import type { PhoneSwapSceneApi } from '@/components/phone-swap/PhoneSwapScene'
 import {
   Suspense,
@@ -55,12 +56,14 @@ export function PhoneSwap() {
   const [gizmoMode, setGizmoMode] = useState<'translate' | 'rotate' | 'scale'>('translate')
   const [showGuides, setShowGuides] = useState(false)
   const devControls = usePhoneLayoutMode()
+  const isMobile = useLayoutMobile()
   const [locks, setLocks] = useState<LayoutLocks>(() => ({ ...DEFAULT_LAYOUT_LOCKS }))
   const [liveSnapshot, setLiveSnapshot] = useState<PhoneSwapSnapshot>(() =>
     cloneSnapshot(PHONE_SWAP_LAYOUT.androidFocus),
   )
   const [animating, setAnimating] = useState(false)
   const [animSession, setAnimSession] = useState(0)
+  const [backPhoneHover, setBackPhoneHover] = useState(false)
   const busy = useRef(false)
   const androidRef = useRef<THREE.Group>(null)
   const iphoneRef = useRef<THREE.Group>(null)
@@ -161,14 +164,17 @@ export function PhoneSwap() {
     setLayout((prev) => ({ ...prev, stageWidth: clampStageWidth(width) }))
   }, [])
 
-  const viewBoxVars = {
-    '--phone-swap-height': String(layout.stageSize),
-    '--phone-swap-width': String(layout.stageWidth),
-  } as CSSProperties
+  const useAuthoredStageScale = layoutMode || !isMobile
+  const viewBoxVars = useAuthoredStageScale
+    ? ({
+        '--phone-swap-height': String(layout.stageSize),
+        '--phone-swap-width': String(layout.stageWidth),
+      } as CSSProperties)
+    : undefined
 
   return (
     <div
-      className={`phone-swap${layoutMode ? ' phone-swap--layout-mode' : ''}${animTuneOpen ? ' phone-swap--anim-tune' : ''}${layoutMode && showGuides ? ' phone-swap--guides' : ''}`}
+      className={`phone-swap${isMobile && !layoutMode ? ' phone-swap--mobile-bleed' : ''}${layoutMode ? ' phone-swap--layout-mode' : ''}${animTuneOpen ? ' phone-swap--anim-tune' : ''}${layoutMode && showGuides ? ' phone-swap--guides' : ''}`}
       style={viewBoxVars}
     >
       {devControls ? (
@@ -238,16 +244,23 @@ export function PhoneSwap() {
       ) : null}
 
       <div
-        className="phone-swap__viewbox"
-        onClick={layoutMode ? undefined : doSwap}
-        role={layoutMode ? undefined : 'button'}
+        className={`phone-swap__viewbox${backPhoneHover ? ' phone-swap__viewbox--swap-target' : ''}`}
         tabIndex={layoutMode ? undefined : 0}
+        onKeyDown={
+          layoutMode
+            ? undefined
+            : (e) => {
+                if (e.key !== 'Enter' && e.key !== ' ') return
+                e.preventDefault()
+                doSwap()
+              }
+        }
         aria-label={
           layoutMode
             ? undefined
             : swapped
-              ? 'Phone models: iPhone in front. Activate to show Android in front.'
-              : 'Phone models: Android in front. Activate to show iPhone in front.'
+              ? 'Phone models: iPhone in front. Tap the Android in back to swap.'
+              : 'Phone models: Android in front. Tap the iPhone in back to swap.'
         }
       >
         {layoutMode && showGuides ? <PhoneLayoutGuides /> : null}
@@ -294,6 +307,8 @@ export function PhoneSwap() {
                 animSession={animSession}
                 animSettings={animSettings}
                 onAnimationComplete={handleAnimationComplete}
+                onSwapRequest={triggerSwap}
+                onBackHoverChange={setBackPhoneHover}
                 showGuides={showGuides}
                 viewLocked={layoutMode ? locks.viewAngle : true}
                 sceneApiRef={sceneApiRef}

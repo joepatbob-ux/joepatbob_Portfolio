@@ -68,16 +68,47 @@
     margin-inline: 0;
   }
 
+  .hardware-slideshow .chapter-slide__stage > * {
+    margin-inline: auto;
+  }
+
   .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__stage:has(.phone-swap) {
-    width: auto;
-    max-width: 100%;
+    width: 100vw;
+    max-width: 100vw;
+    margin-inline: calc(50% - 50vw);
     max-height: none;
     min-height: 0;
     flex: 0 0 auto;
+    overflow: visible;
+    justify-content: center;
   }
 
-  .hardware-slideshow .chapter-slide__stage > * {
-    margin-inline: auto;
+  .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__stage > .phone-swap {
+    margin-inline: 0;
+  }
+
+  .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__inner {
+    max-width: 100%;
+    overflow-x: clip;
+  }
+
+  .portfolio-chapter-slot--fill.hardware-slideshow.mobile-chapter-slot--sensi {
+    overflow-x: clip;
+  }
+
+  .portfolio-chapter-slot--fill.hardware-slideshow.mobile-chapter-slot--sensi
+    .portfolio-chapter-panel {
+    padding-inline: 0;
+    overflow-x: clip;
+  }
+
+  .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__viewport {
+    overflow-x: clip;
+  }
+
+  .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__copy--mobile-teaser {
+    padding-inline: var(--content-pad-x, 16px);
+    box-sizing: border-box;
   }
 
   .hardware-slideshow .chapter-slide__copy--mobile-teaser,
