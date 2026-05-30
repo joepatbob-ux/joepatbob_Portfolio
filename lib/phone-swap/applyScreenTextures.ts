@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import {
+  nudgeGeometryAlongNormals,
   remapDisplayUVFlipV,
   remapMeshUVsTo01,
   screenTextureForDisplay,
@@ -7,7 +8,7 @@ import {
 import { debugLog } from '@/lib/phone-swap/debugLog'
 
 import { IPHONE16_MESH } from '@/lib/phone-swap/iphone16Assets'
-import { PIXEL8_MESH } from '@/lib/phone-swap/pixel8Assets'
+import { PIXEL8_DISPLAY, PIXEL8_DISPLAY_RENDER_ORDER, PIXEL8_MESH } from '@/lib/phone-swap/pixel8Assets'
 import { PIXEL9_MESH } from '@/lib/phone-swap/pixel9Assets'
 import { meshMaterialSlot } from '@/lib/phone-swap/mergeMeshesByMaterial'
 
@@ -157,15 +158,71 @@ export function applyPixel9Screen(
 }
 
 function isPixel8DisplayMesh(mesh: THREE.Mesh): boolean {
+  if (mesh.name === PIXEL8_MESH.displayBacking) return false
   const slot = meshMaterialSlot(mesh)
   const meshKey = mesh.name.toLowerCase()
   const slotKey = slot.toLowerCase()
   return (
     mesh.name === PIXEL8_MESH.display ||
     slot === PIXEL8_MESH.display ||
-    meshKey.includes('screen') ||
-    slotKey.includes('screen')
+    (meshKey.includes('screen') && !meshKey.includes('backing')) ||
+    (slotKey.includes('screen') && !slotKey.includes('backing'))
   )
+}
+
+function findPixel8DisplayMesh(root: THREE.Object3D): THREE.Mesh | null {
+  let found: THREE.Mesh | null = null
+  root.traverse((child) => {
+    if (found) return
+    if (child instanceof THREE.Mesh && isPixel8DisplayMesh(child)) {
+      found = child
+    }
+  })
+  return found
+}
+
+/** OLED well behind the screenshot — fills bezel gaps and cutout edges. */
+export function applyPixel8ScreenBacking(
+  root: THREE.Object3D,
+  backingGeometry: THREE.BufferGeometry,
+): number {
+  const display = findPixel8DisplayMesh(root)
+  if (!display) return 0
+
+  const parent = display.parent
+  if (!parent) return 0
+
+  const existing = parent.getObjectByName(PIXEL8_MESH.displayBacking)
+  if (existing) {
+    existing.parent?.remove(existing)
+    if (existing instanceof THREE.Mesh) {
+      existing.geometry.dispose()
+      const mat = existing.material
+      if (Array.isArray(mat)) mat.forEach((m) => m.dispose())
+      else mat.dispose()
+    }
+  }
+
+  const backing = new THREE.Mesh(
+    backingGeometry,
+    new THREE.MeshBasicMaterial({
+      name: PIXEL8_MESH.displayBacking,
+      color: PIXEL8_DISPLAY.backing,
+      toneMapped: false,
+      depthTest: true,
+      depthWrite: true,
+      side: THREE.FrontSide,
+    }),
+  )
+  backing.name = PIXEL8_MESH.displayBacking
+  backing.position.copy(display.position)
+  backing.quaternion.copy(display.quaternion)
+  backing.scale.copy(display.scale)
+  backing.renderOrder = PIXEL8_DISPLAY_RENDER_ORDER.backing
+  backing.frustumCulled = false
+  parent.add(backing)
+
+  return 1
 }
 
 /** Stock wallpaper on Pixel 8 Pro display (screenSG1 or FBX screen mesh). */
@@ -174,6 +231,7 @@ export function applyPixel8Screen(
   screenTexture: THREE.Texture,
 ): number {
   let count = 0
+  let backingGeometry: THREE.BufferGeometry | null = null
 
   root.traverse((child) => {
     if (!(child instanceof THREE.Mesh)) return
@@ -181,20 +239,30 @@ export function applyPixel8Screen(
 
     child.geometry = child.geometry.clone()
     remapDisplayUVFlipV(child)
+    backingGeometry = child.geometry.clone()
+    nudgeGeometryAlongNormals(child.geometry, PIXEL8_DISPLAY.surfaceNudge)
     const map = screenTextureForDisplay(screenTexture)
     if (map.image) map.needsUpdate = true
 
     child.material = new THREE.MeshBasicMaterial({
       map,
+      color: 0xffffff,
       toneMapped: false,
       depthTest: true,
       depthWrite: true,
       side: THREE.FrontSide,
+      polygonOffset: true,
+      polygonOffsetFactor: -4,
+      polygonOffsetUnits: -8,
     })
-    child.renderOrder = 30
+    child.renderOrder = PIXEL8_DISPLAY_RENDER_ORDER.screen
     child.frustumCulled = false
     count += 1
   })
+
+  if (count > 0 && backingGeometry) {
+    applyPixel8ScreenBacking(root, backingGeometry)
+  }
 
   return count
 }

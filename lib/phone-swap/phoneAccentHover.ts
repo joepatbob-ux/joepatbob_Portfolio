@@ -11,6 +11,7 @@ export const PHONE_SWAP_ACCENT_COLOR = new THREE.Color(PHONE_SWAP_ACCENT)
 const DISPLAY_MESH_NAMES = new Set<string>([
   IPHONE16_MESH.display,
   PIXEL8_MESH.display,
+  PIXEL8_MESH.displayBacking,
   ANDROID_MESH.display,
   'GP9p_display',
 ])

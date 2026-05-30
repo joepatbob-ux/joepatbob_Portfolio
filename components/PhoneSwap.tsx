@@ -2,6 +2,7 @@
 
 import { PhoneAnimTunePanel } from '@/components/phone-swap/PhoneAnimTunePanel'
 import { PhoneLayoutPanel } from '@/components/phone-swap/PhoneLayoutPanel'
+import { PhoneMaterialTunePanel } from '@/components/phone-swap/PhoneMaterialTunePanel'
 import { PhoneLayoutGuides } from '@/components/phone-swap/PhoneLayoutGuides'
 import { PhoneSwapScene } from '@/components/phone-swap/PhoneSwapScene'
 import { Html } from '@react-three/drei'
@@ -29,6 +30,10 @@ import {
   DEFAULT_PHONE_SWAP_ANIM,
 } from '@/lib/phone-swap/phoneSwapAnimSettings'
 import { clampStageSize, clampStageWidth } from '@/lib/phone-swap/phoneSwapStageSize'
+import {
+  EMPTY_PHONE_MATERIAL_TUNES,
+  type PhoneMaterialTunesByDevice,
+} from '@/lib/phone-swap/phoneMaterialTune'
 import { usePhoneLayoutMode } from '@/lib/phone-swap/usePhoneLayoutMode'
 import { useLayoutMobile } from '@/lib/hooks/useLayoutMobile'
 import type { PhoneSwapSceneApi } from '@/components/phone-swap/PhoneSwapScene'
@@ -46,6 +51,11 @@ import type * as THREE from 'three'
 export function PhoneSwap() {
   const [layoutMode, setLayoutMode] = useState(false)
   const [animTuneOpen, setAnimTuneOpen] = useState(false)
+  const [materialTuneOpen, setMaterialTuneOpen] = useState(false)
+  const [materialTunes, setMaterialTunes] =
+    useState<PhoneMaterialTunesByDevice>(() => ({
+      ...EMPTY_PHONE_MATERIAL_TUNES,
+    }))
   const [animSettings, setAnimSettings] = useState(() =>
     clampAnimSettings(DEFAULT_PHONE_SWAP_ANIM),
   )
@@ -174,7 +184,7 @@ export function PhoneSwap() {
 
   return (
     <div
-      className={`phone-swap${isMobile && !layoutMode ? ' phone-swap--mobile-bleed' : ''}${layoutMode ? ' phone-swap--layout-mode' : ''}${animTuneOpen ? ' phone-swap--anim-tune' : ''}${layoutMode && showGuides ? ' phone-swap--guides' : ''}`}
+      className={`phone-swap${isMobile && !layoutMode ? ' phone-swap--mobile-bleed' : ''}${layoutMode ? ' phone-swap--layout-mode' : ''}${animTuneOpen ? ' phone-swap--anim-tune' : ''}${materialTuneOpen ? ' phone-swap--material-tune' : ''}${layoutMode && showGuides ? ' phone-swap--guides' : ''}`}
       style={viewBoxVars}
     >
       {devControls ? (
@@ -200,7 +210,24 @@ export function PhoneSwap() {
           >
             {animTuneOpen ? 'Done animation' : 'Tune animation'}
           </button>
+          <button
+            type="button"
+            className={`phone-swap__layout-toggle${materialTuneOpen ? ' is-active' : ''}`}
+            onClick={() => setMaterialTuneOpen((on) => !on)}
+          >
+            {materialTuneOpen ? 'Done materials' : 'Tune materials'}
+          </button>
         </div>
+      ) : null}
+
+      {devControls && materialTuneOpen ? (
+        <PhoneMaterialTunePanel
+          androidRef={androidRef}
+          iphoneRef={iphoneRef}
+          tunes={materialTunes}
+          onChange={setMaterialTunes}
+          onClose={() => setMaterialTuneOpen(false)}
+        />
       ) : null}
 
       {devControls && animTuneOpen ? (
@@ -312,6 +339,7 @@ export function PhoneSwap() {
                 showGuides={showGuides}
                 viewLocked={layoutMode ? locks.viewAngle : true}
                 sceneApiRef={sceneApiRef}
+                materialTunes={materialTunes}
               />
             </Suspense>
         </Canvas>
