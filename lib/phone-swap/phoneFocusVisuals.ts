@@ -2,6 +2,8 @@ import * as THREE from 'three'
 import {
   applyModelHoverGlow,
   applyScreenPngHoverTint,
+  isPhoneDisplayMesh,
+  isPhoneFrontBezelMesh,
   isPhoneHoverMesh,
   isPhoneScreenPngMesh,
   PHONE_HOVER,
@@ -133,6 +135,9 @@ export function applyFocusToPhoneRoot(
 
   root.traverse((child) => {
     if (!(child instanceof THREE.Mesh)) return
+
+    if (isPhoneFrontBezelMesh(child)) return
+    if (isPhoneDisplayMesh(child) && !isPhoneScreenPngMesh(child)) return
 
     if (isPhoneScreenPngMesh(child)) {
       const materials = Array.isArray(child.material)

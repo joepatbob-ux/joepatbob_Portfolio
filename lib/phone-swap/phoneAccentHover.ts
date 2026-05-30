@@ -42,6 +42,11 @@ export function isPhoneDisplayMesh(mesh: THREE.Mesh): boolean {
   )
 }
 
+/** Front glass frame + iPhone island/sensors — never tint during focus/hover. */
+export function isPhoneFrontBezelMesh(mesh: THREE.Mesh): boolean {
+  return HOVER_SKIP_MESH_NAMES.has(mesh.name)
+}
+
 /** Screenshot mesh only — not the black OLED backing behind it. */
 export function isPhoneScreenPngMesh(mesh: THREE.Mesh): boolean {
   if (DISPLAY_BACKING_NAMES.has(mesh.name)) return false

@@ -14,23 +14,29 @@ import {
   type Pixel8MaterialMaps,
 } from '@/lib/phone-swap/pixel8Assets'
 import { applyPixel8Screen } from '@/lib/phone-swap/applyScreenTextures'
+import { nudgeGeometryAlongNormals } from '@/lib/phone-swap/fitScreenTextureToMesh'
 import { meshMaterialSlot } from '@/lib/phone-swap/mergeMeshesByMaterial'
 import { mtlPhongToStandard } from '@/lib/phone-swap/mtlPhongToStandard'
 
-function pixel8BezelMaterial(): THREE.MeshStandardMaterial {
-  return new THREE.MeshStandardMaterial({
+/** Unlit bezel — stays visible at grazing angles during swap rotation. */
+function pixel8BezelMaterial(): THREE.MeshBasicMaterial {
+  return new THREE.MeshBasicMaterial({
     name: PIXEL8_MESH.glass,
     color: PIXEL8_DISPLAY.bezel,
-    metalness: 0.12,
-    roughness: 0.58,
-    envMapIntensity: 0.45,
+    toneMapped: false,
     side: THREE.FrontSide,
     depthTest: true,
     depthWrite: false,
-    polygonOffset: true,
-    polygonOffsetFactor: 2,
-    polygonOffsetUnits: 6,
   })
+}
+
+function applyPixel8BezelMesh(child: THREE.Mesh): void {
+  child.geometry = child.geometry.clone()
+  nudgeGeometryAlongNormals(child.geometry, PIXEL8_DISPLAY.bezelNudge)
+  child.material = pixel8BezelMaterial()
+  child.visible = true
+  child.renderOrder = PIXEL8_DISPLAY_RENDER_ORDER.bezel
+  child.frustumCulled = false
 }
 
 /** Black glass frame + camera cutout ring (export `glassSG1` — was hidden). */
@@ -42,10 +48,7 @@ export function applyPixel8FrontBezel(root: THREE.Object3D): number {
     const slot = resolveSlot(child)
     if (slot !== PIXEL8_MESH.glass) return
 
-    child.material = pixel8BezelMaterial()
-    child.visible = true
-    child.renderOrder = PIXEL8_DISPLAY_RENDER_ORDER.bezel
-    child.frustumCulled = false
+    applyPixel8BezelMesh(child)
     count += 1
   })
 
@@ -294,10 +297,7 @@ export function applyPixel8MtlMaterials(
     const slot = resolveSlot(child)
     if (slot === PIXEL8_MESH.display) return
     if (slot === PIXEL8_MESH.glass) {
-      child.material = pixel8BezelMaterial()
-      child.visible = true
-      child.renderOrder = PIXEL8_DISPLAY_RENDER_ORDER.bezel
-      child.frustumCulled = false
+      applyPixel8BezelMesh(child)
       count += 1
       return
     }
