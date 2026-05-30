@@ -14,7 +14,7 @@ import * as THREE from 'three'
 import { NoColorSpace, SRGBColorSpace, TextureLoader } from 'three'
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 import { debugLog } from '@/lib/phone-swap/debugLog'
-import { PHONE_SWAP_ANIM_MS, easeInOutSine } from '@/lib/phone-swap/phoneSwapTiming'
+import { PHONE_SWAP_ANIM_MS, easeInOutQuint } from '@/lib/phone-swap/phoneSwapTiming'
 import {
   applyPoseToGroup,
   readPoseFromGroup,
@@ -247,7 +247,7 @@ export function PhoneSwapScene({
             queueMicrotask(() => onCompleteRef.current?.())
           }
         } else {
-          const u = easeInOutSine(linear)
+          const u = easeInOutQuint(linear)
           progressRef.current =
             animFrom.current + (animTo.current - animFrom.current) * u
         }
