@@ -1,192 +1,226 @@
 'use client'
 
+import { PhoneLayoutPanel } from '@/components/phone-swap/PhoneLayoutPanel'
+import { PhoneLayoutGuides } from '@/components/phone-swap/PhoneLayoutGuides'
 import { PhoneSwapScene } from '@/components/phone-swap/PhoneSwapScene'
 import { Html } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
-import { debugLog } from '@/lib/phone-swap/debugLog'
 import {
-  Suspense,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  type CSSProperties,
-} from 'react'
+  defaultRenderOrders,
+  readPoseFromGroup,
+} from '@/lib/phone-swap/phoneSwapAnimation'
+import {
+  PHONE_SWAP_LAYOUT,
+  DEFAULT_LAYOUT_LOCKS,
+  cloneLayout,
+  cloneSnapshot,
+  type PhoneDevice,
+  type PhoneSwapFocus,
+  type PhoneSwapLayout,
+  type PhoneSwapSnapshot,
+  type LayoutLocks,
+  type PhonePose,
+} from '@/lib/phone-swap/phoneSwapLayout'
+import { DEFAULT_PHONE_CAMERA } from '@/lib/phone-swap/phoneSwapCamera'
+import { usePhoneLayoutMode } from '@/lib/phone-swap/usePhoneLayoutMode'
+import type { PhoneSwapSceneApi } from '@/components/phone-swap/PhoneSwapScene'
+import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
+import type * as THREE from 'three'
 
-const labelBase: CSSProperties = {
-  fontSize: 12,
-  fontWeight: 500,
-  letterSpacing: '0.04em',
-  padding: '4px 10px',
-  borderRadius: 8,
-  border: '0.5px solid rgba(0,0,0,0.15)',
-  color: '#888',
-  background: '#fff',
-  cursor: 'pointer',
-}
-
-const labelActive: CSSProperties = {
-  ...labelBase,
-  border: '0.5px solid rgba(0,0,0,0.4)',
-  color: '#111',
-  cursor: 'default',
-}
-
-/** 3D Pixel / iPhone swap — React Three Fiber, lerp animation in useFrame. */
+/** 3D Pixel / iPhone swap — tap canvas to swap; layout tools via ?phone-layout=1 */
 export function PhoneSwap() {
+  const [layoutMode, setLayoutMode] = useState(false)
   const [swapped, setSwapped] = useState(false)
+  const [layout, setLayout] = useState<PhoneSwapLayout>(() => cloneLayout(PHONE_SWAP_LAYOUT))
+  const [editFocus, setEditFocus] = useState<PhoneSwapFocus>('androidFocus')
+  const [selectedDevice, setSelectedDevice] = useState<PhoneDevice>('android')
+  const [gizmoMode, setGizmoMode] = useState<'translate' | 'rotate' | 'scale'>('translate')
+  const [showGuides, setShowGuides] = useState(false)
+  const devControls = usePhoneLayoutMode()
+  const [locks, setLocks] = useState<LayoutLocks>(() => ({ ...DEFAULT_LAYOUT_LOCKS }))
+  const [liveSnapshot, setLiveSnapshot] = useState<PhoneSwapSnapshot>(() =>
+    cloneSnapshot(PHONE_SWAP_LAYOUT.androidFocus),
+  )
+  const [animating, setAnimating] = useState(false)
   const busy = useRef(false)
+  const androidRef = useRef<THREE.Group>(null)
+  const iphoneRef = useRef<THREE.Group>(null)
+  const sceneApiRef = useRef<PhoneSwapSceneApi | null>(null)
+  const layoutRef = useRef(layout)
+  layoutRef.current = layout
+
+  const swapProgress = swapped ? 1 : 0
 
   useEffect(() => {
-    // #region agent log
-    const canvas = document.querySelector<HTMLCanvasElement>(
-      '.phone-swap__canvas-hit canvas',
-    )
-    const hit = document.querySelector('.phone-swap__canvas-hit')
-    debugLog(
-      'PhoneSwap.tsx:mount',
-      'PhoneSwap mounted',
-      {
-        canvasFound: !!canvas,
-        canvasWidth: canvas?.clientWidth ?? 0,
-        canvasHeight: canvas?.clientHeight ?? 0,
-        hitWidth: hit?.clientWidth ?? 0,
-        hitHeight: hit?.clientHeight ?? 0,
-      },
-      'E',
-    )
-    // #endregion
+    if (!layoutMode) return
+    setLiveSnapshot(cloneSnapshot(layoutRef.current[editFocus]))
+  }, [layoutMode, editFocus])
+
+  const syncFromGizmo = useCallback(() => {
+    const android = androidRef.current
+    const iphone = iphoneRef.current
+    if (!android || !iphone) return
+
+    const orders = defaultRenderOrders(editFocus)
+    setLiveSnapshot({
+      android: readPoseFromGroup(android, orders.android),
+      iphone: readPoseFromGroup(iphone, orders.iphone),
+    })
+  }, [editFocus])
+
+  const updateDevicePose = useCallback((device: PhoneDevice, pose: PhonePose) => {
+    setLiveSnapshot((prev) => ({ ...prev, [device]: pose }))
+  }, [])
+
+  const handleAnimationComplete = useCallback(() => {
+    busy.current = false
+    setAnimating(false)
   }, [])
 
   const doSwap = useCallback(() => {
-    if (busy.current) return
+    if (layoutMode || busy.current) return
     busy.current = true
-    setSwapped((s) => {
-      const next = !s
-      // #region agent log
-      debugLog(
-        'PhoneSwap.tsx:doSwap',
-        '3D swap',
-        { nextSwapped: next },
-        '3D',
-        'post-fix',
-      )
-      // #endregion
-      return next
-    })
-    window.setTimeout(() => {
-      busy.current = false
-    }, 750)
+    setAnimating(true)
+    setSwapped((s) => !s)
+  }, [layoutMode])
+
+  const saveFocus = useCallback(() => {
+    setLayout((prev) => ({
+      ...prev,
+      [editFocus]: cloneSnapshot(liveSnapshot),
+    }))
+  }, [editFocus, liveSnapshot])
+
+  const resetLayout = useCallback(() => {
+    const next = cloneLayout(PHONE_SWAP_LAYOUT)
+    setLayout(next)
+    setLiveSnapshot(cloneSnapshot(next[editFocus]))
+  }, [editFocus])
+
+  const saveView = useCallback(() => {
+    const view = sceneApiRef.current?.saveCameraView()
+    if (!view) return
+    setLayout((prev) => ({ ...prev, camera: view }))
+    setLocks((prev) => ({ ...prev, viewAngle: true }))
+  }, [])
+
+  const resetView = useCallback(() => {
+    setLayout((prev) => ({ ...prev, camera: DEFAULT_PHONE_CAMERA }))
+    setLocks((prev) => ({ ...prev, viewAngle: true }))
+  }, [])
+
+  const toggleViewLock = useCallback(() => {
+    setLocks((prev) => ({ ...prev, viewAngle: !prev.viewAngle }))
   }, [])
 
   return (
-    <div className="phone-swap">
-      <div className="phone-swap__labels">
-        <span
-          role="button"
-          tabIndex={swapped ? 0 : -1}
-          style={!swapped ? labelActive : labelBase}
-          onClick={() => swapped && doSwap()}
-          onKeyDown={(e) => {
-            if ((e.key === 'Enter' || e.key === ' ') && swapped) {
-              e.preventDefault()
-              doSwap()
-            }
-          }}
-        >
-          Android
-        </span>
-        <span className="phone-swap__sep">·</span>
-        <span
-          role="button"
-          tabIndex={!swapped ? 0 : -1}
-          style={swapped ? labelActive : labelBase}
-          onClick={() => !swapped && doSwap()}
-          onKeyDown={(e) => {
-            if ((e.key === 'Enter' || e.key === ' ') && !swapped) {
-              e.preventDefault()
-              doSwap()
-            }
-          }}
-        >
-          iPhone
-        </span>
-      </div>
-
-      <div
-        className="phone-swap__canvas-hit"
-        onClick={doSwap}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault()
-            doSwap()
-          }
-        }}
-        role="button"
-        tabIndex={0}
-        aria-label={
-          swapped
-            ? 'Phone models: iPhone in front. Activate to show Android in front.'
-            : 'Phone models: Android in front. Activate to show iPhone in front.'
-        }
-      >
-        <Canvas
-          camera={{ position: [0, 0, 3.2], fov: 42, near: 0.05, far: 50 }}
-          style={{ width: '100%', height: '100%' }}
-          gl={{ alpha: false, antialias: true, powerPreference: 'high-performance' }}
-          dpr={[1, 2]}
-          frameloop="always"
-          onCreated={({ gl, size }) => {
-            // #region agent log
-            debugLog(
-              'PhoneSwap.tsx:onCreated',
-              'WebGL canvas created',
-              {
-                sizeWidth: size.width,
-                sizeHeight: size.height,
-                rendererWidth: gl.domElement.width,
-                rendererHeight: gl.domElement.height,
-                contextLost: gl.getContext()?.isContextLost?.() ?? false,
-              },
-              'E',
-              'post-fix',
-            )
-            requestAnimationFrame(() => {
-              const el = gl.domElement
-              const rect = el.getBoundingClientRect()
-              debugLog(
-                'PhoneSwap.tsx:canvasRect',
-                'canvas layout after frame',
-                {
-                  clientWidth: el.clientWidth,
-                  clientHeight: el.clientHeight,
-                  rectWidth: rect.width,
-                  rectHeight: rect.height,
-                  rectTop: rect.top,
-                  rectLeft: rect.left,
-                },
-                'K',
-                'post-fix',
-              )
-            })
-            // #endregion
-          }}
-        >
-          <Suspense
-            fallback={
-              <Html center className="phone-swap__fallback">
-                Loading phones…
-              </Html>
-            }
+    <div
+      className={`phone-swap${layoutMode ? ' phone-swap--layout-mode' : ''}${layoutMode && showGuides ? ' phone-swap--guides' : ''}`}
+    >
+      {devControls ? (
+        <div className="phone-swap__toolbar">
+          <button
+            type="button"
+            className={`phone-swap__layout-toggle${layoutMode ? ' is-active' : ''}`}
+            onClick={() => {
+              setLayoutMode((on) => {
+                if (!on) setEditFocus(swapped ? 'iphoneFocus' : 'androidFocus')
+                return !on
+              })
+            }}
           >
-            <PhoneSwapScene swapped={swapped} />
-          </Suspense>
-        </Canvas>
+            {layoutMode ? 'Done positioning' : 'Adjust positions'}
+          </button>
+        </div>
+      ) : null}
+
+      {devControls && layoutMode ? (
+        <PhoneLayoutPanel
+          layout={layout}
+          editFocus={editFocus}
+          selected={selectedDevice}
+          gizmoMode={gizmoMode}
+          onEditFocusChange={setEditFocus}
+          onSelect={setSelectedDevice}
+          onGizmoModeChange={setGizmoMode}
+          onSaveFocus={saveFocus}
+          onReset={resetLayout}
+          onClose={() => setLayoutMode(false)}
+          showGuides={showGuides}
+          onShowGuidesChange={setShowGuides}
+          viewLocked={locks.viewAngle}
+          onViewLockToggle={toggleViewLock}
+          onSaveView={saveView}
+          onResetView={resetView}
+          camera={layout.camera}
+          liveSnapshot={liveSnapshot}
+          onDevicePoseChange={updateDevicePose}
+        />
+      ) : null}
+
+      <div className="phone-swap__stage">
+        <div
+          className="phone-swap__canvas-hit"
+          onClick={layoutMode ? undefined : doSwap}
+          role={layoutMode ? undefined : 'button'}
+          tabIndex={layoutMode ? undefined : 0}
+          aria-label={
+            layoutMode
+              ? undefined
+              : swapped
+                ? 'Phone models: iPhone in front. Activate to show Android in front.'
+                : 'Phone models: Android in front. Activate to show iPhone in front.'
+          }
+        >
+          {layoutMode && showGuides ? <PhoneLayoutGuides /> : null}
+          <Canvas
+            camera={{
+              position: layout.camera.position,
+              fov: layout.camera.fov,
+              near: 0.05,
+              far: 50,
+            }}
+            style={{ width: '100%', height: '100%', background: 'transparent' }}
+            gl={{
+              alpha: true,
+              antialias: true,
+              powerPreference: 'high-performance',
+            }}
+            dpr={[1, 2]}
+            frameloop="always"
+            onCreated={({ gl }) => {
+              gl.setClearColor(0x000000, 0)
+            }}
+          >
+            <Suspense
+              fallback={
+                <Html center className="phone-swap__fallback">
+                  Loading phones…
+                </Html>
+              }
+            >
+              <PhoneSwapScene
+                layout={layout}
+                swapProgress={layoutMode ? (editFocus === 'iphoneFocus' ? 1 : 0) : swapProgress}
+                layoutMode={layoutMode}
+                editFocus={editFocus}
+                liveSnapshot={liveSnapshot}
+                onGizmoChange={syncFromGizmo}
+                selectedDevice={selectedDevice}
+                gizmoMode={gizmoMode}
+                androidRef={androidRef}
+                iphoneRef={iphoneRef}
+                animating={animating}
+                onAnimationComplete={handleAnimationComplete}
+                showGuides={showGuides}
+                viewLocked={layoutMode ? locks.viewAngle : true}
+                sceneApiRef={sceneApiRef}
+              />
+            </Suspense>
+          </Canvas>
+        </div>
       </div>
 
-      <button type="button" className="phone-swap__btn" onClick={doSwap}>
-        swap ↔
-      </button>
     </div>
   )
 }
