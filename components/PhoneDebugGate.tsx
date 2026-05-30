@@ -4,14 +4,19 @@ import { PhoneDebugPage } from '@/components/phone-swap/PhoneDebugPage'
 import { type ReactNode, useEffect, useState } from 'react'
 
 export function PhoneDebugGate({ children }: { children: ReactNode }) {
-  const [phoneDebug, setPhoneDebug] = useState(false)
+  const [debugPage, setDebugPage] = useState(false)
 
   useEffect(() => {
-    setPhoneDebug(
+    setDebugPage(
       new URLSearchParams(window.location.search).has('phone-debug'),
     )
   }, [])
 
-  if (phoneDebug) return <PhoneDebugPage />
+  if (debugPage) {
+    const layoutMode = new URLSearchParams(window.location.search).has(
+      'phone-layout',
+    )
+    return <PhoneDebugPage layoutMode={layoutMode} />
+  }
   return children
 }

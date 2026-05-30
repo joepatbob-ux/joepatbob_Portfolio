@@ -3,8 +3,8 @@
 import { PhoneSwap } from '@/components/PhoneSwap'
 import { Suspense } from 'react'
 
-/** Full-page 3D test — open site with `?phone-debug=1` (no chapter nav / opacity stack). */
-export function PhoneDebugPage() {
+/** Full-page 3D test — `?phone-debug=1` or layout capture `?phone-layout=1`. */
+export function PhoneDebugPage({ layoutMode = false }: { layoutMode?: boolean }) {
   return (
     <div
       style={{
@@ -21,9 +21,19 @@ export function PhoneDebugPage() {
         fontSize: 12,
       }}
     >
-      <p style={{ margin: 0, maxWidth: 520, lineHeight: 1.5, textAlign: 'center' }}>
-        Isolated PhoneSwap (no slideshow). You should see a centered Android phone. Drag to
-        orbit. Remove <code>?phone-debug=1</code> to return to the portfolio.
+      <p style={{ margin: 0, maxWidth: 560, lineHeight: 1.5, textAlign: 'center' }}>
+        {layoutMode ? (
+          <>
+            Layout capture mode — panel above the canvas. Copy output into{' '}
+            <code>lib/phone-swap/phoneSwapLayout.ts</code>. Remove{' '}
+            <code>?phone-layout=1</code> when done.
+          </>
+        ) : (
+          <>
+            Isolated PhoneSwap (no slideshow). Drag to orbit. Remove{' '}
+            <code>?phone-debug=1</code> to return to the portfolio.
+          </>
+        )}
       </p>
       <div style={{ width: 'min(640px, 100%)' }}>
         <Suspense fallback={<p style={{ color: '#aaa' }}>Loading…</p>}>

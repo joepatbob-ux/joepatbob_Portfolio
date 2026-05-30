@@ -2,7 +2,13 @@
 
 import { useFrame } from '@react-three/fiber'
 import { debugLog } from '@/lib/phone-swap/debugLog'
-import { useEffect, useLayoutEffect, useRef } from 'react'
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useLayoutEffect,
+  useRef,
+} from 'react'
 import * as THREE from 'three'
 
 const LERP = 0.12
@@ -13,93 +19,125 @@ export interface PhoneModelProps {
   rotationY: number
   scale: number
   renderOrder: number
+  /** When true, snap to targets (layout capture mode). */
+  snap?: boolean
 }
 
-export function PhoneModel({
-  scene,
-  position,
-  rotationY,
-  scale,
-  renderOrder,
-}: PhoneModelProps) {
-  const groupRef = useRef<THREE.Group>(null)
-  const initialized = useRef(false)
-  const targetPosition = useRef(new THREE.Vector3(...position))
-  const targetRotationY = useRef(rotationY)
-  const targetScale = useRef(scale)
+export const PhoneModel = forwardRef<THREE.Group, PhoneModelProps>(
+  function PhoneModel(
+    { scene, position, rotationY, scale, renderOrder, snap = false },
+    ref,
+  ) {
+    const groupRef = useRef<THREE.Group>(null)
+    const initialized = useRef(false)
+    const targetPosition = useRef(new THREE.Vector3(...position))
+    const targetRotationY = useRef(rotationY)
+    const targetScale = useRef(scale)
 
-  useLayoutEffect(() => {
-    const group = groupRef.current
-    if (!group || initialized.current) return
-    group.position.set(position[0], position[1], position[2])
-    group.rotation.y = rotationY
-    group.scale.setScalar(scale)
-    targetPosition.current.set(position[0], position[1], position[2])
-    targetRotationY.current = rotationY
-    targetScale.current = scale
-    initialized.current = true
-  }, [position, rotationY, scale])
+    useImperativeHandle(ref, () => groupRef.current!, [])
 
-  useEffect(() => {
-    targetPosition.current.set(position[0], position[1], position[2])
-    targetRotationY.current = rotationY
-    targetScale.current = scale
-    // #region agent log
-    debugLog(
-      'PhoneModel.tsx:target',
-      'swap target updated (lerp, no snap)',
-      {
-        x: position[0],
-        y: position[1],
-        z: position[2],
-        rotationY,
-        scale,
-        renderOrder,
-      },
-      'M',
-      'post-fix',
-    )
-    // #endregion
-  }, [position[0], position[1], position[2], rotationY, scale, renderOrder])
+    const applySnap = () => {
+      const group = groupRef.current
+      if (!group) return
+      group.position.set(
+        targetPosition.current.x,
+        targetPosition.current.y,
+        targetPosition.current.z,
+      )
+      group.rotation.y = targetRotationY.current
+      group.scale.setScalar(targetScale.current)
+    }
 
-  const loggedFrame = useRef(false)
+    useLayoutEffect(() => {
+      const group = groupRef.current
+      if (!group || initialized.current) return
+      group.position.set(position[0], position[1], position[2])
+      group.rotation.y = rotationY
+      group.scale.setScalar(scale)
+      targetPosition.current.set(position[0], position[1], position[2])
+      targetRotationY.current = rotationY
+      targetScale.current = scale
+      initialized.current = true
+    }, [position, rotationY, scale])
 
-  useFrame(() => {
-    const group = groupRef.current
-    if (!group) return
+    useLayoutEffect(() => {
+      targetPosition.current.set(position[0], position[1], position[2])
+      targetRotationY.current = rotationY
+      targetScale.current = scale
+      if (snap) applySnap()
+    }, [position, rotationY, scale, snap])
 
-    if (!loggedFrame.current) {
-      loggedFrame.current = true
+    useEffect(() => {
+      targetPosition.current.set(position[0], position[1], position[2])
+      targetRotationY.current = rotationY
+      targetScale.current = scale
       // #region agent log
       debugLog(
-        'PhoneModel.tsx:useFrame',
-        'first frame',
+        'PhoneModel.tsx:target',
+        'swap target updated (lerp, no snap)',
         {
-          x: group.position.x,
-          y: group.position.y,
-          z: group.position.z,
-          scale: group.scale.x,
+          x: position[0],
+          y: position[1],
+          z: position[2],
+          rotationY,
+          scale,
           renderOrder,
+          snap,
         },
-        'R',
+        'M',
         'post-fix',
       )
       // #endregion
-    }
+    }, [position[0], position[1], position[2], rotationY, scale, renderOrder, snap])
 
-    group.position.lerp(targetPosition.current, LERP)
-    group.rotation.y = THREE.MathUtils.lerp(
-      group.rotation.y,
-      targetRotationY.current,
-      LERP,
+    const loggedFrame = useRef(false)
+
+    useFrame(() => {
+      const group = groupRef.current
+      if (!group) return
+
+      if (snap) {
+        applySnap()
+        return
+      }
+
+      if (!loggedFrame.current) {
+        loggedFrame.current = true
+        // #region agent log
+        debugLog(
+          'PhoneModel.tsx:useFrame',
+          'first frame',
+          {
+            x: group.position.x,
+            y: group.position.y,
+            z: group.position.z,
+            scale: group.scale.x,
+            renderOrder,
+          },
+          'R',
+          'post-fix',
+        )
+        // #endregion
+      }
+
+      group.position.lerp(targetPosition.current, LERP)
+      group.rotation.y = THREE.MathUtils.lerp(
+        group.rotation.y,
+        targetRotationY.current,
+        LERP,
+      )
+      const nextScale = THREE.MathUtils.lerp(
+        group.scale.x,
+        targetScale.current,
+        LERP,
+      )
+      group.scale.setScalar(nextScale)
+    })
+
+    return (
+      <group ref={groupRef}>
+        <primitive object={scene} frustumCulled={false} />
+      </group>
     )
-    const nextScale = THREE.MathUtils.lerp(group.scale.x, targetScale.current, LERP)
-    group.scale.setScalar(nextScale)
-  })
-
-  return (
-    <group ref={groupRef}>
-      <primitive object={scene} frustumCulled={false} />
-    </group>
-  )
-}
+  },
+)
