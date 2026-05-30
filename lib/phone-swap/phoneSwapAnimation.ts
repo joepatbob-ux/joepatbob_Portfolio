@@ -15,11 +15,6 @@ function clamp01(t: number): number {
   return Math.max(0, Math.min(1, t))
 }
 
-function smoothstep(t: number): number {
-  const x = clamp01(t)
-  return x * x * (3 - 2 * x)
-}
-
 function lerp(a: number, b: number, t: number): number {
   return a + (b - a) * t
 }
@@ -58,7 +53,7 @@ function snapshotAtSegment(
   useEndFocusDepth: boolean,
   endFocus: PhoneSwapSnapshot,
 ): PhoneSwapSnapshot {
-  const u = smoothstep(t)
+  const u = clamp01(t)
   const android = lerpPose(from.android, to.android, u)
   const iphone = lerpPose(from.iphone, to.iphone, u)
 
