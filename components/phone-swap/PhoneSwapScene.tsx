@@ -22,6 +22,7 @@ import {
 } from '@/lib/phone-swap/phoneSwapAnimation'
 import {
   applyCameraView,
+  cameraViewForSwap,
   readCameraView,
   type PhoneCameraView,
 } from '@/lib/phone-swap/phoneSwapCamera'
@@ -221,8 +222,12 @@ export function PhoneSwapScene({
   }, [layoutMode, layoutSnapshot, androidRef, iphoneRef])
 
   useFrame(() => {
-    if (!layoutMode || viewLocked) {
-      applyCameraView(camera, controlsRef.current, cameraView)
+    const lockCamera = layoutMode ? viewLocked : true
+    if (lockCamera) {
+      const activeCamera = layoutMode
+        ? cameraView
+        : cameraViewForSwap(cameraView, progressRef.current, animating)
+      applyCameraView(camera, controlsRef.current, activeCamera)
     }
 
     if (layoutMode) return
