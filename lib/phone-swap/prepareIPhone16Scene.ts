@@ -1,5 +1,7 @@
 import * as THREE from 'three'
 import {
+  applyIPhone16FrontBezel,
+  applyIPhone16FrontOverlays,
   applyIPhone16Screen,
   IPHONE16_MESH,
 } from '@/lib/phone-swap/applyScreenTextures'
@@ -20,14 +22,6 @@ function isolateMeshGeometries(root: THREE.Object3D) {
       child.geometry = child.geometry.clone()
     }
   })
-}
-
-function hideFrontGlass(root: THREE.Object3D) {
-  const glass = root.getObjectByName(IPHONE16_MESH.glass) as THREE.Mesh | undefined
-  if (glass) {
-    glass.visible = false
-    glass.renderOrder = 0
-  }
 }
 
 /** C4D export is left-handed on X — mirror whole model, then rebuild normals for lighting. */
@@ -103,6 +97,7 @@ function applyIPhone16ProMaterials(root: THREE.Object3D, maps: IPhone16ProMaps) 
   root.traverse((child) => {
     if (!(child instanceof THREE.Mesh)) return
     if (child.name === IPHONE16_MESH.display) return
+    if (child.name === IPHONE16_MESH.glass) return
 
     const matName = materialName(child)
     const objName = child.name
@@ -275,8 +270,9 @@ export function prepareIPhone16Scene(
   mirrorModelX(clone)
 
   applyIPhone16ProMaterials(clone, proMaps)
-  hideFrontGlass(clone)
+  applyIPhone16FrontBezel(clone)
   const displayMeshes = applyIPhone16Screen(clone, screenTexture)
+  applyIPhone16FrontOverlays(clone)
 
   const display = clone.getObjectByName(IPHONE16_MESH.display)
   const body = clone.getObjectByName(IPHONE16_MESH.body)
