@@ -199,6 +199,9 @@ export function PhoneSwapScene({
   const backDeviceRef = useRef<PhoneDevice>('iphone')
   const hoverBackRef = useRef(false)
   const hoverSmoothRef = useRef(0)
+  /** Back phone + peak glow when a swap starts — keeps orange through the animation. */
+  const swapGlowDeviceRef = useRef<PhoneDevice | null>(null)
+  const swapGlowPeakRef = useRef(0)
   const [hoverBack, setHoverBack] = useState(false)
   const [backDevice, setBackDevice] = useState<PhoneDevice>('iphone')
   const materialTunesRef = useRef(materialTunes)
@@ -339,11 +342,15 @@ export function PhoneSwapScene({
   const runSwapTimeline = !layoutMode || animating
 
   useFrame(() => {
+    let animLinear = 0
+
     if (runSwapTimeline) {
       if (animating) {
-        const linear =
-          (performance.now() - animStart.current) / animSettings.durationMs
-        if (linear >= 1) {
+        animLinear = Math.min(
+          1,
+          (performance.now() - animStart.current) / animSettings.durationMs,
+        )
+        if (animLinear >= 1) {
           progressRef.current = animTo.current
           if (!animCompleteFired.current) {
             animCompleteFired.current = true
@@ -351,7 +358,7 @@ export function PhoneSwapScene({
           }
         } else {
           progressRef.current =
-            animFrom.current + (animTo.current - animFrom.current) * linear
+            animFrom.current + (animTo.current - animFrom.current) * animLinear
         }
       } else {
         progressRef.current = targetProgress.current
@@ -371,14 +378,24 @@ export function PhoneSwapScene({
       backDeviceRef.current = back
       if (back !== backDevice) setBackDevice(back)
 
-      const glowTarget =
-        interactionEnabled && hoverBackRef.current ? 1 : 0
-      hoverSmoothRef.current = lerp(
-        hoverSmoothRef.current,
-        glowTarget,
-        PHONE_HOVER.hoverLerp,
-      )
+      const swapGlowActive =
+        animating && swapGlowDeviceRef.current !== null && swapGlowPeakRef.current > 0.01
+
+      if (swapGlowActive) {
+        const fade = Math.min(1, animLinear / PHONE_HOVER.swapGlowFadeEnd)
+        hoverSmoothRef.current = swapGlowPeakRef.current * (1 - fade)
+      } else {
+        const glowTarget =
+          interactionEnabled && hoverBackRef.current ? 1 : 0
+        hoverSmoothRef.current = lerp(
+          hoverSmoothRef.current,
+          glowTarget,
+          PHONE_HOVER.hoverLerp,
+        )
+      }
       const backHover = hoverSmoothRef.current
+
+      const glowDevice = swapGlowDeviceRef.current ?? back
 
       applyPoseToGroup(androidRef.current, snapshot.android)
       applyPoseToGroup(iphoneRef.current, snapshot.iphone)
@@ -388,13 +405,13 @@ export function PhoneSwapScene({
           androidRef.current,
           focusForSnapshot(snapshot, 'android'),
           !settled,
-          { glowStrength: back === 'android' ? backHover : 0 },
+          { glowStrength: glowDevice === 'android' ? backHover : 0 },
         )
         applyFocusToPhoneRoot(
           iphoneRef.current,
           focusForSnapshot(snapshot, 'iphone'),
           !settled,
-          { glowStrength: back === 'iphone' ? backHover : 0 },
+          { glowStrength: glowDevice === 'iphone' ? backHover : 0 },
         )
       }
     }
@@ -436,11 +453,20 @@ export function PhoneSwapScene({
     if (layoutMode) setBackHover(false)
   }, [layoutMode, setBackHover])
 
-  useEffect(() => {
-    if (!animating) return
+  useLayoutEffect(() => {
+    if (!animating) {
+      swapGlowDeviceRef.current = null
+      swapGlowPeakRef.current = 0
+      return
+    }
+
+    swapGlowDeviceRef.current = backDeviceRef.current
+    swapGlowPeakRef.current = Math.max(
+      hoverSmoothRef.current,
+      hoverBackRef.current ? 1 : 0,
+    )
     setBackHover(false)
-    hoverSmoothRef.current = 0
-  }, [animating, setBackHover])
+  }, [animating, animSession, setBackHover])
 
   return (
     <>
