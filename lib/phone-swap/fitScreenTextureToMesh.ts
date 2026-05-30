@@ -52,3 +52,16 @@ export function screenTextureForDisplay(source: THREE.Texture): THREE.Texture {
   map.needsUpdate = true
   return map
 }
+
+/** Cinema 4D Display UVs are inverted vs Android — remap then flip U/V for correct screenshot orientation. */
+export function remapDisplayUVsTo01Flipped(mesh: THREE.Mesh): DisplayUVInfo | null {
+  const info = remapMeshUVsTo01(mesh)
+  const uvAttr = mesh.geometry.getAttribute('uv')
+  if (!info || !uvAttr) return info
+
+  for (let i = 0; i < uvAttr.count; i++) {
+    uvAttr.setXY(i, 1 - uvAttr.getX(i), 1 - uvAttr.getY(i))
+  }
+  uvAttr.needsUpdate = true
+  return info
+}
