@@ -42,6 +42,7 @@ import {
   applyFocusToPhoneRoot,
   focusForSnapshot,
 } from '@/lib/phone-swap/phoneFocusVisuals'
+import { PHONE_HOVER } from '@/lib/phone-swap/phoneAccentHover'
 import {
   type PhoneDevice,
   layoutSnapshotForEdit,
@@ -56,6 +57,10 @@ import { usePixel8SceneGraph } from '@/lib/phone-swap/usePixel8SceneGraph'
 import { useObjMtl } from '@/lib/phone-swap/useObjMtl'
 
 type GizmoMode = 'translate' | 'rotate' | 'scale'
+
+function lerp(a: number, b: number, t: number): number {
+  return a + (b - a) * t
+}
 
 export type PhoneSwapSceneApi = {
   saveCameraView: () => PhoneCameraView
@@ -187,6 +192,7 @@ export function PhoneSwapScene({
   const gizmoDragging = useRef(false)
   const backDeviceRef = useRef<PhoneDevice>('iphone')
   const hoverBackRef = useRef(false)
+  const hoverSmoothRef = useRef(0)
   const [hoverBack, setHoverBack] = useState(false)
   const [backDevice, setBackDevice] = useState<PhoneDevice>('iphone')
 
@@ -342,8 +348,14 @@ export function PhoneSwapScene({
         setPhonePointerHits(iphoneRef.current, back === 'iphone')
       }
 
-      const glow =
+      const glowTarget =
         interactionEnabled && hoverBackRef.current ? 1 : 0
+      hoverSmoothRef.current = lerp(
+        hoverSmoothRef.current,
+        glowTarget,
+        PHONE_HOVER.hoverLerp,
+      )
+      const backHover = hoverSmoothRef.current
 
       applyPoseToGroup(androidRef.current, snapshot.android)
       applyPoseToGroup(iphoneRef.current, snapshot.iphone)
@@ -351,13 +363,13 @@ export function PhoneSwapScene({
         androidRef.current,
         focusForSnapshot(snapshot, 'android'),
         !settled,
-        { glowStrength: back === 'android' ? glow : 0 },
+        { glowStrength: back === 'android' ? backHover : 0 },
       )
       applyFocusToPhoneRoot(
         iphoneRef.current,
         focusForSnapshot(snapshot, 'iphone'),
         !settled,
-        { glowStrength: back === 'iphone' ? glow : 0 },
+        { glowStrength: back === 'iphone' ? backHover : 0 },
       )
     } else if (!layoutMode) {
       setPhonePointerHits(androidRef.current, true)
@@ -399,6 +411,7 @@ export function PhoneSwapScene({
   useEffect(() => {
     if (!animating) return
     setBackHover(false)
+    hoverSmoothRef.current = 0
   }, [animating, setBackHover])
 
   return (
