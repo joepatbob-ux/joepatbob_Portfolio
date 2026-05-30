@@ -20,7 +20,6 @@ import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 import { debugLog } from '@/lib/phone-swap/debugLog'
 import {
   backDeviceFromSnapshot,
-  setPhonePointerHits,
 } from '@/lib/phone-swap/phoneDeviceRoles'
 import {
   applyPoseToGroup,
@@ -210,25 +209,30 @@ export function PhoneSwapScene({
     onHoverRef.current?.(next)
   }, [])
 
-  const handleBackClick = useCallback(
+  const handlePhoneClick = useCallback(
     (device: PhoneDevice) => (e: ThreeEvent<MouseEvent>) => {
-      if (!interactionEnabled || backDeviceRef.current !== device) return
+      if (!interactionEnabled) return
       e.stopPropagation()
+      if (backDeviceRef.current !== device) return
       onSwapRef.current?.()
     },
     [interactionEnabled],
   )
 
-  const handleBackOver = useCallback(
+  const handlePhoneOver = useCallback(
     (device: PhoneDevice) => (e: ThreeEvent<PointerEvent>) => {
-      if (!interactionEnabled || backDeviceRef.current !== device) return
+      if (!interactionEnabled) return
       e.stopPropagation()
+      if (backDeviceRef.current !== device) {
+        setBackHover(false)
+        return
+      }
       setBackHover(true)
     },
     [interactionEnabled, setBackHover],
   )
 
-  const handleBackOut = useCallback(
+  const handlePhoneOut = useCallback(
     (device: PhoneDevice) => (e: ThreeEvent<PointerEvent>) => {
       if (backDeviceRef.current !== device) return
       e.stopPropagation()
@@ -343,11 +347,6 @@ export function PhoneSwapScene({
       backDeviceRef.current = back
       if (back !== backDevice) setBackDevice(back)
 
-      if (!layoutMode) {
-        setPhonePointerHits(androidRef.current, back === 'android')
-        setPhonePointerHits(iphoneRef.current, back === 'iphone')
-      }
-
       const glowTarget =
         interactionEnabled && hoverBackRef.current ? 1 : 0
       hoverSmoothRef.current = lerp(
@@ -371,9 +370,6 @@ export function PhoneSwapScene({
         !settled,
         { glowStrength: back === 'iphone' ? backHover : 0 },
       )
-    } else if (!layoutMode) {
-      setPhonePointerHits(androidRef.current, true)
-      setPhonePointerHits(iphoneRef.current, true)
     }
 
     const lockCamera = layoutMode ? viewLocked : true
@@ -394,16 +390,6 @@ export function PhoneSwapScene({
     }
   })
 
-  useLayoutEffect(() => {
-    if (layoutMode) {
-      setPhonePointerHits(androidRef.current, true)
-      setPhonePointerHits(iphoneRef.current, true)
-      return
-    }
-    setPhonePointerHits(androidRef.current, backDevice === 'android')
-    setPhonePointerHits(iphoneRef.current, backDevice === 'iphone')
-  }, [layoutMode, backDevice, androidRef, iphoneRef])
-
   useEffect(() => {
     if (layoutMode) setBackHover(false)
   }, [layoutMode, setBackHover])
@@ -423,17 +409,17 @@ export function PhoneSwapScene({
       <hemisphereLight args={['#f0f0f4', '#404048', 0.35]} />
       <group
         ref={androidRef as Ref<THREE.Group>}
-        onClick={handleBackClick('android')}
-        onPointerOver={handleBackOver('android')}
-        onPointerOut={handleBackOut('android')}
+        onClick={handlePhoneClick('android')}
+        onPointerOver={handlePhoneOver('android')}
+        onPointerOut={handlePhoneOut('android')}
       >
         <primitive object={androidScene} frustumCulled={false} />
       </group>
       <group
         ref={iphoneRef as Ref<THREE.Group>}
-        onClick={handleBackClick('iphone')}
-        onPointerOver={handleBackOver('iphone')}
-        onPointerOut={handleBackOut('iphone')}
+        onClick={handlePhoneClick('iphone')}
+        onPointerOver={handlePhoneOver('iphone')}
+        onPointerOut={handlePhoneOut('iphone')}
       >
         <primitive object={iphoneScene} frustumCulled={false} />
       </group>
