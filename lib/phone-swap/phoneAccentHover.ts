@@ -28,6 +28,11 @@ const HOVER_SKIP_MESH_NAMES = new Set<string>([
   ...IPHONE16_FRONT_OVERLAY_OBJECTS,
 ])
 
+const DISPLAY_BACKING_NAMES = new Set<string>([
+  IPHONE16_MESH.displayBacking,
+  PIXEL8_MESH.displayBacking,
+])
+
 export function isPhoneDisplayMesh(mesh: THREE.Mesh): boolean {
   if (DISPLAY_MESH_NAMES.has(mesh.name)) return true
   const name = mesh.name.toLowerCase()
@@ -35,6 +40,26 @@ export function isPhoneDisplayMesh(mesh: THREE.Mesh): boolean {
     (name.includes('display') || name === 'screensg1') &&
     !name.includes('glass')
   )
+}
+
+/** Screenshot mesh only — not the black OLED backing behind it. */
+export function isPhoneScreenPngMesh(mesh: THREE.Mesh): boolean {
+  if (DISPLAY_BACKING_NAMES.has(mesh.name)) return false
+  if (mesh.name.endsWith('_backing')) return false
+  return isPhoneDisplayMesh(mesh)
+}
+
+const _screenHoverBase = new THREE.Color(0xffffff)
+
+/** Orange accent multiplied over the screenshot PNG (MeshBasic + map). */
+export function applyScreenPngHoverTint(
+  material: THREE.MeshBasicMaterial,
+  hover: number,
+): void {
+  if (!material.map) return
+  material.color
+    .copy(_screenHoverBase)
+    .lerp(PHONE_SWAP_ACCENT_COLOR, hover * PHONE_HOVER.colorTint)
 }
 
 /** Whole phone gets hover — only skip hidden glass shells. */
