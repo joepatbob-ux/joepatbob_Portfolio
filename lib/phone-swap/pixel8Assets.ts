@@ -3,8 +3,25 @@ import type * as THREE from 'three'
 export const PIXEL8_MESH = {
   display: 'screenSG1',
   glass: 'glassSG1',
+  /** Solid fill behind the UI screenshot (visible in bezel / cutout gaps). */
+  displayBacking: 'screenSG1_backing',
   /** Main body shell — cream when {@link PIXEL8_COLOR_VARIANT} is `cream`. */
   body: 'polySurface87SG1',
+} as const
+
+/** Front OLED well + glass frame (matches Pixel 9 bezel tone). */
+export const PIXEL8_DISPLAY = {
+  backing: 0x050508,
+  bezel: 0x121216,
+  /** Push screenshot above overlapping glass from the settled camera. */
+  surfaceNudge: 0.004,
+} as const
+
+/** Draw order — display must win over overlapping bezel geometry. */
+export const PIXEL8_DISPLAY_RENDER_ORDER = {
+  backing: 29,
+  bezel: 31,
+  screen: 35,
 } as const
 
 /** Max export textures (logo, speaker alphas, body atlases). */

@@ -3,6 +3,8 @@ import {
   PIXEL8_ACCENT_SLOTS,
   PIXEL8_BLACK_SLOTS,
   PIXEL8_BODY_TEXTURE_SLOTS,
+  PIXEL8_DISPLAY,
+  PIXEL8_DISPLAY_RENDER_ORDER,
   PIXEL8_GOLD_SLOTS,
   PIXEL8_JADE,
   PIXEL8_LOGO_SLOTS,
@@ -15,7 +17,40 @@ import { applyPixel8Screen } from '@/lib/phone-swap/applyScreenTextures'
 import { meshMaterialSlot } from '@/lib/phone-swap/mergeMeshesByMaterial'
 import { mtlPhongToStandard } from '@/lib/phone-swap/mtlPhongToStandard'
 
-const HIDDEN_SLOTS = new Set<string>([PIXEL8_MESH.glass])
+function pixel8BezelMaterial(): THREE.MeshStandardMaterial {
+  return new THREE.MeshStandardMaterial({
+    name: PIXEL8_MESH.glass,
+    color: PIXEL8_DISPLAY.bezel,
+    metalness: 0.12,
+    roughness: 0.58,
+    envMapIntensity: 0.45,
+    side: THREE.FrontSide,
+    depthTest: true,
+    depthWrite: false,
+    polygonOffset: true,
+    polygonOffsetFactor: 2,
+    polygonOffsetUnits: 6,
+  })
+}
+
+/** Black glass frame + camera cutout ring (export `glassSG1` — was hidden). */
+export function applyPixel8FrontBezel(root: THREE.Object3D): number {
+  let count = 0
+
+  root.traverse((child) => {
+    if (!(child instanceof THREE.Mesh)) return
+    const slot = resolveSlot(child)
+    if (slot !== PIXEL8_MESH.glass) return
+
+    child.material = pixel8BezelMaterial()
+    child.visible = true
+    child.renderOrder = PIXEL8_DISPLAY_RENDER_ORDER.bezel
+    child.frustumCulled = false
+    count += 1
+  })
+
+  return count
+}
 
 function cloneSrgbMap(source: THREE.Texture): THREE.Texture {
   const map = source.clone()
@@ -221,7 +256,7 @@ export function applyPixel8DetailMaps(
     if (!(child instanceof THREE.Mesh)) return
     const slot = resolveSlot(child)
     if (slot === PIXEL8_MESH.display) return
-    if (HIDDEN_SLOTS.has(slot)) return
+    if (slot === PIXEL8_MESH.glass) return
 
     const source = child.material
     const sourceMat = Array.isArray(source) ? source[0] : source
@@ -258,9 +293,12 @@ export function applyPixel8MtlMaterials(
     if (!(child instanceof THREE.Mesh)) return
     const slot = resolveSlot(child)
     if (slot === PIXEL8_MESH.display) return
-    if (HIDDEN_SLOTS.has(slot)) {
-      child.visible = false
+    if (slot === PIXEL8_MESH.glass) {
+      child.material = pixel8BezelMaterial()
+      child.visible = true
+      child.renderOrder = PIXEL8_DISPLAY_RENDER_ORDER.bezel
       child.frustumCulled = false
+      count += 1
       return
     }
 

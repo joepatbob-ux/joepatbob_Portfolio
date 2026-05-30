@@ -43,6 +43,11 @@ import {
 } from '@/lib/phone-swap/phoneFocusVisuals'
 import { PHONE_HOVER } from '@/lib/phone-swap/phoneAccentHover'
 import {
+  applyPhoneMaterialTunes,
+  EMPTY_PHONE_MATERIAL_TUNES,
+  type PhoneMaterialTunesByDevice,
+} from '@/lib/phone-swap/phoneMaterialTune'
+import {
   type PhoneDevice,
   layoutSnapshotForEdit,
   type PhoneSwapEditFocus,
@@ -88,6 +93,7 @@ interface Props {
   showGuides?: boolean
   viewLocked?: boolean
   sceneApiRef?: RefObject<PhoneSwapSceneApi | null>
+  materialTunes?: PhoneMaterialTunesByDevice
 }
 
 function usePixel8Scene() {
@@ -169,6 +175,7 @@ export function PhoneSwapScene({
   showGuides = false,
   viewLocked = true,
   sceneApiRef,
+  materialTunes = EMPTY_PHONE_MATERIAL_TUNES,
 }: Props) {
   const { camera } = useThree()
   const androidScene = usePixel8Scene()
@@ -194,6 +201,10 @@ export function PhoneSwapScene({
   const hoverSmoothRef = useRef(0)
   const [hoverBack, setHoverBack] = useState(false)
   const [backDevice, setBackDevice] = useState<PhoneDevice>('iphone')
+  const materialTunesRef = useRef(materialTunes)
+  materialTunesRef.current = materialTunes
+  const hasAndroidMaterialTunes = Object.keys(materialTunes.android).length > 0
+  const hasIphoneMaterialTunes = Object.keys(materialTunes.iphone).length > 0
 
   const interactionEnabled = !layoutMode && !animating
   useCursor(interactionEnabled && hoverBack)
@@ -312,6 +323,19 @@ export function PhoneSwapScene({
     applyFocusToPhoneRoot(iphoneRef.current, 1)
   }, [layoutMode, animating, layoutSnapshot, androidRef, iphoneRef])
 
+  useLayoutEffect(() => {
+    applyPhoneMaterialTunes(
+      androidRef.current,
+      materialTunes.android,
+      'android',
+    )
+    applyPhoneMaterialTunes(
+      iphoneRef.current,
+      materialTunes.iphone,
+      'iphone',
+    )
+  }, [materialTunes, androidRef, iphoneRef, androidScene, iphoneScene])
+
   const runSwapTimeline = !layoutMode || animating
 
   useFrame(() => {
@@ -369,6 +393,21 @@ export function PhoneSwapScene({
         focusForSnapshot(snapshot, 'iphone'),
         !settled,
         { glowStrength: back === 'iphone' ? backHover : 0 },
+      )
+    }
+
+    if (hasAndroidMaterialTunes) {
+      applyPhoneMaterialTunes(
+        androidRef.current,
+        materialTunesRef.current.android,
+        'android',
+      )
+    }
+    if (hasIphoneMaterialTunes) {
+      applyPhoneMaterialTunes(
+        iphoneRef.current,
+        materialTunesRef.current.iphone,
+        'iphone',
       )
     }
 

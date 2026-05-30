@@ -91,3 +91,27 @@ export function screenTextureForDisplay(source: THREE.Texture): THREE.Texture {
   map.needsUpdate = true
   return map
 }
+
+/** Shift display vertices along normals so the PNG wins over coplanar glass. */
+export function nudgeGeometryAlongNormals(
+  geometry: THREE.BufferGeometry,
+  amount: number,
+): void {
+  if (amount === 0) return
+  geometry.computeVertexNormals()
+  const pos = geometry.attributes.position
+  const nor = geometry.attributes.normal
+  if (!pos || !nor) return
+
+  for (let i = 0; i < pos.count; i++) {
+    pos.setXYZ(
+      i,
+      pos.getX(i) + nor.getX(i) * amount,
+      pos.getY(i) + nor.getY(i) * amount,
+      pos.getZ(i) + nor.getZ(i) * amount,
+    )
+  }
+  pos.needsUpdate = true
+  geometry.computeBoundingBox()
+  geometry.computeBoundingSphere()
+}

@@ -2,6 +2,7 @@ import * as THREE from 'three'
 import { applyPixel8CreamColors } from '@/lib/phone-swap/applyPixel8CreamColors'
 import {
   applyPixel8DetailMaps,
+  applyPixel8FrontBezel,
   applyPixel8MtlMaterials,
   countPhongMaterials,
 } from '@/lib/phone-swap/applyPixel8MtlMaterials'
@@ -20,7 +21,6 @@ import {
   PIXEL8_MIRROR_X,
   type Pixel8MaterialMaps,
 } from '@/lib/phone-swap/pixel8Assets'
-import { meshMaterialSlot } from '@/lib/phone-swap/mergeMeshesByMaterial'
 import { splitMeshesByMaterial } from '@/lib/phone-swap/splitMeshByMaterial'
 import {
   collectFbxMaterialSummary,
@@ -76,15 +76,7 @@ export function preparePixel8Scene(
       : 0
 
   if (useFbxMaterials) {
-    clone.traverse((child) => {
-      if (!(child instanceof THREE.Mesh)) return
-      const slot = meshMaterialSlot(child).toLowerCase()
-      const name = child.name.toLowerCase()
-      if (name.includes('glass') || slot.includes('glass')) {
-        child.visible = false
-        child.frustumCulled = false
-      }
-    })
+    applyPixel8FrontBezel(clone)
   }
 
   const detailMaps = materialMaps
