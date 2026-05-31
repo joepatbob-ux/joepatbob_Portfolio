@@ -7,7 +7,7 @@ import { Hero } from '@/components/Hero'
 import { SidebarNav } from '@/components/SidebarNav'
 import { StickerLayer } from '@/components/StickerLayer'
 import { StickerProvider } from '@/components/StickerProvider'
-import { PhoneDebugGate } from '@/components/PhoneDebugGate'
+import { ProtoDebugGate } from '@/components/ProtoDebugGate'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import { everythingElse } from '@/lib/sections/everything-else'
 import { hardware } from '@/lib/sections/hardware'
@@ -18,7 +18,7 @@ export default function App() {
   return (
     <div className="vite-font-mono">
       <ThemeProvider>
-        <PhoneDebugGate>
+        <ProtoDebugGate>
         <ContactFormProvider>
           <StickerProvider>
             <ChapterNavProvider>
@@ -39,7 +39,7 @@ export default function App() {
             </ChapterNavProvider>
           </StickerProvider>
         </ContactFormProvider>
-        </PhoneDebugGate>
+        </ProtoDebugGate>
       </ThemeProvider>
     </div>
   )
