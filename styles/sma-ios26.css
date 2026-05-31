@@ -1,0 +1,1059 @@
+/* SMA — iOS 26 thermostat proto (Figma: SMA - iOS26, node 1142:7210) */
+
+.sma-proto-lab {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 28px 24px 32px;
+  background: #111;
+  color: #eee;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif;
+}
+
+.sma-proto-lab__top {
+  text-align: center;
+}
+
+.sma-proto-lab__title {
+  margin: 0 0 6px;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+}
+
+.sma-proto-lab__subtitle {
+  margin: 0;
+  max-width: 520px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #999;
+}
+
+.sma-proto-lab__subtitle code {
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 1px 5px;
+  border-radius: 4px;
+  color: #ccc;
+}
+
+.sma-proto-lab__layout {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 32px;
+  width: 100%;
+  max-width: 900px;
+}
+
+.sma-proto-lab__stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.sma-proto-lab__scale-label {
+  margin: 0;
+  color: #666;
+  font-size: 11px;
+}
+
+.sma-proto-lab__panel {
+  flex: 1;
+  min-width: 180px;
+  max-width: 220px;
+  padding: 16px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sma-proto-lab__panel-title {
+  margin: 0 0 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #888;
+}
+
+.sma-proto-lab__dl {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sma-proto-lab__dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12px;
+}
+
+.sma-proto-lab__dl dt {
+  color: #777;
+}
+
+.sma-proto-lab__dl dd {
+  margin: 0;
+  font-weight: 500;
+  color: #ddd;
+  text-align: right;
+}
+
+@media (max-width: 720px) {
+  .sma-proto-lab__layout {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .sma-proto-lab__panel {
+    width: 100%;
+    max-width: 402px;
+  }
+}
+
+/* ── Phone screen viewport ─────────────────────────────────────────────────── */
+
+.sma-viewport {
+  --sma-w: 402px;
+  --sma-h: 874px;
+  --sma-scale: 1;
+  position: relative;
+  width: calc(var(--sma-w) * var(--sma-scale));
+  height: calc(var(--sma-h) * var(--sma-scale));
+  flex-shrink: 0;
+}
+
+.sma-viewport__inner {
+  position: absolute;
+  inset: 0;
+  width: var(--sma-w);
+  height: var(--sma-h);
+  transform: scale(var(--sma-scale));
+  transform-origin: top left;
+  overflow: hidden;
+  border-radius: 44px;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.1),
+    0 32px 100px rgba(0, 0, 0, 0.65);
+}
+
+/* ── App shell ───────────────────────────────────────────────────────────── */
+
+.sma-app {
+  --sma-status-h: 62px;
+  --sma-toolbar-h: 54px;
+  --sma-tab-bar-h: 95px;
+  --sma-chrome-top: calc(var(--sma-status-h) + var(--sma-toolbar-h));
+
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #f7f7f7;
+  color: #000;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+
+.sma-app__bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: #f7f7f7;
+}
+
+.sma-app > :not(.sma-app__bg) {
+  z-index: 1;
+}
+
+/* ── Liquid glass ──────────────────────────────────────────────────────────── */
+
+.sma-glass {
+  position: relative;
+  isolation: isolate;
+}
+
+.sma-glass__blur {
+  position: absolute;
+  inset: -6px;
+  border-radius: inherit;
+  backdrop-filter: blur(20px) saturate(190%);
+  -webkit-backdrop-filter: blur(20px) saturate(190%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.sma-glass__fill {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+}
+
+.sma-glass__fill::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: rgba(255, 255, 255, 0.62);
+}
+
+.sma-glass__fill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.72) 0%,
+    rgba(247, 247, 247, 0.28) 42%,
+    rgba(255, 255, 255, 0.08) 100%
+  );
+}
+
+.sma-glass__edge {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.75),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.sma-glass__content {
+  position: relative;
+  z-index: 1;
+}
+
+.sma-glass--pill {
+  border-radius: 296px;
+}
+
+.sma-glass--card {
+  border-radius: 24px;
+  overflow: hidden;
+}
+
+.sma-glass--card .sma-glass__blur,
+.sma-glass--card .sma-glass__fill,
+.sma-glass--card .sma-glass__edge {
+  border-radius: inherit;
+}
+
+.sma-glass--card .sma-glass__fill {
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.9),
+    0 16px 56px rgba(0, 0, 0, 0.28),
+    0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.sma-glass--card .sma-glass__fill::before {
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.sma-glass--card .sma-glass__fill::after {
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(247, 247, 247, 0.58) 42%,
+    rgba(255, 255, 255, 0.32) 100%
+  );
+}
+
+.sma-glass--card .sma-glass__edge {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.05),
+    inset 0 0 0 0.5px rgba(0, 0, 0, 0.08);
+}
+
+.sma-glass--card .sma-glass__blur {
+  inset: -8px;
+  backdrop-filter: blur(32px) saturate(195%);
+  -webkit-backdrop-filter: blur(32px) saturate(195%);
+}
+
+.sma-glass--strong .sma-glass__blur {
+  inset: -12px;
+  backdrop-filter: blur(28px) saturate(200%);
+  -webkit-backdrop-filter: blur(28px) saturate(200%);
+}
+
+.sma-glass--strong .sma-glass__fill::before {
+  background: rgba(255, 255, 255, 0.58);
+}
+
+/* ── Status bar ──────────────────────────────────────────────────────────── */
+
+.sma-status-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 21px 24px 19px;
+  height: var(--sma-status-h);
+  box-sizing: border-box;
+}
+
+.sma-status-bar__time {
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 22px;
+  letter-spacing: -0.43px;
+}
+
+.sma-status-bar__levels {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding-top: 1px;
+}
+
+.sma-status-bar__levels img {
+  display: block;
+}
+
+.sma-status-bar__cellular { width: 19.2px; height: 12.2px; }
+.sma-status-bar__wifi { width: 17.1px; height: 12.3px; }
+.sma-status-bar__battery { width: 27.3px; height: 13px; }
+
+/* ── Top toolbar ─────────────────────────────────────────────────────────── */
+
+.sma-toolbar {
+  position: absolute;
+  top: var(--sma-status-h);
+  left: 0;
+  right: 0;
+  z-index: 2;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 0 16px 10px;
+  height: var(--sma-toolbar-h);
+  box-sizing: border-box;
+}
+
+.sma-toolbar__btn-wrap.sma-glass {
+  height: 44px;
+  flex-shrink: 0;
+}
+
+.sma-toolbar__btn-wrap .sma-glass__content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+}
+
+.sma-toolbar__btn-wrap--leading {
+  min-width: 44px;
+  padding: 0 2px;
+  overflow: hidden;
+}
+
+.sma-toolbar__btn-wrap--leading .sma-glass__blur {
+  display: none;
+}
+
+.sma-toolbar__btn-wrap--leading .sma-glass__fill {
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.12);
+}
+
+.sma-toolbar__btn-wrap--leading .sma-glass__fill::before {
+  background: #ffffff;
+}
+
+.sma-toolbar__btn-wrap--leading .sma-glass__fill::after {
+  display: none;
+}
+
+.sma-toolbar__btn-wrap--leading .sma-glass__edge {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.04);
+}
+
+.sma-toolbar__btn-wrap--trailing {
+  padding: 0 4px;
+}
+
+.sma-toolbar__title {
+  position: absolute;
+  left: 50%;
+  top: 13px;
+  transform: translateX(-50%);
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 22px;
+  letter-spacing: -0.43px;
+  color: #1a1a1a;
+  pointer-events: none;
+}
+
+.sma-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: #1a1a1a;
+  cursor: pointer;
+  border-radius: 100px;
+  transition: transform 0.15s ease;
+}
+
+.sma-icon-btn--back {
+  min-width: 36px;
+  height: 36px;
+  padding: 0 8px;
+}
+
+.sma-icon-btn--help {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+}
+
+.sma-toolbar__icon {
+  display: block;
+  flex-shrink: 0;
+}
+
+.sma-toolbar__icon--back {
+  width: calc(17px * 11 / 19);
+  height: 17px;
+}
+
+.sma-toolbar__icon--help {
+  width: calc(17px * 24 / 23);
+  height: 17px;
+}
+
+.sma-icon-btn:active {
+  transform: scale(0.94);
+}
+
+.sma-icon-btn:focus {
+  outline: none;
+}
+
+.sma-icon-btn:focus-visible {
+  outline: 2px solid #0088ff;
+  outline-offset: 2px;
+}
+
+/* ── Weather ─────────────────────────────────────────────────────────────── */
+
+.sma-weather {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.sma-weather__location {
+  padding: 4px 0;
+  border-bottom: 0.5px solid rgba(0, 0, 0, 0.12);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 13px;
+  letter-spacing: 0.06px;
+}
+
+.sma-weather__row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 36px;
+  margin-top: 2px;
+}
+
+.sma-weather__temp-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sma-weather__temp {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 34px;
+  letter-spacing: 0.38px;
+}
+
+.sma-weather__hi-lo {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  font-size: 13px;
+  line-height: 18px;
+  letter-spacing: -0.08px;
+}
+
+/* ── Display temp ────────────────────────────────────────────────────────── */
+
+.sma-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.sma-sensor-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 20px;
+  border-radius: 36px;
+  background: rgba(120, 120, 120, 0.2);
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+  transition: background 0.15s ease;
+}
+
+.sma-sensor-pill:active {
+  background: rgba(120, 120, 120, 0.28);
+}
+
+.sma-sensor-pill__label {
+  font-size: 11px;
+  line-height: 13px;
+  letter-spacing: 0.06px;
+  color: rgba(60, 60, 67, 0.6);
+}
+
+.sma-sensor-pill__value {
+  font-size: 15px;
+  line-height: 20px;
+  letter-spacing: -0.23px;
+  color: #000;
+}
+
+.sma-display__temp {
+  margin: 0;
+  padding: 0 32px;
+  font-family: 'Lato', -apple-system, sans-serif;
+  font-size: 190px;
+  font-weight: 400;
+  line-height: 0.86;
+  letter-spacing: -5px;
+  text-align: center;
+  color: #000;
+  font-variant-numeric: tabular-nums;
+}
+
+.sma-humidity {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  padding: 4px 10px;
+  font-size: 16px;
+  line-height: 21px;
+  letter-spacing: -0.31px;
+  color: rgba(60, 60, 67, 0.6);
+}
+
+/* ── Mode select ─────────────────────────────────────────────────────────── */
+
+.sma-mode-select {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 108px;
+  height: 52px;
+  padding: 12px 14px;
+  box-sizing: border-box;
+  border-radius: 66px;
+  background: rgba(120, 120, 120, 0.2);
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.sma-mode-select:active {
+  transform: scale(0.97);
+  background: rgba(120, 120, 120, 0.28);
+}
+
+.sma-mode-select__system {
+  position: relative;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+}
+
+.sma-mode-select__system-cool {
+  position: absolute;
+  inset: 0 47.52% 16.67% 0.03%;
+}
+
+.sma-mode-select__system-heat {
+  position: absolute;
+  inset: 16.68% 0 0 39.71%;
+}
+
+.sma-mode-select__system-cool img,
+.sma-mode-select__system-heat img,
+.sma-mode-select__fan-icon,
+.sma-mode-select__auto img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+}
+
+.sma-mode-select__divider {
+  flex-shrink: 0;
+  width: 1px;
+  height: 14px;
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.sma-mode-select__fan {
+  position: relative;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 32px;
+}
+
+.sma-mode-select__auto {
+  position: absolute;
+  inset: 8.34% 8.17% 58.22% 58.38%;
+}
+
+/* ── Setpoint module ─────────────────────────────────────────────────────── */
+
+.sma-setpoint-wrap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 106px;
+  padding: 0 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sma-setpoint-module.sma-glass {
+  width: 100%;
+}
+
+.sma-setpoint-module .sma-glass__content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 104px;
+}
+
+.sma-setpoint-module__leading {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 16px;
+  min-width: 0;
+}
+
+.sma-setpoint-module__icon {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sma-setpoint-module__name {
+  font-size: 15px;
+  line-height: 20px;
+  letter-spacing: -0.23px;
+  color: #1a1a1a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sma-setpoint-module__trailing {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 0;
+}
+
+.sma-setpoint-control {
+  position: relative;
+  width: 112px;
+  height: 53px;
+  flex-shrink: 0;
+}
+
+.sma-setpoint-control__zone {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50%;
+  z-index: 3;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sma-setpoint-control__zone--cool {
+  left: 0;
+}
+
+.sma-setpoint-control__zone--heat {
+  right: 0;
+}
+
+.sma-setpoint-control__label {
+  position: absolute;
+  left: calc(50% + 37px);
+  top: 6.5px;
+  transform: translate(-100%, -50%);
+  z-index: 1;
+  font-size: 11px;
+  line-height: 13px;
+  letter-spacing: 0.06px;
+  color: rgba(60, 60, 67, 0.6);
+  text-align: right;
+  white-space: nowrap;
+  opacity: 1;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.sma-setpoint-control--editing .sma-setpoint-control__label {
+  opacity: 0;
+}
+
+.sma-setpoint-control__limit {
+  position: absolute;
+  left: 50%;
+  top: 45px;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  font-size: 11px;
+  line-height: 13px;
+  letter-spacing: 0.06px;
+  color: rgba(60, 60, 67, 0.3);
+  text-align: center;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.sma-setpoint-control--limit .sma-setpoint-control__limit {
+  animation: sma-setpoint-limit-bop 0.38s cubic-bezier(0.34, 1.12, 0.64, 1) forwards;
+}
+
+@keyframes sma-setpoint-limit-bop {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 8px));
+  }
+
+  55% {
+    opacity: 1;
+    transform: translate(-50%, calc(-50% - 2px));
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.sma-setpoint-switcher {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  width: 96px;
+  height: 48px;
+  transform: translateY(-50%);
+  z-index: 2;
+  display: flex;
+  align-items: stretch;
+  gap: 4px;
+  padding: 2px;
+  box-sizing: border-box;
+  border-radius: 64px;
+  background: transparent;
+  transition: background 0.2s ease;
+  pointer-events: none;
+}
+
+.sma-setpoint-control--editing .sma-setpoint-switcher {
+  background: rgba(120, 120, 120, 0.2);
+}
+
+.sma-setpoint-switcher__selection {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  border-radius: 31px;
+  background: #fff;
+  border: 0.5px solid rgba(0, 0, 0, 0.04);
+  box-shadow:
+    0 3px 4px rgba(0, 0, 0, 0.12),
+    0 3px 0.5px rgba(0, 0, 0, 0.04);
+  transition:
+    left 0.28s cubic-bezier(0.34, 1.12, 0.64, 1),
+    width 0.28s cubic-bezier(0.34, 1.12, 0.64, 1),
+    opacity 0.2s ease;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.sma-setpoint-switcher__dot {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 1;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.sma-setpoint-control--editing .sma-setpoint-switcher__dot {
+  opacity: 0;
+}
+
+.sma-setpoint-switcher__cell {
+  position: relative;
+  z-index: 1;
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  font-size: 17px;
+  line-height: 22px;
+  letter-spacing: -0.43px;
+  font-weight: 400;
+  color: #1a1a1a;
+}
+
+.sma-setpoint-switcher__cell--emphasis {
+  font-weight: 600;
+}
+
+.sma-stepper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding-right: 12px;
+}
+
+.sma-stepper__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 40px;
+  padding: 5px;
+  box-sizing: border-box;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: transform 0.12s ease;
+}
+
+.sma-stepper__btn:active {
+  transform: scale(0.92);
+}
+
+.sma-schedule-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px 6px;
+  font-size: 13px;
+  line-height: 18px;
+  letter-spacing: -0.08px;
+  color: rgba(60, 60, 67, 0.3);
+}
+
+.sma-schedule-footer__left {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sma-schedule-footer__pin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  color: rgba(60, 60, 67, 0.3);
+}
+
+/* ── Tab bar ───────────────────────────────────────────────────────────────── */
+
+.sma-tab-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  padding: 16px 25px 25px;
+}
+
+.sma-tab-bar__track.sma-glass {
+  flex: 1;
+  max-width: 352px;
+  width: 100%;
+}
+
+.sma-tab-bar__track .sma-glass__content {
+  display: flex;
+  width: 100%;
+}
+
+.sma-tab-bar__buttons {
+  position: relative;
+  display: flex;
+  flex: 1;
+  width: 100%;
+  padding: 2px;
+}
+
+.sma-tab-bar__btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  min-width: 0;
+  padding: 6px 4px 7px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+  z-index: 1;
+  color: #1a1a1a;
+  transition: color 0.2s ease;
+}
+
+.sma-tab-bar__btn--active {
+  color: #0088ff;
+}
+
+.sma-tab-bar__selection {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  border-radius: 100px;
+  background: #ededed;
+  transition:
+    left 0.32s cubic-bezier(0.34, 1.12, 0.64, 1),
+    width 0.32s cubic-bezier(0.34, 1.12, 0.64, 1);
+  z-index: 0;
+}
+
+.sma-tab-bar__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+}
+
+.sma-tab-bar__label {
+  font-size: 10px;
+  line-height: 12px;
+  font-weight: 600;
+  letter-spacing: -0.1px;
+}
+
+/* ── Placeholder screens ─────────────────────────────────────────────────── */
+
+.sma-placeholder {
+  position: absolute;
+  inset: var(--sma-chrome-top) 0 var(--sma-tab-bar-h);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120px 32px 160px;
+  text-align: center;
+  color: rgba(60, 60, 67, 0.6);
+}
+
+.sma-placeholder__title {
+  margin: 0 0 8px;
+  font-size: 22px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.sma-placeholder__body {
+  margin: 0;
+  font-size: 15px;
+  line-height: 20px;
+}
+
+/* ── Control screen layout (Figma coordinates) ─────────────────────────────── */
+
+.sma-control-screen {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.sma-control-screen__weather {
+  position: absolute;
+  left: 50%;
+  top: 142px;
+  transform: translateX(-50%);
+}
+
+.sma-control-screen__display {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 232px;
+}
+
+.sma-control-screen__mode {
+  position: absolute;
+  left: 50%;
+  top: 511px;
+  transform: translateX(-50%);
+}
