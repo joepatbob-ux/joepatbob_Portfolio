@@ -45,6 +45,30 @@ function StatePanel({ state }: { state: SmaProtoState }) {
           <dt>Schedule</dt>
           <dd>{state.scheduleName}</dd>
         </div>
+        <div>
+          <dt>Automation</dt>
+          <dd>{state.scheduleMode === 'schedule' ? 'On' : 'Off'}</dd>
+        </div>
+        <div>
+          <dt>Activity profiles</dt>
+          <dd>{state.useActivityProfiles ? 'On' : 'Off'}</dd>
+        </div>
+        <div>
+          <dt>{state.useActivityProfiles ? 'Activity schedule' : 'Legacy schedules'}</dt>
+          <dd>
+            {state.useActivityProfiles
+              ? state.activityScheduleLabel
+              : `${state.heatingScheduleLabel} / ${state.coolingScheduleLabel} / ${state.autoScheduleLabel}`}
+          </dd>
+        </div>
+        <div>
+          <dt>Device participation</dt>
+          <dd>{state.deviceParticipation ? 'On' : 'Off'}</dd>
+        </div>
+        <div>
+          <dt>Early start</dt>
+          <dd>{state.earlyStart ? 'On' : 'Off'}</dd>
+        </div>
       </dl>
     </aside>
   )

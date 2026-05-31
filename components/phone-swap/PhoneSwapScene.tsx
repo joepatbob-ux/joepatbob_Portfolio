@@ -57,6 +57,8 @@ import {
 import { PHONE_SWAP_URLS } from '@/lib/phone-swap/phoneSwapUrls'
 import { prepareIPhone16Scene } from '@/lib/phone-swap/prepareIPhone16Scene'
 import { PhoneLayoutSceneGuides } from '@/components/phone-swap/PhoneLayoutSceneGuides'
+import { SmaIPhoneLiveScreen } from '@/components/sma-ios26/SmaIPhoneLiveScreen'
+import type { DisplayScreenRect } from '@/lib/sma-ios26/displayScreenRect'
 import { usePixel8SceneGraph } from '@/lib/phone-swap/usePixel8SceneGraph'
 import { useObjMtl } from '@/lib/phone-swap/useObjMtl'
 
@@ -94,6 +96,11 @@ interface Props {
   viewLocked?: boolean
   sceneApiRef?: RefObject<PhoneSwapSceneApi | null>
   materialTunes?: PhoneMaterialTunesByDevice
+  /** Mount interactive SMA proto on the iPhone display. */
+  iphoneLiveScreen?: boolean
+  /** iPhone is the front / focused phone (from PhoneSwap swap state). */
+  iphoneFocused?: boolean
+  onLiveScreenRect?: (rect: DisplayScreenRect | null) => void
 }
 
 function usePixel8Scene() {
@@ -176,6 +183,9 @@ export function PhoneSwapScene({
   viewLocked = true,
   sceneApiRef,
   materialTunes = EMPTY_PHONE_MATERIAL_TUNES,
+  iphoneLiveScreen = false,
+  iphoneFocused = false,
+  onLiveScreenRect,
 }: Props) {
   const { camera } = useThree()
   const androidScene = usePixel8Scene()
@@ -491,6 +501,14 @@ export function PhoneSwapScene({
       >
         <primitive object={iphoneScene} frustumCulled={false} />
       </group>
+      {iphoneLiveScreen ? (
+        <SmaIPhoneLiveScreen
+          scene={iphoneScene}
+          iphoneFocused={iphoneFocused}
+          interactive={interactionEnabled && iphoneFocused}
+          onScreenRect={onLiveScreenRect}
+        />
+      ) : null}
       {layoutMode && gizmoTarget ? (
         <TransformControls
           object={gizmoTarget}

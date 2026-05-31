@@ -6,6 +6,8 @@ import { PhoneLayoutPanel } from '@/components/phone-swap/PhoneLayoutPanel'
 import { PhoneMaterialTunePanel } from '@/components/phone-swap/PhoneMaterialTunePanel'
 import { PhoneLayoutGuides } from '@/components/phone-swap/PhoneLayoutGuides'
 import { PhoneSwapScene } from '@/components/phone-swap/PhoneSwapScene'
+import { SmaPhoneScreenOverlay } from '@/components/sma-ios26/SmaPhoneScreenOverlay'
+import type { DisplayScreenRect } from '@/lib/sma-ios26/displayScreenRect'
 import { Html } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 import {
@@ -42,6 +44,7 @@ import {
   Suspense,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
   type CSSProperties,
@@ -50,7 +53,7 @@ import {
 import type * as THREE from 'three'
 
 /** 3D Pixel / iPhone swap — tap back phone to swap; right-click for design debug tools. */
-export function PhoneSwap() {
+export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
   const [devToolsEnabled, setDevToolsEnabled] = useState(() => readPhoneLayoutMode())
   const [devMenu, setDevMenu] = useState<{ x: number; y: number } | null>(null)
   const [layoutMode, setLayoutMode] = useState(false)
@@ -77,6 +80,17 @@ export function PhoneSwap() {
   const [animating, setAnimating] = useState(false)
   const [animSession, setAnimSession] = useState(0)
   const [backPhoneHover, setBackPhoneHover] = useState(false)
+  const [liveScreenRect, setLiveScreenRect] = useState<DisplayScreenRect | null>(
+    null,
+  )
+  const handleLiveScreenRect = useCallback((rect: DisplayScreenRect | null) => {
+    setLiveScreenRect(rect)
+  }, [])
+  const iphoneLiveScreen = useMemo(() => {
+    if (liveScreen) return true
+    if (typeof window === 'undefined') return false
+    return new URLSearchParams(window.location.search).has('sma-live')
+  }, [liveScreen])
   const busy = useRef(false)
   const androidRef = useRef<THREE.Group>(null)
   const iphoneRef = useRef<THREE.Group>(null)
@@ -309,8 +323,16 @@ export function PhoneSwap() {
         />
       ) : null}
 
+      {iphoneLiveScreen ? (
+        <SmaPhoneScreenOverlay
+          rect={liveScreenRect}
+          visible={swapped}
+          interactive={swapped && !layoutMode && !animating}
+        />
+      ) : null}
+
       <div
-        className={`phone-swap__viewbox${backPhoneHover ? ' phone-swap__viewbox--swap-target' : ''}`}
+        className={`phone-swap__viewbox${backPhoneHover ? ' phone-swap__viewbox--swap-target' : ''}${swapped && iphoneLiveScreen && !layoutMode && !animating ? ' phone-swap__viewbox--live-interactive' : ''}`}
         tabIndex={layoutMode ? undefined : 0}
         onContextMenu={handleViewboxContextMenu}
         onKeyDown={
@@ -381,6 +403,9 @@ export function PhoneSwap() {
                 viewLocked={layoutMode ? locks.viewAngle : true}
                 sceneApiRef={sceneApiRef}
                 materialTunes={materialTunes}
+                iphoneLiveScreen={iphoneLiveScreen}
+                iphoneFocused={swapped}
+                onLiveScreenRect={handleLiveScreenRect}
               />
             </Suspense>
         </Canvas>

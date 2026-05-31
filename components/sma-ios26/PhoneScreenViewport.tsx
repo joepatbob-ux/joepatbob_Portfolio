@@ -13,6 +13,8 @@ type PhoneScreenViewportProps = {
   debug?: boolean
   /** DOM id for future CanvasTexture capture hook. */
   captureId?: string
+  /** Match iPhone display UV V-flip (live 3D overlay). */
+  flipY?: boolean
 }
 
 export function PhoneScreenViewport({
@@ -20,6 +22,7 @@ export function PhoneScreenViewport({
   scale = 1,
   debug = false,
   captureId = 'sma-phone-screen',
+  flipY = false,
 }: PhoneScreenViewportProps) {
   return (
     <div
@@ -32,7 +35,11 @@ export function PhoneScreenViewport({
         } as React.CSSProperties
       }
     >
-      <div id={captureId} className="sma-viewport__inner">
+      <div
+        id={captureId}
+        className="sma-viewport__inner"
+        style={flipY ? { transform: 'scaleY(-1)' } : undefined}
+      >
         {children}
       </div>
     </div>

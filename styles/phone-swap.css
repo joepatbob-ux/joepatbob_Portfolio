@@ -48,6 +48,50 @@
   z-index: 1;
 }
 
+/* Live SMA proto — body-portal hit layer above fixed chapter panels */
+.sma-phone-overlay {
+  position: fixed;
+  z-index: 12000;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.sma-phone-overlay--interactive {
+  pointer-events: auto;
+}
+
+/* While touching — show real DOM instantly; 3D texture syncs in background */
+.sma-phone-overlay--touching {
+  opacity: 1 !important;
+}
+
+.sma-phone-overlay--touching .sma-viewport__inner {
+  box-shadow: none;
+}
+
+.sma-phone-overlay__scale {
+  pointer-events: auto;
+}
+
+.sma-phone-overlay--interactive .sma-viewport,
+.sma-phone-overlay--interactive .sma-viewport__inner,
+.sma-phone-overlay--interactive .sma-app,
+.sma-phone-overlay--interactive button,
+.sma-phone-overlay--interactive [role='button'],
+.sma-phone-overlay--interactive a,
+.sma-phone-overlay--interactive input,
+.sma-phone-overlay--interactive select,
+.sma-phone-overlay--interactive textarea,
+.sma-phone-overlay--interactive [role='tab'],
+.sma-phone-overlay--interactive [role='tablist'] {
+  pointer-events: auto;
+}
+
+.phone-swap__viewbox--live-interactive {
+  isolation: isolate;
+}
+
 .phone-swap__toolbar {
   width: 100%;
   display: flex;
