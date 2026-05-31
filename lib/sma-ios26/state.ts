@@ -2,6 +2,8 @@ import type { SmaTabId } from '@/lib/sma-ios26/tokens'
 
 export type ActiveSetpoint = 'cool' | 'heat'
 
+export type ScheduleMode = 'schedule' | 'geofence' | 'off'
+
 export type SmaProtoState = {
   displayTemp: number
   coolSetpoint: number
@@ -14,6 +16,19 @@ export type SmaProtoState = {
   outdoorTemp: number
   outdoorHigh: number
   outdoorLow: number
+  /** Automation On/Off switcher (`schedule` = On). */
+  scheduleMode: ScheduleMode
+  useActivityProfiles: boolean
+  activityScheduleLabel: string
+  /** Legacy schedule rows when activity profiles are off. */
+  heatingScheduleLabel: string
+  coolingScheduleLabel: string
+  autoScheduleLabel: string
+  deviceParticipation: boolean
+  setbackLabel: string
+  geofenceRadiusLabel: string
+  vacationsLabel: string
+  earlyStart: boolean
 }
 
 export const DEFAULT_SMA_STATE: SmaProtoState = {
@@ -28,6 +43,17 @@ export const DEFAULT_SMA_STATE: SmaProtoState = {
   outdoorTemp: 89,
   outdoorHigh: 89,
   outdoorLow: 81,
+  scheduleMode: 'schedule',
+  useActivityProfiles: true,
+  activityScheduleLabel: 'Default',
+  heatingScheduleLabel: 'Weekday',
+  coolingScheduleLabel: 'Weekday',
+  autoScheduleLabel: 'Off',
+  deviceParticipation: true,
+  setbackLabel: '3 Degrees',
+  geofenceRadiusLabel: '3 Miles',
+  vacationsLabel: 'None',
+  earlyStart: false,
 }
 
 export const SETPOINT_MIN = 40

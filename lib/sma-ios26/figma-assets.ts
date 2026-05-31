@@ -1,4 +1,4 @@
-/** Figma-exported SVG assets for SMA iOS26 (node 1142:7210). */
+/** Figma-exported SVG assets for SMA iOS26 (node 1142:7210). See lib/sma-ios26/figma-sources.ts for all design files. */
 export const SMA_SVG = {
   back: 'back.svg',
   help: 'help.svg',

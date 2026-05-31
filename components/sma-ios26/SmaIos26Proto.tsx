@@ -1,8 +1,10 @@
 'use client'
 
+import { ScrollEdgeChrome } from '@/components/sma-ios26/chrome/ScrollEdgeChrome'
 import { TabBar } from '@/components/sma-ios26/chrome/TabBar'
 import { StatusBar } from '@/components/sma-ios26/chrome/StatusBar'
 import { TopToolbar } from '@/components/sma-ios26/chrome/TopToolbar'
+import { AutomationScreen } from '@/components/sma-ios26/screens/AutomationScreen'
 import { ControlScreen } from '@/components/sma-ios26/screens/ControlScreen'
 import {
   DEFAULT_SMA_STATE,
@@ -11,8 +13,7 @@ import {
 import type { SmaTabId } from '@/lib/sma-ios26/tokens'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
-const PLACEHOLDER_TITLES: Record<Exclude<SmaTabId, 'control'>, string> = {
-  schedule: 'Schedule',
+const PLACEHOLDER_TITLES: Record<Exclude<SmaTabId, 'control' | 'schedule'>, string> = {
   usage: 'Usage',
   reminders: 'Reminders',
   settings: 'Settings',
@@ -53,7 +54,9 @@ export function SmaIos26Proto({
   )
 
   const onTabChange = useCallback(
-    (activeTab: SmaTabId) => onStateChange({ activeTab }),
+    (tab: SmaTabId) => {
+      onStateChange({ activeTab: tab })
+    },
     [onStateChange],
   )
 
@@ -61,17 +64,23 @@ export function SmaIos26Proto({
     if (state.activeTab === 'control') {
       return <ControlScreen state={state} onStateChange={onStateChange} />
     }
-    return (
-      <PlaceholderScreen title={PLACEHOLDER_TITLES[state.activeTab]} />
-    )
+    if (state.activeTab === 'schedule') {
+      return <AutomationScreen state={state} onStateChange={onStateChange} />
+    }
+    return <PlaceholderScreen title={PLACEHOLDER_TITLES[state.activeTab]} />
   }, [state, onStateChange])
 
+  const isScheduleTab = state.activeTab === 'schedule'
+
   return (
-    <div className="sma-app">
+    <div className={`sma-app${isScheduleTab ? ' sma-app--schedule-tab' : ''}`}>
       <div className="sma-app__bg" aria-hidden />
       <StatusBar />
-      <TopToolbar />
-      {body}
+      <div className="sma-app__main">
+        {isScheduleTab ? <ScrollEdgeChrome /> : null}
+        <TopToolbar />
+        {body}
+      </div>
       <TabBar activeTab={state.activeTab} onTabChange={onTabChange} />
     </div>
   )
