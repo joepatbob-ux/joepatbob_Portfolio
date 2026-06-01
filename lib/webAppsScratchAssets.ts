@@ -2,6 +2,7 @@ import { BEFORE_DRAWERS, fillLottoScratchLayer } from '@/lib/webAppsScratchDraw'
 import {
   KELVIN_SCRATCH_COVER_SRC,
   SCRATCH_ZONE_ASPECT,
+  SCRATCH_ZONE_VIEWBOX,
 } from '@/lib/kelvinScratchTicket'
 
 export const SCRATCH_QUAD_PX = 280
@@ -42,8 +43,34 @@ export function loadScratchFrontImage(): Promise<HTMLImageElement> {
   return loadImage(SCRATCH_FRONT_SRC)
 }
 
+/** SVG cover loads with tiny intrinsic size (~157×150); rasterize to viewBox px. */
 export function loadScratchTicketCoverImage(): Promise<HTMLImageElement> {
-  return loadImage(KELVIN_SCRATCH_COVER_SRC)
+  const { width, height } = SCRATCH_ZONE_VIEWBOX
+  return loadImage(KELVIN_SCRATCH_COVER_SRC).then(
+    (svg) =>
+      new Promise<HTMLImageElement>((resolve, reject) => {
+        const canvas = document.createElement('canvas')
+        canvas.width = width
+        canvas.height = height
+        const ctx = canvas.getContext('2d')
+        if (!ctx) {
+          reject(new Error('Failed to rasterize scratch cover'))
+          return
+        }
+        ctx.drawImage(svg, 0, 0, width, height)
+        const dataUrl = canvas.toDataURL('image/png')
+        if (dataUrl.length < 100) {
+          reject(new Error('Failed to rasterize scratch cover'))
+          return
+        }
+        const img = new Image()
+        img.decoding = 'async'
+        img.onload = () => resolve(img)
+        img.onerror = () =>
+          reject(new Error(`Failed to load rasterized ${KELVIN_SCRATCH_COVER_SRC}`))
+        img.src = dataUrl
+      }),
+  )
 }
 
 /** Rasterize loaded artwork for ScratchCard cover (SVG-safe). */

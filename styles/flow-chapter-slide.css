@@ -57,10 +57,15 @@
 .flow-chapter-slide .chapter-slide__stage .formation-lego,
 .flow-chapter-slide .chapter-slide__stage .touch2-carousel,
 .flow-chapter-slide .chapter-slide__stage .mobile-figure__img,
-.flow-chapter-slide .chapter-slide__stage .kelvin-quad-scratch {
+.flow-chapter-slide .chapter-slide__stage .kelvin-scratch {
   width: 100%;
   max-width: 100%;
   margin-inline: 0;
+}
+
+.flow-chapter-slide .chapter-slide__stage .kelvin-scratch__column {
+  width: min(100%, var(--scratch-ticket-max-w));
+  max-width: min(100%, var(--scratch-ticket-max-w));
 }
 
 .flow-chapter-slide--formation .chapter-slide__stage > *,

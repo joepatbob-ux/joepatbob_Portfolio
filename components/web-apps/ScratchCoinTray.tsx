@@ -7,6 +7,10 @@ interface Props {
   onLeave: () => void
   pickUpLabel?: string
   leaveLabel?: string
+  className?: string
+  trayBarClassName?: string
+  /** Two-line “Take a / penny” labels on left and right (Kelvin tray). */
+  splitPhraseLines?: boolean
 }
 
 export const ScratchCoinTray = forwardRef<HTMLButtonElement, Props>(
@@ -17,6 +21,9 @@ export const ScratchCoinTray = forwardRef<HTMLButtonElement, Props>(
       onLeave,
       pickUpLabel = 'Take the Kelvin coin to scratch',
       leaveLabel = 'Leave the Kelvin coin in the tray',
+      className,
+      trayBarClassName,
+      splitPhraseLines = false,
     },
     ref,
   ) {
@@ -38,7 +45,7 @@ export const ScratchCoinTray = forwardRef<HTMLButtonElement, Props>(
 
     return (
       <div
-        className="web-apps-scratch__tray"
+        className={['web-apps-scratch__tray', className].filter(Boolean).join(' ')}
         data-coin-in-tray={coinInTray ? 'true' : 'false'}
       >
         <button
@@ -46,6 +53,7 @@ export const ScratchCoinTray = forwardRef<HTMLButtonElement, Props>(
           type="button"
           className={[
             'web-apps-scratch__tray-bar',
+            trayBarClassName,
             coinInTray
               ? 'web-apps-scratch__tray-bar--ready'
               : 'web-apps-scratch__tray-bar--drop',
@@ -57,10 +65,19 @@ export const ScratchCoinTray = forwardRef<HTMLButtonElement, Props>(
           aria-label={coinInTray ? pickUpLabel : leaveLabel}
         >
           <span
-            className="web-apps-scratch__tray-phrase web-apps-scratch__tray-phrase--take"
+            className="web-apps-scratch__tray-phrase-wrap web-apps-scratch__tray-phrase-wrap--take"
             aria-hidden
           >
-            Take a penny
+            {splitPhraseLines ? (
+              <span className="web-apps-scratch__tray-phrase web-apps-scratch__tray-phrase--take">
+                <span className="web-apps-scratch__tray-phrase-line">Take a</span>
+                <span className="web-apps-scratch__tray-phrase-line">penny</span>
+              </span>
+            ) : (
+              <span className="web-apps-scratch__tray-phrase web-apps-scratch__tray-phrase--take">
+                Take a penny
+              </span>
+            )}
           </span>
 
           <span
@@ -87,10 +104,19 @@ export const ScratchCoinTray = forwardRef<HTMLButtonElement, Props>(
           </span>
 
           <span
-            className="web-apps-scratch__tray-phrase web-apps-scratch__tray-phrase--leave"
+            className="web-apps-scratch__tray-phrase-wrap web-apps-scratch__tray-phrase-wrap--leave"
             aria-hidden
           >
-            Leave a penny
+            {splitPhraseLines ? (
+              <span className="web-apps-scratch__tray-phrase web-apps-scratch__tray-phrase--leave">
+                <span className="web-apps-scratch__tray-phrase-line">Leave a</span>
+                <span className="web-apps-scratch__tray-phrase-line">penny</span>
+              </span>
+            ) : (
+              <span className="web-apps-scratch__tray-phrase web-apps-scratch__tray-phrase--leave">
+                Leave a penny
+              </span>
+            )}
           </span>
         </button>
       </div>

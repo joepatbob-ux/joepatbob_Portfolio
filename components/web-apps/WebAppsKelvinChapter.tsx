@@ -2,7 +2,7 @@
 
 import { FlowChapterSlideLayout } from '@/components/chapter-slide/FlowChapterSlideLayout'
 import { MobileLearnMore } from '@/components/mobile/MobileLearnMore'
-import { KelvinQuadScratch } from '@/components/web-apps/KelvinQuadScratch'
+import { KelvinScratch } from '@/components/web-apps/KelvinScratch'
 import {
   MobileProse,
   MobileSubStory,
@@ -28,7 +28,7 @@ export function WebAppsKelvinChapter() {
       fillViewport
       isLast
       className="mobile-chapter-slot web-apps-chapter-slot"
-      stage={<KelvinQuadScratch />}
+      stage={<KelvinScratch />}
       copy={
         <MobileLearnMore
           headline={WEB_APPS_KELVIN.headline}
