@@ -7,40 +7,61 @@ import {
   createUnifiedScratchCoverDataUrl,
   loadKelvinCoinImages,
   loadKelvinScratchQuadPlaceholders,
+  loadScratchTicketCoverImage,
   loadScratchFrontImage,
 } from '@/lib/webAppsScratchAssets'
 import { useEffect, useState } from 'react'
 
 export function useKelvinScratchAssets(isActive: boolean) {
-  const [cover, setCover] = useState<string | null>(null)
+  const [quadCover, setQuadCover] = useState<string | null>(null)
+  const [ticketCoverImg, setTicketCoverImg] =
+    useState<HTMLImageElement | null>(null)
   const [coinBrush, setCoinBrush] = useState<string | null>(null)
+  const [useTicketArt, setUseTicketArt] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     if (!isActive) return
 
     let cancelled = false
+    setLoading(true)
 
-    Promise.all([
-      loadScratchFrontImage(),
-      loadKelvinCoinImages(),
-      loadKelvinScratchQuadPlaceholders(
-        KELVIN_SCRATCH_QUADS.map((q) => q.placeholderSrc),
-      ),
-    ])
-      .then(([scratchFront, coins, placeholders]) => {
+    Promise.all([loadScratchTicketCoverImage(), loadKelvinCoinImages()])
+      .then(([ticketCover, coins]) => {
         if (cancelled) return
-        setCover(createUnifiedScratchCoverDataUrl(scratchFront, placeholders))
+        setUseTicketArt(true)
+        setTicketCoverImg(ticketCover)
         setCoinBrush(createCoinBrushDataUrl(coins.tilted))
       })
       .catch(() => {
         if (cancelled) return
-        setCover(
-          createUnifiedScratchCoverDataUrl(
-            null,
-            KELVIN_SCRATCH_QUADS.map(() => null),
+        setUseTicketArt(false)
+        setTicketCoverImg(null)
+        Promise.all([
+          loadScratchFrontImage(),
+          loadKelvinCoinImages(),
+          loadKelvinScratchQuadPlaceholders(
+            KELVIN_SCRATCH_QUADS.map((q) => q.placeholderSrc),
           ),
-        )
-        setCoinBrush(createFallbackCoinBrushDataUrl())
+        ])
+          .then(([scratchFront, coins, placeholders]) => {
+            if (cancelled) return
+            setQuadCover(createUnifiedScratchCoverDataUrl(scratchFront, placeholders))
+            setCoinBrush(createCoinBrushDataUrl(coins.tilted))
+          })
+          .catch(() => {
+            if (cancelled) return
+            setQuadCover(
+              createUnifiedScratchCoverDataUrl(
+                null,
+                KELVIN_SCRATCH_QUADS.map(() => null),
+              ),
+            )
+            setCoinBrush(createFallbackCoinBrushDataUrl())
+          })
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false)
       })
 
     return () => {
@@ -48,9 +69,16 @@ export function useKelvinScratchAssets(isActive: boolean) {
     }
   }, [isActive])
 
+  const ready = Boolean(
+    coinBrush && (useTicketArt ? ticketCoverImg : quadCover),
+  )
+
   return {
-    cover,
+    quadCover,
+    ticketCoverImg,
     coinBrush,
-    ready: Boolean(cover && coinBrush),
+    useTicketArt,
+    loading,
+    ready,
   }
 }

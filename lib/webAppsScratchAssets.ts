@@ -1,7 +1,14 @@
 import { BEFORE_DRAWERS, fillLottoScratchLayer } from '@/lib/webAppsScratchDraw'
+import {
+  KELVIN_SCRATCH_COVER_SRC,
+  SCRATCH_ZONE_ASPECT,
+} from '@/lib/kelvinScratchTicket'
 
 export const SCRATCH_QUAD_PX = 280
-export const SCRATCH_CARD_PX = SCRATCH_QUAD_PX * 2
+export const SCRATCH_QUAD_CARD_PX = SCRATCH_QUAD_PX * 2
+/** Scratch zone raster size (ticket foil / reveal art). */
+export const SCRATCH_CARD_PX = 560
+export const SCRATCH_CARD_HEIGHT_PX = Math.round(SCRATCH_CARD_PX / SCRATCH_ZONE_ASPECT)
 /** Scales with card size; sized for Kelvin coin artwork in the scratch brush. */
 export const COIN_BRUSH_PX = Math.round(56 * (SCRATCH_QUAD_PX / 400))
 /** Follow-cursor display (tilted coin) — slightly larger than brush stamp. */
@@ -33,6 +40,28 @@ function loadImage(src: string): Promise<HTMLImageElement> {
 
 export function loadScratchFrontImage(): Promise<HTMLImageElement> {
   return loadImage(SCRATCH_FRONT_SRC)
+}
+
+export function loadScratchTicketCoverImage(): Promise<HTMLImageElement> {
+  return loadImage(KELVIN_SCRATCH_COVER_SRC)
+}
+
+/** Rasterize loaded artwork for ScratchCard cover (SVG-safe). */
+export function rasterizeScratchImage(
+  img: HTMLImageElement,
+  width: number,
+  height: number,
+): string {
+  const nw = img.naturalWidth || width
+  const nh = img.naturalHeight || height
+  const canvas = document.createElement('canvas')
+  canvas.width = width
+  canvas.height = height
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return ''
+  ctx.drawImage(img, 0, 0, nw, nh, 0, 0, width, height)
+  const dataUrl = canvas.toDataURL('image/png')
+  return dataUrl.length > 100 ? dataUrl : ''
 }
 
 export function loadKelvinCoinImages(): Promise<{
