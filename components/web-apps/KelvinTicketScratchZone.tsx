@@ -11,6 +11,7 @@ import {
   COIN_BRUSH_PX,
   SCRATCH_CARD_PX,
 } from '@/lib/webAppsScratchAssets'
+import { useElementSize } from '@/lib/useElementSize'
 import {
   useCallback,
   useEffect,
@@ -21,21 +22,18 @@ import {
 } from 'react'
 
 type Props = {
-  zoneWidth: number
-  zoneHeight: number
   ticketCoverImg: HTMLImageElement
   coinBrushSrc: string
   enabled: boolean
   coinInTray: boolean
-  /** Scratch can start outside the foil when set (e.g. stage or ticket frame). */
   captureRootRef?: RefObject<HTMLElement | null>
   onScratch: (
     value: number,
     pos: unknown,
     global: { x: number; y: number },
   ) => void
-  onScratchStart: () => void
-  onScratchEnd: () => void
+  onScratchStart?: () => void
+  onScratchEnd?: () => void
 }
 
 function loadBrush(src: string): Promise<HTMLImageElement> {
@@ -54,13 +52,15 @@ function isScratchPointerTarget(target: EventTarget | null): boolean {
   )
 }
 
-/**
- * Ticket scratch panel: reveal img + cover canvas, both sized to the ticket zone.
- * Cover is repainted whenever zoneWidth/zoneHeight change (unlike react-scratchcard).
- */
+function coinBrushPx(zoneWidth: number) {
+  return Math.max(
+    12,
+    Math.round(COIN_BRUSH_PX * (zoneWidth / SCRATCH_CARD_PX || 1)),
+  )
+}
+
+/** Reveal img + scratchable foil canvas, sized from the zone element. */
 export function KelvinTicketScratchZone({
-  zoneWidth,
-  zoneHeight,
   ticketCoverImg,
   coinBrushSrc,
   enabled,
@@ -70,6 +70,7 @@ export function KelvinTicketScratchZone({
   onScratchStart,
   onScratchEnd,
 }: Props) {
+  const { ref: zoneRef, size: zoneSize } = useElementSize<HTMLDivElement>()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const brushImgRef = useRef<HTMLImageElement | null>(null)
   const lastPointRef = useRef<{ x: number; y: number } | null>(null)
@@ -84,18 +85,18 @@ export function KelvinTicketScratchZone({
   onScratchStartRef.current = onScratchStart
   onScratchEndRef.current = onScratchEnd
 
-  const brushPx = Math.max(
-    12,
-    Math.round(COIN_BRUSH_PX * (zoneWidth / SCRATCH_CARD_PX)),
-  )
-
   const dpr =
     typeof window !== 'undefined'
       ? Math.min(2, window.devicePixelRatio || 1)
       : 1
 
+  const zoneW = zoneSize.width
+  const zoneH = zoneSize.height
+  const hasSize = zoneW >= 1 && zoneH >= 1
+
   useEffect(() => {
     let cancelled = false
+    setBrushReady(false)
     loadBrush(coinBrushSrc).then((img) => {
       if (cancelled) return
       brushImgRef.current = img
@@ -108,21 +109,19 @@ export function KelvinTicketScratchZone({
 
   useLayoutEffect(() => {
     const canvas = canvasRef.current
-    if (!canvas || zoneWidth < 1 || zoneHeight < 1) return
+    if (!canvas || !hasSize) return
 
-    const bufferW = Math.max(1, Math.floor(zoneWidth * dpr))
-    const bufferH = Math.max(1, Math.floor(zoneHeight * dpr))
+    const bufferW = Math.max(1, Math.floor(zoneW * dpr))
+    const bufferH = Math.max(1, Math.floor(zoneH * dpr))
     canvas.width = bufferW
     canvas.height = bufferH
-    canvas.style.width = `${zoneWidth}px`
-    canvas.style.height = `${zoneHeight}px`
 
     const ctx = canvas.getContext('2d', { willReadFrequently: true })
     if (!ctx) return
 
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-    paintTicketCover(ctx, ticketCoverImg, zoneWidth, zoneHeight)
-  }, [ticketCoverImg, zoneWidth, zoneHeight, dpr])
+    paintTicketCover(ctx, ticketCoverImg, zoneW, zoneH)
+  }, [ticketCoverImg, zoneW, zoneH, dpr, hasSize])
 
   const samplePercent = useCallback(() => {
     const canvas = canvasRef.current
@@ -136,7 +135,7 @@ export function KelvinTicketScratchZone({
     if (!scratchingRef.current) return
     scratchingRef.current = false
     lastPointRef.current = null
-    onScratchEndRef.current()
+    onScratchEndRef.current?.()
   }, [])
 
   const applyScratchMove = useCallback(
@@ -148,8 +147,9 @@ export function KelvinTicketScratchZone({
       const last = lastPointRef.current
       if (!canvas || !brush || !ctx || !last) return
 
+      const brushSize = coinBrushPx(zoneW)
       const point = scratchPointFromEvent(e, canvas)
-      scratchStroke(ctx, last, point, brush, brushPx, brushPx)
+      scratchStroke(ctx, last, point, brush, brushSize, brushSize)
       lastPointRef.current = point
 
       const now = Date.now()
@@ -158,12 +158,12 @@ export function KelvinTicketScratchZone({
       const percent = samplePercent()
       onScratchRef.current(percent, point, { x: e.clientX, y: e.clientY })
     },
-    [enabled, brushPx, samplePercent],
+    [enabled, zoneW, samplePercent],
   )
 
   useEffect(() => {
     const root = captureRootRef?.current
-    if (!root || !enabled || coinInTray || !brushReady) return
+    if (!root || !enabled || coinInTray || !brushReady || !hasSize) return
 
     const onPointerDown = (e: PointerEvent) => {
       if (e.button !== 0 || !isScratchPointerTarget(e.target)) return
@@ -172,7 +172,7 @@ export function KelvinTicketScratchZone({
       root.setPointerCapture(e.pointerId)
       scratchingRef.current = true
       lastPointRef.current = scratchPointFromEvent(e, canvas)
-      onScratchStartRef.current()
+      onScratchStartRef.current?.()
     }
 
     const onPointerMove = (e: PointerEvent) => {
@@ -203,29 +203,22 @@ export function KelvinTicketScratchZone({
     enabled,
     coinInTray,
     brushReady,
+    hasSize,
     applyScratchMove,
     endScratch,
   ])
 
-  if (zoneWidth < 1 || zoneHeight < 1) {
-    return (
-      <div className="kelvin-ticket-scratch">
-        <div className="kelvin-quad-scratch__placeholder web-apps-scratch__placeholder" />
-      </div>
-    )
-  }
-
   return (
-    <div className="kelvin-ticket-scratch">
+    <div ref={zoneRef} className="kelvin-scratch-zone">
       <img
-        className="kelvin-ticket-scratch__reveal"
+        className="kelvin-scratch-zone__reveal"
         src={KELVIN_SCRATCH_REVEAL_SRC}
         alt=""
         draggable={false}
       />
       <canvas
         ref={canvasRef}
-        className="kelvin-ticket-scratch__cover web-apps-scratch__scratch-canvas kelvin-quad-scratch__canvas"
+        className="kelvin-scratch-zone__cover web-apps-scratch__scratch-canvas"
         style={{
           cursor: coinInTray || !enabled ? 'default' : 'none',
           pointerEvents: 'none',

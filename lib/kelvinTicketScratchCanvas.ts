@@ -1,3 +1,5 @@
+import { SCRATCH_ZONE_VIEWBOX } from '@/lib/kelvinScratchTicket'
+
 /** Pointer position in scratch canvas logical pixels (matches display size). */
 
 export type ScratchPoint = { x: number; y: number }
@@ -13,6 +15,28 @@ export function scratchPointFromEvent(
   }
 }
 
+/** object-fit: contain — matches reveal <img> CSS. */
+export function objectFitContainRect(
+  boxW: number,
+  boxH: number,
+  srcW: number,
+  srcH: number,
+) {
+  if (srcW < 1 || srcH < 1) {
+    return { x: 0, y: 0, w: boxW, h: boxH }
+  }
+  const scale = Math.min(boxW / srcW, boxH / srcH)
+  const w = srcW * scale
+  const h = srcH * scale
+  return {
+    x: (boxW - w) / 2,
+    y: (boxH - h) / 2,
+    w,
+    h,
+  }
+}
+
+/** Paint foil aligned with reveal (contain, design viewBox aspect). */
 export function paintTicketCover(
   ctx: CanvasRenderingContext2D,
   cover: CanvasImageSource,
@@ -21,7 +45,18 @@ export function paintTicketCover(
 ): void {
   ctx.globalCompositeOperation = 'source-over'
   ctx.clearRect(0, 0, width, height)
-  ctx.drawImage(cover, 0, 0, width, height)
+
+  const { width: designW, height: designH } = SCRATCH_ZONE_VIEWBOX
+  const rect = objectFitContainRect(width, height, designW, designH)
+  const nw =
+    'naturalWidth' in cover && cover.naturalWidth > 0
+      ? cover.naturalWidth
+      : designW
+  const nh =
+    'naturalHeight' in cover && cover.naturalHeight > 0
+      ? cover.naturalHeight
+      : designH
+  ctx.drawImage(cover, 0, 0, nw, nh, rect.x, rect.y, rect.w, rect.h)
 }
 
 export function scratchStroke(
