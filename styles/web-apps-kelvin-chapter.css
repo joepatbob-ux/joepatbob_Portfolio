@@ -189,6 +189,23 @@
   width: 100%;
 }
 
+/* Ticket + tray: stacked; tray is take / coin / leave row */
+.kelvin-quad-scratch--ticket .kelvin-quad-scratch__stage {
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(18px, 3.5vh, 28px);
+  touch-action: none;
+}
+
+.kelvin-quad-scratch--ticket .kelvin-quad-scratch__frame {
+  align-self: center;
+}
+
+.kelvin-quad-scratch--ticket .web-apps-scratch__tray {
+  align-items: center;
+  max-width: 100%;
+}
+
 .kelvin-quad-scratch__frame {
   position: relative;
   flex: 0 0 auto;
@@ -297,6 +314,77 @@
 
 .kelvin-quad-scratch__status {
   margin: 12px 0 0;
+}
+
+/* Full lottery ticket frame + positioned scratch zone */
+.kelvin-quad-scratch--ticket {
+  --scratch-card-max: 150px;
+  --scratch-tray-max: clamp(280px, 78vw, 420px);
+}
+
+.kelvin-quad-scratch__frame--ticket {
+  width: min(100%, var(--scratch-card-max));
+}
+
+.kelvin-quad-scratch__ticket {
+  position: relative;
+  width: 100%;
+  line-height: 0;
+}
+
+.kelvin-quad-scratch__ticket-art {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.22);
+}
+
+.kelvin-quad-scratch__ticket-zone {
+  position: absolute;
+  left: var(--scratch-zone-left);
+  top: var(--scratch-zone-top);
+  width: var(--scratch-zone-width);
+  height: var(--scratch-zone-height);
+  z-index: 2;
+  border-radius: 6.5% / 4.2%;
+  overflow: hidden;
+  pointer-events: auto;
+}
+
+/* Reveal img + cover canvas share the zone box (cover redraws on resize) */
+.kelvin-ticket-scratch {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.kelvin-ticket-scratch__reveal,
+.kelvin-ticket-scratch__cover {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.kelvin-ticket-scratch__reveal {
+  object-fit: fill;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.kelvin-ticket-scratch__cover {
+  object-fit: fill;
+  z-index: 1;
+  touch-action: none;
+}
+
+.kelvin-quad-scratch__hint--ticket {
+  bottom: 18%;
+  color: #f0ead2;
+  background: rgba(16, 17, 15, 0.72);
 }
 
 @keyframes kelvin-quad-pulse {
