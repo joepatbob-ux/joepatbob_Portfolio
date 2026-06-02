@@ -209,11 +209,8 @@
   letter-spacing: 0.1em;
   line-height: 1.35;
   text-transform: uppercase;
-  color: var(--color-ink);
-  opacity: 0.35;
-  transition:
-    color 160ms ease,
-    opacity 160ms ease;
+  color: var(--color-nav-faded-selection);
+  transition: color 160ms ease;
 }
 
 .web-apps-scratch__tray-phrase--take {

@@ -121,22 +121,9 @@ function navKeywordStyle(opts: {
     }
   }
   return {
-    color: ACCENT,
-    opacity: isHoverThis ? 1 : 0.22,
+    color: isHoverThis ? ACCENT : NAV_FADED,
+    opacity: 1,
   }
-}
-
-// ── DARK MODE ─────────────────────────────────────────────────────────────────
-function useDarkMode() {
-  const [dark, setDark] = useState(false)
-  useEffect(() => {
-    const mq = window.matchMedia('(prefers-color-scheme: dark)')
-    setDark(mq.matches)
-    const handler = (e: MediaQueryListEvent) => setDark(e.matches)
-    mq.addEventListener('change', handler)
-    return () => mq.removeEventListener('change', handler)
-  }, [])
-  return dark
 }
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
@@ -150,13 +137,12 @@ function getScrollTop(): number {
 
 // ── COMPONENT ─────────────────────────────────────────────────────────────────
 export function SidebarNav() {
-  const dark = useDarkMode()
   const isMobile = useIsMobile()
   const isTablet = useIsTablet()
   const { navigateToChapter, navigateToSection, phase: chapterNavPhase } =
     useChapterNav()
   const C = {
-    ink:     dark ? '#f0eeea' : '#0d0d0d',
+    ink: 'var(--color-ink)',
     divider: 'var(--color-rule)',
   }
 
@@ -260,10 +246,15 @@ export function SidebarNav() {
   }, [])
 
   const switchSection = useCallback(
-    (id: string) => {
+    (id: string, options?: { animate?: boolean }) => {
+      const animate = options?.animate !== false
       setActiveSection((prev) => {
         if (prev === id) return prev
-        if (subNavVisibleRef.current) staggerOut(() => staggerIn(id))
+        if (animate && subNavVisibleRef.current) {
+          staggerOut(() => staggerIn(id))
+        } else if (subNavVisibleRef.current) {
+          staggerIn(id)
+        }
         return id
       })
     },
@@ -606,7 +597,7 @@ export function SidebarNav() {
     if (sectionId) {
       activeSectionRef.current = sectionId
       setActiveSection(sectionId)
-      switchSection(sectionId)
+      switchSection(sectionId, { animate: false })
     }
     activeChapterRef.current = chapterId
     setActiveChapter(chapterId)
@@ -618,7 +609,7 @@ export function SidebarNav() {
     const sec = NAV_SECTIONS.find((s) => s.id === id)
     activeSectionRef.current = id
     setActiveSection(id)
-    switchSection(id)
+    switchSection(id, { animate: false })
     if (sec) {
       const entryChapterId = sectionEntryChapterId(id)
       activeChapterRef.current = entryChapterId
@@ -1044,7 +1035,7 @@ export function SidebarNav() {
                   letterSpacing: '0.07em',
                   textTransform: 'uppercase',
                   lineHeight: 1.5,
-                  color: ACCENT,
+                  color: isActive || isHoverThis ? ACCENT : NAV_FADED,
                 }}
               >
                 {chapter.label}

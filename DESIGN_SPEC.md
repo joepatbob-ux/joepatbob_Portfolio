@@ -22,31 +22,50 @@ Font files go in `/public/fonts/`. CSS `@font-face` declarations are in `styles/
 ---
 
 ## Color Tokens
+
+Canonical values live in `styles/globals.css`. Legacy names are noted where they differ.
+
 ```css
---color-ink:         #0d0d0d        /* body text, headlines */
---color-paper:       #f9f8f6        /* background */
---color-accent:      #F2411B        /* orange-red: keywords, email pill, periods */
---color-rule:        rgba(0,0,0,0.1)/* dividers */
---color-muted:       rgba(13,13,13,0.45) /* body text, subtitles */
---color-chapter-dim: rgba(242,65,27,0.25) /* inactive chapter items */
+/* Light (:root) */
+--color-ink:              #0d0d0d     /* body text, headlines */
+--color-paper:            #f0f0f0     /* page canvas */
+--color-hero-canvas:      #f4f4f4     /* hero band only (.hero-pin) */
+--color-accent:           #DE3E18     /* keywords, pill, periods — darker than legacy #F2411B for contrast */
+--color-accent-hover:     #B73412     /* links / nav hovers */
+--color-rule:             rgba(0, 0, 0, 0.1)
+--color-muted:            rgba(13, 13, 13, 0.72)   /* subtitles — ~4.5:1 on paper */
+--color-nav-faded-selection: rgba(222, 62, 24, 0.4) /* inactive nav keywords + chapter labels */
+--color-nav-pill-muted-accent-1: rgba(222, 62, 24, 0.12) /* subnav selected fill, tray drop mode */
+--color-nav-pill-outline: rgba(222, 62, 24, 0.42)       /* subnav hover ring */
+--color-accent-nav-hover: #5a2410
 ```
 
-Dark mode (prefers-color-scheme: dark):
 ```css
---color-ink:         #f0eeea
---color-paper:       #111110
---color-rule:        rgba(255,255,255,0.1)
---color-muted:       rgba(240,238,234,0.45)
---color-chapter-dim: rgba(242,65,27,0.3)
+/* Dark (@media prefers-color-scheme: dark) */
+--color-ink:              #f0eeea
+--color-paper:            #101010
+--color-hero-canvas:      #040404
+--color-rule:             rgba(255, 255, 255, 0.12)
+--color-muted:            rgba(240, 238, 234, 0.78)
+--color-nav-faded-selection: rgba(222, 62, 24, 0.45)
+--color-nav-pill-muted-accent-1: rgba(222, 62, 24, 0.16)
+--color-nav-pill-outline: rgba(222, 62, 24, 0.48)
+--color-accent-nav-hover: #ff9a7a
 ```
+
+**Aliases (do not add new usages):**
+
+- `--color-chapter-dim` → use `--color-nav-faded-selection` for inactive chapter / tray copy.
+
+**Theming note:** OS dark mode drives CSS tokens above. `ThemeProvider` additionally sets hero portrait, Formation Lego board, and Kelvin scratch assets via `useTheme()`. A future manual toggle should set `data-theme` on `<html>` and mirror these token blocks.
 
 ---
 
 ## Layout
-- **Sidebar**: 400px fixed left, full viewport height, z-index 100
-- **Content**: `margin-left: 400px`
-- **Gutter**: 72px left/right padding inside content area
-- **Max content column**: `calc(100vw - 400px - 144px)`
+- **Sidebar**: 280px fixed left at desktop (1024+); tablet overlay 280px; mobile full-width drawer — see `styles/globals.css` breakpoints
+- **Content**: `margin-left: var(--sidebar-width)`
+- **Gutter**: `--gutter` 72px; horizontal inset `--content-pad-x` 24px
+- **Case-study band/stage**: `--cs-*` tokens in `styles/case-study-layout-tokens.css` (Hardware reference layout)
 
 ---
 
@@ -75,15 +94,15 @@ Dark mode (prefers-color-scheme: dark):
 
 ### Nav locks (y >= threshold)
 - Main nav sentence locks to `top: 40px`
-- `dimActive` becomes true — inactive section keywords dim to 20% opacity
+- `dimActive` becomes true — inactive section keywords use `--color-nav-faded-selection` (active keyword stays `--color-accent`)
 - After 280ms delay: sub nav blurs in
   - Chapters stagger in one by one, 60ms apart
   - Each item: opacity 0→1, blur 6px→0, translateY 4px→0, 320ms ease
   - When last chapter of first section appears: divider blurs in (600ms ease)
 
 ### Section changes
-- Active section keyword in nav sentence stays full opacity
-- Inactive keywords dim to 20%
+- Active section keyword in nav sentence stays `--color-accent`
+- Inactive keywords use `--color-nav-faded-selection`; subnav chapter pills match (active = accent + pill fill)
 - Sub nav chapters blur out, new section chapters blur in staggered
 
 ### Scrolling back to top (y < threshold)
@@ -99,7 +118,7 @@ Dark mode (prefers-color-scheme: dark):
 - **Layout**: name stack bottom-left, portrait photo right half
 - **Eyebrow**: "HELLO, I AM" — Alte Haas Grotesk Bold, ~24px, accent color
 - **Name**: "JOSEPH PATRICK ROBERTS." — Alte Haas Grotesk Bold, clamp(48px, 6.5vw, 120px), line-height 0.88
-- **Period**: accent color `#F2411B`
+- **Period**: accent color `var(--color-accent)` (`#DE3E18`)
 - **Portrait**: `/public/images/portrait.jpg`, objectFit cover, right 55% of hero
 
 ---

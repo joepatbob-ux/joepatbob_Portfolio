@@ -1,4 +1,5 @@
-/* Case-study layout tokens — fluid 1fr / 2fr tracks with min/max on artifacts and band.
+/* Case-study layout tokens — single source for stage/copy/band measures (Hardware reference).
+   Consumers: hardware-layout.css (--hw-pad), touch2-carousel, verdant-interactive, flow slides.
    Breakpoints: lib/layout/breakpoints.ts (767 / 768–1023 / 1024+ / 2560+)
    Chapter columns: lib/chapter-slide/breakpoints.ts (1200+ wide copy) */
 

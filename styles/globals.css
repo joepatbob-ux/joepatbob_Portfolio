@@ -66,6 +66,8 @@
     /* Subnav: selected row fill; hover = 1px muted-accent ring (no fill on hover-only). */
     --color-nav-pill-muted-accent-1: rgba(222, 62, 24, 0.12);
     --color-nav-pill-outline:        rgba(222, 62, 24, 0.42);
+    /* Alias — prefer --color-nav-faded-selection for new code */
+    --color-chapter-dim: var(--color-nav-faded-selection);
     --sidebar-width:    280px;
     --tablet-backdrop-scrim: rgba(240, 240, 240, 0.62);
     --tablet-backdrop-blur: 14px;
@@ -96,12 +98,13 @@
       --color-nav-faded-selection: rgba(222, 62, 24, 0.45);
       --color-nav-pill-muted-accent-1: rgba(222, 62, 24, 0.16);
       --color-nav-pill-outline:        rgba(222, 62, 24, 0.48);
+      --color-chapter-dim: var(--color-nav-faded-selection);
       --tablet-backdrop-scrim: rgba(4, 4, 4, 0.58);
     }
   }
 
   html {
-    /* Page canvas; hero band uses `--color-hero-canvas` on `.hero-pin` only. */
+    /* Page canvas; hero canvas on `.hero-pin` (full bleed + sidebar) fading with portrait. */
     background-color: var(--color-paper);
     color: var(--color-ink);
     -webkit-font-smoothing: antialiased;

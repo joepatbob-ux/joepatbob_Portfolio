@@ -12,22 +12,22 @@
   min-height: 100dvh;
 }
 
-/* Sidebar: no fill over hero portrait; paper only after hero scrolls away */
+/* Sidebar: always passthrough — no panel fill over hero or case studies */
 .sidebar-shell--fixed {
   left: 0 !important;
   padding-right: var(--sidebar-pad-right);
   box-sizing: border-box;
+  background: transparent !important;
+}
+
+html.in-hero-scroll .sidebar-desktop-shell,
+html.sidebar-tablet-hero-active .sidebar-desktop-shell {
   background: transparent;
-  transition: background-color 280ms ease;
 }
 
-html.in-hero-scroll .sidebar-shell--fixed,
-html.sidebar-tablet-hero-active .sidebar-shell--fixed {
-  background-color: transparent !important;
-}
-
-html.past-hero-scroll:not(.in-hero-scroll) .sidebar-shell--fixed {
-  background-color: var(--color-paper);
+html.in-hero-scroll .sidebar-shell__divider {
+  opacity: 0 !important;
+  visibility: hidden;
 }
 
 .sidebar-subnav--fixed {
