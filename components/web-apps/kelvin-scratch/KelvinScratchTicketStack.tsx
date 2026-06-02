@@ -4,6 +4,7 @@ import { KelvinScratchTicket } from '@/components/web-apps/kelvin-scratch/Kelvin
 import { KelvinCoinTray } from '@/components/web-apps/kelvin-scratch/KelvinCoinTray'
 import type { KelvinScratchAssets } from '@/lib/kelvin-scratch/types'
 import type { KelvinCoinState } from '@/lib/kelvin-scratch/useKelvinCoin'
+import { KELVIN_LAYER } from '@/lib/kelvin-scratch/layers'
 import type { RefObject } from 'react'
 
 type CoinState = Pick<
@@ -27,8 +28,12 @@ export function KelvinScratchTicketStack({ assets, coin, captureRootRef }: Props
   const { ticketCoverImg, coinBrush, ready } = assets
 
   return (
-    <div className="kelvin-scratch__column">
-      <div ref={coin.ticketStackRef} className="kelvin-scratch__ticket-stack">
+    <div className="kelvin-scratch__column" data-kelvin-layer={KELVIN_LAYER.column}>
+      <div
+        ref={coin.ticketStackRef}
+        className="kelvin-scratch__ticket-stack"
+        data-kelvin-layer={KELVIN_LAYER.ticketStack}
+      >
         <KelvinScratchTicket
           ticketCoverImg={ticketCoverImg}
           coinBrushSrc={coinBrush}

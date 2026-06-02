@@ -4,6 +4,7 @@ import { useTheme } from '@/components/ThemeProvider'
 import { kelvinScratchTicketSources } from '@/lib/kelvin-scratch/ticket'
 import { useKelvinScratchCanvas } from '@/lib/kelvin-scratch/useKelvinScratchCanvas'
 import type { ScratchProgressHandler } from '@/lib/kelvin-scratch/types'
+import { KELVIN_LAYER } from '@/lib/kelvin-scratch/layers'
 import type { RefObject } from 'react'
 
 type Props = {
@@ -42,7 +43,11 @@ export function KelvinTicketScratchZone({
   })
 
   return (
-    <div ref={zoneRef} className="kelvin-scratch-zone">
+    <div
+      ref={zoneRef}
+      className="kelvin-scratch-zone"
+      data-kelvin-layer={KELVIN_LAYER.scratchZone}
+    >
       <img
         className="kelvin-scratch-zone__reveal"
         src={revealSrc}

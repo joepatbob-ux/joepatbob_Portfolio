@@ -1,5 +1,6 @@
 'use client'
 
+import { KELVIN_LAYER } from '@/lib/kelvin-scratch/layers'
 import { KELVIN_COIN_FLAT_SRC } from '@/lib/webAppsScratchAssets'
 import type { KeyboardEvent, MouseEvent } from 'react'
 
@@ -64,15 +65,14 @@ export function KelvinCoinTray({
   return (
     <div
       className={['web-apps-scratch__tray', className].filter(Boolean).join(' ')}
+      data-kelvin-layer={KELVIN_LAYER.tray}
       data-coin-in-tray={coinInTray ? 'true' : 'false'}
     >
       <div
         className={barClass}
+        data-kelvin-layer={KELVIN_LAYER.trayBar}
         role="group"
         aria-label="Kelvin coin tray"
-        onClick={() => {
-          if (!coinInTray) onLeave()
-        }}
       >
         <button
           type="button"
