@@ -7,6 +7,7 @@ import {
   scratchZoneCssVars,
 } from '@/lib/kelvin-scratch/ticket'
 import type { ScratchProgressHandler } from '@/lib/kelvin-scratch/types'
+import type { RefObject } from 'react'
 
 type Props = {
   ticketCoverImg: HTMLImageElement | null
@@ -14,6 +15,7 @@ type Props = {
   scratchReady: boolean
   enabled: boolean
   coinInTray: boolean
+  captureRootRef?: RefObject<HTMLElement | null>
   onScratch: ScratchProgressHandler
 }
 
@@ -24,6 +26,7 @@ export function KelvinScratchTicket({
   scratchReady,
   enabled,
   coinInTray,
+  captureRootRef,
   onScratch,
 }: Props) {
   const { resolvedTheme } = useTheme()
@@ -48,6 +51,7 @@ export function KelvinScratchTicket({
             coinBrushSrc={coinBrushSrc}
             enabled={enabled}
             coinInTray={coinInTray}
+            captureRootRef={captureRootRef}
             onScratch={onScratch}
           />
         </div>

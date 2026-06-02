@@ -96,10 +96,13 @@ export function scratchZoneCssVars(): CSSProperties {
   }
 }
 
+/** Tray / cursor coin scale relative to ticket-width formula. */
+export const KELVIN_COIN_DISPLAY_SCALE = 1.1
+
 /** Coin + cursor size — scales with ticket width (tray sits below the ticket). */
 export function coinDisplayPxForTicket(ticketWidthPx: number) {
-  const fromWidth = ticketWidthPx * 0.16
-  return Math.round(Math.min(72, Math.max(40, fromWidth)))
+  const fromWidth = ticketWidthPx * 0.19 * KELVIN_COIN_DISPLAY_SCALE
+  return Math.round(Math.min(88, Math.max(48, fromWidth)))
 }
 
 /** @deprecated Use coinDisplayPxForTicket */
