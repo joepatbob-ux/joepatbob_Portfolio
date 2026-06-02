@@ -42,12 +42,3 @@ export function readProtoDebugMode(): {
 } {
   return resolveProtoDebugMode(readProtoDebugSearchParams())
 }
-
-/** Ghosted blue layout boxes on Kelvin scratch — on in dev unless ?kelvin-ghost=0. */
-export function isKelvinGhostLayoutEnabled(): boolean {
-  const params = readProtoDebugSearchParams()
-  if (params.get('kelvin-ghost') === '0') return false
-  if (params.has('kelvin-ghost')) return true
-  return import.meta.env.DEV
-}
-

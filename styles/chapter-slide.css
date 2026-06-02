@@ -112,9 +112,17 @@
   margin: 0;
 }
 
-.chapter-slide--sensi-lite .chapter-slide__interactive-content > div > div {
-  max-width: 100% !important;
-  margin: 0 !important;
+.sensi-lite-proto__stage {
+  width: min(100%, var(--stage-tune-sensi-lite-max, var(--cs-sensi-lite-stage-max-w)));
+  max-width: 480px;
+  margin-inline: auto;
+  aspect-ratio: 240 / 147;
+  position: relative;
+}
+
+.sensi-lite-proto__stage-inner {
+  position: absolute;
+  inset: 0;
 }
 
 .chapter-slide--eim .chapter-slide__stage {
@@ -263,8 +271,9 @@
     max-height: none;
   }
 
-  .chapter-slide:not(.hardware-slideshow).chapter-slide--eim .chapter-slide__stage {
-    max-width: var(--cs-eim-stage-max-w);
+  .chapter-slide:not(.hardware-slideshow).chapter-slide--eim .chapter-slide__stage,
+  .hardware-slideshow.chapter-slide--eim .chapter-slide__stage {
+    max-width: var(--stage-tune-eim-max, var(--cs-eim-stage-max-w));
   }
 
   .chapter-slide:not(.hardware-slideshow)

@@ -37,6 +37,7 @@ import {
   EMPTY_PHONE_MATERIAL_TUNES,
   type PhoneMaterialTunesByDevice,
 } from '@/lib/phone-swap/phoneMaterialTune'
+import { getStageArtifactTune, STAGE_TUNE_CHANGE } from '@/lib/stage-artifact-tune/settings'
 import { readPhoneLayoutMode } from '@/lib/phone-swap/usePhoneLayoutMode'
 import { useLayoutMobile } from '@/lib/hooks/useLayoutMobile'
 import type { PhoneSwapSceneApi } from '@/components/phone-swap/PhoneSwapScene'
@@ -80,6 +81,9 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
   const [animating, setAnimating] = useState(false)
   const [animSession, setAnimSession] = useState(0)
   const [backPhoneHover, setBackPhoneHover] = useState(false)
+  const [stageTune, setStageTune] = useState(() =>
+    typeof window === 'undefined' ? getStageArtifactTune() : getStageArtifactTune(),
+  )
   const [liveScreenRect, setLiveScreenRect] = useState<DisplayScreenRect | null>(
     null,
   )
@@ -99,6 +103,13 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
   layoutRef.current = layout
 
   const swapProgress = swapped ? 1 : 0
+
+  useEffect(() => {
+    const sync = () => setStageTune(getStageArtifactTune())
+    sync()
+    window.addEventListener(STAGE_TUNE_CHANGE, sync)
+    return () => window.removeEventListener(STAGE_TUNE_CHANGE, sync)
+  }, [])
 
   useEffect(() => {
     if (!layoutMode) return
@@ -228,10 +239,12 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
   }, [])
 
   const useAuthoredStageScale = layoutMode || !isMobile
+  const viewBoxWidth = layoutMode ? layout.stageWidth : stageTune.phoneWidth
+  const viewBoxHeight = layoutMode ? layout.stageSize : stageTune.phoneHeight
   const viewBoxVars = useAuthoredStageScale
     ? ({
-        '--phone-swap-height': String(layout.stageSize),
-        '--phone-swap-width': String(layout.stageWidth),
+        '--phone-swap-height': String(viewBoxHeight),
+        '--phone-swap-width': String(viewBoxWidth),
       } as CSSProperties)
     : undefined
 

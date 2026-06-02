@@ -837,10 +837,10 @@
 
 /* Sensi — viewbox sizes the stage column; band uses full panel width */
 .hardware-slideshow.mobile-chapter-slot--sensi {
-  --phone-viewbox-base-w: min(100%, clamp(380px, 58vw, min(960px, 100%)));
+  --phone-viewbox-base-w: min(var(--cs-phone-viewbox-max-w), clamp(300px, 38vw, 520px));
   --phone-viewbox-base-h: clamp(480px, 74dvh, 880px);
-  --phone-swap-height: 0.68;
-  --phone-swap-width: 0.68;
+  --phone-swap-height: var(--stage-tune-phone-height, 0.68);
+  --phone-swap-width: var(--stage-tune-phone-width, 0.68);
   --hw-stage-max-w: min(
     100%,
     calc(var(--phone-viewbox-base-w) * var(--phone-swap-width, 1))
@@ -899,14 +899,14 @@
 
 @media (min-width: 768px) and (max-width: 1023px) {
   .hardware-slideshow.mobile-chapter-slot--sensi {
-    --phone-viewbox-base-w: min(100%, clamp(320px, 56vw, 780px));
+    --phone-viewbox-base-w: min(var(--cs-phone-viewbox-max-w), clamp(280px, 48vw, 480px));
     --phone-viewbox-base-h: clamp(400px, 66dvh, 760px);
   }
 }
 
 @media (min-width: 2560px) {
   .hardware-slideshow.mobile-chapter-slot--sensi {
-    --phone-viewbox-base-w: min(100%, clamp(480px, 44vw, 1000px));
+    --phone-viewbox-base-w: min(var(--cs-stage-max), var(--cs-phone-viewbox-max-w));
     --phone-viewbox-base-h: clamp(480px, 72dvh, 880px);
   }
 }

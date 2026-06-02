@@ -140,16 +140,8 @@ function frameRectStyle(rect: FrameRect): CSSProperties {
 
 function ProtoStage({ children }: { children: ReactNode }) {
   return (
-    <div
-      style={{
-        width: '100%',
-        maxWidth: 480,
-        margin: '0 auto',
-        aspectRatio: `${DESIGN_WIDTH} / ${DESIGN_HEIGHT}`,
-        position: 'relative',
-      }}
-    >
-      <div style={{ position: 'absolute', inset: 0 }}>{children}</div>
+    <div className="sensi-lite-proto__stage">
+      <div className="sensi-lite-proto__stage-inner">{children}</div>
     </div>
   )
 }
