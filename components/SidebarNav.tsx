@@ -600,10 +600,24 @@ export function SidebarNav() {
     [closeOverlays, syncScrollAfterNavigate],
   )
 
+  const scrollToChapter = (chapterId: string) => {
+    const closeAfter = mobileDrawerOpen || tabletSidebarOpen
+    const sectionId = sectionIdForChapter(chapterId)
+    if (sectionId) {
+      activeSectionRef.current = sectionId
+      setActiveSection(sectionId)
+      switchSection(sectionId)
+    }
+    activeChapterRef.current = chapterId
+    setActiveChapter(chapterId)
+    void navigateToChapter(chapterId).then(() => finishNavigate(closeAfter))
+  }
+
   const scrollToSection = (id: string) => {
     const closeAfter = mobileDrawerOpen || tabletSidebarOpen
     const sec = NAV_SECTIONS.find((s) => s.id === id)
     activeSectionRef.current = id
+    setActiveSection(id)
     switchSection(id)
     if (sec) {
       const entryChapterId = sectionEntryChapterId(id)
@@ -611,18 +625,6 @@ export function SidebarNav() {
       setActiveChapter(entryChapterId)
     }
     void navigateToSection(id).then(() => finishNavigate(closeAfter))
-  }
-
-  const scrollToChapter = (chapterId: string) => {
-    const closeAfter = mobileDrawerOpen || tabletSidebarOpen
-    const sectionId = sectionIdForChapter(chapterId)
-    if (sectionId) {
-      activeSectionRef.current = sectionId
-      switchSection(sectionId)
-    }
-    activeChapterRef.current = chapterId
-    setActiveChapter(chapterId)
-    void navigateToChapter(chapterId).then(() => finishNavigate(closeAfter))
   }
 
   const currentSection = NAV_SECTIONS.find((s) => s.id === activeSection) || NAV_SECTIONS[0]

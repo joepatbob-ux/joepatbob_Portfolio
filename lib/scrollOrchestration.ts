@@ -56,7 +56,22 @@ function computeMobileRevealMap(): Record<string, number> {
 }
 
 /** Single scroll measurement for panels, nav, and stickers. */
-export function measureSlideScrollState(phase: SlideNavPhase): SlideScrollState {
+export function measureSlideScrollState(
+  phase: SlideNavPhase,
+  /** During sidebar goto — keep highlight on destination, not scroll midpoint. */
+  lockedSlideId: string | null = null,
+): SlideScrollState {
+  if (lockedSlideId) {
+    if (phase === 'out') {
+      return { revealMap: {}, activeSlideId: lockedSlideId, inHero: false }
+    }
+    return {
+      revealMap: { [lockedSlideId]: 1 },
+      activeSlideId: lockedSlideId,
+      inHero: false,
+    }
+  }
+
   if (phase === 'out') {
     return { revealMap: {}, activeSlideId: null, inHero: false }
   }

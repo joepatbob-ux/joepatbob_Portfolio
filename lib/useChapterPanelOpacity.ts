@@ -21,7 +21,8 @@ export function useChapterPanelOpacity(chapterId: string) {
         filter: blurOutFromReveal(0, SCROLL_BLUR_PX).filter,
         zIndex: 0,
         pointerEvents: 'none',
-        transition: `opacity ${CHAPTER_NAV_FADE_MS}ms ${SCROLL_EASE}, filter ${CHAPTER_NAV_FADE_MS}ms ${SCROLL_EASE}`,
+        /* Instant hide before programmatic scroll — avoids old chapter lingering. */
+        transition: 'none',
       } as const,
     }
   }
