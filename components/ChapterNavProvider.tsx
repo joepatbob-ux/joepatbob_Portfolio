@@ -42,6 +42,15 @@ function sleep(ms: number) {
   })
 }
 
+/** Two frames so opacity:0 from phase `out` is painted before scroll. */
+function waitForPaint() {
+  return new Promise<void>((resolve) => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => resolve())
+    })
+  })
+}
+
 export function ChapterNavProvider({ children }: { children: ReactNode }) {
   const [phase, setPhase] = useState<ChapterNavPhase>('idle')
   const [targetId, setTargetId] = useState<string | null>(null)
@@ -49,6 +58,7 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
   const [reveals, setReveals] = useState<Record<string, number>>({})
   const busyRef = useRef(false)
   const activeRef = useRef<string | null>(null)
+  const targetIdRef = useRef<string | null>(null)
   const revealsRef = useRef<Record<string, number>>({})
   const phaseRef = useRef<ChapterNavPhase>('idle')
   useEffect(() => {
@@ -59,11 +69,16 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
     phaseRef.current = phase
   }, [phase])
 
+  useEffect(() => {
+    targetIdRef.current = targetId
+  }, [targetId])
+
   useChapterCopyWheelTrap()
 
   useEffect(() => {
     const measureSlides = () => {
-      const state = measureSlideScrollState(phaseRef.current)
+      const lockId = busyRef.current ? targetIdRef.current : null
+      const state = measureSlideScrollState(phaseRef.current, lockId)
       publishSlideScrollState(state)
 
       if (state.inHero || phaseRef.current === 'out') {
@@ -115,15 +130,15 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
 
       busyRef.current = true
       setTargetId(chapterId)
+      activeRef.current = chapterId
+      setActiveSlideId(chapterId)
+
       setPhase('out')
-      await sleep(CHAPTER_NAV_FADE_MS)
+      await waitForPaint()
 
       target.scrollIntoView({ behavior: 'auto', block: 'start' })
       flushScrollFrame()
-      await sleep(32)
 
-      activeRef.current = chapterId
-      setActiveSlideId(chapterId)
       setPhase('in')
       await sleep(CHAPTER_NAV_FADE_MS)
 
