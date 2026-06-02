@@ -1,5 +1,6 @@
 'use client'
 
+import { useTheme } from '@/components/ThemeProvider'
 import { KelvinCoinCursor } from '@/components/web-apps/kelvin-scratch/KelvinCoinCursor'
 import { KelvinScratchTicketStack } from '@/components/web-apps/kelvin-scratch/KelvinScratchTicketStack'
 import { kelvinScratchRootStyle } from '@/lib/kelvin-scratch/ticket'
@@ -10,6 +11,7 @@ import '@/styles/web-apps-scratch-reveal.css'
 import '@/styles/kelvin-scratch.css'
 
 function KelvinScratchInner() {
+  const { resolvedTheme } = useTheme()
   const stageRef = useRef<HTMLDivElement>(null)
   const assets = useKelvinScratchAssets()
   const coin = useKelvinCoin(stageRef, assets.ready)
@@ -24,7 +26,13 @@ function KelvinScratchInner() {
 
   return (
     <div
-      className="kelvin-scratch web-apps-scratch"
+      className={[
+        'kelvin-scratch',
+        'web-apps-scratch',
+        resolvedTheme === 'dark' ? 'kelvin-scratch--dark' : '',
+      ]
+        .filter(Boolean)
+        .join(' ')}
       role="application"
       aria-label="Scratch the foil with the Kelvin coin to reveal the unified design system underneath."
       style={kelvinScratchRootStyle(

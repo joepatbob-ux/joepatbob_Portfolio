@@ -1,8 +1,9 @@
 'use client'
 
+import { useTheme } from '@/components/ThemeProvider'
 import { KelvinTicketScratchZone } from '@/components/web-apps/kelvin-scratch/KelvinTicketScratchZone'
 import {
-  KELVIN_SCRATCH_TICKET_SRC,
+  kelvinScratchTicketSources,
   scratchZoneCssVars,
 } from '@/lib/kelvin-scratch/ticket'
 import type { ScratchProgressHandler } from '@/lib/kelvin-scratch/types'
@@ -25,6 +26,8 @@ export function KelvinScratchTicket({
   coinInTray,
   onScratch,
 }: Props) {
+  const { resolvedTheme } = useTheme()
+  const { ticket: ticketSrc } = kelvinScratchTicketSources(resolvedTheme)
   const showScratch =
     scratchReady && ticketCoverImg !== null && coinBrushSrc !== null
 
@@ -32,7 +35,8 @@ export function KelvinScratchTicket({
     <div className="kelvin-scratch__ticket" style={scratchZoneCssVars()}>
       <img
         className="kelvin-scratch__art"
-        src={KELVIN_SCRATCH_TICKET_SRC}
+        src={ticketSrc}
+        key={ticketSrc}
         alt=""
         draggable={false}
         decoding="async"

@@ -5,11 +5,46 @@ import type { CSSProperties } from 'react'
 export const KELVIN_SCRATCH_TICKET_SRC =
   '/images/web-apps/scratch-ticket/ticket.svg'
 
+export const KELVIN_SCRATCH_TICKET_DARK_SRC =
+  '/images/web-apps/scratch-ticket/ticket-dark.svg'
+
 export const KELVIN_SCRATCH_COVER_SRC =
   '/images/web-apps/scratch-ticket/cover.svg'
 
+export const KELVIN_SCRATCH_COVER_DARK_SRC =
+  '/images/web-apps/scratch-ticket/cover-dark.svg'
+
 export const KELVIN_SCRATCH_REVEAL_SRC =
   '/images/web-apps/scratch-ticket/reveal.svg'
+
+export const KELVIN_SCRATCH_REVEAL_DARK_SRC =
+  '/images/web-apps/scratch-ticket/reveal-dark.svg'
+
+export type KelvinScratchTheme = 'light' | 'dark'
+
+export type KelvinScratchTicketSources = {
+  ticket: string
+  cover: string
+  reveal: string
+}
+
+/** Ticket frame, foil cover, and reveal art for the active theme (dark = inverted). */
+export function kelvinScratchTicketSources(
+  theme: KelvinScratchTheme,
+): KelvinScratchTicketSources {
+  if (theme === 'dark') {
+    return {
+      ticket: KELVIN_SCRATCH_TICKET_DARK_SRC,
+      cover: KELVIN_SCRATCH_COVER_DARK_SRC,
+      reveal: KELVIN_SCRATCH_REVEAL_DARK_SRC,
+    }
+  }
+  return {
+    ticket: KELVIN_SCRATCH_TICKET_SRC,
+    cover: KELVIN_SCRATCH_COVER_SRC,
+    reveal: KELVIN_SCRATCH_REVEAL_SRC,
+  }
+}
 
 export const SCRATCH_TICKET_VIEWBOX = {
   width: 805.73,

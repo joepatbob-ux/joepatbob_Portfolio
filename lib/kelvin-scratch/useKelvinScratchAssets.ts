@@ -1,5 +1,7 @@
 'use client'
 
+import { useTheme } from '@/components/ThemeProvider'
+import { kelvinScratchTicketSources } from '@/lib/kelvin-scratch/ticket'
 import type { KelvinScratchAssets } from '@/lib/kelvin-scratch/types'
 import {
   createCoinBrushDataUrl,
@@ -9,8 +11,10 @@ import {
 } from '@/lib/webAppsScratchAssets'
 import { useEffect, useState } from 'react'
 
-/** Ticket foil cover + coin brush raster — loads once on mount. */
+/** Ticket foil cover + coin brush raster — reloads when theme changes. */
 export function useKelvinScratchAssets(): KelvinScratchAssets {
+  const { resolvedTheme } = useTheme()
+  const { cover: coverSrc } = kelvinScratchTicketSources(resolvedTheme)
   const [ticketCoverImg, setTicketCoverImg] =
     useState<HTMLImageElement | null>(null)
   const [coinBrush, setCoinBrush] = useState<string | null>(null)
@@ -20,7 +24,7 @@ export function useKelvinScratchAssets(): KelvinScratchAssets {
     let cancelled = false
     setLoading(true)
 
-    Promise.all([loadScratchTicketCoverImage(), loadKelvinCoinImages()])
+    Promise.all([loadScratchTicketCoverImage(coverSrc), loadKelvinCoinImages()])
       .then(([cover, coins]) => {
         if (cancelled) return
         setTicketCoverImg(cover)
@@ -38,7 +42,7 @@ export function useKelvinScratchAssets(): KelvinScratchAssets {
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [coverSrc])
 
   return {
     ticketCoverImg,
