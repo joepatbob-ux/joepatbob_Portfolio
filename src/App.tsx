@@ -7,6 +7,7 @@ import { Hero } from '@/components/Hero'
 import { SidebarNav } from '@/components/SidebarNav'
 import { StickerLayer } from '@/components/StickerLayer'
 import { StickerProvider } from '@/components/StickerProvider'
+import { ChapterLayoutGhost } from '@/components/chapter-layout/ChapterLayoutGhost'
 import { ProtoDebugGate } from '@/components/ProtoDebugGate'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import { everythingElse } from '@/lib/sections/everything-else'
@@ -18,6 +19,7 @@ export default function App() {
   return (
     <div className="vite-font-mono">
       <ThemeProvider>
+        <ChapterLayoutGhost />
         <ProtoDebugGate>
         <ContactFormProvider>
           <StickerProvider>

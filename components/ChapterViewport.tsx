@@ -1,5 +1,6 @@
 'use client'
 
+import { chapterLayoutLayer } from '@/lib/chapter-layout-ghost'
 import { ChapterActiveProvider } from '@/lib/chapterActiveContext'
 import { useChapterPanelOpacity } from '@/lib/useChapterPanelOpacity'
 import { memo, type CSSProperties, type ReactNode } from 'react'
@@ -44,6 +45,7 @@ function ChapterViewportInner({
     >
       <div
         className="portfolio-chapter-panel"
+        data-chapter-layer={chapterLayoutLayer(chapterId, 'panel')}
         style={panelStyle}
         aria-hidden={!isActive}
       >

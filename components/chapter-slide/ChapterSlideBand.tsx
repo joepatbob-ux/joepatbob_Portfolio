@@ -3,6 +3,7 @@
 import { ChapterCopyScroller } from '@/components/ChapterCopyScroller'
 import { ChapterViewport } from '@/components/ChapterViewport'
 import { useLayoutMobile } from '@/lib/hooks/useLayoutMobile'
+import { chapterLayoutLayer } from '@/lib/chapter-layout-ghost'
 import { useCopyScrollActive } from '@/lib/useCopyScrollActive'
 import type { ReactNode } from 'react'
 
@@ -50,7 +51,10 @@ export function ChapterSlideBand({
         .filter(Boolean)
         .join(' ')}
     >
-      <div className="chapter-slide__viewport">
+      <div
+        className="chapter-slide__viewport"
+        data-chapter-layer={chapterLayoutLayer(chapterId, 'viewport')}
+      >
         <div
           className={[
             'chapter-slide__inner',
@@ -58,9 +62,15 @@ export function ChapterSlideBand({
           ]
             .filter(Boolean)
             .join(' ')}
+          data-chapter-layer={chapterLayoutLayer(chapterId, 'inner')}
         >
           {copyOnly ? null : (
-            <div className="chapter-slide__stage">{stage}</div>
+            <div
+              className="chapter-slide__stage"
+              data-chapter-layer={chapterLayoutLayer(chapterId, 'stage')}
+            >
+              {stage}
+            </div>
           )}
           <div
             className={[
@@ -75,6 +85,7 @@ export function ChapterSlideBand({
             ]
               .filter(Boolean)
               .join(' ')}
+            data-chapter-layer={chapterLayoutLayer(chapterId, 'copy')}
           >
             {isMobile ? (
               copy
