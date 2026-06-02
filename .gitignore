@@ -27,3 +27,6 @@ yarn-error.log*
 
 # local python venv (blob crop tooling)
 .venv-blob/
+
+# KeyShot export (~70MB) — run scripts/copy-touch2-master-model.sh locally
+public/models/touch-2-master/*.obj

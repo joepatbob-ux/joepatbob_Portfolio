@@ -4,7 +4,6 @@ import { ChapterViewport } from '@/components/ChapterViewport'
 import { ChapterSlideCopy } from '@/components/chapter-slide/ChapterSlideCopy'
 import { InteractiveStageCursor } from '@/components/chapter-slide/InteractiveStageCursor'
 import { MobileLearnMore } from '@/components/mobile/MobileLearnMore'
-import { chapterLayoutLayer } from '@/lib/chapter-layout-ghost'
 import { parseChapterBody } from '@/lib/chapter-slide/parseChapterBody'
 import { useLayoutMobile } from '@/lib/hooks/useLayoutMobile'
 import { useCopyScrollActive } from '@/lib/useCopyScrollActive'
@@ -55,7 +54,6 @@ export function ChapterSlideLayout({
       ]
         .filter(Boolean)
         .join(' ')}
-      data-chapter-layer={chapterLayoutLayer(chapterId, 'stage')}
       aria-label={stageAriaLabel}
     >
       {stageInner}
@@ -65,7 +63,6 @@ export function ChapterSlideLayout({
   const copyEl = isMobile ? (
     <div
       className="chapter-slide__copy chapter-copy chapter-slide__copy--mobile-teaser mobile-learn-more-copy"
-      data-chapter-layer={chapterLayoutLayer(chapterId, 'copy')}
     >
       <MobileLearnMore headline={chapter.subtitle} headerVariant="chapter">
         <div className="chapter-slide__body">
@@ -82,7 +79,6 @@ export function ChapterSlideLayout({
       active={copyScrollActive}
       headline={chapter.subtitle}
       body={chapter.body}
-      chapterLayerId={chapterLayoutLayer(chapterId, 'copy')}
     />
   )
 
@@ -97,14 +93,8 @@ export function ChapterSlideLayout({
         .join(' ')}
       fillViewport
     >
-      <div
-        className="chapter-slide__viewport"
-        data-chapter-layer={chapterLayoutLayer(chapterId, 'viewport')}
-      >
-        <div
-          className="chapter-slide__inner"
-          data-chapter-layer={chapterLayoutLayer(chapterId, 'inner')}
-        >
+      <div className="chapter-slide__viewport">
+        <div className="chapter-slide__inner">
           {copyFirst ? (
             <>
               {copyEl}

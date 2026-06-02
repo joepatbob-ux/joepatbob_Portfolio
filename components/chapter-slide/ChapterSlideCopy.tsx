@@ -11,8 +11,6 @@ interface Props {
   body: string
   className?: string
   layout?: ChapterSlideCopyLayout
-  /** Layout debug label — must live on this flex/grid child, not a wrapper. */
-  chapterLayerId?: string
 }
 
 /** Headline, accent rule, and scrollable body — shared across case study slides. */
@@ -22,7 +20,6 @@ export function ChapterSlideCopy({
   body,
   className,
   layout = 'chapter',
-  chapterLayerId,
 }: Props) {
   const paragraphs = parseChapterBody(body)
   const showHeader = headline.trim().length > 0
@@ -37,7 +34,6 @@ export function ChapterSlideCopy({
       ]
         .filter(Boolean)
         .join(' ')}
-      {...(chapterLayerId ? { 'data-chapter-layer': chapterLayerId } : {})}
     >
       <ChapterCopyScroller active={active}>
         {showHeader ? (

@@ -75,6 +75,8 @@
 
   /* ── EIM / narrow stage media (mobile) ──────────────────────────────────── */
   --cs-eim-stage-max-w: min(72vw, 280px);
+  --cs-sensi-lite-stage-max-w: min(100%, 320px);
+  --cs-phone-viewbox-max-w: min(var(--cs-stage-max), 520px);
 
   /* ── Hardware slideshow pad (768+) ──────────────────────────────────────── */
   --cs-hw-pad-min: 28px;

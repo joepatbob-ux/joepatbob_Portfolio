@@ -7,7 +7,6 @@ import {
   scratchZoneCssVars,
 } from '@/lib/kelvin-scratch/ticket'
 import type { ScratchProgressHandler } from '@/lib/kelvin-scratch/types'
-import { KELVIN_LAYER } from '@/lib/kelvin-scratch/layers'
 import type { RefObject } from 'react'
 
 type Props = {
@@ -36,11 +35,7 @@ export function KelvinScratchTicket({
     scratchReady && ticketCoverImg !== null && coinBrushSrc !== null
 
   return (
-    <div
-      className="kelvin-scratch__ticket"
-      data-kelvin-layer={KELVIN_LAYER.ticketFrame}
-      style={scratchZoneCssVars()}
-    >
+    <div className="kelvin-scratch__ticket" style={scratchZoneCssVars()}>
       <img
         className="kelvin-scratch__art"
         src={ticketSrc}
@@ -50,11 +45,7 @@ export function KelvinScratchTicket({
         decoding="async"
       />
       {showScratch ? (
-        <div
-          className="kelvin-scratch__panel"
-          data-kelvin-layer={KELVIN_LAYER.scratchPanel}
-          aria-hidden={false}
-        >
+        <div className="kelvin-scratch__panel" aria-hidden={false}>
           <KelvinTicketScratchZone
             ticketCoverImg={ticketCoverImg}
             coinBrushSrc={coinBrushSrc}

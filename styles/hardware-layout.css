@@ -102,14 +102,31 @@
     max-width: min(100%, var(--hw-stage-max-w));
   }
 
-  .hardware-slideshow .chapter-slide__stage .chapter-slide__interactive-wrap,
+  .hardware-slideshow.chapter-slide--eim .chapter-slide__stage {
+    flex: 0 0 auto;
+    width: auto;
+    min-width: 0;
+    max-width: var(--stage-tune-eim-max, var(--cs-eim-stage-max-w));
+  }
+
+  .hardware-slideshow.chapter-slide--sensi-lite .chapter-slide__stage {
+    flex: 0 0 auto;
+    width: min(var(--stage-tune-sensi-lite-max, var(--cs-sensi-lite-stage-max-w)), 100%);
+    min-width: 0;
+    max-width: min(var(--stage-tune-sensi-lite-max, var(--cs-sensi-lite-stage-max-w)), 100%);
+  }
+
+  .hardware-slideshow.chapter-slide--sensi-lite .chapter-slide__interactive-wrap,
+  .hardware-slideshow.chapter-slide--sensi-lite .chapter-slide__interactive-content {
+    width: 100%;
+    max-width: 100%;
+  }
+
   .hardware-slideshow .chapter-slide__stage .touch2-carousel,
   .hardware-slideshow .chapter-slide__stage .verdant-interactive,
   .hardware-slideshow .chapter-slide__stage .eim-path-art,
   .hardware-slideshow .chapter-slide__stage .chapter-stage-media,
-  .hardware-slideshow .chapter-slide__stage .before-after-slider,
-  .hardware-slideshow.chapter-slide--sensi-lite .chapter-slide__interactive-content > div,
-  .hardware-slideshow.chapter-slide--sensi-lite .chapter-slide__interactive-content > div > div {
+  .hardware-slideshow .chapter-slide__stage .before-after-slider {
     width: 100%;
     max-width: 100%;
     margin: 0;
@@ -196,6 +213,12 @@
       calc(100% - var(--hw-copy-min-w) - var(--hw-gap))
     );
     width: auto;
+  }
+
+  .hardware-slideshow.chapter-slide--eim .chapter-slide__stage,
+  .hardware-slideshow.chapter-slide--sensi-lite .chapter-slide__stage,
+  .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__stage:has(.phone-swap) {
+    flex: 0 0 auto;
   }
 
   .hardware-slideshow .chapter-slide__copy {
