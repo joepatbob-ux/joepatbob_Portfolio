@@ -66,11 +66,26 @@
     width: 100%;
     max-width: 100%;
     text-align: left;
+    overflow: visible;
+    max-height: none;
   }
 
   .hardware-slideshow.case-study-flow-overview
     .chapter-slide__inner--copy-only {
     max-width: min(var(--cs-inner-max), 100%);
+  }
+
+  .hardware-slideshow.case-study-flow-overview .mobile-learn-more__pill,
+  .hardware-slideshow.case-study-flow-overview .mobile-learn-more-sheet {
+    display: none !important;
+  }
+
+  .hardware-slideshow.case-study-flow-overview .case-study-flow-overview__prose,
+  .hardware-slideshow.case-study-flow-overview .case-study-flow-overview__inner {
+    display: block;
+    visibility: visible;
+    overflow: visible;
+    max-height: none;
   }
 
   .hardware-slideshow.case-study-flow-overview
