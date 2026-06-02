@@ -27,7 +27,7 @@ Use this when auditing **Hardware** first, then copy pass/fail notes to Mobile, 
 
 ## Slideshow shell (all Hardware slides)
 
-- [ ] `hardware-overview` — header, body, rule; copy measure matches `--cs-copy-column-max`
+- [ ] `hardware-overview` — 900px column centered in content area; mobile body inline (no More sheet)
 - [ ] Chapter slides — `chapter-slide__viewport` band centered; `--hw-band-max-w`
 - [ ] Copy column — eyebrow mono, title AHG, body muted; gap `--hw-copy-gap`
 - [ ] Stage — min/max width; artifact not clipped; active panel `pointer-events`

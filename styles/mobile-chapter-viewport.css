@@ -151,20 +151,7 @@
     max-width: 100%;
   }
 
-  /* Overview slides (optional empty stage) */
-  .hardware-slideshow.case-study-flow-overview .chapter-slide__inner {
-    justify-content: center;
-  }
-
-  .hardware-slideshow.case-study-flow-overview .flow-chapter-slide__stage--empty {
-    display: none;
-  }
-
-  .hardware-slideshow.case-study-flow-overview
-    .case-study-flow-overview__inner--center
-    .mobile-learn-more__teaser {
-    align-items: center;
-  }
+  /* Overview — inline copy (case-study-flow-overview.css); panel pad via .portfolio-chapter-panel */
 
   .hardware-slideshow.section-lessons .chapter-slide__viewport {
     padding: 0;

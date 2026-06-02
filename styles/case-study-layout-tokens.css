@@ -30,6 +30,9 @@
   );
   --cs-band-max: var(--cs-band-max-raw);
 
+  /* Section overview copy column (centered in content area, sidebar → right edge) */
+  --cs-overview-measure: 900px;
+
   /* Extra scroll between snap slides (hold before next screen) */
   --cs-screen-gap: clamp(16px, 3vh, 40px);
 

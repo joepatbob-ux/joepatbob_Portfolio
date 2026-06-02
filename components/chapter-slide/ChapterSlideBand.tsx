@@ -12,7 +12,9 @@ interface Props {
   fillViewport?: boolean
   className?: string
   modifier?: string
-  stage: ReactNode
+  /** Section overview — copy centered in content area, no stage column. */
+  copyOnly?: boolean
+  stage?: ReactNode
   copy: ReactNode
 }
 
@@ -25,6 +27,7 @@ export function ChapterSlideBand({
   fillViewport = true,
   className,
   modifier,
+  copyOnly = false,
   stage,
   copy,
 }: Props) {
@@ -48,14 +51,27 @@ export function ChapterSlideBand({
         .join(' ')}
     >
       <div className="chapter-slide__viewport">
-        <div className="chapter-slide__inner">
-          <div className="chapter-slide__stage">{stage}</div>
+        <div
+          className={[
+            'chapter-slide__inner',
+            copyOnly ? 'chapter-slide__inner--copy-only' : '',
+          ]
+            .filter(Boolean)
+            .join(' ')}
+        >
+          {copyOnly ? null : (
+            <div className="chapter-slide__stage">{stage}</div>
+          )}
           <div
             className={[
               'chapter-slide__copy',
               'chapter-copy',
               isFlow ? 'flow-chapter-slide__copy' : '',
-              isMobile ? 'chapter-slide__copy--mobile-teaser mobile-learn-more-copy' : '',
+              copyOnly
+                ? 'chapter-slide__copy--overview'
+                : isMobile
+                  ? 'chapter-slide__copy--mobile-teaser mobile-learn-more-copy'
+                  : '',
             ]
               .filter(Boolean)
               .join(' ')}

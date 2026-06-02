@@ -1,7 +1,7 @@
 'use client'
 
+import { CaseStudySectionHeader } from '@/components/case-study/CaseStudySectionHeader'
 import { ChapterSlideBand } from '@/components/chapter-slide/ChapterSlideBand'
-import { MobileLearnMore } from '@/components/mobile/MobileLearnMore'
 import { parseChapterBody } from '@/lib/chapter-slide/parseChapterBody'
 
 interface Props {
@@ -14,14 +14,14 @@ interface Props {
   className?: string
 }
 
-/** Section overview — copy-only band (empty stage), same shell as other flow slides. */
+/** Section overview — centered 900px column in content area; full body on mobile (no sheet). */
 export function CaseStudyFlowOverview({
   chapterId,
   headline,
   body,
   meta = [],
   subhead,
-  align = 'left',
+  align = 'center',
   className,
 }: Props) {
   const paragraphs = parseChapterBody(body)
@@ -30,6 +30,7 @@ export function CaseStudyFlowOverview({
     <ChapterSlideBand
       chapterId={chapterId}
       fillViewport
+      copyOnly
       className={[
         'mobile-chapter-slot',
         'flow-chapter-slide',
@@ -38,7 +39,6 @@ export function CaseStudyFlowOverview({
       ]
         .filter(Boolean)
         .join(' ')}
-      stage={<div className="flow-chapter-slide__stage--empty" aria-hidden />}
       copy={
         <div
           className={
@@ -47,22 +47,21 @@ export function CaseStudyFlowOverview({
               : 'case-study-flow-overview__inner'
           }
         >
-          <MobileLearnMore
+          <CaseStudySectionHeader
             headline={headline}
             meta={meta}
             subhead={subhead}
             align={align}
-          >
-            {paragraphs.length > 0 ? (
-              <div className="mobile-prose case-study-flow-overview__prose">
-                {paragraphs.map((p, i) => (
-                  <p key={i} className="mobile-prose__p">
-                    {p}
-                  </p>
-                ))}
-              </div>
-            ) : null}
-          </MobileLearnMore>
+          />
+          {paragraphs.length > 0 ? (
+            <div className="mobile-prose case-study-flow-overview__prose">
+              {paragraphs.map((p, i) => (
+                <p key={i} className="mobile-prose__p">
+                  {p}
+                </p>
+              ))}
+            </div>
+          ) : null}
         </div>
       }
     />
