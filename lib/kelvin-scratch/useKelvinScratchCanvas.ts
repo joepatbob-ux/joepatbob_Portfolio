@@ -165,6 +165,7 @@ export function useKelvinScratchCanvas({
       const canvas = canvasRef.current
       if (!canvas) return
       if (!root.contains(e.target as Node)) return
+      e.preventDefault()
       root.setPointerCapture(e.pointerId)
       scratchingRef.current = true
       lastPointRef.current = scratchPointFromEvent(e, canvas)

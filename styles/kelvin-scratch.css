@@ -63,6 +63,8 @@
 
 .kelvin-scratch__stage--coin-out {
   cursor: none;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
 }
 
 .kelvin-scratch__stage--coin-out .kelvin-scratch__ticket-stack,
@@ -71,9 +73,23 @@
   touch-action: none;
 }
 
-.kelvin-scratch__coin-cursor {
+.kelvin-scratch__coin-cursor-wrap {
+  position: absolute;
+  z-index: 30;
   left: var(--kelvin-coin-x, 50%);
   top: var(--kelvin-coin-y, 50%);
+  transform: translate(-50%, -50%);
+  width: var(--scratch-coin-size, 64px);
+  height: var(--scratch-coin-size, 64px);
+  line-height: 0;
+  pointer-events: none;
+}
+
+.kelvin-scratch__coin-cursor-wrap .kelvin-scratch__coin-cursor {
+  position: static;
+  left: auto;
+  top: auto;
+  transform: none;
 }
 
 /* Column width = ticket width (from root cqw, not child %) */
@@ -128,20 +144,16 @@
   transition: background 160ms ease;
 }
 
-/* Drop mode — muted accent fill + hover (matches web-apps-scratch tray) */
+/* Drop mode — highlight only on intentional tray hover (not while scratching) */
 .kelvin-scratch__tray--below
   .kelvin-scratch__tray-bar.web-apps-scratch__tray-bar--drop {
-  background: var(--color-nav-pill-muted-accent-1);
+  background: transparent;
   cursor: default;
 }
 
 .kelvin-scratch__tray--below
   .kelvin-scratch__tray-bar.web-apps-scratch__tray-bar--drop:hover {
-  background: color-mix(
-    in srgb,
-    var(--color-accent, #de3e18) 16%,
-    var(--color-nav-pill-muted-accent-1)
-  );
+  background: var(--color-nav-pill-muted-accent-1);
 }
 
 .kelvin-scratch__tray-action {
@@ -154,6 +166,11 @@
   color: inherit;
   pointer-events: auto;
   -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.kelvin-scratch__tray-action:active {
+  background: transparent;
 }
 
 .kelvin-scratch__tray-action:disabled {
@@ -180,6 +197,10 @@
 }
 
 .kelvin-scratch__tray-action:focus {
+  outline: none;
+}
+
+.kelvin-scratch__tray-action:focus:not(:focus-visible) {
   outline: none;
 }
 
@@ -228,6 +249,8 @@
   min-height: 1px;
   min-width: 1px;
   touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
 }
 
 .kelvin-scratch-zone__reveal,
@@ -324,6 +347,8 @@
   height: 100%;
   transform: none;
   filter: none;
+  -webkit-user-drag: none;
+  user-select: none;
 }
 
 .kelvin-scratch__tray-bar--ready
@@ -360,6 +385,12 @@
 /* Follow cursor — no drop shadow halo that reads as grey on light bg */
 .kelvin-scratch .web-apps-scratch__coin-cursor {
   filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.2));
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.kelvin-scratch__tray-bar {
+  -webkit-tap-highlight-color: transparent;
 }
 
 @container kelvin-scratch-col (max-width: 300px) {
@@ -372,4 +403,48 @@
     max-width: min(4.5em, 100%);
     font-size: clamp(7px, 2.2cqi, 10px);
   }
+}
+
+/* Ghost layout — 50% blue on every layer; label = data-kelvin-layer (?kelvin-ghost=0 off) */
+.kelvin-scratch--ghost-layout {
+  --kelvin-ghost-fill: rgba(33, 150, 243, 0.5);
+  --kelvin-ghost-line: rgba(25, 118, 210, 0.95);
+}
+
+.kelvin-scratch--ghost-layout [data-kelvin-layer] {
+  outline: 2px solid var(--kelvin-ghost-line);
+  outline-offset: -2px;
+}
+
+.kelvin-scratch--ghost-layout [data-kelvin-layer]:not(.kelvin-scratch__panel) {
+  position: relative;
+}
+
+.kelvin-scratch--ghost-layout [data-kelvin-layer]::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  background: var(--kelvin-ghost-fill);
+  pointer-events: none;
+}
+
+.kelvin-scratch--ghost-layout [data-kelvin-layer]::before {
+  content: attr(data-kelvin-layer);
+  position: absolute;
+  z-index: 60;
+  top: 2px;
+  left: 3px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: rgba(13, 71, 161, 0.92);
+  color: #e3f2fd;
+  font: 600 10px/1.2 var(--font-mono, monospace);
+  letter-spacing: 0.02em;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.kelvin-scratch--ghost-layout.kelvin-scratch {
+  position: relative;
 }

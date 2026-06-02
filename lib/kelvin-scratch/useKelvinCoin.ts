@@ -31,6 +31,9 @@ export function useKelvinCoin(
     (clientX: number, clientY: number) => {
       setCoinInTray(false)
       setCursorPos(clientX, clientY)
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur()
+      }
     },
     [setCursorPos],
   )
