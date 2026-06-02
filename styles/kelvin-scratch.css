@@ -269,22 +269,20 @@
   text-align: left;
 }
 
+/* Inactive label — same muted accent as nav / sidebar (not grey ink at 35%). */
 .kelvin-scratch__tray .web-apps-scratch__tray-phrase {
-  opacity: 0.35;
-  transition:
-    color 160ms ease,
-    opacity 160ms ease;
+  color: var(--color-nav-faded-selection);
+  opacity: 1;
+  transition: color 160ms ease;
 }
 
 .kelvin-scratch__tray-bar.web-apps-scratch__tray-bar--ready
   .web-apps-scratch__tray-phrase--take {
-  opacity: 1;
   color: var(--color-accent, #de3e18);
 }
 
 .kelvin-scratch__tray-bar.web-apps-scratch__tray-bar--drop
   .web-apps-scratch__tray-phrase--leave {
-  opacity: 1;
   color: var(--color-accent, #de3e18);
 }
 

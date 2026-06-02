@@ -3,7 +3,7 @@
   <defs>
     <style>
       .cls-1 {
-        stroke: #1d1b15;
+        stroke: #e2e4ea;
       }
 
       .cls-1, .cls-2, .cls-3, .cls-4, .cls-5 {
@@ -11,90 +11,90 @@
       }
 
       .cls-6 {
-        fill: #070604;
+        fill: #f8f9fb;
       }
 
       .cls-2 {
-        stroke: #474237;
+        stroke: #b8bdc8;
       }
 
       .cls-3 {
-        stroke: #2f2b23;
+        stroke: #d0d4dc;
       }
 
       .cls-7 {
-        fill: #13110d;
+        fill: #eceef2;
       }
 
       .cls-4 {
-        stroke: #6d6659;
+        stroke: #9299a6;
         stroke-linecap: round;
         stroke-width: 1.6px;
       }
 
       .cls-8 {
-        fill: #0c0b08;
+        fill: #f3f4f7;
       }
 
       .cls-9 {
-        fill: #1d1b15;
+        fill: #e2e4ea;
       }
 
       .cls-10 {
-        fill: #6d6659;
+        fill: #9299a6;
       }
 
       .cls-11 {
-        fill: #000000;
+        fill: #fff;
       }
 
       .cls-12 {
-        fill: #d9d9d9;
+        fill: #262626;
       }
 
       .cls-13 {
-        fill: #eeece7;
+        fill: #111318;
       }
 
       .cls-14 {
-        fill: #bab5aa;
+        fill: #454a55;
       }
 
       .cls-15 {
-        fill: #948e7f;
+        fill: #6b7180;
       }
 
       .cls-16 {
-        fill: #2f2b23;
+        fill: #d0d4dc;
       }
 
       .cls-17 {
-        fill: #474237;
+        fill: #b8bdc8;
       }
 
       .cls-18 {
-        fill: rgba(238, 236, 231, .16);
+        fill: rgba(17, 19, 24, .16);
       }
 
       .cls-5 {
-        stroke: #000000;
+        stroke: #fff;
         stroke-width: 1.5px;
       }
 
       .cls-19 {
-        fill: #0f152d;
+        fill: #f0ead2;
       }
 
       .cls-20 {
-        fill: #dad7cf;
+        fill: #252830;
       }
 
       .cls-21 {
-        fill: rgba(0, 0, 0, .75);
+        fill: rgba(255, 255, 255, .75);
       }
 
       .cls-22 {
-        fill: rgba(0, 0, 0, .88);
+        fill: rgba(255, 255, 255, .88);
       }
     </style>
   </defs>

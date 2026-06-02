@@ -3,25 +3,25 @@
   <defs>
     <style>
       .cls-1 {
-        fill: #f88440;
+        fill: #077bbf;
       }
 
       .cls-2 {
         fill: none;
-        stroke: #0f152d;
+        stroke: #f0ead2;
         stroke-miterlimit: 10;
       }
 
       .cls-3 {
-        fill: #d9d9d9;
+        fill: #262626;
       }
 
       .cls-4 {
-        fill: #75ddf6;
+        fill: #8a2209;
       }
 
       .cls-5 {
-        fill: #9eb25f;
+        fill: #614da0;
       }
 
       .cls-6 {
@@ -29,11 +29,11 @@
       }
 
       .cls-7 {
-        fill: #f455b4;
+        fill: #0baa4b;
       }
 
       .cls-8 {
-        fill: #0f152d;
+        fill: #f0ead2;
       }
     </style>
   </defs>

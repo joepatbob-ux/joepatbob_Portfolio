@@ -28,7 +28,7 @@ export type KelvinScratchTicketSources = {
   reveal: string
 }
 
-/** Ticket frame, foil cover, and reveal art for the active theme (dark = inverted). */
+/** Ticket frame, foil cover, and reveal art for the active theme (dark = white ticket base, light foil/reveal). */
 export function kelvinScratchTicketSources(
   theme: KelvinScratchTheme,
 ): KelvinScratchTicketSources {
