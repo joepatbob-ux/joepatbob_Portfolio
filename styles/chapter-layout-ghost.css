@@ -15,7 +15,9 @@ html.chapter-layout-ghost [data-chapter-layer*='copy'] {
   outline-color: var(--chapter-ghost-line-copy);
 }
 
-html.chapter-layout-ghost [data-chapter-layer]:not(.kelvin-scratch__panel) {
+html.chapter-layout-ghost [data-chapter-layer]:not(.kelvin-scratch__panel):not(
+    .chapter-slide__stage
+  ):not(.chapter-slide__copy) {
   position: relative;
 }
 
