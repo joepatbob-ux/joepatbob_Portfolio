@@ -3,7 +3,7 @@ import {
   KELVIN_SCRATCH_COVER_SRC,
   SCRATCH_ZONE_ASPECT,
   SCRATCH_ZONE_VIEWBOX,
-} from '@/lib/kelvinScratchTicket'
+} from '@/lib/kelvin-scratch/ticket'
 
 export const SCRATCH_QUAD_PX = 280
 export const SCRATCH_QUAD_CARD_PX = SCRATCH_QUAD_PX * 2

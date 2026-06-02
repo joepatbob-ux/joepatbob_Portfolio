@@ -2,7 +2,6 @@
 
 import { CaseStudyFlowOverview } from '@/components/case-study/CaseStudyFlowOverview'
 import { MobileSensiSection } from '@/components/mobile/MobileSensiSection'
-import { MobileSpotlightSection } from '@/components/mobile/MobileSpotlightSection'
 import { MobileWrConnectSection } from '@/components/mobile/MobileWrConnectSection'
 import { mobile } from '@/lib/sections/mobile'
 
@@ -16,7 +15,6 @@ export function MobileChapter() {
         className="mobile-chapter-slot--overview"
       />
       <MobileSensiSection />
-      <MobileSpotlightSection />
       <MobileWrConnectSection />
     </div>
   )

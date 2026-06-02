@@ -15,7 +15,7 @@ import { MOBILE_SENSI, mobileChapterId } from '@/lib/mobile/content'
 
 export function MobileSensiSection() {
   const chapterId = mobileChapterId('sensi')
-  const [color, install, platform] = MOBILE_SENSI.subStories
+  const [color, install, spotlight, platform] = MOBILE_SENSI.subStories
   const intro = splitParagraphs(MOBILE_SENSI.intro)
 
   return (
@@ -50,6 +50,10 @@ export function MobileSensiSection() {
               <blockquote className="mobile-blockquote">
                 <p>{install.quote}</p>
               </blockquote>
+            </MobileSubStory>
+            <MobileSubStory heading={spotlight.heading}>
+              <MobileProse paragraphs={splitParagraphs(spotlight.body)} />
+              <MobileLabelGrid items={spotlight.decisions} columns={2} />
             </MobileSubStory>
             <MobileSubStory heading={platform.heading}>
               <MobileProse paragraphs={splitParagraphs(platform.body)} />
