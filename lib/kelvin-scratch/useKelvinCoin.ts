@@ -12,7 +12,8 @@ export function useKelvinCoin(
   stageRef: RefObject<HTMLElement | null>,
   scratchReady: boolean,
 ) {
-  const { ref: columnRef, size: columnSize } = useElementSize<HTMLDivElement>()
+  const { ref: ticketStackRef, size: ticketStackSize } =
+    useElementSize<HTMLDivElement>()
   const [coinInTray, setCoinInTray] = useState(true)
 
   const setCursorPos = useCallback(
@@ -56,25 +57,26 @@ export function useKelvinCoin(
   )
 
   const ticketWidthPx =
-    columnSize.width > 0 ? columnSize.width : undefined
+    ticketStackSize.width > 0 ? ticketStackSize.width : undefined
 
   const ticketHeightPx = useMemo(() => {
+    if (ticketStackSize.height > 0) return ticketStackSize.height
     if (!ticketWidthPx) return undefined
     return (
       ticketWidthPx *
       (SCRATCH_TICKET_VIEWBOX.height / SCRATCH_TICKET_VIEWBOX.width)
     )
-  }, [ticketWidthPx])
+  }, [ticketStackSize.height, ticketWidthPx])
 
   const coinDisplayPx = useMemo(() => {
     if (ticketWidthPx) {
       return coinDisplayPxForTicket(ticketWidthPx)
     }
     return 48
-  }, [ticketWidthPx, ticketHeightPx])
+  }, [ticketWidthPx])
 
   return {
-    columnRef,
+    ticketStackRef,
     coinInTray,
     coinOut,
     coinActive: scratching,

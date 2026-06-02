@@ -44,7 +44,11 @@ function KelvinScratchInner() {
       <div ref={stageRef} className={stageClass}>
         {coin.coinOut ? <KelvinCoinCursor /> : null}
 
-        <KelvinScratchTicketStack assets={assets} coin={coin} />
+        <KelvinScratchTicketStack
+          assets={assets}
+          coin={coin}
+          captureRootRef={stageRef}
+        />
       </div>
     </div>
   )

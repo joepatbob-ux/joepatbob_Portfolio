@@ -12,6 +12,7 @@ Use this when auditing **Hardware** first, then copy pass/fail notes to Mobile, 
 - [x] Sidebar ink via `var(--color-ink)`; inactive keywords + subnav chapters use muted accent
 - [x] Programmatic section goto skips subnav stagger (`switchSection(..., { animate: false })`)
 - [x] Kelvin + generic scratch tray inactive copy uses `--color-nav-faded-selection`
+- [x] Kelvin tray: take / coin / leave grid areas; ticket–tray gap; stage pointer capture for scratch
 - [x] Flow slides (Mobile / Web Apps / EIB): section header margin matches Hardware (`case-study-section-header`)
 - [x] EIB principle numbers use muted accent (not accent at 35% opacity)
 - [ ] Manual pass: slideshow shell, interactives, breakpoints below

@@ -1,19 +1,27 @@
 /* Kelvin scratch-off — fills stage width; ticket height from aspect + viewport caps */
 
+.kelvin-scratch.web-apps-scratch {
+  padding-block: clamp(8px, 1.5vh, 20px) 0;
+}
+
 .kelvin-scratch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   pointer-events: auto;
   container-type: inline-size;
   container-name: kelvin-scratch-root;
   --scratch-ticket-scale: 1;
   --scratch-ticket-aspect: calc(1274.34 / 805.73);
   --scratch-ticket-max-h: min(
+    calc(var(--cs-verdant-glyph-max-h, min(52dvh, 480px)) * 0.85),
     calc(100cqw * var(--scratch-ticket-aspect) * var(--scratch-ticket-scale)),
     min(78dvh, 620px),
     calc(100dvh - 11rem)
   );
-  --scratch-ticket-render-w: min(
-    100%,
-    calc(var(--scratch-ticket-max-h) * 805.73 / 1274.34)
+  /* Width from capped height — max-h already limits via 100cqw; no % (breaks max-content column) */
+  --scratch-ticket-render-w: calc(
+    var(--scratch-ticket-max-h) * 805.73 / 1274.34
   );
 
   margin: 0 0 28px;
@@ -41,10 +49,15 @@
   }
 }
 
-.kelvin-scratch__stage {
+.kelvin-scratch__stage.web-apps-scratch__stage {
+  flex-wrap: nowrap;
   flex-direction: column;
   align-items: center;
+  justify-content: flex-start;
   gap: clamp(14px, 2.5vh, 24px);
+  width: max-content;
+  max-width: 100%;
+  margin-inline: auto;
   touch-action: pan-y;
 }
 
@@ -63,38 +76,38 @@
   top: var(--kelvin-coin-y, 50%);
 }
 
-/* Ticket column uses full stage width */
+/* Column width = ticket width (from root cqw, not child %) */
 .kelvin-scratch__column {
   container-type: inline-size;
   container-name: kelvin-scratch-col;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: clamp(10px, 2.5cqi, 18px);
-  width: 100%;
+  gap: clamp(4px, 1vh, 10px);
+  width: var(--scratch-ticket-render-w);
   max-width: 100%;
   flex: 0 0 auto;
-  align-self: stretch;
+  align-self: center;
   margin-inline: auto;
-  --scratch-coin-size: clamp(2.5rem, 18cqi, 4.5rem);
+  --scratch-coin-size: clamp(2.75rem, 20cqi, 4.75rem);
 }
 
 .kelvin-scratch__ticket-stack {
   position: relative;
-  width: var(--scratch-ticket-render-w);
+  width: 100%;
+  height: var(--scratch-ticket-max-h);
   max-width: 100%;
-  margin-inline: auto;
-  aspect-ratio: 805.73 / 1274.34;
   max-height: var(--scratch-ticket-max-h);
+  flex-shrink: 0;
+  overflow: hidden;
 }
 
 /* Coin tray — same width as ticket (hover block aligns to art) */
 .kelvin-scratch__tray--below {
   position: static;
-  width: var(--scratch-ticket-render-w);
+  width: 100%;
   max-width: 100%;
   flex-shrink: 0;
-  margin-inline: auto;
   pointer-events: auto;
 }
 
@@ -148,13 +161,22 @@
   pointer-events: none;
 }
 
+.kelvin-scratch__tray-action--take {
+  grid-area: take;
+}
+
 .kelvin-scratch__tray-action--coin {
+  grid-area: coin;
   display: flex;
   align-items: center;
   justify-content: center;
   background: transparent;
   border-radius: 0;
   cursor: pointer;
+}
+
+.kelvin-scratch__tray-action--leave {
+  grid-area: leave;
 }
 
 .kelvin-scratch__tray-action:focus {
@@ -179,7 +201,7 @@
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: fill;
   object-position: top center;
 }
 
@@ -230,7 +252,7 @@
 
 .kelvin-scratch__tray.web-apps-scratch__tray {
   width: 100%;
-  max-width: none;
+  max-width: 100%;
   align-items: stretch;
 }
 
@@ -247,7 +269,7 @@
   flex-direction: column;
   gap: 0.05em;
   max-width: min(5em, 100%);
-  font-size: clamp(8px, 2.4cqi, 12px);
+  font-size: clamp(9px, 2.6cqi, 12px);
   letter-spacing: 0.06em;
   line-height: 1.15;
   pointer-events: none;
