@@ -44,9 +44,11 @@ export function loadScratchFrontImage(): Promise<HTMLImageElement> {
 }
 
 /** SVG cover loads with tiny intrinsic size (~157×150); rasterize to viewBox px. */
-export function loadScratchTicketCoverImage(): Promise<HTMLImageElement> {
+export function loadScratchTicketCoverImage(
+  coverSrc: string = KELVIN_SCRATCH_COVER_SRC,
+): Promise<HTMLImageElement> {
   const { width, height } = SCRATCH_ZONE_VIEWBOX
-  return loadImage(KELVIN_SCRATCH_COVER_SRC).then(
+  return loadImage(coverSrc).then(
     (svg) =>
       new Promise<HTMLImageElement>((resolve, reject) => {
         const canvas = document.createElement('canvas')
@@ -67,7 +69,7 @@ export function loadScratchTicketCoverImage(): Promise<HTMLImageElement> {
         img.decoding = 'async'
         img.onload = () => resolve(img)
         img.onerror = () =>
-          reject(new Error(`Failed to load rasterized ${KELVIN_SCRATCH_COVER_SRC}`))
+          reject(new Error(`Failed to load rasterized ${coverSrc}`))
         img.src = dataUrl
       }),
   )

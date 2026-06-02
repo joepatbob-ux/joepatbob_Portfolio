@@ -1,7 +1,8 @@
 'use client'
 
+import { useTheme } from '@/components/ThemeProvider'
+import { kelvinScratchTicketSources } from '@/lib/kelvin-scratch/ticket'
 import { useKelvinScratchCanvas } from '@/lib/kelvin-scratch/useKelvinScratchCanvas'
-import { KELVIN_SCRATCH_REVEAL_SRC } from '@/lib/kelvin-scratch/ticket'
 import type { ScratchProgressHandler } from '@/lib/kelvin-scratch/types'
 import type { RefObject } from 'react'
 
@@ -27,6 +28,8 @@ export function KelvinTicketScratchZone({
   onScratchStart,
   onScratchEnd,
 }: Props) {
+  const { resolvedTheme } = useTheme()
+  const { reveal: revealSrc } = kelvinScratchTicketSources(resolvedTheme)
   const { zoneRef, canvasRef, coverCursor } = useKelvinScratchCanvas({
     ticketCoverImg,
     coinBrushSrc,
@@ -42,7 +45,8 @@ export function KelvinTicketScratchZone({
     <div ref={zoneRef} className="kelvin-scratch-zone">
       <img
         className="kelvin-scratch-zone__reveal"
-        src={KELVIN_SCRATCH_REVEAL_SRC}
+        src={revealSrc}
+        key={revealSrc}
         alt=""
         draggable={false}
       />
