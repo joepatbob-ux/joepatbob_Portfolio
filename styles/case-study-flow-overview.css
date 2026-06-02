@@ -1,20 +1,81 @@
+/* Section overview — 900px column centered in content area (sidebar → right edge) */
+
+.hardware-slideshow.case-study-flow-overview .chapter-slide__viewport {
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.hardware-slideshow.case-study-flow-overview .chapter-slide__inner--copy-only {
+  display: flex !important;
+  flex-direction: column !important;
+  grid-template-columns: unset !important;
+  align-items: stretch !important;
+  justify-content: center !important;
+  width: 100%;
+  max-width: min(var(--cs-overview-measure), 100%);
+  margin-inline: auto;
+  gap: 0;
+}
+
+.hardware-slideshow.case-study-flow-overview
+  .chapter-slide__inner--copy-only
+  .chapter-slide__copy {
+  flex: none;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
 .case-study-flow-overview__inner {
   width: 100%;
-  max-width: min(var(--cs-copy-column-max), 100%);
+  max-width: min(var(--cs-overview-measure), 100%);
+  margin-inline: auto;
+  box-sizing: border-box;
 }
 
 .case-study-flow-overview__inner--center {
-  max-width: min(680px, 100%);
-  margin-inline: auto;
   text-align: center;
 }
 
 .case-study-flow-overview__inner--center .case-study-flow-overview__prose {
   text-align: left;
-  margin-inline: auto;
-  max-width: min(72ch, 100%);
 }
 
 .case-study-flow-overview__prose {
   margin-bottom: 0;
+  max-width: min(var(--cs-overview-measure), 100%);
+}
+
+/* Tablet/desktop — slideshow pad matches other Hardware slides */
+@media (min-width: 768px) {
+  .hardware-slideshow.case-study-flow-overview .chapter-slide__viewport {
+    padding: var(--cs-hw-pad, clamp(28px, 3vw, 56px));
+  }
+
+  .hardware-slideshow.case-study-flow-overview
+    .chapter-slide__inner--copy-only
+    .chapter-copy-scroller {
+    width: 100%;
+  }
+}
+
+/* Mobile — content-pad-x on panel; full overview body inline (no Learn more sheet) */
+@media (max-width: 767px) {
+  .hardware-slideshow.case-study-flow-overview .chapter-slide__copy--overview {
+    flex: none;
+    width: 100%;
+    max-width: 100%;
+    text-align: left;
+  }
+
+  .hardware-slideshow.case-study-flow-overview
+    .chapter-slide__inner--copy-only {
+    max-width: min(var(--cs-inner-max), 100%);
+  }
+
+  .hardware-slideshow.case-study-flow-overview
+    .case-study-flow-overview__inner--center
+    .case-study-section-header--center {
+    text-align: center;
+  }
 }
