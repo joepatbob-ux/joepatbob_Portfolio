@@ -1,12 +1,17 @@
-/* Kelvin scratch-off — ticket + tray share one column width */
+/* Kelvin scratch-off — fills stage width; ticket height from aspect + viewport caps */
 
 .kelvin-scratch {
-  --scratch-ticket-scale: 0.85;
+  pointer-events: auto;
+  container-type: inline-size;
+  container-name: kelvin-scratch-root;
+  --scratch-ticket-scale: 1;
+  --scratch-ticket-aspect: calc(1274.34 / 805.73);
   --scratch-ticket-max-h: min(
-    calc(var(--cs-verdant-glyph-max-h, min(52dvh, 480px)) * var(--scratch-ticket-scale)),
-    calc(100dvh - 10rem)
+    calc(100cqw * var(--scratch-ticket-aspect) * var(--scratch-ticket-scale)),
+    min(78dvh, 620px),
+    calc(100dvh - 11rem)
   );
-  --scratch-ticket-max-w: min(
+  --scratch-ticket-render-w: min(
     100%,
     calc(var(--scratch-ticket-max-h) * 805.73 / 1274.34)
   );
@@ -20,13 +25,19 @@
 
 @media (max-width: 767px) {
   .kelvin-scratch {
-    --scratch-ticket-scale: 0.78;
+    --scratch-ticket-scale: 0.94;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .kelvin-scratch {
+    --scratch-ticket-scale: 1;
   }
 }
 
 @media (min-width: 1024px) {
   .kelvin-scratch {
-    --scratch-ticket-scale: 0.88;
+    --scratch-ticket-scale: 1;
   }
 }
 
@@ -34,37 +45,132 @@
   flex-direction: column;
   align-items: center;
   gap: clamp(14px, 2.5vh, 24px);
-  touch-action: none;
+  touch-action: pan-y;
 }
 
 .kelvin-scratch__stage--coin-out {
   cursor: none;
 }
 
-/* Ticket + tray: same rendered width */
+.kelvin-scratch__stage--coin-out .kelvin-scratch__ticket-stack,
+.kelvin-scratch__stage--coin-out .kelvin-scratch__panel,
+.kelvin-scratch__stage--coin-out .kelvin-scratch-zone {
+  touch-action: none;
+}
+
+.kelvin-scratch__coin-cursor {
+  left: var(--kelvin-coin-x, 50%);
+  top: var(--kelvin-coin-y, 50%);
+}
+
+/* Ticket column uses full stage width */
 .kelvin-scratch__column {
   container-type: inline-size;
   container-name: kelvin-scratch-col;
   display: flex;
   flex-direction: column;
-  align-items: stretch;
-  gap: clamp(4px, 0.8vh, 10px);
-  width: min(100%, var(--scratch-ticket-max-w));
-  max-width: min(100%, var(--scratch-ticket-max-w));
+  align-items: center;
+  gap: clamp(10px, 2.5cqi, 18px);
+  width: 100%;
+  max-width: 100%;
   flex: 0 0 auto;
-  align-self: center;
+  align-self: stretch;
   margin-inline: auto;
+  --scratch-coin-size: clamp(2.5rem, 18cqi, 4.5rem);
 }
 
-/* Fallback coin size from column width (overridden by JS --scratch-coin-size when measured) */
-.kelvin-scratch__column {
-  --scratch-coin-size: clamp(3.25rem, 22cqi, 6.25rem);
+.kelvin-scratch__ticket-stack {
+  position: relative;
+  width: var(--scratch-ticket-render-w);
+  max-width: 100%;
+  margin-inline: auto;
+  aspect-ratio: 805.73 / 1274.34;
+  max-height: var(--scratch-ticket-max-h);
+}
+
+/* Coin tray — same width as ticket (hover block aligns to art) */
+.kelvin-scratch__tray--below {
+  position: static;
+  width: var(--scratch-ticket-render-w);
+  max-width: 100%;
+  flex-shrink: 0;
+  margin-inline: auto;
+  pointer-events: auto;
+}
+
+.kelvin-scratch__tray--below .kelvin-scratch__tray-bar {
+  container-type: inline-size;
+  container-name: kelvin-tray-band;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  grid-template-areas: 'take coin leave';
+  align-items: center;
+  width: 100%;
+  min-height: clamp(3.25rem, 14cqi, 5.5rem);
+  padding-block: clamp(8px, 2cqi, 14px);
+  padding-inline: clamp(10px, 3cqi, 22px);
+  gap: clamp(8px, 2.5cqi, 18px);
+  border-radius: 10px;
+  background: transparent;
+  transition: background 160ms ease;
+}
+
+/* Drop mode — muted accent fill + hover (matches web-apps-scratch tray) */
+.kelvin-scratch__tray--below
+  .kelvin-scratch__tray-bar.web-apps-scratch__tray-bar--drop {
+  background: var(--color-nav-pill-muted-accent-1);
+  cursor: default;
+}
+
+.kelvin-scratch__tray--below
+  .kelvin-scratch__tray-bar.web-apps-scratch__tray-bar--drop:hover {
+  background: color-mix(
+    in srgb,
+    var(--color-accent, #de3e18) 16%,
+    var(--color-nav-pill-muted-accent-1)
+  );
+}
+
+.kelvin-scratch__tray-action {
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kelvin-scratch__tray-action:disabled {
+  cursor: default;
+  pointer-events: none;
+}
+
+.kelvin-scratch__tray-action--coin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border-radius: 0;
+  cursor: pointer;
+}
+
+.kelvin-scratch__tray-action:focus {
+  outline: none;
+}
+
+.kelvin-scratch__tray-action:focus-visible {
+  outline: 2px solid var(--color-accent, #de3e18);
+  outline-offset: 2px;
 }
 
 .kelvin-scratch__ticket {
   position: relative;
   display: block;
   width: 100%;
+  height: 100%;
   max-width: 100%;
   line-height: 0;
 }
@@ -72,8 +178,9 @@
 .kelvin-scratch__art {
   display: block;
   width: 100%;
-  height: auto;
-  max-height: var(--scratch-ticket-max-h);
+  height: 100%;
+  object-fit: contain;
+  object-position: top center;
 }
 
 .kelvin-scratch__panel {
@@ -87,12 +194,18 @@
   pointer-events: none;
 }
 
+.kelvin-scratch__stage--coin-out .kelvin-scratch__panel {
+  pointer-events: auto;
+  touch-action: none;
+}
+
 .kelvin-scratch-zone {
   position: relative;
   width: 100%;
   height: 100%;
   min-height: 1px;
   min-width: 1px;
+  touch-action: none;
 }
 
 .kelvin-scratch-zone__reveal,
@@ -113,24 +226,12 @@
 
 .kelvin-scratch-zone__cover {
   z-index: 1;
-  touch-action: none;
 }
 
-/* Penny tray — text on either side, each phrase wraps in its own column */
 .kelvin-scratch__tray.web-apps-scratch__tray {
   width: 100%;
-  max-width: 100%;
+  max-width: none;
   align-items: stretch;
-}
-
-.kelvin-scratch__tray-bar {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-  grid-template-areas: 'take coin leave';
-  align-items: center;
-  width: 100%;
-  padding: clamp(6px, 1.4cqi, 12px) clamp(12px, 3.5cqi, 22px);
-  gap: clamp(8px, 2.5cqi, 20px);
 }
 
 .kelvin-scratch__tray .web-apps-scratch__tray-phrase-wrap--take {
@@ -141,15 +242,15 @@
   justify-content: flex-start;
 }
 
-/* Each side: two lines, aligned toward the center coin */
 .kelvin-scratch__tray .web-apps-scratch__tray-phrase {
   display: flex;
   flex-direction: column;
-  gap: 0.1em;
-  max-width: min(5.5em, 100%);
-  font-size: clamp(9px, 2.5cqi, 12px);
-  letter-spacing: 0.08em;
-  line-height: 1.2;
+  gap: 0.05em;
+  max-width: min(5em, 100%);
+  font-size: clamp(8px, 2.4cqi, 12px);
+  letter-spacing: 0.06em;
+  line-height: 1.15;
+  pointer-events: none;
 }
 
 .kelvin-scratch__tray .web-apps-scratch__tray-phrase-line {
@@ -168,51 +269,87 @@
   text-align: left;
 }
 
+.kelvin-scratch__tray .web-apps-scratch__tray-phrase {
+  opacity: 0.35;
+  transition:
+    color 160ms ease,
+    opacity 160ms ease;
+}
+
+.kelvin-scratch__tray-bar.web-apps-scratch__tray-bar--ready
+  .web-apps-scratch__tray-phrase--take {
+  opacity: 1;
+  color: var(--color-accent, #de3e18);
+}
+
+.kelvin-scratch__tray-bar.web-apps-scratch__tray-bar--drop
+  .web-apps-scratch__tray-phrase--leave {
+  opacity: 1;
+  color: var(--color-accent, #de3e18);
+}
+
 .kelvin-scratch__tray .web-apps-scratch__tray-coin {
   grid-area: coin;
-  width: var(--scratch-coin-size, clamp(3.25rem, 22cqi, 6.25rem));
-  height: var(--scratch-coin-size, clamp(3.25rem, 22cqi, 6.25rem));
+  align-self: center;
+  flex-shrink: 0;
+  width: var(--scratch-coin-size, clamp(2.5rem, 18cqi, 4.5rem));
+  height: var(--scratch-coin-size, clamp(2.5rem, 18cqi, 4.5rem));
+  overflow: visible;
+  background: transparent;
 }
 
+/* Fill the hit target — no scaled-down img ring showing tray grey */
 .kelvin-scratch__tray .web-apps-scratch__tray-coin-img {
-  transform: scale(0.88);
+  width: 100%;
+  height: 100%;
+  transform: none;
+  filter: none;
 }
 
-.kelvin-scratch__tray-bar--ready:hover .web-apps-scratch__tray-coin-img,
-.kelvin-scratch__tray-bar--ready:focus-visible .web-apps-scratch__tray-coin-img {
-  transform: scale(0.96);
+.kelvin-scratch__tray-bar--ready
+  .kelvin-scratch__tray-action--coin:hover
+  .web-apps-scratch__tray-coin-img,
+.kelvin-scratch__tray-bar--ready
+  .kelvin-scratch__tray-action--coin:focus-visible
+  .web-apps-scratch__tray-coin-img {
+  transform: scale(1.04);
 }
 
-/* Very narrow only: stack, keep take above leave with coin between */
-@container kelvin-scratch-col (max-width: 240px) {
-  .kelvin-scratch__tray-bar {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    padding-block: clamp(14px, 4cqi, 20px);
+/* Empty slot: small accent dot only — not a full coin circle on grey bar */
+.kelvin-scratch__tray .web-apps-scratch__tray-coin--empty {
+  width: auto;
+  height: auto;
+  min-width: var(--scratch-coin-size, 3rem);
+  min-height: var(--scratch-coin-size, 3rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+}
+
+.kelvin-scratch__tray .web-apps-scratch__tray-coin-slot {
+  width: clamp(2rem, 12cqi, 3rem);
+  height: clamp(2rem, 12cqi, 3rem);
+  background: color-mix(
+    in srgb,
+    var(--color-accent, #de3e18) 22%,
+    transparent
+  );
+}
+
+/* Follow cursor — no drop shadow halo that reads as grey on light bg */
+.kelvin-scratch .web-apps-scratch__coin-cursor {
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.2));
+}
+
+@container kelvin-scratch-col (max-width: 300px) {
+  .kelvin-scratch__tray--below .kelvin-scratch__tray-bar {
+    gap: clamp(6px, 2cqi, 12px);
+    padding-inline: clamp(8px, 2.5cqi, 14px);
   }
 
-  .kelvin-scratch__tray .web-apps-scratch__tray-phrase-wrap--take {
-    order: 1;
-    width: 100%;
-    justify-content: center;
-  }
-
-  .kelvin-scratch__tray .web-apps-scratch__tray-coin {
-    order: 2;
-  }
-
-  .kelvin-scratch__tray .web-apps-scratch__tray-phrase-wrap--leave {
-    order: 3;
-    width: 100%;
-    justify-content: center;
-  }
-
-  .kelvin-scratch__tray .web-apps-scratch__tray-phrase--take,
-  .kelvin-scratch__tray .web-apps-scratch__tray-phrase--leave {
-    align-items: center;
-    margin-inline: auto;
-    text-align: center;
+  .kelvin-scratch__tray .web-apps-scratch__tray-phrase {
+    max-width: min(4.5em, 100%);
+    font-size: clamp(7px, 2.2cqi, 10px);
   }
 }

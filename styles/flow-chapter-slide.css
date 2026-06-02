@@ -64,8 +64,8 @@
 }
 
 .flow-chapter-slide .chapter-slide__stage .kelvin-scratch__column {
-  width: min(100%, var(--scratch-ticket-max-w));
-  max-width: min(100%, var(--scratch-ticket-max-w));
+  width: 100%;
+  max-width: 100%;
 }
 
 .flow-chapter-slide--formation .chapter-slide__stage > *,

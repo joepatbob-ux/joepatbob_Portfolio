@@ -1,8 +1,7 @@
-/** Structured copy for the Mobile case study (Sensi · Spotlight · WR Connect). */
+/** Structured copy for the Mobile case study (Sensi · WR Connect). */
 
 export const MOBILE_SECTION_TABS = [
   { id: 'sensi', label: 'Sensi' },
-  { id: 'spotlight', label: 'Spotlight' },
   { id: 'wr-connect', label: 'WR Connect' },
 ] as const
 
@@ -72,6 +71,34 @@ App Store reviewers picked up on the install experience without prompting.`,
         'One long-term user specifically called out the step-by-step install guidance as "a little touch that made me fall in love with it."',
     },
     {
+      heading: "A content surface that doesn't feel like an ad.",
+      body: `Sensi partners with utility companies to offer energy demand-response programs. Good programs. Low enrollment because users had no reason to go looking for them inside the app.
+
+Spotlight was the answer. A named, dedicated section on the home screen, separate from the thermostat card, that can carry partner content, product news, and savings opportunities.
+
+The hard constraints: the content isn't mine. Card copy is written by Copeland's marketing team in collaboration with energy partners. I don't control the headline length, the offer details, or the partner's logo. The design system had to handle all of that while still feeling like Sensi. And it can't feel like an ad — Sensi users trust the app to be a neutral utility tool.
+
+Energy program enrollment increased measurably after launch. App store ratings held at 4.7 iOS · 4.4 Android through the Spotlight launch. For a content surface added to a utility app, no regression is a win.`,
+      decisions: [
+        {
+          label: 'Named section',
+          text: 'Spotlight is a named section, not injected into the existing feed.',
+        },
+        {
+          label: 'Partner attribution',
+          text: "Partner logos sit at the top of every card — users should know the offer is coming from their utility company, not from Sensi.",
+        },
+        {
+          label: 'Consistent CTA',
+          text: 'The Learn More CTA is always the same style and position.',
+        },
+        {
+          label: 'No dark patterns',
+          text: 'Expiration dates are shown explicitly when relevant. No dark patterns.',
+        },
+      ],
+    },
+    {
       heading: 'What ongoing modernization actually looks like.',
       body: `The app is better than it was, and it keeps getting better. Not because of a single launch, but because the strategy creates steady compounding improvement over time.
 
@@ -81,43 +108,6 @@ When a dark mode rendering issue surfaced post-launch in the schedules view, it 
       thesisClose: `The goal isn't a spike in ratings. It's a product that stays current, feels native on both platforms, and doesn't need another ground-up redesign in five years. That's a harder thing to show in a portfolio than a single before/after. But it's a more honest picture of what good product design looks like at scale.`,
     },
   ],
-} as const
-
-export const MOBILE_SPOTLIGHT = {
-  headline: "A content surface that doesn't feel like an ad.",
-  meta: [
-    { label: 'Feature', value: 'Spotlight' },
-    { label: 'Context', value: 'Utility demand-response' },
-    { label: 'Outcome', value: 'Enrollment up · 4.7 iOS · 4.4 Android' },
-  ],
-  body: `Sensi partners with utility companies to offer energy demand-response programs. Good programs. Low enrollment because users had no reason to go looking for them inside the app.
-
-Spotlight was the answer. A named, dedicated section on the home screen, separate from the thermostat card, that can carry partner content, product news, and savings opportunities.
-
-The hard constraints: the content isn't mine. Card copy is written by Copeland's marketing team in collaboration with energy partners. I don't control the headline length, the offer details, or the partner's logo. The design system had to handle all of that while still feeling like Sensi. And it can't feel like an ad — Sensi users trust the app to be a neutral utility tool.
-
-Energy program enrollment increased measurably after launch. App store ratings held at 4.7 iOS · 4.4 Android through the Spotlight launch. For a content surface added to a utility app, no regression is a win.`,
-  decisions: [
-    {
-      label: 'Named section',
-      text: 'Spotlight is a named section, not injected into the existing feed.',
-    },
-    {
-      label: 'Partner attribution',
-      text: "Partner logos sit at the top of every card — users should know the offer is coming from their utility company, not from Sensi.",
-    },
-    {
-      label: 'Consistent CTA',
-      text: 'The Learn More CTA is always the same style and position.',
-    },
-    {
-      label: 'No dark patterns',
-      text: 'Expiration dates are shown explicitly when relevant. No dark patterns.',
-    },
-  ],
-  imageSrc: '/images/mobile-spotlight-example.png',
-  imageAlt:
-    'Spotlight in context — named section, partner logo leading, expiration date visible, consistent CTA',
 } as const
 
 export const MOBILE_WR_CONNECT = {
