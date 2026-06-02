@@ -78,13 +78,12 @@ export function ChapterSlideLayout({
       </MobileLearnMore>
     </div>
   ) : (
-    <div data-chapter-layer={chapterLayoutLayer(chapterId, 'copy')}>
-      <ChapterSlideCopy
-        active={copyScrollActive}
-        headline={chapter.subtitle}
-        body={chapter.body}
-      />
-    </div>
+    <ChapterSlideCopy
+      active={copyScrollActive}
+      headline={chapter.subtitle}
+      body={chapter.body}
+      chapterLayerId={chapterLayoutLayer(chapterId, 'copy')}
+    />
   )
 
   const modClass = modifier ? `chapter-slide--${modifier}` : ''
