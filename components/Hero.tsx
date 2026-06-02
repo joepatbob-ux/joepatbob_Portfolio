@@ -1,5 +1,7 @@
 'use client'
 
+import { applyHeroPinFade } from '@/lib/heroScroll'
+import { scheduleScrollFrame } from '@/lib/scrollFrame'
 import { useEffect } from 'react'
 import { useTheme } from '@/components/ThemeProvider'
 
@@ -20,26 +22,41 @@ export function Hero() {
     portrait?.style.removeProperty('filter')
     portrait?.style.removeProperty('transform')
     portrait?.style.removeProperty('object-position')
+    pin?.style.removeProperty('transform')
+
+    return scheduleScrollFrame(() => {
+      const pinEl = document.querySelector<HTMLElement>('#hero .hero-pin')
+      applyHeroPinFade(pinEl, window.scrollY, window.innerHeight)
+    })
+  }, [])
+
+  useEffect(() => {
+    const hero = document.getElementById('hero')
+    if (!hero) return
+    const pin = hero.querySelector<HTMLElement>('.hero-pin')
     pin?.style.removeProperty('opacity')
     pin?.style.removeProperty('filter')
-    pin?.style.removeProperty('transform')
-  }, [])
+    pin?.style.removeProperty('visibility')
+    pin?.style.removeProperty('pointer-events')
+  }, [resolvedTheme])
 
   return (
     <section id="hero" className="hero">
       <div className="hero-pin">
-                <img
-          className="hero-portrait"
-          src={portraitSrc}
-          alt="Joseph Patrick Roberts"
-          decoding="async"
-          fetchPriority="high"
-          draggable={false}
-        />
-        <div
-          className={`hero-mobile-scrim hero-mobile-scrim--${resolvedTheme}`}
-          aria-hidden
-        />
+        <div className="hero-media">
+          <img
+            className="hero-portrait"
+            src={portraitSrc}
+            alt="Joseph Patrick Roberts"
+            decoding="async"
+            fetchPriority="high"
+            draggable={false}
+          />
+          <div
+            className={`hero-mobile-scrim hero-mobile-scrim--${resolvedTheme}`}
+            aria-hidden
+          />
+        </div>
       </div>
     </section>
   )

@@ -39,7 +39,9 @@ Place images in `/public/images/` — see `DESIGN_SPEC.md` for the full list.
 
 ## Design spec
 
-See `DESIGN_SPEC.md` for full layout, interaction, color, and component specifications.
+See [DESIGN_SPEC.md](DESIGN_SPEC.md) for layout, interaction, color, and component specifications.
+
+Visual polish QA (Hardware reference, then rollout): [docs/HARDWARE_POLISH_CHECKLIST.md](docs/HARDWARE_POLISH_CHECKLIST.md).
 
 ## Interactive components to build
 

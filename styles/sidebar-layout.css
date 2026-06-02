@@ -114,7 +114,7 @@
   margin: 0;
   padding: 0 calc(var(--sidebar-pad-right) + 1px) 0 0;
   border: none;
-  background: var(--color-paper);
+  background: transparent;
   cursor: pointer;
   box-sizing: border-box;
   display: flex;

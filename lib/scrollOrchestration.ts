@@ -6,7 +6,7 @@ import {
   publishChapterRevealMap,
 } from '@/lib/chapterSlideshow'
 import { FLOW_CHAPTER_SLOT_SELECTOR } from '@/lib/chapterFlow'
-import { isInHeroScrollZone } from '@/lib/heroScroll'
+import { shouldSuppressChapterReveal } from '@/lib/heroScroll'
 import { LAYOUT_MQ } from '@/lib/layout/breakpoints'
 
 export type SlideNavPhase = 'idle' | 'out' | 'in'
@@ -76,7 +76,7 @@ export function measureSlideScrollState(
     return { revealMap: {}, activeSlideId: null, inHero: false }
   }
 
-  if (isInHeroScrollZone()) {
+  if (shouldSuppressChapterReveal()) {
     return { revealMap: {}, activeSlideId: null, inHero: true }
   }
 

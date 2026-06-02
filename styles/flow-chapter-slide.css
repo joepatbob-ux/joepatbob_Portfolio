@@ -2,7 +2,7 @@
 
 .flow-chapter-slide__copy .case-study-section-header,
 .flow-chapter-slide__copy .mobile-section-header {
-  margin-bottom: clamp(16px, 2.5vh, 24px);
+  margin-bottom: clamp(20px, 3vh, 32px);
 }
 
 .flow-chapter-slide__copy .case-study-section-header__headline,

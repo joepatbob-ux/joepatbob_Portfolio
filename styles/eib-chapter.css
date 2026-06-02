@@ -42,8 +42,7 @@
   font-size: clamp(2.5rem, 5vw, 3.5rem);
   font-weight: 700;
   line-height: 1;
-  color: var(--color-accent);
-  opacity: 0.35;
+  color: var(--color-nav-faded-selection);
 }
 
 .eib-principles__statement {
