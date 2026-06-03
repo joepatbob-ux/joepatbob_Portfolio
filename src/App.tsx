@@ -1,13 +1,13 @@
 import './vite-font.css'
 import '@/styles/globals.css'
 import { CaseStudy } from '@/components/CaseStudy'
-import { ContactFormProvider } from '@/components/ContactFormProvider'
 import { ChapterNavProvider } from '@/components/ChapterNavProvider'
 import { Hero } from '@/components/Hero'
 import { SidebarNav } from '@/components/SidebarNav'
 import { StickerLayer } from '@/components/StickerLayer'
 import { StickerProvider } from '@/components/StickerProvider'
 import { ProtoDebugGate } from '@/components/ProtoDebugGate'
+import { ChapterLayoutGhost } from '@/components/chapter-layout/ChapterLayoutGhost'
 import { StageArtifactTuneController } from '@/components/stage-artifact-tune/StageArtifactTuneController'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import { everythingElse } from '@/lib/sections/everything-else'
@@ -20,27 +20,26 @@ export default function App() {
     <div className="vite-font-mono">
       <ThemeProvider>
         <StageArtifactTuneController />
+        <ChapterLayoutGhost />
         <ProtoDebugGate>
-          <ContactFormProvider>
-            <StickerProvider>
-              <ChapterNavProvider>
-                <div className="site-frame">
-                  <SidebarNav />
-                  <main className="content-area">
-                    <Hero />
-                    <CaseStudy section={hardware} sectionId="hardware" />
-                    <CaseStudy section={mobile} sectionId="mobile" />
-                    <CaseStudy section={webApps} sectionId="web-apps" />
-                    <CaseStudy
-                      section={everythingElse}
-                      sectionId="everything-else"
-                    />
-                  </main>
-                </div>
-                <StickerLayer />
-              </ChapterNavProvider>
-            </StickerProvider>
-          </ContactFormProvider>
+          <StickerProvider>
+            <ChapterNavProvider>
+              <div className="site-frame">
+                <SidebarNav />
+                <main className="content-area">
+                  <Hero />
+                  <CaseStudy section={hardware} sectionId="hardware" />
+                  <CaseStudy section={mobile} sectionId="mobile" />
+                  <CaseStudy section={webApps} sectionId="web-apps" />
+                  <CaseStudy
+                    section={everythingElse}
+                    sectionId="everything-else"
+                  />
+                </main>
+              </div>
+              <StickerLayer />
+            </ChapterNavProvider>
+          </StickerProvider>
         </ProtoDebugGate>
       </ThemeProvider>
     </div>

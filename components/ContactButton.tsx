@@ -1,25 +1,24 @@
 'use client'
 
-import { useContactForm } from '@/components/ContactFormProvider'
-import { CONTACT_LINKEDIN_URL } from '@/lib/contact'
+import {
+  CONTACT_EMAIL_MAILTO,
+  CONTACT_LINKEDIN_URL,
+} from '@/lib/contact'
 
 export function ContactButton() {
-  const { openContact } = useContactForm()
-
   return (
-    <div className="contact-liquid" aria-label="Contact — message or LinkedIn">
+    <div className="contact-liquid" aria-label="Contact — email or LinkedIn">
       <div className="contact-liquid__surface">
         <span className="contact-liquid__label" aria-hidden>
           Contact
         </span>
         <div className="contact-liquid__split">
-          <button
-            type="button"
+          <a
             className="contact-liquid__btn contact-liquid__btn--email"
-            onClick={openContact}
+            href={CONTACT_EMAIL_MAILTO}
           >
-            Message
-          </button>
+            Email
+          </a>
           <a
             className="contact-liquid__btn contact-liquid__btn--linkedin"
             href={CONTACT_LINKEDIN_URL}

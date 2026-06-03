@@ -6,7 +6,9 @@
 // - Sub nav blurs in at viewport center after nav locks, chapters stagger in
 // - All keywords start lit, dim to ~22% once nav is stuck (active stays full until exploration hover)
 // - Hovering another section fades the active keyword; subnav chapter hover does not dim main
-// - Subnav: selected = muted-accent fill; any hover = muted-accent outline ring (selected never dimmed)
+// - Subnav: selected = muted-accent fill; hover = outline ring only (labels stay muted)
+// - Main keywords: hover = outline ring only (no accent jump on hover)
+// - Contact pill: accent at rest; hover = muted fill (no container ring); item hover = ring
 // - Email pill is fixed at bottom
 
 'use client'
@@ -109,10 +111,9 @@ function SidebarOverlayClose({
 function navKeywordStyle(opts: {
   dimActive: boolean
   isActive: boolean
-  isHoverThis: boolean
   selectionExploringElsewhere: boolean
 }): { color: string; opacity: number } {
-  const { dimActive, isActive, isHoverThis, selectionExploringElsewhere } = opts
+  const { dimActive, isActive, selectionExploringElsewhere } = opts
   if (!dimActive) return { color: ACCENT, opacity: 1 }
   if (isActive) {
     return {
@@ -120,10 +121,7 @@ function navKeywordStyle(opts: {
       opacity: 1,
     }
   }
-  return {
-    color: isHoverThis ? ACCENT : NAV_FADED,
-    opacity: 1,
-  }
+  return { color: NAV_FADED, opacity: 1 }
 }
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
@@ -929,19 +927,24 @@ export function SidebarNav() {
               const { color: mainColor, opacity: mainOpacity } = navKeywordStyle({
                 dimActive,
                 isActive,
-                isHoverThis,
                 selectionExploringElsewhere: fadeMainNavSelection,
               })
+              const keywordColor = isHoverThis ? NAV_FADED : mainColor
               return (
                   <span key={sec.id}>
                   <span
                     onClick={() => scrollToSection(sec.id)}
                     style={{
-                      color: mainColor,
+                      color: keywordColor,
                       cursor: 'pointer',
                       opacity: mainOpacity,
-                      transition: 'opacity 220ms ease, color 200ms ease',
+                      transition:
+                        'opacity 220ms ease, color 200ms ease, box-shadow 180ms ease',
                       display: 'inline',
+                      borderRadius: 3,
+                      boxShadow: isHoverThis
+                        ? `0 0 0 1px ${NAV_OUTLINE}`
+                        : 'none',
                     }}
                     onMouseEnter={() => {
                       setHoverSectionId(sec.id)
@@ -1047,7 +1050,8 @@ export function SidebarNav() {
                   letterSpacing: '0.07em',
                   textTransform: 'uppercase',
                   lineHeight: 1.5,
-                  color: isActive || isHoverThis ? ACCENT : NAV_FADED,
+                  color:
+                    isHoverThis ? NAV_FADED : isActive ? ACCENT : NAV_FADED,
                 }}
               >
                 {chapter.label}

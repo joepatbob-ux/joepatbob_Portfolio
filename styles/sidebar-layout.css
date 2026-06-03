@@ -58,12 +58,12 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
   line-height: 1.35;
-  color: var(--color-nav-faded-selection);
+  color: var(--color-ink);
   background: transparent;
   border: none;
   border-radius: 9999px;
   cursor: pointer;
-  box-shadow: 0 0 0 1px var(--color-nav-pill-outline);
+  box-shadow: none;
   transition:
     background 180ms ease,
     color 180ms ease,
@@ -71,8 +71,9 @@
 }
 
 .sidebar-action--secondary:hover {
-  color: var(--color-accent);
+  color: var(--color-nav-faded-selection);
   background: var(--color-nav-pill-muted-accent-1);
+  box-shadow: 0 0 0 1px var(--color-nav-pill-outline);
 }
 
 .sidebar-action--secondary:focus-visible {
@@ -81,12 +82,12 @@
 }
 
 .sidebar-action--secondary-on-accent {
-  color: rgba(255, 255, 255, 0.78);
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.92);
+  box-shadow: none;
 }
 
 .sidebar-action--secondary-on-accent:hover {
-  color: #fff;
+  color: rgba(255, 255, 255, 0.78);
   background: rgba(255, 255, 255, 0.14);
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.55);
 }
