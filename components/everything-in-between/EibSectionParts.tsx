@@ -1,6 +1,10 @@
 import type { ReactNode } from 'react'
-import { ContactFormLink } from '@/components/ContactFormLink'
-import { CONTACT_LINKEDIN_HOST_PATH, CONTACT_LINKEDIN_URL } from '@/lib/contact'
+import {
+  CONTACT_EMAIL,
+  CONTACT_EMAIL_MAILTO,
+  CONTACT_LINKEDIN_HOST_PATH,
+  CONTACT_LINKEDIN_URL,
+} from '@/lib/contact'
 import { splitParagraphs } from '@/components/mobile/MobileSectionParts'
 
 export { splitParagraphs }
@@ -63,7 +67,9 @@ export function EibPracticeClose({ statement }: { statement: string }) {
     <footer className="eib-practice-close">
       <p className="eib-practice-close__statement">{statement}</p>
       <p className="eib-practice-close__cta">
-        <ContactFormLink className="eib-practice-close__email" />
+        <a className="eib-practice-close__email" href={CONTACT_EMAIL_MAILTO}>
+          {CONTACT_EMAIL}
+        </a>
         <span className="eib-practice-close__sep" aria-hidden>
           ·
         </span>

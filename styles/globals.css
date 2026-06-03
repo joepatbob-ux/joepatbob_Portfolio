@@ -4,6 +4,7 @@
 @import './case-study-content.css';
 @import './case-study-section-header.css';
 @import './case-study-flow-overview.css';
+@import './chapter-layout-ghost.css';
 @import './mobile-chapter.css';
 @import './mobile-learn-more.css';
 @import './mobile-chapter-viewport.css';
@@ -249,16 +250,20 @@
   width: var(--contact-collapsed);
   border-radius: var(--contact-radius);
   background: var(--color-accent);
+  box-shadow: none;
   overflow: hidden;
   transition:
     width 0.52s var(--contact-ease),
-    border-radius 0.45s var(--contact-ease);
+    border-radius 0.45s var(--contact-ease),
+    background 0.22s ease;
 }
 
 .contact-liquid:hover .contact-liquid__surface,
 .contact-liquid:focus-within .contact-liquid__surface {
   width: var(--contact-expanded);
   border-radius: 22px;
+  background: var(--color-nav-pill-muted-accent-1);
+  box-shadow: none;
 }
 
 .contact-liquid__label {
@@ -312,6 +317,7 @@
   border: none;
   border-radius: calc(var(--contact-radius) - 4px);
   background: transparent;
+  box-shadow: none;
   cursor: pointer;
   font: inherit;
   font-family: var(--font-mono), ui-monospace, monospace;
@@ -327,7 +333,8 @@
   transition:
     transform 0.48s var(--contact-ease),
     opacity 0.22s ease,
-    background 0.18s ease;
+    box-shadow 0.18s ease,
+    color 0.18s ease;
 }
 
 .contact-liquid__btn--email {
@@ -342,29 +349,40 @@
 .contact-liquid:focus-within .contact-liquid__btn {
   opacity: 1;
   transform: translateX(0) scale(1);
+  color: var(--color-accent);
 }
 
-.contact-liquid__btn:hover {
-  background: rgba(0, 0, 0, 0.26);
-}
-
+.contact-liquid__btn:hover,
 .contact-liquid__btn:focus-visible {
-  outline: 2px solid #fff;
-  outline-offset: 2px;
+  background: transparent;
+  box-shadow: 0 0 0 1px var(--color-nav-pill-outline);
+  color: var(--color-accent);
 }
 
 /* Contact pill on accent backgrounds (mobile drawer) */
 .contact-liquid--on-accent .contact-liquid__surface {
   background: rgba(255, 255, 255, 0.16);
-  border: 1px solid rgba(255, 255, 255, 0.45);
+  border: none;
+  box-shadow: none;
 }
 
-.contact-liquid--on-accent .contact-liquid__btn:hover {
+.contact-liquid--on-accent:hover .contact-liquid__surface,
+.contact-liquid--on-accent:focus-within .contact-liquid__surface {
   background: rgba(255, 255, 255, 0.14);
 }
 
+.contact-liquid--on-accent .contact-liquid__label {
+  color: #fff;
+}
+
+.contact-liquid--on-accent:hover .contact-liquid__btn,
+.contact-liquid--on-accent:focus-within .contact-liquid__btn {
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.contact-liquid--on-accent .contact-liquid__btn:hover,
 .contact-liquid--on-accent .contact-liquid__btn:focus-visible {
-  outline-color: #fff;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.55);
 }
 
 @media (prefers-reduced-motion: reduce) {
