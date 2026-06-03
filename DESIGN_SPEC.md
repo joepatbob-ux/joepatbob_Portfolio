@@ -36,7 +36,7 @@ Canonical values live in `styles/globals.css`. Legacy names are noted where they
 --color-muted:            rgba(13, 13, 13, 0.72)   /* subtitles — ~4.5:1 on paper */
 --color-nav-faded-selection: rgba(222, 62, 24, 0.4) /* inactive nav keywords + chapter labels */
 --color-nav-pill-muted-accent-1: rgba(222, 62, 24, 0.12) /* subnav selected fill, tray drop mode */
---color-nav-pill-outline: rgba(222, 62, 24, 0.42)       /* subnav hover ring */
+--color-nav-pill-outline: rgba(222, 62, 24, 0.42)       /* subnav / contact item hover ring */
 --color-accent-nav-hover: #5a2410
 ```
 
@@ -103,6 +103,7 @@ Canonical values live in `styles/globals.css`. Legacy names are noted where they
 ### Section changes
 - Active section keyword in nav sentence stays `--color-accent`
 - Inactive keywords use `--color-nav-faded-selection`; subnav chapter pills match (active = accent + pill fill)
+- **Main nav keyword hover only** (`[data-sidebar-main-nav]`): transparent glyph fill + `--color-accent` text stroke (hero canvas shows through). Subnav + contact use solid accent labels and pill/ring hovers — no outline text.
 - Sub nav chapters blur out, new section chapters blur in staggered
 
 ### Scrolling back to top (y < threshold)

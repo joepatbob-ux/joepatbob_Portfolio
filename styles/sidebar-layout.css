@@ -49,8 +49,8 @@
   margin: 0;
 }
 
-/* Section keywords — hover: hollow glyphs (hero shows through), accent stroke */
-.sidebar-main-nav__keyword {
+/* Hero main-nav sentence only — hollow keyword hover (not subnav / contact) */
+[data-sidebar-main-nav] .sidebar-main-nav__keyword {
   display: inline;
   cursor: pointer;
   box-shadow: none;
@@ -64,7 +64,7 @@
   paint-order: stroke fill;
 }
 
-.sidebar-main-nav__keyword--hover {
+[data-sidebar-main-nav] .sidebar-main-nav__keyword--hover {
   color: transparent;
   -webkit-text-fill-color: transparent;
   -webkit-text-stroke: 0.65px var(--color-accent);

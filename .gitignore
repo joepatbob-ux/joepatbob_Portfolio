@@ -15,6 +15,7 @@ out/
 *.tsbuildinfo
 
 # debug / os
+.cursor/debug*.log
 .DS_Store
 .tmp/
 public/favicon/~ai-*.tmp
