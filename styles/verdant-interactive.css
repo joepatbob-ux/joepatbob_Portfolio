@@ -215,8 +215,8 @@
   box-sizing: border-box;
 }
 
-/* Wide enough — keypad beside segment display */
-@container verdant (min-width: 480px) {
+/* Wide enough — keypad beside segment display (above gallery ~490px) */
+@container verdant (min-width: 560px) {
   .verdant-interactive {
     grid-template-columns: minmax(0, auto) minmax(0, 1fr);
     grid-template-rows: auto;
@@ -240,7 +240,7 @@
 }
 
 /* Narrow component — smaller circles, stacked layout */
-@container verdant (max-width: 479px) {
+@container verdant (max-width: 559px) {
   .verdant-interactive {
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas:
@@ -273,11 +273,14 @@
     flex: 1 1 auto;
     min-width: min(300px, 100%);
     max-width: var(--hw-stage-max-w, 560px);
-    width: 100%;
+    align-items: center;
+    justify-content: center;
   }
 
   .hardware-slideshow.chapter-slide--verdant .verdant-interactive {
+    width: var(--hw-stage-gallery-w, var(--cs-stage-gallery-w, 100%));
     max-width: 100%;
+    margin-inline: auto;
   }
 }
 

@@ -68,8 +68,32 @@
     margin-inline: 0;
   }
 
+  .hardware-slideshow
+    .chapter-slide__stage:has(.flow-chapter-slide__stage--empty) {
+    flex: 0 0 auto !important;
+    min-height: 0 !important;
+    max-height: 0 !important;
+    height: 0 !important;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+  }
+
   .hardware-slideshow .chapter-slide__stage > * {
+    width: var(--cs-stage-gallery-w, var(--cs-stage-artifact-w));
+    max-width: 100%;
     margin-inline: auto;
+    flex: 0 1 auto;
+  }
+
+  .hardware-slideshow .chapter-slide__stage > .phone-swap {
+    width: var(--cs-stage-gallery-w, var(--cs-stage-artifact-w));
+    max-width: 100%;
+  }
+
+  .hardware-slideshow .chapter-slide__stage .touch2-carousel {
+    width: var(--cs-stage-gallery-w, var(--cs-stage-artifact-w));
+    max-width: 100%;
   }
 
   .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__stage:has(.phone-swap) {

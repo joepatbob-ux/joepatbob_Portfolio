@@ -26,6 +26,7 @@
 .hardware-slideshow.case-study-flow-overview .chapter-slide__viewport {
   justify-content: center !important;
   align-items: center !important;
+  flex-direction: column;
   width: 100%;
   box-sizing: border-box;
 }

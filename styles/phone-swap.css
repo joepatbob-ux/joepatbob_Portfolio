@@ -835,18 +835,14 @@
   word-break: break-word;
 }
 
-/* Sensi — viewbox sizes the stage column; band uses full panel width */
+/* Sensi — stage column matches gallery width; viewbox scales inside */
 .hardware-slideshow.mobile-chapter-slot--sensi {
-  --phone-viewbox-base-w: min(var(--cs-phone-viewbox-max-w), clamp(300px, 38vw, 520px));
+  --phone-viewbox-base-w: min(var(--cs-phone-viewbox-max-w), var(--cs-stage-gallery-w, 100%));
   --phone-viewbox-base-h: clamp(480px, 74dvh, 880px);
   --phone-swap-height: var(--stage-tune-phone-height, 0.68);
   --phone-swap-width: var(--stage-tune-phone-width, 0.68);
-  --hw-stage-max-w: min(
-    100%,
-    calc(var(--phone-viewbox-base-w) * var(--phone-swap-width, 1))
-  );
+  --hw-stage-max-w: var(--cs-stage-gallery-w, var(--cs-stage-artifact-w));
   --hw-stage-min-w: 0;
-  --cs-stage-max: var(--hw-stage-max-w);
 }
 
 .hardware-slideshow.mobile-chapter-slot--sensi {
@@ -855,20 +851,23 @@
 }
 
 @media (min-width: 768px) {
-  /* Shrink-wrap stage to the viewbox — avoid a full-width flex column with dead space */
+  /* Phone centered in stage column; viewbox scales via --phone-swap-* / ResizeObserver */
   .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__stage:has(.phone-swap) {
     display: flex;
-    justify-content: flex-start;
-    align-items: flex-start;
+    justify-content: center;
+    align-items: center;
     width: auto;
     max-width: min(100%, var(--hw-stage-max-w));
     min-height: 0;
     min-width: 0;
-    flex: 0 0 auto;
+    flex: 1 1 auto;
   }
 
   .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__stage:has(.phone-swap) > .phone-swap {
-    margin-inline: 0;
+    width: var(--cs-stage-gallery-w, var(--cs-stage-artifact-w));
+    max-width: 100%;
+    margin-inline: auto;
+    flex: 0 1 auto;
   }
 }
 

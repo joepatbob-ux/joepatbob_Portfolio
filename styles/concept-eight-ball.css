@@ -7,7 +7,7 @@
   justify-content: center;
   gap: clamp(10px, 1.6vh, 14px);
   width: 100%;
-  max-width: min(var(--cs-stage-artifact-w, 320px), 100%);
+  max-width: min(var(--cs-stage-gallery-w, var(--cs-stage-artifact-w, 320px)), 100%);
   margin-inline: auto;
   pointer-events: auto;
 }
