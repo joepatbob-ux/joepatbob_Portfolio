@@ -91,7 +91,8 @@
 @media (min-width: 768px) {
   .case-study-flow-overview.portfolio-chapter-slot--fill .chapter-slide__viewport,
   .hardware-slideshow.case-study-flow-overview .chapter-slide__viewport {
-    padding: var(--cs-hw-pad, clamp(28px, 3vw, 56px));
+    padding-block: var(--cs-hw-pad, clamp(28px, 3vw, 56px));
+    padding-inline: 0;
   }
 
   .case-study-flow-overview.portfolio-chapter-slot--fill

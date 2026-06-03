@@ -65,7 +65,7 @@
     /* Nav “de-selected while exploring” — same hue as accent, not grey. */
     --color-nav-faded-selection: rgba(222, 62, 24, 0.4);
     --color-accent-nav-hover:    #5a2410;
-    /* Subnav: selected row fill; hover = 1px muted-accent ring (no fill on hover-only). */
+    /* Subnav: selected row fill; hover = accent outline ring. */
     --color-nav-pill-muted-accent-1: rgba(222, 62, 24, 0.12);
     --color-nav-pill-outline:        rgba(222, 62, 24, 0.42);
     /* Alias — prefer --color-nav-faded-selection for new code */
@@ -262,7 +262,7 @@
 .contact-liquid:focus-within .contact-liquid__surface {
   width: var(--contact-expanded);
   border-radius: 22px;
-  background: var(--color-nav-pill-muted-accent-1);
+  background: transparent;
   box-shadow: none;
 }
 
@@ -345,18 +345,27 @@
   transform: translateX(-28px) scale(0.55);
 }
 
+.contact-liquid__btn {
+  -webkit-text-stroke: 0 transparent;
+  paint-order: stroke fill;
+}
+
 .contact-liquid:hover .contact-liquid__btn,
 .contact-liquid:focus-within .contact-liquid__btn {
   opacity: 1;
   transform: translateX(0) scale(1);
-  color: var(--color-accent);
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 0.5px var(--color-accent);
 }
 
 .contact-liquid__btn:hover,
 .contact-liquid__btn:focus-visible {
   background: transparent;
-  box-shadow: 0 0 0 1px var(--color-nav-pill-outline);
-  color: var(--color-accent);
+  box-shadow: 0 0 0 1px var(--color-accent);
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 0.5px var(--color-accent);
 }
 
 /* Contact pill on accent backgrounds (mobile drawer) */
@@ -368,7 +377,7 @@
 
 .contact-liquid--on-accent:hover .contact-liquid__surface,
 .contact-liquid--on-accent:focus-within .contact-liquid__surface {
-  background: rgba(255, 255, 255, 0.14);
+  background: transparent;
 }
 
 .contact-liquid--on-accent .contact-liquid__label {
