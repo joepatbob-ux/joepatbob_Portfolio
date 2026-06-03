@@ -13,6 +13,7 @@ import {
   positionPinFromRaisedBrickPlacement,
   previewStackLevel,
   hasBrickStackedAbove,
+  isPointerOnRotateRing,
   resolveStackedSnap,
   snappedPlacementFromNative,
   snapToTopLevel,
@@ -21,10 +22,12 @@ import {
 } from '@/lib/formation/legoBricks'
 import { roundPlacementPx } from '@/lib/formation/pixelNudge'
 import { spritePlacement } from '@/lib/formation/spritePlacement'
+import { scheduleScrollFrame } from '@/lib/scrollFrame'
 import {
   clientToBoardNative,
   clientToClip,
   plateDisplayLayout,
+  screenPlacementFromBoardRect,
 } from '@/lib/formation/plateViewport'
 
 export const FORMATION_BOARD_DISPLAY_W = 720
@@ -125,13 +128,14 @@ export function useFormationLegoBoard() {
     ]
     return initial.map((p) => clampPieceToPlate(p, FORMATION_BOARD_DISPLAY_W, initial))
   })
-  const [activeId, setActiveId] = useState<BrickColor | null>('cyan')
+  const [activeId, setActiveId] = useState<BrickColor | null>(null)
   const [dragId, setDragId] = useState<BrickColor | null>(null)
   const [dragFree, setDragFree] = useState<{ left: number; top: number } | null>(
     null,
   )
   const [dragHasMoved, setDragHasMoved] = useState(false)
   const [dragPreviewLevel, setDragPreviewLevel] = useState(0)
+  const [boardRect, setBoardRect] = useState({ left: 0, top: 0 })
   const boardRef = useRef<HTMLDivElement>(null)
   /** Pointer minus snap-anchor in board native space (not brick box top-left). */
   const grabOffsetNative = useRef({ x: 0, y: 0 })
@@ -142,6 +146,8 @@ export function useFormationLegoBoard() {
   const dragHasMovedRef = useRef(false)
   const dragPieceIdRef = useRef<BrickColor | null>(null)
   const dragPreviewLevelRef = useRef(0)
+  /** Selected brick tapped again (not ring) — set down on pointer up without drag. */
+  const tapToSetDownRef = useRef(false)
 
   const layerLift = useMemo(() => brickLayerLift(boardW), [boardW])
   const plate = useMemo(() => plateDisplayLayout(boardW), [boardW])
@@ -192,6 +198,7 @@ export function useFormationLegoBoard() {
 
   const isDragging = dragId != null && dragHasMoved
 
+  /** Selected / active drag uses `Lego_Brick_*_Selected.svg` (orange guides). */
   const isPiecePickedUp = useCallback(
     (pieceId: BrickColor) => {
       if (activeId !== pieceId && dragId !== pieceId) return false
@@ -264,8 +271,21 @@ export function useFormationLegoBoard() {
     const piece = pieceId ? pieces.find((p) => p.id === pieceId) : null
     const release = dragFreeRef.current
     const moved = dragHasMovedRef.current
+    const tapSetDown = tapToSetDownRef.current
 
-    if (piece && release && moved) {
+    if (piece && !moved && tapSetDown) {
+      const placement = placementForPiece(piece)
+      const native = boardSnapPointFromBrickPlacement(
+        placement.left,
+        placement.top,
+        boardW,
+        piece.pivot,
+        piece.level,
+        layerLift,
+      )
+      commitSnap(piece.id, native, piece.pivot)
+      setActiveId(null)
+    } else if (piece && release && moved) {
       const previewLevel = dragPreviewLevelRef.current
       setPieces((prev) => {
         const { peg, level: topLevel } = resolveStackedSnap(
@@ -292,11 +312,83 @@ export function useFormationLegoBoard() {
     dragHasMovedRef.current = false
     dragPieceIdRef.current = null
     dragPreviewLevelRef.current = 0
+    tapToSetDownRef.current = false
     setDragPreviewLevel(0)
     setDragHasMoved(false)
     setDragId(null)
     setDragFree(null)
-  }, [boardW, pieces])
+  }, [boardW, commitSnap, layerLift, pieces, placementForPiece])
+
+  useEffect(() => {
+    const boardEl = boardRef.current
+    if (!boardEl) return
+
+    const sync = () => {
+      const rect = boardEl.getBoundingClientRect()
+      setBoardRect({ left: rect.left, top: rect.top })
+    }
+
+    sync()
+    const ro = new ResizeObserver(sync)
+    ro.observe(boardEl)
+    const unsubScroll = scheduleScrollFrame(sync)
+    window.addEventListener('resize', sync)
+
+    return () => {
+      ro.disconnect()
+      unsubScroll()
+      window.removeEventListener('resize', sync)
+    }
+  }, [boardW, plate.panX, plate.panY])
+
+  const rotateActivePiece = useCallback(
+    (next: BrickPivot) => {
+      const piece = pieces.find((p) => p.id === activeId)
+      if (!piece || piece.pivot === next) return
+      if (hasBrickStackedAbove(piece, pieces)) return
+
+      const placement =
+        dragId === activeId && dragFree
+          ? { left: dragFree.left, top: dragFree.top }
+          : brickPlacement(
+              boardW,
+              piece.gx,
+              piece.gy,
+              piece.pivot,
+              piece.level,
+              layerLift,
+              true,
+            )
+      const renderLevel =
+        dragId === activeId && dragFree ? dragPreviewLevel : piece.level
+      const snapOnBoard = boardSnapPointFromBrickPlacement(
+        placement.left,
+        placement.top,
+        boardW,
+        piece.pivot,
+        renderLevel,
+        layerLift,
+      )
+      const peg = positionPinFromBoardSnapPoint(snapOnBoard, next)
+
+      setPieces((prev) => {
+        const topLevel = snapToTopLevel(peg.gx, peg.gy, next, prev, piece.id)
+        return prev.map((p) =>
+          p.id === piece.id
+            ? { ...p, gx: peg.gx, gy: peg.gy, pivot: next, level: topLevel }
+            : p,
+        )
+      })
+      setDragFree(null)
+      dragNativeRef.current = null
+    },
+    [activeId, boardW, dragFree, dragId, dragPreviewLevel, layerLift, pieces],
+  )
+
+  const toggleActivePivot = useCallback(() => {
+    if (!activePiece) return
+    rotateActivePiece(activePiece.pivot === 'left' ? 'right' : 'left')
+  }, [activePiece, rotateActivePiece])
 
   const onBoardPointerDown = useCallback(
     (e: React.PointerEvent) => {
@@ -321,9 +413,31 @@ export function useFormationLegoBoard() {
       if (!piece || hasBrickStackedAbove(piece, pieces)) return
 
       e.stopPropagation()
+      const wasSelected = activeId === pieceId
       selectPiece(pieceId)
 
       const piecePlacement = placementForPiece(piece)
+      const boardRectLive = boardRef.current.getBoundingClientRect()
+      const screenPlacement = screenPlacementFromBoardRect(
+        { left: boardRectLive.left, top: boardRectLive.top },
+        plate,
+        piecePlacement,
+      )
+      const onRotateRing =
+        wasSelected &&
+        isPointerOnRotateRing(
+          e.clientX,
+          e.clientY,
+          screenPlacement,
+          piece.pivot,
+        )
+      if (onRotateRing) {
+        toggleActivePivot()
+        return
+      }
+
+      tapToSetDownRef.current = wasSelected
+
       const pointerNative = clientToBoardNative(
         boardRef.current,
         e.clientX,
@@ -358,7 +472,16 @@ export function useFormationLegoBoard() {
       setDragFree(null)
       boardRef.current.setPointerCapture(e.pointerId)
     },
-    [boardW, layerLift, pieces, placementForPiece, selectPiece],
+    [
+      activeId,
+      boardW,
+      layerLift,
+      pieces,
+      placementForPiece,
+      plate,
+      selectPiece,
+      toggleActivePivot,
+    ],
   )
 
   const onPointerMove = useCallback(
@@ -447,55 +570,6 @@ export function useFormationLegoBoard() {
     [endDrag],
   )
 
-  const rotateActivePiece = useCallback(
-    (next: BrickPivot) => {
-      const piece = pieces.find((p) => p.id === activeId)
-      if (!piece || piece.pivot === next) return
-      if (hasBrickStackedAbove(piece, pieces)) return
-
-      const placement =
-        dragId === activeId && dragFree
-          ? { left: dragFree.left, top: dragFree.top }
-          : brickPlacement(
-              boardW,
-              piece.gx,
-              piece.gy,
-              piece.pivot,
-              piece.level,
-              layerLift,
-              true,
-            )
-      const renderLevel =
-        dragId === activeId && dragFree ? dragPreviewLevel : piece.level
-      const snapOnBoard = boardSnapPointFromBrickPlacement(
-        placement.left,
-        placement.top,
-        boardW,
-        piece.pivot,
-        renderLevel,
-        layerLift,
-      )
-      const peg = positionPinFromBoardSnapPoint(snapOnBoard, next)
-
-      setPieces((prev) => {
-        const topLevel = snapToTopLevel(peg.gx, peg.gy, next, prev, piece.id)
-        return prev.map((p) =>
-          p.id === piece.id
-            ? { ...p, gx: peg.gx, gy: peg.gy, pivot: next, level: topLevel }
-            : p,
-        )
-      })
-      setDragFree(null)
-      dragNativeRef.current = null
-    },
-    [activeId, boardW, dragFree, dragId, dragPreviewLevel, layerLift, pieces],
-  )
-
-  const toggleActivePivot = useCallback(() => {
-    if (!activePiece) return
-    rotateActivePiece(activePiece.pivot === 'left' ? 'right' : 'left')
-  }, [activePiece, rotateActivePiece])
-
   const piecesWithPlacement = useMemo(() => {
     return pieces
       .map((p) => {
@@ -503,9 +577,15 @@ export function useFormationLegoBoard() {
         const free = isFreeDrag ? dragFree : null
         const placement = placementForPiece(p, free)
         const isAnchored = hasBrickStackedAbove(p, pieces)
+        const screenPlacement = screenPlacementFromBoardRect(
+          boardRect,
+          plate,
+          placement,
+        )
         return {
           ...p,
           placement,
+          screenPlacement,
           isAnchored,
           z: depthZDuringDrag(
             p,
@@ -516,21 +596,31 @@ export function useFormationLegoBoard() {
         }
       })
       .sort((a, b) => a.z - b.z)
-  }, [boardW, dragFree, dragHasMoved, dragId, dragPreviewLevel, pieces, placementForPiece])
+  }, [
+    boardRect,
+    boardW,
+    dragFree,
+    dragHasMoved,
+    dragId,
+    dragPreviewLevel,
+    plate,
+    pieces,
+    placementForPiece,
+  ])
 
   return {
     stageRef,
     boardRef,
     boardW,
     plate,
-    activePivot: activePiece?.pivot ?? 'left',
     isPiecePickedUp,
-    rotateActivePiece,
-    toggleActivePivot,
     isDragging,
     draggingId: dragId,
     pieces: piecesWithPlacement,
     activeId,
+    activePivot: activePiece?.pivot ?? 'left',
+    toggleActivePivot,
+    rotateActivePiece,
     selectPiece,
     onBoardPointerDown,
     onBrickPointerDown,

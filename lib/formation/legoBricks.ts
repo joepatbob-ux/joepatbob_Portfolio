@@ -24,11 +24,26 @@ export const BRICK_VIEWBOX = { width: 412.23, height: 334 } as const
 /** Picked-up guide art (`Lego_Brick_*_Selected.svg`) — same snap anchors as align overlay. */
 export const SELECTED_VIEWBOX = { width: 414.23, height: 335.44 } as const
 
+/** Selected + partial iso rotate ring (`Lego_Brick_*_Selected_wRotate.svg`). */
+export const SELECTED_WITH_ROTATE_VIEWBOX = {
+  width: 414.22,
+  height: 380.98,
+} as const
+
+/** Orange ring hit region in wRotate SVG space (class st2 path bounds). */
+const ROTATE_RING_HIT: Record<
+  BrickPivot,
+  { minX: number; minY: number; maxX: number; maxY: number }
+> = {
+  left: { minX: 88, minY: 288, maxX: 328, maxY: 385 },
+  right: { minX: 72, minY: 288, maxX: 312, maxY: 385 },
+}
+
 /** Align overlay art — plate pegs (orange) vs brick studs (gray). */
 export const ALIGN_VIEWBOX = { width: 414.23, height: 334.58 } as const
 
 export function brickSpriteViewBox(pickedUp: boolean) {
-  return pickedUp ? SELECTED_VIEWBOX : BRICK_VIEWBOX
+  return pickedUp ? SELECTED_WITH_ROTATE_VIEWBOX : BRICK_VIEWBOX
 }
 
 /** Stud cap center (cls-2 path origin) in brick / align SVGs. */
@@ -293,6 +308,44 @@ export function brickArtSrc(
 export function brickSelectedArtSrc(pivot: BrickPivot): string {
   const side = pivot === 'left' ? 'Left' : 'Right'
   return `/Lego/Lego_Brick_${side}_Selected.svg`
+}
+
+export function brickSelectedWithRotateArtSrc(pivot: BrickPivot): string {
+  const side = pivot === 'left' ? 'Left' : 'Right'
+  return `/Lego/Lego_Brick_${side}_Selected_wRotate.svg`
+}
+
+/** Clip-path for hover ring hint — ring band from `Selected_wRotate` art (not programmatic). */
+export function rotateRingClipPath(pivot: BrickPivot): string {
+  const vb = SELECTED_WITH_ROTATE_VIEWBOX
+  const b = ROTATE_RING_HIT[pivot]
+  const x1 = (b.minX / vb.width) * 100
+  const x2 = (b.maxX / vb.width) * 100
+  const y1 = (b.minY / vb.height) * 100
+  const y2 = Math.min((b.maxY / vb.height) * 100, 100)
+  return `polygon(${x1}% ${y1}%, ${x2}% ${y1}%, ${x2}% ${y2}%, ${x1}% ${y2}%)`
+}
+
+/** True when pointer is over the orange rotate ring on the wRotate sprite. */
+export function isPointerOnRotateRing(
+  clientX: number,
+  clientY: number,
+  screenPlacement: { left: number; top: number; width: number; height: number },
+  pivot: BrickPivot,
+): boolean {
+  const vb = SELECTED_WITH_ROTATE_VIEWBOX
+  const sx = screenPlacement.width / vb.width
+  const sy = screenPlacement.height / vb.height
+  if (sx <= 0 || sy <= 0) return false
+  const localX = (clientX - screenPlacement.left) / sx
+  const localY = (clientY - screenPlacement.top) / sy
+  const b = ROTATE_RING_HIT[pivot]
+  return (
+    localX >= b.minX &&
+    localX <= b.maxX &&
+    localY >= b.minY &&
+    localY <= b.maxY
+  )
 }
 
 export function alignArtSrc(pivot: BrickPivot): string {
@@ -679,6 +732,9 @@ export function drawOrderKey(
 
 /** Base offset for isoStackZIndex (pegs and bricks share this stacking context). */
 export const BRICK_Z_INDEX_BASE = 10
+
+/** Brick layer portal — above sidebar shell (~100–111), on- and off-plate. */
+export const FORMATION_Z_BRICKS = 120
 
 /** While dragging, keep the piece above all snapped bricks. */
 export const BRICK_Z_INDEX_DRAG_BOOST = 50_000

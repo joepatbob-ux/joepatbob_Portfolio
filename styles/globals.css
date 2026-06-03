@@ -1238,12 +1238,23 @@ html {
     will-change: opacity;
   }
 
+  .portfolio-chapter-slot--fill.hardware-slideshow
+    .portfolio-chapter-panel:has(.flow-chapter-slide--formation) {
+    overflow: visible;
+  }
+
   /* Long copy scrolls inside the slide before snap advances the page */
   .portfolio-chapter-slot--fill.hardware-slideshow .chapter-slide__viewport {
     flex: 1 1 auto;
     min-height: 0;
     max-height: 100%;
     overflow: hidden;
+  }
+
+  .portfolio-chapter-slot--fill.hardware-slideshow
+    .chapter-slide.flow-chapter-slide--formation
+    .chapter-slide__viewport {
+    overflow: visible;
   }
 
   .portfolio-chapter-slot--fill.hardware-slideshow .chapter-slide__inner {

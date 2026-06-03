@@ -236,6 +236,12 @@
     max-width: 100%;
   }
 
+  .hardware-slideshow .chapter-slide__stage:has(.formation-lego),
+  .chapter-slide.hardware-slideshow.flow-chapter-slide--formation
+    .chapter-slide__stage {
+    overflow: visible;
+  }
+
   .hardware-slideshow .chapter-slide__copy {
     flex: 0 1 auto;
     min-width: 0;

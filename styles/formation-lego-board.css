@@ -3,83 +3,7 @@
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
-}
-
-.formation-lego__controls {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.formation-lego__controls-label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--color-text-muted, #555);
-  margin-right: 0.15rem;
-}
-
-.formation-lego__controls-divider {
-  width: 1px;
-  height: 1.25rem;
-  background: #ccc;
-  margin: 0 0.15rem;
-}
-
-.formation-lego__color-tab {
-  padding: 0.35rem 0.65rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  border: 2px solid transparent;
-  border-radius: 4px;
-  cursor: pointer;
-  color: #222;
-}
-
-.formation-lego__color-tab--cyan {
-  background: color-mix(in srgb, #00aeef 35%, #fff);
-}
-
-.formation-lego__color-tab--magenta {
-  background: color-mix(in srgb, #c800a1 28%, #fff);
-}
-
-.formation-lego__color-tab--yellow {
-  background: color-mix(in srgb, #ffe600 45%, #fff);
-}
-
-.formation-lego__color-tab--black {
-  background: color-mix(in srgb, #1a1a1a 18%, #fff);
-}
-
-.formation-lego--theme-light .formation-lego__color-tab--black {
-  background: color-mix(in srgb, #f2f2f2 55%, #fff);
-  border-color: color-mix(in srgb, #888 35%, transparent);
-}
-
-.formation-lego__color-tab--active {
-  border-color: var(--color-accent, #e85d04);
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-accent, #e85d04) 40%, transparent);
-}
-
-.formation-lego__tab {
-  padding: 0.35rem 0.75rem;
-  font-size: 0.8125rem;
-  border: 1px solid var(--color-text-muted, #999);
-  border-radius: 4px;
-  background: transparent;
-  cursor: pointer;
-}
-
-.formation-lego__tab:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-
-.formation-lego__tab--active {
-  border-color: var(--color-accent, #e85d04);
-  background: color-mix(in srgb, var(--color-accent, #e85d04) 12%, transparent);
+  overflow: visible;
 }
 
 .formation-lego--single .formation-lego__block {
@@ -93,6 +17,7 @@
 .formation-lego__stage {
   display: flex;
   justify-content: center;
+  overflow: visible;
 }
 
 .formation-lego__board {
@@ -100,10 +25,12 @@
   margin: 0 auto;
   touch-action: none;
   user-select: none;
+  overflow: visible;
 }
 
+/* Viewport sizing hook — do not clip; bricks stay visible when dragged off-plate */
 .formation-lego__board--clip {
-  overflow: hidden;
+  overflow: visible;
 }
 
 .formation-lego__board-pan {
@@ -124,6 +51,9 @@
   overflow: visible;
   cursor: grab;
   touch-action: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
 }
 
 .formation-lego__block--anchored {
@@ -154,6 +84,39 @@
   filter: none;
 }
 
+/* Selected brick — hover hints (Lego SVG assets only) */
+.formation-lego__hover-ring-art {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: block;
+  width: 100% !important;
+  height: auto !important;
+  max-width: none;
+  pointer-events: none;
+  opacity: 0.45;
+}
+
+.formation-lego__hover-guides {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: block;
+  width: 100% !important;
+  height: auto !important;
+  max-width: none;
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.formation-lego__block--hover-move {
+  cursor: grab;
+}
+
+.formation-lego__block--hover-rotate {
+  cursor: pointer;
+}
+
 .formation-lego__piece--drag {
   cursor: grabbing;
 }
@@ -162,4 +125,19 @@
 .formation-lego__piece--drag .formation-lego__sprite,
 .formation-lego__piece--drag .formation-lego__brick-img {
   filter: none;
+}
+
+/* All bricks — viewport-fixed above sidebar, never clipped by chapter panel */
+.formation-lego__bricks-portal {
+  position: fixed;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  pointer-events: none;
+  touch-action: none;
+  overflow: visible;
+}
+
+.formation-lego__bricks-portal .formation-lego__block {
+  pointer-events: auto;
 }

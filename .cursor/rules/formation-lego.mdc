@@ -4,7 +4,7 @@ globs: components/formation/**/*,lib/formation/**/*,styles/formation-lego-board.
 
 ## Layout (components)
 
-- `FormationLegoBoard.tsx` — board + left/right pivot controls
+- `FormationLegoBoard.tsx` — board (select bricks on the plate)
 - `FormationLegoBrickPiece.tsx` — draggable brick sprite
 - `useFormationLegoBoard.ts` — placement, drag, peg snap on release / board click
 - `spritePlacement.ts` — anchor→board positioning math
@@ -28,7 +28,7 @@ alwaysApply: false
 
 ## Depth and stacking
 
-- Board art: `Lego_Board_White.svg` (dark mode) / `Lego_Board_Black.svg` (light mode); same viewBox. Neutral brick (`black` color): `Lego_*_Black` on white board, `Lego_Brick_*_White` on black board. Active / dragging piece uses `Lego_Brick_*_Selected.svg` + `SELECTED_VIEWBOX` for placement (orange snap guides). Bricks use `brickIsoZIndex` for A0→J9 depth; board studs cannot interleave until studs are split into per-peg layers.
+- Board art: `Lego_Board_White.svg` (dark mode) / `Lego_Board_Black.svg` (light mode); same viewBox. Neutral brick (`black` color): `Lego_*_Black` on white board, `Lego_Brick_*_White` on black board. Selected / dragging piece uses `Lego_Brick_*_Selected_wRotate.svg` + `SELECTED_WITH_ROTATE_VIEWBOX` (orange snap guides + iso rotate ring). Tap brick to select; tap again on the brick body to set down, tap the orange ring (or **R**) to flip pivot; tap the board to snap the active brick. Bricks use `brickIsoZIndex` for A0→J9 depth; board studs cannot interleave until studs are split into per-peg layers.
 - **Collision**: two bricks cannot share studs at the **same** `level`; overlapping placement auto-stacks via `snapToTopLevel` (same pegs, higher level).
 
 ## Do not
