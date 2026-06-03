@@ -82,6 +82,8 @@
     /* Stickers above page + sidebar; mobile drawer stays on top */
     /* Stickers above fixed chapter panels (panels stay z-index 1–3) */
     --z-stickers:           105;
+    --z-sticker-pile:       104;
+    --z-sticker-drag:       200;
     --z-mobile-nav-backdrop: 108;
     --z-mobile-drawer:      110;
     --z-mobile-learn-more:  112;
@@ -819,8 +821,8 @@
 
 .sticker--elevated .sticker__face {
   filter:
-    drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08))
-    drop-shadow(0 8px 16px rgba(0, 0, 0, 0.07));
+    drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1))
+    drop-shadow(0 3px 6px rgba(0, 0, 0, 0.07));
 }
 
 .sticker__face {
@@ -829,8 +831,8 @@
   line-height: 0;
   overflow: visible;
   filter:
-    drop-shadow(0 1px 2px rgba(0, 0, 0, 0.06))
-    drop-shadow(0 4px 10px rgba(0, 0, 0, 0.05));
+    drop-shadow(0 1px 1px rgba(0, 0, 0, 0.08))
+    drop-shadow(0 2px 4px rgba(0, 0, 0, 0.06));
 }
 
 .sticker__art {
@@ -855,41 +857,43 @@
 }
 
 .sticker-pile-portal {
+  z-index: var(--z-sticker-pile);
   pointer-events: auto;
   touch-action: none;
 }
 
-.sticker-pile__label {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--color-accent);
-  margin: 0 0 8px;
-}
-
-.sticker-pile__hint {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  line-height: 1.5;
-  color: var(--color-muted);
-  margin: 0 0 20px;
-  max-width: 36ch;
-}
-
-.sticker-pile__count {
-  display: block;
-  margin-top: 6px;
-  font-size: 10px;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  opacity: 0.85;
+.sticker-pile-portal--pile-drag {
+  z-index: calc(var(--z-sticker-pile) - 2);
+  opacity: 0.42;
+  transition: opacity 0.12s ease;
 }
 
 .sticker-pile {
   position: relative;
   margin: 0;
+  touch-action: none;
+}
+
+/* Full-stack hit target — always grabs deck[0], above fanned under-cards. */
+.sticker-pile__grab {
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: grab;
+  touch-action: none;
+}
+
+.sticker-pile__grab:active {
+  cursor: grabbing;
+}
+
+.sticker-pile__grab:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 6px;
 }
 
 .sticker-pile__card {
@@ -900,6 +904,7 @@
   padding: 0;
   border: none;
   background: transparent;
+  pointer-events: none;
   touch-action: none;
   transform: translate(
     calc(-50% + var(--stack-x, 0px)),
@@ -908,29 +913,20 @@
   transition: transform 0.18s ease, opacity 0.18s ease;
 }
 
-.sticker-pile__card--top {
-  cursor: grab;
+.sticker-pile__card--top-dragging {
+  opacity: 0;
+  visibility: hidden;
 }
 
 .sticker-pile__card--under {
-  pointer-events: none;
   cursor: default;
 }
 
-.sticker-pile__card--top:hover:not(:disabled) {
+.sticker-pile:has(.sticker-pile__grab:hover) .sticker-pile__card--top {
   transform: translate(
     calc(-50% + var(--stack-x, 0px)),
     calc(-50% + var(--stack-y, 0px) - 6px)
   );
-}
-
-.sticker-pile__card--top:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 6px;
-}
-
-.sticker-pile__card:disabled {
-  cursor: default;
 }
 
 .sticker-pile__empty {
@@ -952,28 +948,15 @@
 .sticker-placed {
   position: fixed;
   transform: translate(-50%, -50%);
-  /* pointer-events: none — wheel passes through; selected state re-enables in JS */
   pointer-events: none;
-  touch-action: pan-y;
-}
-
-.sticker-placed--selected {
-  pointer-events: auto;
-}
-
-.sticker-placed--dragging,
-.sticker-placed--rotating {
-  pointer-events: auto;
   touch-action: none;
 }
 
-.sticker-placed .sticker {
-  touch-action: pan-y;
-  pointer-events: none;
+.sticker-placed--ghost {
+  pointer-events: none !important;
 }
 
-.sticker-placed--dragging .sticker,
-.sticker-placed--rotating .sticker {
+.sticker-placed--rotating {
   touch-action: none;
 }
 
@@ -981,15 +964,27 @@
   position: relative;
   display: inline-block;
   line-height: 0;
-  cursor: grab;
   border: none;
   background: transparent;
   padding: 0;
   touch-action: none;
 }
 
-.sticker-placed--selected .sticker-placed__body {
+.sticker-placed__hit {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
   cursor: grab;
+  touch-action: none;
+  pointer-events: auto;
+  z-index: 2;
+}
+
+.sticker-placed__hit:active {
+  cursor: grabbing;
 }
 
 /* Rotation ring overlays sticker without resizing the hit target. */
@@ -1013,17 +1008,6 @@
   pointer-events: none;
 }
 
-.sticker-placed--selected
-  .sticker-placed__ring-stage--track
-  .sticker-placed__track-hit {
-  /* Visual only — scrubber dot handles rotation; body handles move. */
-  pointer-events: none;
-}
-
-.sticker-placed--selected .sticker-placed__scrubber-hit {
-  pointer-events: all;
-}
-
 /* Accent border hugs sticker alpha (filter on face composite, not a box outline). */
 .sticker--selected .sticker__face {
   filter:
@@ -1031,8 +1015,8 @@
     drop-shadow(0 0 0.5px var(--color-accent))
     drop-shadow(0 0 1px var(--color-accent))
     drop-shadow(0 0 1.5px var(--color-accent))
-    drop-shadow(0 3px 8px rgba(0, 0, 0, 0.12))
-    drop-shadow(0 12px 24px rgba(0, 0, 0, 0.1));
+    drop-shadow(0 2px 4px rgba(0, 0, 0, 0.12))
+    drop-shadow(0 4px 8px rgba(0, 0, 0, 0.08));
 }
 
 .sticker--selected .sticker__art {
@@ -1095,17 +1079,7 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  z-index: 2;
-}
-
-.sticker-placed__scrubber-mount .sticker-placed__scrubber-hit {
-  pointer-events: none;
-}
-
-.sticker-placed--selected
-  .sticker-placed__scrubber-mount
-  .sticker-placed__scrubber-hit {
-  pointer-events: all;
+  z-index: 4;
 }
 
 .sticker-placed__art {
@@ -1140,13 +1114,14 @@
 .sticker-placed__scrubber-hit {
   fill: transparent;
   stroke: none;
+  pointer-events: all;
   cursor: grab;
 }
 
 .sticker-placed__scrubber {
   fill: var(--color-accent);
   stroke: none;
-  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.15));
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.14));
 }
 
 .sticker-placed__scrubber-center {
@@ -1169,18 +1144,19 @@
   touch-action: none;
   cursor: grabbing;
   transform: translate(-50%, -50%);
-  z-index: calc(var(--z-stickers) + 50);
+  z-index: var(--z-sticker-drag);
 }
 
-.sticker-placed__body:focus-visible {
-  outline: none;
+.sticker-placed__hit:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 4px;
 }
 
 .sticker-placed__body:focus-visible .sticker__face {
   filter:
     drop-shadow(0 0 0.5px var(--color-accent))
     drop-shadow(0 0 1px var(--color-accent))
-    drop-shadow(0 3px 8px rgba(0, 0, 0, 0.1));
+    drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
 }
 
 /* Portfolio chapters — in-flow by default (flow case studies + mobile) */
