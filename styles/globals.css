@@ -262,7 +262,7 @@
 .contact-liquid:focus-within .contact-liquid__surface {
   width: var(--contact-expanded);
   border-radius: 22px;
-  background: transparent;
+  background: var(--color-nav-pill-muted-accent-1);
   box-shadow: none;
 }
 
@@ -345,27 +345,18 @@
   transform: translateX(-28px) scale(0.55);
 }
 
-.contact-liquid__btn {
-  -webkit-text-stroke: 0 transparent;
-  paint-order: stroke fill;
-}
-
 .contact-liquid:hover .contact-liquid__btn,
 .contact-liquid:focus-within .contact-liquid__btn {
   opacity: 1;
   transform: translateX(0) scale(1);
-  color: transparent;
-  -webkit-text-fill-color: transparent;
-  -webkit-text-stroke: 0.5px var(--color-accent);
+  color: var(--color-accent);
 }
 
 .contact-liquid__btn:hover,
 .contact-liquid__btn:focus-visible {
   background: transparent;
-  box-shadow: 0 0 0 1px var(--color-accent);
-  color: transparent;
-  -webkit-text-fill-color: transparent;
-  -webkit-text-stroke: 0.5px var(--color-accent);
+  box-shadow: 0 0 0 1px var(--color-nav-pill-outline);
+  color: var(--color-accent);
 }
 
 /* Contact pill on accent backgrounds (mobile drawer) */
@@ -377,7 +368,7 @@
 
 .contact-liquid--on-accent:hover .contact-liquid__surface,
 .contact-liquid--on-accent:focus-within .contact-liquid__surface {
-  background: transparent;
+  background: rgba(255, 255, 255, 0.14);
 }
 
 .contact-liquid--on-accent .contact-liquid__label {
