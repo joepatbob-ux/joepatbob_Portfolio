@@ -38,7 +38,8 @@
     width: 100%;
     display: flex;
     box-sizing: border-box;
-    padding: var(--hw-pad);
+    padding-block: var(--hw-pad);
+    padding-inline: 0;
     justify-content: flex-start;
     align-items: center;
   }
@@ -47,7 +48,8 @@
     display: flex;
     align-items: stretch;
     justify-content: flex-start;
-    padding: var(--hw-pad);
+    padding-block: var(--hw-pad);
+    padding-inline: 0;
     box-sizing: border-box;
     width: 100% !important;
     max-width: none !important;
@@ -186,7 +188,8 @@
   .section-lessons.hardware-slideshow .portfolio-chapter-panel {
     justify-content: center;
     gap: clamp(20px, 2.5vw, 36px);
-    padding: var(--hw-pad);
+    padding-block: var(--hw-pad);
+    padding-inline: 0;
   }
 
   .hardware-slideshow .chapter-slide__copy--lessons .chapter-slide__body {

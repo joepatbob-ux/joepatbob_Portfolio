@@ -6,9 +6,9 @@
 // - Sub nav blurs in at viewport center after nav locks, chapters stagger in
 // - All keywords start lit, dim to ~22% once nav is stuck (active stays full until exploration hover)
 // - Hovering another section fades the active keyword; subnav chapter hover does not dim main
-// - Subnav: selected = muted-accent fill; hover = accent label + accent ring
-// - Main keywords: hover = text stroke/outline on glyphs (color unchanged)
-// - Contact pill: accent at rest; hover = muted fill (no container ring); item hover = ring
+// - Subnav: selected = muted-accent fill; hover = accent ring, hollow label (bg shows through)
+// - Main keywords: hover = hollow glyphs + accent stroke
+// - Contact pill: accent at rest; expanded/hover = transparent; items = hollow + ring
 // - Email pill is fixed at bottom
 
 'use client'
@@ -940,7 +940,7 @@ export function SidebarNav() {
                     className={keywordClass}
                     onClick={() => scrollToSection(sec.id)}
                     style={{
-                      color: mainColor,
+                      color: isHoverThis ? 'transparent' : mainColor,
                       opacity: mainOpacity,
                     }}
                     onMouseEnter={() => {
@@ -1010,7 +1010,7 @@ export function SidebarNav() {
             subnavInteractive &&
             (overlaySubnav || chapterItemsVisible.includes(i))
           const isHoverThis = hoverChapterId === chId
-          const chapterFill = isActive ? NAV_PILL_1 : 'transparent'
+          const chapterFill = isActive && !isHoverThis ? NAV_PILL_1 : 'transparent'
           const chapterRing = isHoverThis ? `0 0 0 1px ${ACCENT}` : 'none'
           return (
             <span key={chapter.id} onClick={() => scrollToChapter(chId)}
@@ -1040,6 +1040,12 @@ export function SidebarNav() {
               }}
             >
               <span
+                className={[
+                  'sidebar-subnav__label',
+                  isHoverThis ? 'sidebar-subnav__label--hover' : '',
+                ]
+                  .filter(Boolean)
+                  .join(' ')}
                 style={{
                   fontFamily: FONT_MONO,
                   fontWeight: 700,
@@ -1047,7 +1053,7 @@ export function SidebarNav() {
                   letterSpacing: '0.07em',
                   textTransform: 'uppercase',
                   lineHeight: 1.5,
-                  color: isHoverThis || isActive ? ACCENT : NAV_FADED,
+                  color: isHoverThis ? 'transparent' : isActive ? ACCENT : NAV_FADED,
                 }}
               >
                 {chapter.label}

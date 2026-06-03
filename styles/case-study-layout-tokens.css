@@ -78,7 +78,7 @@
   --cs-sensi-lite-stage-max-w: min(100%, 320px);
   --cs-phone-viewbox-max-w: min(var(--cs-stage-max), 520px);
 
-  /* ── Hardware slideshow pad (768+) ──────────────────────────────────────── */
+  /* ── Slideshow vertical inset (768+); horizontal from page shell ─────────── */
   --cs-hw-pad-min: 28px;
   --cs-hw-pad-max: 56px;
   --cs-hw-pad: clamp(var(--cs-hw-pad-min), 3vw, var(--cs-hw-pad-max));

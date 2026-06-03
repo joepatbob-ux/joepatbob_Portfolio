@@ -15,13 +15,16 @@ interface Props {
   sectionId: string
 }
 
-/** Paper fills the viewport; padding restores the same text column as `.content-area`. */
+/** Paper fills the viewport; padding matches `.content-area` (sidebar + content-pad-*). */
 const articleFullBleed: React.CSSProperties = {
   boxSizing: 'border-box',
-  marginLeft: 'calc(-1 * (var(--sidebar-width) + var(--content-pad-x)))',
+  marginLeft:
+    'calc(-1 * (var(--sidebar-width) + var(--content-pad-left, var(--content-pad-x))))',
   marginRight: 'calc(-1 * var(--content-pad-x))',
-  width: 'calc(100% + var(--sidebar-width) + var(--content-pad-x) * 2)',
-  paddingLeft: 'calc(var(--sidebar-width) + var(--content-pad-x))',
+  width:
+    'calc(100% + var(--sidebar-width) + var(--content-pad-left, var(--content-pad-x)) + var(--content-pad-x))',
+  paddingLeft:
+    'calc(var(--sidebar-width) + var(--content-pad-left, var(--content-pad-x)))',
   paddingRight: 'var(--content-pad-x)',
 }
 

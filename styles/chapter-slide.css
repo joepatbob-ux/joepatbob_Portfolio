@@ -15,7 +15,9 @@
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  padding: clamp(24px, 4vw, 48px) clamp(16px, 4vw, 72px);
+  /* Horizontal inset from .content-area / fixed panel — not the viewport */
+  padding-block: clamp(24px, 4vw, 48px);
+  padding-inline: 0;
 }
 
 /* Tablet+: stage left, copy right */
@@ -184,7 +186,13 @@
 /* Tablet shell: fluid inner width (narrower content column) */
 @media (min-width: 768px) and (max-width: 1023px) {
   .chapter-slide {
-    --cs-inner-max: min(100%, calc(100vw - var(--sidebar-width) - 2 * var(--content-pad-x) - 32px));
+    --cs-inner-max: min(
+      100%,
+      calc(
+        100vw - var(--sidebar-width) - var(--content-pad-left, var(--content-pad-x)) -
+          var(--content-pad-x)
+      )
+    );
   }
 }
 
