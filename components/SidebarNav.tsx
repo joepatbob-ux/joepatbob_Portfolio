@@ -6,8 +6,8 @@
 // - Sub nav blurs in at viewport center after nav locks, chapters stagger in
 // - All keywords start lit, dim to ~22% once nav is stuck (active stays full until exploration hover)
 // - Hovering another section fades the active keyword; subnav chapter hover does not dim main
-// - Subnav: selected = muted-accent fill; hover = outline ring only (labels stay muted)
-// - Main keywords: hover = outline ring only (no accent jump on hover)
+// - Subnav: selected = muted-accent fill; hover = accent label + accent ring
+// - Main keywords: hover = text stroke/outline on glyphs (color unchanged)
 // - Contact pill: accent at rest; hover = muted fill (no container ring); item hover = ring
 // - Email pill is fixed at bottom
 
@@ -31,7 +31,6 @@ const FONT_MONO = 'var(--font-mono)'
 const ACCENT      = 'var(--color-accent)'
 const NAV_FADED   = 'var(--color-nav-faded-selection)'
 const NAV_PILL_1  = 'var(--color-nav-pill-muted-accent-1)'
-const NAV_OUTLINE = 'var(--color-nav-pill-outline)'
 const STAGGER_MS      = 60
 const TRANSITION_MS   = 320
 const SUBNAV_DELAY_MS = 280
@@ -929,22 +928,20 @@ export function SidebarNav() {
                 isActive,
                 selectionExploringElsewhere: fadeMainNavSelection,
               })
-              const keywordColor = isHoverThis ? NAV_FADED : mainColor
+              const keywordClass = [
+                'sidebar-main-nav__keyword',
+                isHoverThis ? 'sidebar-main-nav__keyword--hover' : '',
+              ]
+                .filter(Boolean)
+                .join(' ')
               return (
                   <span key={sec.id}>
                   <span
+                    className={keywordClass}
                     onClick={() => scrollToSection(sec.id)}
                     style={{
-                      color: keywordColor,
-                      cursor: 'pointer',
+                      color: mainColor,
                       opacity: mainOpacity,
-                      transition:
-                        'opacity 220ms ease, color 200ms ease, box-shadow 180ms ease',
-                      display: 'inline',
-                      borderRadius: 3,
-                      boxShadow: isHoverThis
-                        ? `0 0 0 1px ${NAV_OUTLINE}`
-                        : 'none',
                     }}
                     onMouseEnter={() => {
                       setHoverSectionId(sec.id)
@@ -1014,7 +1011,7 @@ export function SidebarNav() {
             (overlaySubnav || chapterItemsVisible.includes(i))
           const isHoverThis = hoverChapterId === chId
           const chapterFill = isActive ? NAV_PILL_1 : 'transparent'
-          const chapterRing = isHoverThis ? `0 0 0 1px ${NAV_OUTLINE}` : 'none'
+          const chapterRing = isHoverThis ? `0 0 0 1px ${ACCENT}` : 'none'
           return (
             <span key={chapter.id} onClick={() => scrollToChapter(chId)}
               aria-current={isActive ? 'true' : undefined}
@@ -1050,8 +1047,7 @@ export function SidebarNav() {
                   letterSpacing: '0.07em',
                   textTransform: 'uppercase',
                   lineHeight: 1.5,
-                  color:
-                    isHoverThis ? NAV_FADED : isActive ? ACCENT : NAV_FADED,
+                  color: isHoverThis || isActive ? ACCENT : NAV_FADED,
                 }}
               >
                 {chapter.label}

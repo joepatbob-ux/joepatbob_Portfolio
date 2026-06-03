@@ -49,6 +49,25 @@
   margin: 0;
 }
 
+/* Section keywords — hover outline follows glyph shapes, not a pill box */
+.sidebar-main-nav__keyword {
+  display: inline;
+  cursor: pointer;
+  box-shadow: none;
+  border-radius: 0;
+  transition:
+    opacity 220ms ease,
+    color 200ms ease,
+    text-shadow 180ms ease,
+    -webkit-text-stroke 180ms ease;
+  -webkit-text-stroke: 0 transparent;
+  paint-order: stroke fill;
+}
+
+.sidebar-main-nav__keyword--hover {
+  -webkit-text-stroke: 0.65px var(--color-nav-pill-outline);
+}
+
 /* Outline pill — secondary actions (overlay close, etc.) */
 .sidebar-action--secondary {
   margin: 0;
