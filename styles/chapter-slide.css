@@ -133,7 +133,8 @@
   inset: 0;
 }
 
-.chapter-slide--eim .chapter-slide__stage {
+.chapter-slide--eim .chapter-slide__stage,
+.chapter-slide.flow-chapter-slide--formation .chapter-slide__stage {
   overflow: visible;
 }
 

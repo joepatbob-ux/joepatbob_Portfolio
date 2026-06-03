@@ -3,8 +3,9 @@ import {
   boardScale,
   PLATE_CONTENT_BOUNDS,
 } from '@/lib/formation/legoGrid'
+import type { SpritePlacement } from '@/lib/formation/spritePlacement'
 
-/** Cropped plate container + pan layer for the full SVG baseplate. */
+/** Plate container + pan layer sized to the full SVG baseplate. */
 export type PlateDisplayLayout = {
   width: number
   height: number
@@ -79,4 +80,30 @@ export function clientToBoardNative(
 ): { x: number; y: number } {
   const { clipX, clipY } = clientToClip(boardEl, clientX, clientY)
   return clipToBoardNative(clipX, clipY, displayWidth)
+}
+
+/** Map pan-space sprite placement to viewport-fixed coordinates (brick portal). */
+export function screenPlacementFromBoardRect(
+  boardRect: { left: number; top: number },
+  layout: PlateDisplayLayout,
+  placement: SpritePlacement,
+): SpritePlacement {
+  return {
+    left: boardRect.left + layout.panX + placement.left,
+    top: boardRect.top + layout.panY + placement.top,
+    width: placement.width,
+    height: placement.height,
+  }
+}
+
+export function clientPlacementFromBoard(
+  boardEl: HTMLElement,
+  layout: PlateDisplayLayout,
+  placement: SpritePlacement,
+): SpritePlacement {
+  return screenPlacementFromBoardRect(
+    boardEl.getBoundingClientRect(),
+    layout,
+    placement,
+  )
 }

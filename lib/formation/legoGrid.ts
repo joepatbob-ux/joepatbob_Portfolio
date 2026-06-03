@@ -74,9 +74,6 @@ export function boardScale(displayWidth: number): number {
   return displayWidth / BOARD_VIEWBOX.width
 }
 
-/** Inset around outermost stud centers (excludes Lego_Board.svg bezel). */
-const PLATE_STUD_INSET = 42
-
 export type PlateContentBounds = {
   minX: number
   minY: number
@@ -198,22 +195,14 @@ export const PEG_MAP: PegPosition[] = [
   { gx: 9, gy: 9, x: 667.71, y: 33 },
 ]
 
-/** Playable 10×10 stud area in board SVG space (A0–J9 corners + stud radius). */
-export const PLATE_CONTENT_BOUNDS: PlateContentBounds = (() => {
-  let minX = Infinity
-  let minY = Infinity
-  let maxX = -Infinity
-  let maxY = -Infinity
-  for (const peg of PEG_MAP) {
-    minX = Math.min(minX, peg.x)
-    maxX = Math.max(maxX, peg.x)
-    minY = Math.min(minY, peg.y)
-    maxY = Math.max(maxY, peg.y)
-  }
-  return {
-    minX: minX - PLATE_STUD_INSET,
-    minY: minY - PLATE_STUD_INSET,
-    width: maxX - minX + PLATE_STUD_INSET * 2,
-    height: maxY - minY + PLATE_STUD_INSET * 2,
-  }
-})()
+/**
+ * Visible board crop in SVG space — full Lego_Board viewBox so diamond corners
+ * (full plate diamond). Board viewport uses this size; overflow is visible so
+ * dragged bricks are not clipped at the container edge.
+ */
+export const PLATE_CONTENT_BOUNDS: PlateContentBounds = {
+  minX: 0,
+  minY: 0,
+  width: BOARD_VIEWBOX.width,
+  height: BOARD_VIEWBOX.height,
+}
