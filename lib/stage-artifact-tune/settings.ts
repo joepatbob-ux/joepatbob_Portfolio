@@ -1,4 +1,3 @@
-import { readProtoDebugSearchParams } from '@/lib/protoDebugMode'
 import {
   DEFAULT_PHONE_STAGE_SIZE,
   PHONE_STAGE_SIZE_MAX,
@@ -9,7 +8,6 @@ export const STAGE_TUNE_CHANGE = 'stage-tune-change'
 export const STAGE_TUNE_STORAGE_KEY = 'stage-artifact-tune'
 
 export type StageArtifactTuneSettings = {
-  panelOpen: boolean
   phoneWidth: number
   phoneHeight: number
   sensiLiteMaxPx: number
@@ -17,7 +15,6 @@ export type StageArtifactTuneSettings = {
 }
 
 export const DEFAULT_STAGE_ARTIFACT_TUNE: StageArtifactTuneSettings = {
-  panelOpen: false,
   phoneWidth: DEFAULT_PHONE_STAGE_SIZE,
   phoneHeight: DEFAULT_PHONE_STAGE_SIZE,
   sensiLiteMaxPx: 320,
@@ -69,23 +66,8 @@ function readStored(): StageArtifactTuneSettings {
   }
 }
 
-function applyUrlOverrides(settings: StageArtifactTuneSettings): StageArtifactTuneSettings {
-  const params = readProtoDebugSearchParams()
-  if (params.get('stage-tune') === '0') {
-    return { ...settings, panelOpen: false }
-  }
-  if (params.has('stage-tune')) {
-    return { ...settings, panelOpen: true }
-  }
-  /* Size panel is dev-only unless ?stage-tune is set */
-  if (!import.meta.env.DEV) {
-    return { ...settings, panelOpen: false }
-  }
-  return settings
-}
-
 export function getStageArtifactTune(): StageArtifactTuneSettings {
-  return applyUrlOverrides(readStored())
+  return readStored()
 }
 
 export function saveStageArtifactTune(settings: StageArtifactTuneSettings): void {
@@ -102,20 +84,3 @@ export function patchStageArtifactTune(
   return next
 }
 
-export function formatStageTuneCss(settings = getStageArtifactTune()): string {
-  return `:root {
-  --stage-tune-phone-width: ${settings.phoneWidth.toFixed(2)};
-  --stage-tune-phone-height: ${settings.phoneHeight.toFixed(2)};
-  --stage-tune-sensi-lite-max: ${settings.sensiLiteMaxPx}px;
-  --stage-tune-eim-max: ${settings.eimMaxPx}px;
-}`
-}
-
-export const STAGE_TUNE_LIMITS = {
-  phoneMin: PHONE_STAGE_SIZE_MIN,
-  phoneMax: PHONE_STAGE_SIZE_MAX,
-  sensiLiteMin: SENSI_LITE_MIN,
-  sensiLiteMax: SENSI_LITE_MAX,
-  eimMin: EIM_MIN,
-  eimMax: EIM_MAX,
-} as const

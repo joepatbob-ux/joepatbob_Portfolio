@@ -10,9 +10,9 @@
 @import './flow-chapter-slide.css';
 @import './web-apps-kelvin-chapter.css';
 @import './kelvin-scratch.css';
-@import './stage-artifact-tune.css';
 @import './formation-lego-board.css';
 @import './eib-chapter.css';
+@import './concept-eight-ball.css';
 @import './spotlight-phone.css';
 @import './phone-swap.css';
 @import './chapter-slide.css';
@@ -1209,7 +1209,7 @@ html {
   /* Snap: hero, slideshow chapters, EIB intro */
   #hero,
   .portfolio-chapter-slot--fill.hardware-slideshow,
-  .eib-chapter-intro-slot.portfolio-chapter-slot--fill {
+  .case-study-flow-overview.portfolio-chapter-slot--fill {
     scroll-snap-align: start;
     scroll-snap-stop: always;
   }
@@ -1222,7 +1222,7 @@ html {
   }
 
   .portfolio-chapter-slot--fill.hardware-slideshow,
-  .eib-chapter-intro-slot.portfolio-chapter-slot--fill {
+  .case-study-flow-overview.portfolio-chapter-slot--fill {
     min-height: calc(100dvh + var(--cs-screen-gap));
   }
 

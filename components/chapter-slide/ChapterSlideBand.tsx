@@ -66,7 +66,7 @@ export function ChapterSlideBand({
             className={[
               'chapter-slide__copy',
               'chapter-copy',
-              isFlow && !copyOnly ? 'flow-chapter-slide__copy' : '',
+              isFlow ? 'flow-chapter-slide__copy' : '',
               copyOnly
                 ? 'chapter-slide__copy--overview'
                 : isMobile
