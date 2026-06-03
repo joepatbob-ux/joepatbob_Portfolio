@@ -115,7 +115,7 @@ export function StageArtifactTunePanel() {
     return () => observer.disconnect()
   }, [])
 
-  const showFab = import.meta.env.DEV || settings.panelOpen
+  const showFab = import.meta.env.DEV
 
   const patch = (next: Partial<StageArtifactTuneSettings>) => patchSettings(next)
 

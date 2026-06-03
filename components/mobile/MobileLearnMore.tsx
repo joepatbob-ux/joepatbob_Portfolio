@@ -13,8 +13,6 @@ interface Props {
   /** Flow sections use section header; hardware chapters use chapter copy headline. */
   headerVariant?: 'section' | 'chapter'
   triggerLabel?: string
-  /** Section overviews — full body on mobile (no More pill / sheet). */
-  inline?: boolean
   children: ReactNode
 }
 
@@ -25,12 +23,10 @@ export function MobileLearnMore({
   align = 'left',
   headerVariant = 'section',
   triggerLabel = 'More',
-  inline = false,
   children,
 }: Props) {
   const isMobile = useLayoutMobile()
   const [open, setOpen] = useState(false)
-  const showInline = inline || !isMobile
 
   const accentRule = <div className="chapter-copy__rule" aria-hidden />
 
@@ -45,13 +41,11 @@ export function MobileLearnMore({
     </button>
   )
 
-  const ruleOrPill = showInline ? accentRule : learnMorePill
-
   const header =
     headerVariant === 'chapter' ? (
       <>
         <h3 className="chapter-copy__headline">{headline}</h3>
-        {ruleOrPill}
+        {isMobile ? learnMorePill : accentRule}
       </>
     ) : (
       <CaseStudySectionHeader
@@ -59,11 +53,11 @@ export function MobileLearnMore({
         meta={meta}
         subhead={subhead}
         align={align}
-        ruleSlot={showInline ? undefined : learnMorePill}
+        ruleSlot={isMobile ? learnMorePill : undefined}
       />
     )
 
-  if (showInline) {
+  if (!isMobile) {
     return (
       <>
         {header}

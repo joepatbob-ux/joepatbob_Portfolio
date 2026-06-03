@@ -1,7 +1,7 @@
 'use client'
 
+import { CaseStudySectionHeader } from '@/components/case-study/CaseStudySectionHeader'
 import { ChapterSlideBand } from '@/components/chapter-slide/ChapterSlideBand'
-import { MobileLearnMore } from '@/components/mobile/MobileLearnMore'
 import { parseChapterBody } from '@/lib/chapter-slide/parseChapterBody'
 
 interface Props {
@@ -14,7 +14,7 @@ interface Props {
   className?: string
 }
 
-/** Section overview — centered 900px column; full body on mobile (inline, no More sheet). */
+/** Section overview — 900px column centered in content area; full body on all breakpoints. */
 export function CaseStudyFlowOverview({
   chapterId,
   headline,
@@ -47,23 +47,21 @@ export function CaseStudyFlowOverview({
               : 'case-study-flow-overview__inner'
           }
         >
-          <MobileLearnMore
-            inline
+          <CaseStudySectionHeader
             headline={headline}
             meta={meta}
             subhead={subhead}
             align={align}
-          >
-            {paragraphs.length > 0 ? (
-              <div className="mobile-prose case-study-flow-overview__prose">
-                {paragraphs.map((p, i) => (
-                  <p key={i} className="mobile-prose__p">
-                    {p}
-                  </p>
-                ))}
-              </div>
-            ) : null}
-          </MobileLearnMore>
+          />
+          {paragraphs.length > 0 ? (
+            <div className="mobile-prose case-study-flow-overview__prose">
+              {paragraphs.map((p, i) => (
+                <p key={i} className="mobile-prose__p">
+                  {p}
+                </p>
+              ))}
+            </div>
+          ) : null}
         </div>
       }
     />

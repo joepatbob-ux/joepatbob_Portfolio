@@ -25,11 +25,6 @@ html.sidebar-tablet-hero-active .sidebar-desktop-shell {
   background: transparent;
 }
 
-html.in-hero-scroll .sidebar-shell__divider {
-  opacity: 0 !important;
-  visibility: hidden;
-}
-
 .sidebar-subnav--fixed {
   left: 40px !important;
   box-sizing: border-box;
