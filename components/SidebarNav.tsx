@@ -6,9 +6,9 @@
 // - Sub nav blurs in at viewport center after nav locks, chapters stagger in
 // - All keywords start lit, dim to ~22% once nav is stuck (active stays full until exploration hover)
 // - Hovering another section fades the active keyword; subnav chapter hover does not dim main
-// - Subnav: selected = muted-accent fill; hover = accent ring, hollow label (bg shows through)
-// - Main keywords: hover = hollow glyphs + accent stroke
-// - Contact pill: accent at rest; expanded/hover = transparent; items = hollow + ring
+// - Subnav: selected = muted-accent fill; hover = accent ring + accent label
+// - Main keywords only: hover = hollow glyphs + accent stroke (hero sentence)
+// - Contact pill: accent at rest; expanded = muted fill; item hover = accent + ring
 // - Email pill is fixed at bottom
 
 'use client'
@@ -1040,12 +1040,6 @@ export function SidebarNav() {
               }}
             >
               <span
-                className={[
-                  'sidebar-subnav__label',
-                  isHoverThis ? 'sidebar-subnav__label--hover' : '',
-                ]
-                  .filter(Boolean)
-                  .join(' ')}
                 style={{
                   fontFamily: FONT_MONO,
                   fontWeight: 700,
@@ -1053,7 +1047,7 @@ export function SidebarNav() {
                   letterSpacing: '0.07em',
                   textTransform: 'uppercase',
                   lineHeight: 1.5,
-                  color: isHoverThis ? 'transparent' : isActive ? ACCENT : NAV_FADED,
+                  color: isHoverThis || isActive ? ACCENT : NAV_FADED,
                 }}
               >
                 {chapter.label}

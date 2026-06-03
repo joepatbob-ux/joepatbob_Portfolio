@@ -70,22 +70,6 @@
   -webkit-text-stroke: 0.65px var(--color-accent);
 }
 
-/* Subnav chapter labels — hover matches keyword (ring on parent item) */
-.sidebar-subnav__label {
-  -webkit-text-stroke: 0 transparent;
-  paint-order: stroke fill;
-  transition:
-    color 180ms ease,
-    -webkit-text-fill-color 180ms ease,
-    -webkit-text-stroke 180ms ease;
-}
-
-.sidebar-subnav__label--hover {
-  color: transparent;
-  -webkit-text-fill-color: transparent;
-  -webkit-text-stroke: 0.5px var(--color-accent);
-}
-
 /* Outline pill — secondary actions (overlay close, etc.) */
 .sidebar-action--secondary {
   margin: 0;
@@ -108,12 +92,9 @@
 }
 
 .sidebar-action--secondary:hover {
-  color: transparent;
-  -webkit-text-fill-color: transparent;
-  -webkit-text-stroke: 0.5px var(--color-accent);
-  background: transparent;
-  box-shadow: 0 0 0 1px var(--color-accent);
-  paint-order: stroke fill;
+  color: var(--color-nav-faded-selection);
+  background: var(--color-nav-pill-muted-accent-1);
+  box-shadow: 0 0 0 1px var(--color-nav-pill-outline);
 }
 
 .sidebar-action--secondary:focus-visible {
