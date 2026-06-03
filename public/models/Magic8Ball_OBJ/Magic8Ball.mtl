@@ -1,0 +1,13 @@
+# Magic 8 Ball — textures relative to /models/Magic8Ball_OBJ/
+
+newmtl Palla8
+Ka 1.000000 1.000000 1.000000
+Ni 1.450000
+illum 2
+map_Kd Textures/2048/Magic8Ball_Base_Color.png
+map_Ks Textures/2048/Magic8Ball_Specular.png
+map_Ns Textures/2048/Magic8Ball_Roughness.png
+map_refl Textures/2048/Magic8Ball_Metallic.png
+map_Ke Textures/2048/Magic8Ball_Emission.png
+map_d Textures/2048/Magic8Ball_Opacity.png
+map_Bump -bm 1.000000 Textures/2048/Magic8Ball_NormalOpenGL.png

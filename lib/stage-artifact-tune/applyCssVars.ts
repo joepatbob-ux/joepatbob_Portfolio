@@ -1,5 +1,4 @@
 import {
-  formatStageTuneCss,
   getStageArtifactTune,
   type StageArtifactTuneSettings,
 } from '@/lib/stage-artifact-tune/settings'
@@ -31,4 +30,4 @@ export function clearStageArtifactTuneCss() {
   }
 }
 
-export { formatStageTuneCss, type StageArtifactTuneSettings }
+export type { StageArtifactTuneSettings }

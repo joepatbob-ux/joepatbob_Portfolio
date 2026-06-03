@@ -1,9 +1,10 @@
-/** Structured copy for Everything In Between (Conviction · Formation · Practice). */
+/** Structured copy for Everything In Between (Conviction · Formation · Practice · Concepts). */
 
 export const EIB_SECTION_TABS = [
   { id: 'conviction', label: 'Conviction' },
   { id: 'formation', label: 'Formation' },
   { id: 'practice', label: 'Practice' },
+  { id: 'concepts', label: 'Concepts' },
 ] as const
 
 export type EibSectionId = (typeof EIB_SECTION_TABS)[number]['id']
@@ -66,4 +67,32 @@ export const EIB_PRACTICE = {
   headline: 'Practice',
   intro: `I built a portable demo kit because the sales team needed to show the product somewhere without a power outlet. I ran corporate headshot sessions because consistent photos matter for the people in them. I organized a crawfish boil because fed engineers show up differently than hungry ones. None of this has a UX rationale. All of it comes from the same place the work does.`,
   close: `Direct, collaborative, not precious.`,
+} as const
+
+export const EIB_CONCEPTS = {
+  headline: 'Concepts',
+  intro: `The principles travel. The constraints change. Shake the ball when you want a reminder of how I think about the work — fragments from conviction, formation, and practice that don't always land in a case study slide.`,
+  prompt: 'Tap to shake',
+  answers: [
+    "If it's worth buying, it sells itself.",
+    'Value flows from the user up, not the boardroom down.',
+    "Our job is to do the hard work so users don't have to.",
+    "It's okay to move the cheese, if you put it somewhere better.",
+    'Direct, collaborative, not precious.',
+    'The interface should carry the cognitive load.',
+    'Fixed canvas discipline still applies in product.',
+    'Ship the constraint, not the compromise.',
+    'Make the default path the right path.',
+    'Prototype the edge case before the happy path.',
+    'If sales needs a demo kit, build the demo kit.',
+    'Regulatory is a design material, not a blocker.',
+    'Patents come from problems worth solving twice.',
+    'Move the cheese — but label the new location.',
+    'Fed teams show up differently than hungry ones.',
+    'Ask what breaks when the power goes out.',
+    'Brand instinct travels into firmware.',
+    'Clarity is a form of respect.',
+    'Reduce the decisions the user has to make.',
+    'Better is a direction, not a slogan.',
+  ],
 } as const

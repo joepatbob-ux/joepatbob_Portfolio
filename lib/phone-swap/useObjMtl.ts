@@ -16,6 +16,7 @@ export function useObjMtl(objPath: string, mtlPath: string) {
     loader.setPath(mtl.directory)
     loader.setResourcePath(mtl.directory)
   })
+  materials.preload()
 
   return useLoader(OBJLoader, obj.fileName, (loader) => {
     loader.setPath(obj.directory)

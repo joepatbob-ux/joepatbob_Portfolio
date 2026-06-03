@@ -9,8 +9,6 @@ import { StickerLayer } from '@/components/StickerLayer'
 import { StickerProvider } from '@/components/StickerProvider'
 import { ProtoDebugGate } from '@/components/ProtoDebugGate'
 import { StageArtifactTuneController } from '@/components/stage-artifact-tune/StageArtifactTuneController'
-import { StageArtifactTunePanel } from '@/components/stage-artifact-tune/StageArtifactTunePanel'
-import { StageArtifactTuneProvider } from '@/components/stage-artifact-tune/StageArtifactTuneProvider'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import { everythingElse } from '@/lib/sections/everything-else'
 import { hardware } from '@/lib/sections/hardware'
@@ -21,10 +19,8 @@ export default function App() {
   return (
     <div className="vite-font-mono">
       <ThemeProvider>
-        <StageArtifactTuneProvider>
-          <StageArtifactTuneController />
-          <StageArtifactTunePanel />
-          <ProtoDebugGate>
+        <StageArtifactTuneController />
+        <ProtoDebugGate>
           <ContactFormProvider>
             <StickerProvider>
               <ChapterNavProvider>
@@ -46,7 +42,6 @@ export default function App() {
             </StickerProvider>
           </ContactFormProvider>
         </ProtoDebugGate>
-        </StageArtifactTuneProvider>
       </ThemeProvider>
     </div>
   )
