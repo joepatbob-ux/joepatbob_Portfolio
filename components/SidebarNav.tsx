@@ -180,6 +180,7 @@ export function SidebarNav() {
   const activeSectionRef = useRef<string | null>(null)
   const activeChapterRef = useRef<string | null>(null)
   const overlayOpenRef = useRef(false)
+  const dividerPastHeroRef = useRef(false)
   const [desktopNavReady, setDesktopNavReady] = useState(false)
   const sidebarShellRef = useRef<HTMLDivElement>(null)
   const heroRef       = useRef<HTMLDivElement>(null)
@@ -232,7 +233,7 @@ export function SidebarNav() {
     sec.chapters.forEach((_, i) => {
       const t = setTimeout(() => {
         setChapterItemsVisible((prev) => [...prev, i])
-        if (isFirst && i === sec.chapters.length - 1) setDividerVisible(true)
+        if (i === sec.chapters.length - 1) setDividerVisible(true)
       }, i * STAGGER_MS)
       staggerTimers.current.push(t)
     })
@@ -277,6 +278,14 @@ export function SidebarNav() {
     overlayOpenRef.current = mobileDrawerOpen || tabletSidebarOpen
   }, [mobileDrawerOpen, tabletSidebarOpen])
 
+  const syncSidebarDivider = useCallback((inHero: boolean) => {
+    if (overlayOpenRef.current) return
+    const show = !inHero
+    if (dividerPastHeroRef.current === show) return
+    dividerPastHeroRef.current = show
+    setDividerVisible(show)
+  }, [])
+
   /** Expanded overlay panel: reveal chapter subnav even before scroll-lock threshold. */
   useEffect(() => {
     const overlayOpen =
@@ -292,14 +301,14 @@ export function SidebarNav() {
     }
     if (!prevStuck.current) {
       setSubNavVisible(false)
-      setDividerVisible(false)
+      syncSidebarDivider(isInHeroScrollZone())
       setDimActive(false)
       setNavIsStuck(false)
       setChapterItemsVisible([])
       staggerTimers.current.forEach(clearTimeout)
       staggerTimers.current = []
     }
-  }, [isTablet, isMobile, tabletSidebarOpen, mobileDrawerOpen, staggerIn])
+  }, [isTablet, isMobile, tabletSidebarOpen, mobileDrawerOpen, staggerIn, syncSidebarDivider])
 
   const applyScrollSpy = useCallback(() => {
     if (overlayOpenRef.current) return
@@ -349,14 +358,14 @@ export function SidebarNav() {
         prevStuck.current = false
         setNavIsStuck(false)
         setSubNavVisible(false)
-        setDividerVisible(false)
+        syncSidebarDivider(isInHeroScrollZone())
         setDimActive(false)
         setChapterItemsVisible([])
         if (subNavTimer.current) clearTimeout(subNavTimer.current)
         staggerTimers.current.forEach(clearTimeout)
       }
     },
-    [staggerIn],
+    [staggerIn, syncSidebarDivider],
   )
 
   useEffect(() => {
@@ -467,8 +476,9 @@ export function SidebarNav() {
     const inHero = isInHeroScrollZone()
     document.documentElement.classList.toggle('in-hero-scroll', inHero)
     document.documentElement.classList.toggle('past-hero-scroll', !inHero)
+    syncSidebarDivider(inHero)
     setDesktopNavReady(true)
-  }, [isMobile, isTablet, mobileInHero, mobileDrawerOpen, tabletSidebarOpen, tabletInHero, measureLayout, applyDesktopNavScroll, applyTabletHeroSidebarScroll, applyMobileHeroScroll])
+  }, [isMobile, isTablet, mobileInHero, mobileDrawerOpen, tabletSidebarOpen, tabletInHero, measureLayout, applyDesktopNavScroll, applyTabletHeroSidebarScroll, applyMobileHeroScroll, syncSidebarDivider])
 
   /** Mobile: hero intro fades on scroll; pill + drawer overlay after hero. */
   useEffect(() => {
@@ -537,6 +547,7 @@ export function SidebarNav() {
       const inHero = isInHeroScrollZone()
       document.documentElement.classList.toggle('in-hero-scroll', inHero)
       document.documentElement.classList.toggle('past-hero-scroll', !inHero)
+      syncSidebarDivider(inHero)
 
       if (isTablet) {
         if (inHero !== tabletInHeroRef.current) {
@@ -569,6 +580,7 @@ export function SidebarNav() {
     measureLayout,
     applyDesktopNavScroll,
     applyTabletHeroSidebarScroll,
+    syncSidebarDivider,
   ])
 
   useEffect(() => {

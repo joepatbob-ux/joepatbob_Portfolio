@@ -77,6 +77,10 @@ function applyUrlOverrides(settings: StageArtifactTuneSettings): StageArtifactTu
   if (params.has('stage-tune')) {
     return { ...settings, panelOpen: true }
   }
+  /* Size panel is dev-only unless ?stage-tune is set */
+  if (!import.meta.env.DEV) {
+    return { ...settings, panelOpen: false }
+  }
   return settings
 }
 
