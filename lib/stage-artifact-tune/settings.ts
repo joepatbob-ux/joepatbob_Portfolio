@@ -22,9 +22,9 @@ export const DEFAULT_STAGE_ARTIFACT_TUNE: StageArtifactTuneSettings = {
 }
 
 const SENSI_LITE_MIN = 180
-const SENSI_LITE_MAX = 480
+const SENSI_LITE_MAX = 560
 const EIM_MIN = 160
-const EIM_MAX = 420
+const EIM_MAX = 560
 
 function clampPhoneScale(value: number): number {
   if (!Number.isFinite(value)) return DEFAULT_PHONE_STAGE_SIZE

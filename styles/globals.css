@@ -4,7 +4,6 @@
 @import './case-study-content.css';
 @import './case-study-section-header.css';
 @import './case-study-flow-overview.css';
-@import './chapter-layout-ghost.css';
 @import './mobile-chapter.css';
 @import './mobile-learn-more.css';
 @import './mobile-chapter-viewport.css';
@@ -845,7 +844,9 @@
 
 .sticker-pile-wrap {
   position: relative;
-  max-width: min(100%, 560px);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 /* In-flow spacer; interactive stack is portaled beside .sticker-layer */

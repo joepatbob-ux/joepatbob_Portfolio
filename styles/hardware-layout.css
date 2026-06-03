@@ -9,6 +9,16 @@
   --hw-copy-min-w: var(--cs-copy-measure-min);
   --hw-copy-max-w: var(--cs-copy-column-max);
   --hw-band-max-w: var(--cs-band-max);
+  --hw-stage-artifact-w: var(--cs-stage-artifact-w);
+  /* Match Touch 2 photo column + gap + dot rail (see --cs-touch2-slide-w-ref) */
+  --hw-touch2-outer-w: calc(
+    var(--cs-touch2-slide-w-ref, 387px) + var(--cs-touch2-gap) +
+      var(--cs-touch2-dot-ring, 40px)
+  );
+  --hw-stage-gallery-w: min(
+    100%,
+    max(var(--cs-stage-artifact-w), var(--hw-touch2-outer-w))
+  );
 }
 
 .hardware-slideshow .portfolio-chapter-panel,
@@ -33,15 +43,16 @@
 @media (min-width: 768px) {
   /* Shared shell: Hardware + Flow slideshow (Mobile, EIB, Web Apps, etc.) */
   .hardware-slideshow .chapter-slide__viewport {
-    flex: 1;
+    flex: 1 1 auto;
     min-height: 0;
     width: 100%;
     display: flex;
+    flex-direction: column;
     box-sizing: border-box;
     padding-block: var(--hw-pad);
     padding-inline: 0;
     justify-content: flex-start;
-    align-items: center;
+    align-items: stretch;
   }
 
   .section-lessons.hardware-slideshow .portfolio-chapter-panel {
@@ -61,16 +72,32 @@
     grid-template-rows: unset !important;
     grid-column: unset !important;
     grid-row: unset !important;
+    flex: 1 1 auto;
     width: 100%;
     max-width: 100% !important;
     max-height: 100% !important;
+    min-height: 0;
     margin-inline: 0;
     box-sizing: border-box;
-    align-self: center;
+    align-self: stretch;
     height: auto;
     align-items: flex-start;
     justify-content: flex-start;
     gap: var(--hw-gap);
+  }
+
+  .hardware-slideshow
+    .chapter-slide__inner:has(.flow-chapter-slide__stage--empty) {
+    gap: 0;
+  }
+
+  .hardware-slideshow
+    .chapter-slide__inner:has(.flow-chapter-slide__stage--empty)
+    .chapter-slide__copy {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
   }
 
   .hardware-slideshow .chapter-slide__stage,
@@ -78,18 +105,54 @@
     grid-column: unset !important;
     grid-row: unset !important;
     position: relative;
-    align-self: flex-start;
+    align-self: stretch;
   }
 
+  /* Stage column = flex shell; artifact floats centered with fluid min/max width */
   .hardware-slideshow .chapter-slide__stage {
     display: flex;
-    align-items: flex-start;
-    justify-content: flex-start;
-    flex: 0 1 auto;
+    align-items: center;
+    justify-content: center;
+    flex: 1 1 auto;
     min-width: var(--hw-stage-min-w);
     max-width: var(--hw-stage-max-w);
     min-height: 0;
     height: auto;
+    box-sizing: border-box;
+  }
+
+  /* All stage artifacts share Touch2 gallery width; content centers inside */
+  .hardware-slideshow .chapter-slide__stage > * {
+    width: var(--hw-stage-gallery-w);
+    max-width: 100%;
+    margin-inline: auto;
+    flex: 0 1 auto;
+    box-sizing: border-box;
+  }
+
+  .hardware-slideshow .chapter-slide__stage > .phone-swap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: var(--hw-stage-gallery-w);
+    max-width: 100%;
+  }
+
+  .hardware-slideshow .chapter-slide__stage > .phone-swap .phone-swap__viewbox {
+    margin-inline: auto;
+  }
+
+  .hardware-slideshow .chapter-slide__stage:has(.flow-chapter-slide__stage--empty) {
+    flex: 0 0 auto !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    max-width: 0 !important;
+    min-height: 0 !important;
+    max-height: 0 !important;
+    height: 0 !important;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
   }
 
   .hardware-slideshow.chapter-slide--eim .chapter-slide__stage,
@@ -99,44 +162,83 @@
   }
 
   .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__stage:has(.phone-swap) {
-    flex: 0 0 auto;
-    width: auto;
-    max-width: min(100%, var(--hw-stage-max-w));
+    flex: 1 1 auto;
+    width: var(--hw-stage-gallery-w);
+    max-width: min(100%, var(--hw-stage-gallery-w));
   }
 
-  .hardware-slideshow.chapter-slide--eim .chapter-slide__stage {
-    flex: 0 0 auto;
-    width: auto;
+  .hardware-slideshow.chapter-slide--eim .chapter-slide__stage > .eim-path-art {
+    width: var(--hw-stage-gallery-w);
+    max-width: min(100%, var(--hw-stage-gallery-w));
     min-width: 0;
-    max-width: var(--stage-tune-eim-max, var(--cs-eim-stage-max-w));
+    margin-inline: auto;
   }
 
-  .hardware-slideshow.chapter-slide--sensi-lite .chapter-slide__stage {
-    flex: 0 0 auto;
-    width: min(var(--stage-tune-sensi-lite-max, var(--cs-sensi-lite-stage-max-w)), 100%);
-    min-width: 0;
-    max-width: min(var(--stage-tune-sensi-lite-max, var(--cs-sensi-lite-stage-max-w)), 100%);
+  .hardware-slideshow.chapter-slide--eim .eim-path-art__stage-wrap {
+    width: 100%;
+    max-width: 100%;
+    margin-inline: auto;
   }
 
-  .hardware-slideshow.chapter-slide--sensi-lite .chapter-slide__interactive-wrap,
+  .hardware-slideshow.chapter-slide--sensi-lite
+    .chapter-slide__stage
+    > .chapter-slide__interactive-wrap {
+    width: var(--hw-stage-gallery-w);
+    max-width: 100%;
+    min-width: min(100%, var(--hw-stage-gallery-w));
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: min(
+      calc(var(--hw-stage-gallery-w) * 147 / 240),
+      56dvh
+    );
+  }
+
   .hardware-slideshow.chapter-slide--sensi-lite .chapter-slide__interactive-content {
+    width: min(100%, var(--hw-stage-gallery-w));
+    max-width: 100%;
+    flex: 0 0 auto;
+  }
+
+  .hardware-slideshow.chapter-slide--sensi-lite .sensi-lite-proto__stage {
     width: 100%;
+    max-width: 100%;
+    aspect-ratio: 240 / 147;
+  }
+
+  .hardware-slideshow .chapter-slide__stage .touch2-carousel {
+    width: var(--hw-stage-gallery-w);
     max-width: 100%;
   }
 
-  .hardware-slideshow .chapter-slide__stage .touch2-carousel,
   .hardware-slideshow .chapter-slide__stage .verdant-interactive,
-  .hardware-slideshow .chapter-slide__stage .eim-path-art,
   .hardware-slideshow .chapter-slide__stage .chapter-stage-media,
-  .hardware-slideshow .chapter-slide__stage .before-after-slider {
+  .hardware-slideshow .chapter-slide__stage .before-after-slider,
+  .hardware-slideshow .chapter-slide__stage .kelvin-scratch,
+  .hardware-slideshow .chapter-slide__stage .concept-eight-ball,
+  .hardware-slideshow .chapter-slide__stage .sticker-pile-wrap,
+  .hardware-slideshow .chapter-slide__stage .formation-lego {
+    width: var(--hw-stage-gallery-w);
+    max-width: 100%;
+    margin-inline: auto;
+  }
+
+  .hardware-slideshow .chapter-slide__stage .sticker-pile-wrap,
+  .hardware-slideshow .chapter-slide__stage .formation-lego {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .hardware-slideshow .chapter-slide__stage .formation-lego__stage {
     width: 100%;
     max-width: 100%;
-    margin: 0;
   }
 
   .hardware-slideshow .chapter-slide__copy {
-    flex: 1 1 0;
-    min-width: min(var(--hw-copy-min-w), 36%);
+    flex: 0 1 auto;
+    min-width: 0;
     width: auto;
     max-width: none;
     max-height: min(78dvh, calc(100dvh - var(--hw-pad) * 2));
@@ -200,8 +302,8 @@
   }
 }
 
-/* Desktop (1025+): stage left, copy right */
-@media (min-width: 1025px) {
+/* Desktop (1024+): stage left, copy right — aligned with lib/layout/breakpoints.ts */
+@media (min-width: 1024px) {
   .hardware-slideshow .chapter-slide__inner {
     flex-direction: row;
     align-items: flex-start;
@@ -218,10 +320,8 @@
     width: auto;
   }
 
-  .hardware-slideshow.chapter-slide--eim .chapter-slide__stage,
-  .hardware-slideshow.chapter-slide--sensi-lite .chapter-slide__stage,
   .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__stage:has(.phone-swap) {
-    flex: 0 0 auto;
+    flex: 1 1 auto;
   }
 
   .hardware-slideshow .chapter-slide__copy {
@@ -246,24 +346,42 @@
     order: 1;
     flex: 0 0 auto;
     width: 100%;
-    max-width: var(--hw-stage-max-w);
+    max-width: min(var(--hw-stage-max-w), 100%);
     min-width: min(var(--hw-stage-min-w), 100%);
     min-height: 0;
+    align-items: center;
+    justify-content: center;
   }
 
   .hardware-slideshow .chapter-slide__copy,
   .hardware-slideshow.chapter-slide--touch-2 .chapter-slide__copy {
     order: 2;
-    flex: 0 0 auto;
+    flex: 0 1 auto;
     width: 100%;
-    min-width: min(var(--hw-copy-min-w), 100%);
-    max-width: var(--hw-copy-max-w);
+    min-width: 0;
+    max-width: 100%;
     margin-inline: 0;
   }
 }
 
 /* Mobile: full-viewport slides — see mobile-chapter-viewport.css */
 @media (max-width: 767px) {
+  .hardware-slideshow.chapter-slide--eim .chapter-slide__stage {
+    max-width: min(100%, var(--cs-stage-gallery-w));
+  }
+
+  .hardware-slideshow.chapter-slide--eim .chapter-slide__stage > .eim-path-art,
+  .hardware-slideshow.chapter-slide--sensi-lite .chapter-slide__interactive-wrap {
+    width: min(100%, var(--cs-stage-gallery-w));
+    max-width: 100%;
+  }
+
+  .hardware-slideshow.chapter-slide--sensi-lite .chapter-slide__interactive-content,
+  .hardware-slideshow.chapter-slide--sensi-lite .sensi-lite-proto__stage {
+    width: 100%;
+    max-width: 100%;
+  }
+
   [data-section-id='hardware'] .portfolio-chapter-slot--fill .portfolio-chapter-panel,
   .hardware-slideshow.portfolio-chapter-slot--fill .portfolio-chapter-panel {
     position: relative !important;

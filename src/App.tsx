@@ -7,7 +7,6 @@ import { SidebarNav } from '@/components/SidebarNav'
 import { StickerLayer } from '@/components/StickerLayer'
 import { StickerProvider } from '@/components/StickerProvider'
 import { ProtoDebugGate } from '@/components/ProtoDebugGate'
-import { ChapterLayoutGhost } from '@/components/chapter-layout/ChapterLayoutGhost'
 import { StageArtifactTuneController } from '@/components/stage-artifact-tune/StageArtifactTuneController'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import { everythingElse } from '@/lib/sections/everything-else'
@@ -20,7 +19,6 @@ export default function App() {
     <div className="vite-font-mono">
       <ThemeProvider>
         <StageArtifactTuneController />
-        <ChapterLayoutGhost />
         <ProtoDebugGate>
           <StickerProvider>
             <ChapterNavProvider>
