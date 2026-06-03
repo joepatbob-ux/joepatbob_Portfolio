@@ -1,25 +1,21 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { PlacedStickerControl } from '@/components/PlacedStickerControl'
 import { Sticker } from '@/components/Sticker'
-import { useStickers } from '@/components/StickerProvider'
-import { bindStickerLayerElement } from '@/lib/stickerScroll'
-import { resolveStickerPointerTarget } from '@/lib/stickerHitTest'
+import {
+  STICKER_Z_DRAG,
+  useStickers,
+} from '@/components/StickerProvider'
 import { flushScrollFrame } from '@/lib/scrollFrame'
 
 export function StickerLayer() {
-  const { placed, activeDrag, selectSticker, dispatchPlacedPointer } =
-    useStickers()
+  const { placed, activeDrag, selectSticker } = useStickers()
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
     setMounted(true)
-  }, [])
-
-  const onLayerRef = useCallback((el: HTMLDivElement | null) => {
-    bindStickerLayerElement(el)
   }, [])
 
   useEffect(() => {
@@ -33,57 +29,54 @@ export function StickerLayer() {
       const target = e.target as HTMLElement
       if (
         target.closest(
-          '.sticker-pile-wrap, .sticker-pile-portal, .sticker-pile, .sticker-layer__drag',
+          '.sticker-pile-wrap, .sticker-pile-portal, .sticker-pile, .sticker-pile__grab, .sticker-layer__drag, .sticker-placed, .sticker-placed__hit, .sticker-placed__scrubber-hit',
         )
       ) {
         return
       }
-
-      const stickerHit = resolveStickerPointerTarget(e.clientX, e.clientY)
-      if (stickerHit) {
-        dispatchPlacedPointer(stickerHit.instanceId, e)
-        e.stopPropagation()
-        return
-      }
-
       selectSticker(null)
     }
     window.addEventListener('pointerdown', onPointerDown, true)
     return () => window.removeEventListener('pointerdown', onPointerDown, true)
-  }, [selectSticker, activeDrag, dispatchPlacedPointer])
+  }, [selectSticker, activeDrag])
 
   if (!mounted) return null
 
-  return createPortal(
+  return (
     <>
-      <div
-        ref={onLayerRef}
-        className="sticker-layer"
-        aria-hidden={placed.length === 0}
-      >
-        {placed.map((sticker) => (
-          <PlacedStickerControl key={sticker.instanceId} sticker={sticker} />
-        ))}
-      </div>
-
-      {activeDrag && (
+      {createPortal(
         <div
-          className="sticker-layer__drag"
-          style={{
-            left: activeDrag.clientX,
-            top: activeDrag.clientY,
-          }}
+          className="sticker-layer"
+          aria-hidden={placed.length === 0 && !activeDrag}
         >
-          <Sticker
-            src={activeDrag.asset.src}
-            alt={activeDrag.asset.alt}
-            assetId={activeDrag.asset.id}
-            size="placed"
-            rotation={activeDrag.rotation}
-          />
-        </div>
+          {placed.map((sticker) => (
+            <PlacedStickerControl key={sticker.instanceId} sticker={sticker} />
+          ))}
+        </div>,
+        document.body,
       )}
-    </>,
-    document.body,
+
+      {activeDrag &&
+        createPortal(
+          <div
+            className="sticker-layer__drag"
+            style={{
+              left: activeDrag.clientX,
+              top: activeDrag.clientY,
+              zIndex: STICKER_Z_DRAG,
+            }}
+          >
+            <Sticker
+              src={activeDrag.asset.src}
+              alt={activeDrag.asset.alt}
+              assetId={activeDrag.asset.id}
+              size="placed"
+              rotation={activeDrag.rotation}
+              elevated
+            />
+          </div>,
+          document.body,
+        )}
+    </>
   )
 }

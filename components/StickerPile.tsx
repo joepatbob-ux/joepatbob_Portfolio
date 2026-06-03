@@ -4,12 +4,14 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useChapterNav } from '@/components/ChapterNavProvider'
 import { Sticker } from '@/components/Sticker'
-import { STICKER_Z_BASE, useStickers } from '@/components/StickerProvider'
+import {
+  STICKER_Z_PILE,
+  useStickers,
+} from '@/components/StickerProvider'
 import { eibChapterId } from '@/lib/everything-in-between/content'
 import {
   pileStackOffset,
   randomPileRotation,
-  STICKER_ASSETS,
   STICKER_SIZE_PILE,
 } from '@/lib/stickers'
 import { useAnchorViewportRect } from '@/lib/useAnchorViewportRect'
@@ -28,9 +30,6 @@ export function StickerPile() {
     setMounted(true)
   }, [])
 
-  const visible = deck
-  const top = visible[0]
-
   const rotationFor = useCallback((id: string) => {
     const cached = rotationsRef.current.get(id)
     if (cached !== undefined) return cached
@@ -39,18 +38,32 @@ export function StickerPile() {
     return rotation
   }, [])
 
-  visible.forEach((asset) => {
-    rotationFor(asset.id)
-  })
-
-  const isDraggingTop =
-    activeDrag?.fromPile && top && activeDrag.asset.id === top.id
-  const pileCards = isDraggingTop ? visible.slice(1) : visible
+  const topAsset = deck[0]
+  const draggingTop =
+    activeDrag?.kind === 'pile' &&
+    topAsset != null &&
+    activeDrag.asset.id === topAsset.id
 
   const pileSize = STICKER_SIZE_PILE + 48
+
+  const onGrabPointerDown = (e: React.PointerEvent<HTMLButtonElement>) => {
+    if (e.button !== 0 || !deckReady || !topAsset || activeDrag) return
+    e.preventDefault()
+    e.stopPropagation()
+    beginDragFromPile(
+      topAsset,
+      e.clientX,
+      e.clientY,
+      rotationFor(topAsset.id),
+    )
+  }
   const chapterReveal = reveals[CONVICTION_CHAPTER_ID] ?? 0
   const pileVisible =
     activeSlideId === CONVICTION_CHAPTER_ID && chapterReveal > 0.08
+
+  deck.forEach((asset) => {
+    rotationFor(asset.id)
+  })
 
   const pileStack = (
     <div
@@ -58,67 +71,62 @@ export function StickerPile() {
       style={{ width: pileSize, height: pileSize }}
       aria-label="Sticker stack"
     >
-      {!deckReady ? null : pileCards.length === 0 ? (
-        <p className="sticker-pile__empty">Stack&apos;s empty — refresh to restock.</p>
+      {!deckReady ? null : deck.length === 0 ? (
+        <p className="sticker-pile__empty">
+          Stack&apos;s empty — refresh to restock.
+        </p>
       ) : (
-        [...pileCards].reverse().map((asset, reverseIndex) => {
-          const indexFromTop = pileCards.length - 1 - reverseIndex
-          const isTop = indexFromTop === 0
-          const layout = pileStackOffset(indexFromTop, pileCards.length)
-          const rotation = rotationFor(asset.id)
+        <>
+          {[...deck].reverse().map((asset, reverseIndex) => {
+            const indexFromTop = deck.length - 1 - reverseIndex
+            const isTopCard = asset.id === topAsset?.id
+            const layout = pileStackOffset(indexFromTop, deck.length)
+            const rotation = rotationFor(asset.id)
 
-          const cardClass = `sticker-pile__card${
-            isTop ? ' sticker-pile__card--top' : ' sticker-pile__card--under'
-          }`
+            const cardClass = [
+              'sticker-pile__card',
+              isTopCard ? 'sticker-pile__card--top' : 'sticker-pile__card--under',
+              isTopCard && draggingTop ? 'sticker-pile__card--top-dragging' : '',
+            ]
+              .filter(Boolean)
+              .join(' ')
 
-          const cardStyle = {
-            zIndex: pileCards.length - indexFromTop,
-            ['--stack-x' as string]: `${layout.x}px`,
-            ['--stack-y' as string]: `${layout.y}px`,
-          }
+            const cardStyle = {
+              zIndex:
+                isTopCard && draggingTop
+                  ? 0
+                  : deck.length - indexFromTop,
+              ['--stack-x' as string]: `${layout.x}px`,
+              ['--stack-y' as string]: `${layout.y}px`,
+            }
 
-          if (isTop) {
             return (
-              <button
+              <div
                 key={asset.id}
-                type="button"
                 className={cardClass}
                 style={cardStyle}
-                disabled={Boolean(activeDrag)}
-                aria-label={`Pick up ${asset.alt}`}
-                onPointerDown={(e) => {
-                  if (e.button !== 0) return
-                  beginDragFromPile(asset, e.clientX, e.clientY, rotation)
-                }}
-                onClick={(e) => e.preventDefault()}
+                aria-hidden={!isTopCard}
               >
                 <Sticker
                   src={asset.src}
-                  alt={asset.alt}
+                  alt={isTopCard ? asset.alt : ''}
                   assetId={asset.id}
                   rotation={rotation}
-                  elevated
+                  elevated={isTopCard}
                 />
-              </button>
+              </div>
             )
-          }
+          })}
 
-          return (
-            <div
-              key={asset.id}
-              className={cardClass}
-              style={cardStyle}
-              aria-hidden
-            >
-              <Sticker
-                src={asset.src}
-                alt=""
-                assetId={asset.id}
-                rotation={rotation}
-              />
-            </div>
-          )
-        })
+          {topAsset && !draggingTop && (
+            <button
+              type="button"
+              className="sticker-pile__grab"
+              aria-label={`Pick up ${topAsset.alt}`}
+              onPointerDown={onGrabPointerDown}
+            />
+          )}
+        </>
       )}
     </div>
   )
@@ -129,15 +137,23 @@ export function StickerPile() {
     pileVisible &&
     createPortal(
       <div
-        className="sticker-pile-portal"
+        className={[
+          'sticker-pile-portal',
+          draggingTop ? 'sticker-pile-portal--pile-drag' : '',
+        ]
+          .filter(Boolean)
+          .join(' ')}
         style={{
           position: 'fixed',
           left: anchorRect.left,
           top: anchorRect.top,
           width: anchorRect.width,
           height: anchorRect.height,
-          zIndex: STICKER_Z_BASE,
-          pointerEvents: 'auto',
+          zIndex: draggingTop ? STICKER_Z_PILE - 2 : STICKER_Z_PILE,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'flex-start',
+          pointerEvents: draggingTop ? 'none' : 'auto',
         }}
       >
         {pileStack}
@@ -155,17 +171,6 @@ export function StickerPile() {
         pointerEvents: pileVisible ? undefined : 'none',
       }}
     >
-      <p className="sticker-pile__label">Launch swag — grab one</p>
-      <p className="sticker-pile__hint">
-        Random stack — grab from the top down, one at a time. Tap a placed sticker to
-        select; drag the ring or dot to rotate.
-        {deck.length > 0 && (
-          <span className="sticker-pile__count">
-            {deck.length} of {STICKER_ASSETS.length} left
-          </span>
-        )}
-      </p>
-
       <div
         ref={anchorRef}
         className="sticker-pile-anchor"
