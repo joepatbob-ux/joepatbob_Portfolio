@@ -2,6 +2,12 @@
 
 import { ChapterCopyScroller } from '@/components/ChapterCopyScroller'
 import { ChapterViewport } from '@/components/ChapterViewport'
+import { ChapterCompactStageFill } from '@/components/chapter-slide/ChapterCompactStageFill'
+import {
+  ChapterCompactViewInner,
+  ChapterCompactViewProvider,
+} from '@/components/chapter-slide/ChapterCompactViewContext'
+import { useLayoutCopyDrawer } from '@/lib/hooks/useLayoutCopyDrawer'
 import { useLayoutMobile } from '@/lib/hooks/useLayoutMobile'
 import { useCopyScrollActive } from '@/lib/useCopyScrollActive'
 import type { ReactNode } from 'react'
@@ -33,6 +39,8 @@ export function ChapterSlideBand({
 }: Props) {
   const copyScrollActive = useCopyScrollActive(chapterId)
   const isMobile = useLayoutMobile()
+  const isCopyDrawer = useLayoutCopyDrawer()
+  const usesCompactCopy = isMobile || isCopyDrawer
   const modClass = modifier ? `chapter-slide--${modifier}` : ''
   const isFlow = className?.includes('flow-chapter-slide') ?? false
 
@@ -51,40 +59,54 @@ export function ChapterSlideBand({
         .join(' ')}
     >
       <div className="chapter-slide__viewport">
-        <div
-          className={[
-            'chapter-slide__inner',
-            copyOnly ? 'chapter-slide__inner--copy-only' : '',
-          ]
-            .filter(Boolean)
-            .join(' ')}
-        >
-          {copyOnly ? null : (
-            <div className="chapter-slide__stage">{stage}</div>
-          )}
-          <div
+        <ChapterCompactViewProvider enabled={isCopyDrawer && !copyOnly}>
+          <ChapterCompactViewInner
             className={[
-              'chapter-slide__copy',
-              'chapter-copy',
-              isFlow ? 'flow-chapter-slide__copy' : '',
-              copyOnly
-                ? 'chapter-slide__copy--overview'
-                : isMobile
-                  ? 'chapter-slide__copy--mobile-teaser mobile-learn-more-copy'
-                  : '',
+              'chapter-slide__inner',
+              copyOnly ? 'chapter-slide__inner--copy-only' : '',
             ]
               .filter(Boolean)
               .join(' ')}
           >
-            {isMobile ? (
-              copy
-            ) : (
-              <ChapterCopyScroller active={copyScrollActive}>
-                {copy}
-              </ChapterCopyScroller>
+            {copyOnly ? null : (
+              <div className="chapter-slide__stage">
+                {isCopyDrawer ? (
+                  <ChapterCompactStageFill>{stage}</ChapterCompactStageFill>
+                ) : (
+                  stage
+                )}
+              </div>
             )}
-          </div>
-        </div>
+            <div
+              className={[
+                'chapter-slide__copy',
+                'chapter-copy',
+                isFlow ? 'flow-chapter-slide__copy' : '',
+                copyOnly
+                  ? 'chapter-slide__copy--overview'
+                  : usesCompactCopy
+                    ? [
+                        'mobile-learn-more-copy',
+                        isMobile ? 'chapter-slide__copy--mobile-teaser' : '',
+                        isCopyDrawer ? 'chapter-slide__copy--drawer-teaser' : '',
+                      ]
+                        .filter(Boolean)
+                        .join(' ')
+                    : '',
+              ]
+                .filter(Boolean)
+                .join(' ')}
+            >
+              {usesCompactCopy ? (
+                copy
+              ) : (
+                <ChapterCopyScroller active={copyScrollActive}>
+                  {copy}
+                </ChapterCopyScroller>
+              )}
+            </div>
+          </ChapterCompactViewInner>
+        </ChapterCompactViewProvider>
       </div>
     </ChapterViewport>
   )

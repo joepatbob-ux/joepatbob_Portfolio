@@ -108,6 +108,16 @@
     align-self: stretch;
   }
 
+  /* Compact band (768–1199) keeps its own vertical rhythm — see chapter-compact-expand.css */
+  .hardware-slideshow
+    .chapter-slide__inner--compact-expand
+    .chapter-slide__stage,
+  .hardware-slideshow
+    .chapter-slide__inner--compact-expand
+    .chapter-slide__copy {
+    align-self: center;
+  }
+
   /* Stage column = flex shell; artifact floats centered with fluid min/max width */
   .hardware-slideshow .chapter-slide__stage {
     display: flex;
@@ -251,7 +261,7 @@
     max-height: min(78dvh, calc(100dvh - var(--hw-pad) * 2));
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
+    justify-content: center;
   }
 
   .hardware-slideshow .chapter-slide__copy .chapter-copy-scroller {
@@ -313,7 +323,12 @@
 @media (min-width: 1024px) {
   .hardware-slideshow .chapter-slide__inner {
     flex-direction: row;
-    align-items: flex-start;
+    align-items: center;
+  }
+
+  .hardware-slideshow .chapter-slide__inner .chapter-slide__stage,
+  .hardware-slideshow .chapter-slide__inner .chapter-slide__copy {
+    align-self: center;
   }
 
   .hardware-slideshow .chapter-slide__stage {
@@ -337,39 +352,45 @@
     width: min(var(--hw-copy-max-w), 100%);
     min-width: min(var(--hw-copy-min-w), 100%);
     max-width: var(--hw-copy-max-w);
-  }
-}
-
-/* Tablet (768–1024): single column, stage above copy */
-@media (min-width: 768px) and (max-width: 1024px) {
-  .hardware-slideshow .chapter-slide__inner {
-    flex-direction: column;
-    align-items: flex-start;
-    max-width: min(var(--hw-band-max-w), 100%);
-  }
-
-  .hardware-slideshow .chapter-slide__stage,
-  .hardware-slideshow.chapter-slide--touch-2 .chapter-slide__stage {
-    order: 1;
-    flex: 0 0 auto;
-    width: 100%;
-    max-width: min(var(--hw-stage-max-w), 100%);
-    min-width: min(var(--hw-stage-min-w), 100%);
-    min-height: 0;
-    align-items: center;
     justify-content: center;
   }
 
-  .hardware-slideshow .chapter-slide__copy,
-  .hardware-slideshow.chapter-slide--touch-2 .chapter-slide__copy {
-    order: 2;
+  .hardware-slideshow .chapter-slide__copy .chapter-copy-scroller {
     flex: 0 1 auto;
-    width: 100%;
-    min-width: 0;
-    max-width: 100%;
-    margin-inline: 0;
   }
 }
+
+/* Wide desktop (1200+): inline copy — vertically centered with stage (CS_BP.wideMin) */
+@media (min-width: 1200px) {
+  .hardware-slideshow .chapter-slide__inner:not(.chapter-slide__inner--compact-expand) {
+    align-items: center;
+  }
+
+  .hardware-slideshow
+    .chapter-slide__inner:not(.chapter-slide__inner--compact-expand)
+    .chapter-slide__stage,
+  .hardware-slideshow
+    .chapter-slide__inner:not(.chapter-slide__inner--compact-expand)
+    .chapter-slide__copy {
+    align-self: center;
+  }
+
+  .hardware-slideshow
+    .chapter-slide__inner:not(.chapter-slide__inner--compact-expand)
+    .chapter-slide__copy {
+    justify-content: center;
+  }
+
+  .hardware-slideshow
+    .chapter-slide__inner:not(.chapter-slide__inner--compact-expand)
+    .chapter-slide__copy
+    .chapter-copy-scroller {
+    flex: 0 1 auto;
+    max-height: min(74dvh, calc(100dvh - var(--hw-pad) * 2 - 3rem));
+  }
+}
+
+/* Tablet + narrow desktop copy drawer: chapter-copy-drawer.css */
 
 /* Mobile: full-viewport slides — see mobile-chapter-viewport.css */
 @media (max-width: 767px) {

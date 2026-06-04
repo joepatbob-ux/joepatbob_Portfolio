@@ -11,7 +11,7 @@ interface Props {
   children: React.ReactNode
 }
 
-export function MobileLearnMoreSheet({ open, onClose, title, children }: Props) {
+export function ChapterCopyDrawerSheet({ open, onClose, title, children }: Props) {
   const titleId = useId()
   const panelRef = useRef<HTMLDivElement>(null)
 
@@ -33,11 +33,16 @@ export function MobileLearnMoreSheet({ open, onClose, title, children }: Props) 
     }
   }, [open])
 
+  useEffect(() => {
+    if (!open) return
+    panelRef.current?.focus()
+  }, [open])
+
   if (!open || typeof document === 'undefined') return null
 
   return createPortal(
     <div
-      className="mobile-learn-more-sheet"
+      className="chapter-copy-drawer"
       role="presentation"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose()
@@ -45,32 +50,33 @@ export function MobileLearnMoreSheet({ open, onClose, title, children }: Props) 
     >
       <div
         ref={panelRef}
-        className="mobile-learn-more-sheet__panel"
+        className="chapter-copy-drawer__panel"
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
+        tabIndex={-1}
       >
-        <div className="mobile-learn-more-sheet__header">
-          <h2 id={titleId} className="mobile-learn-more-sheet__title">
+        <div className="chapter-copy-drawer__header">
+          <h2 id={titleId} className="chapter-copy-drawer__title">
             {title}
           </h2>
           <div
-            className="mobile-learn-more-sheet__rule mobile-section-header__rule"
+            className="chapter-copy-drawer__rule mobile-section-header__rule"
             aria-hidden
           />
         </div>
-        <div className="mobile-learn-more-sheet__scroll">
+        <div className="chapter-copy-drawer__scroll">
           <span
-            className="mobile-learn-more-sheet__edge-blur mobile-learn-more-sheet__edge-blur--top"
+            className="chapter-copy-drawer__edge-blur chapter-copy-drawer__edge-blur--top"
             aria-hidden
           />
-          <div className="mobile-learn-more-sheet__body">{children}</div>
+          <div className="chapter-copy-drawer__body">{children}</div>
           <span
-            className="mobile-learn-more-sheet__edge-blur mobile-learn-more-sheet__edge-blur--bottom"
+            className="chapter-copy-drawer__edge-blur chapter-copy-drawer__edge-blur--bottom"
             aria-hidden
           />
         </div>
-        <div className="mobile-learn-more-sheet__footer overlay-action-footer">
+        <div className="chapter-copy-drawer__footer overlay-action-footer">
           <OverlayActionPill variant="secondary" onClick={onClose}>
             Close
           </OverlayActionPill>

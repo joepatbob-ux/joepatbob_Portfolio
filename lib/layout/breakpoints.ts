@@ -1,5 +1,7 @@
 /** Site shell breakpoints — keep CSS media queries aligned with these values. */
 
+import { CS_BP } from '@/lib/chapter-slide/breakpoints'
+
 export const LAYOUT_BP = {
   mobileMax: 767,
   tabletMin: 768,
@@ -26,4 +28,6 @@ export const LAYOUT_MQ = {
   tablet: `(min-width: ${LAYOUT_BP.tabletMin}px) and (max-width: ${LAYOUT_BP.tabletMax}px)`,
   tabletUp: `(min-width: ${LAYOUT_BP.tabletMin}px)`,
   desktop: `(min-width: ${LAYOUT_BP.desktopMin}px)`,
+  /** Stage full width; chapter copy in a right drawer (aligns with CS_BP.tabletMax). */
+  copyDrawer: `(min-width: ${LAYOUT_BP.tabletMin}px) and (max-width: ${CS_BP.tabletMax}px)`,
 } as const

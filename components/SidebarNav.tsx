@@ -18,6 +18,7 @@ import { activeSlideIdPublished } from '@/lib/chapterSlideshow'
 import { applySidebarHeroNameFade, applySidebarShellFade, hideSidebarShell, isInHeroScrollZone, resetSidebarShellFade } from '@/lib/heroScroll'
 import { NAV_SECTIONS, sectionIdForChapter } from '@/lib/nav'
 import { sectionEntryChapterId } from '@/lib/sectionEntryChapter'
+import { OverlayActionPill } from '@/components/ui/OverlayActionPill'
 import { LAYOUT_MQ } from '@/lib/layout/breakpoints'
 import { scheduleScrollFrame } from '@/lib/scrollFrame'
 import { ContactButton } from '@/components/ContactButton'
@@ -84,12 +85,11 @@ function SidebarOverlayClose({
   variant: 'tablet' | 'mobile-panel'
 }) {
   return (
-    <button
-      type="button"
+    <OverlayActionPill
+      variant="secondary"
       className={[
         'sidebar-overlay-close',
         `sidebar-overlay-close--${variant}`,
-        'sidebar-action--secondary',
       ]
         .filter(Boolean)
         .join(' ')}
@@ -101,7 +101,7 @@ function SidebarOverlayClose({
       }}
     >
       Close
-    </button>
+    </OverlayActionPill>
   )
 }
 
