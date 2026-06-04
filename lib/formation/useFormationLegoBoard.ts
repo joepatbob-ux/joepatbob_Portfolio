@@ -22,7 +22,7 @@ import {
 } from '@/lib/formation/legoBricks'
 import { roundPlacementPx } from '@/lib/formation/pixelNudge'
 import { spritePlacement } from '@/lib/formation/spritePlacement'
-import { scheduleScrollFrame } from '@/lib/scrollFrame'
+import { scheduleScrollFrameSync } from '@/lib/scrollFrame'
 import {
   clientToBoardNative,
   clientToClip,
@@ -148,6 +148,7 @@ export function useFormationLegoBoard() {
   const dragPreviewLevelRef = useRef(0)
   /** Selected brick tapped again (not ring) — set down on pointer up without drag. */
   const tapToSetDownRef = useRef(false)
+  const capturePointerIdRef = useRef<number | null>(null)
 
   const layerLift = useMemo(() => brickLayerLift(boardW), [boardW])
   const plate = useMemo(() => plateDisplayLayout(boardW), [boardW])
@@ -331,7 +332,7 @@ export function useFormationLegoBoard() {
     sync()
     const ro = new ResizeObserver(sync)
     ro.observe(boardEl)
-    const unsubScroll = scheduleScrollFrame(sync)
+    const unsubScroll = scheduleScrollFrameSync(sync)
     window.addEventListener('resize', sync)
 
     return () => {
@@ -470,7 +471,7 @@ export function useFormationLegoBoard() {
       setDragHasMoved(false)
       setDragId(pieceId)
       setDragFree(null)
-      boardRef.current.setPointerCapture(e.pointerId)
+      capturePointerIdRef.current = e.pointerId
     },
     [
       activeId,
@@ -500,6 +501,14 @@ export function useFormationLegoBoard() {
         if (!dragHasMoved) {
           dragHasMovedRef.current = true
           setDragHasMoved(true)
+          const pointerId = capturePointerIdRef.current
+          if (
+            pointerId != null &&
+            boardRef.current &&
+            !boardRef.current.hasPointerCapture(pointerId)
+          ) {
+            boardRef.current.setPointerCapture(pointerId)
+          }
         }
       }
       const pointerNative = clientToBoardNative(
@@ -565,6 +574,7 @@ export function useFormationLegoBoard() {
       if (boardRef.current?.hasPointerCapture(e.pointerId)) {
         boardRef.current.releasePointerCapture(e.pointerId)
       }
+      capturePointerIdRef.current = null
       endDrag()
     },
     [endDrag],

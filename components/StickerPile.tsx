@@ -5,7 +5,6 @@ import { createPortal } from 'react-dom'
 import { useChapterNav } from '@/components/ChapterNavProvider'
 import { Sticker } from '@/components/Sticker'
 import {
-  STICKER_Z_PILE,
   useStickers,
 } from '@/components/StickerProvider'
 import { eibChapterId } from '@/lib/everything-in-between/content'
@@ -19,7 +18,8 @@ import { useAnchorViewportRect } from '@/lib/useAnchorViewportRect'
 const CONVICTION_CHAPTER_ID = eibChapterId('conviction')
 
 export function StickerPile() {
-  const { deck, deckReady, activeDrag, beginDragFromPile } = useStickers()
+  const { deck, deckReady, activeDrag, beginDragFromPile, zIndices } =
+    useStickers()
   const { reveals, activeSlideId } = useChapterNav()
   const rotationsRef = useRef<Map<string, number>>(new Map())
   const anchorRef = useRef<HTMLDivElement>(null)
@@ -149,7 +149,7 @@ export function StickerPile() {
           top: anchorRect.top,
           width: anchorRect.width,
           height: anchorRect.height,
-          zIndex: draggingTop ? STICKER_Z_PILE - 2 : STICKER_Z_PILE,
+          zIndex: draggingTop ? zIndices.pile - 2 : zIndices.pile,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'flex-start',

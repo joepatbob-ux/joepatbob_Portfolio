@@ -16,6 +16,11 @@ import {
 } from '@/lib/chapterSlideshow'
 import { installStickerDragListeners } from '@/lib/stickerDrag'
 import { flushScrollFrame } from '@/lib/scrollFrame'
+import { useLayoutMobile } from '@/lib/hooks/useLayoutMobile'
+import {
+  stickerZIndices,
+  type StickerZIndices,
+} from '@/lib/layout/stacking'
 import {
   STICKER_ASSETS,
   createShuffledDeck,
@@ -26,11 +31,9 @@ import {
   type StickerAsset,
 } from '@/lib/stickers'
 
-/** Matches --z-stickers in globals.css */
+/** Desktop defaults — on phone use `useStickers().zIndices` (matches globals.css). */
 export const STICKER_Z_BASE = 105
-/** Below .sticker-layer so the drag ghost (separate portal) can sit above the pile. */
 export const STICKER_Z_PILE = STICKER_Z_BASE - 1
-/** Topmost sticker UI (pile drag ghost, above portaled pile). */
 export const STICKER_Z_DRAG = STICKER_Z_BASE + 95
 
 export interface PlacedSticker {
@@ -66,6 +69,7 @@ export type ActiveDrag =
     }
 
 interface StickerContextValue {
+  zIndices: StickerZIndices
   deck: StickerAsset[]
   deckReady: boolean
   placed: PlacedSticker[]
@@ -101,9 +105,9 @@ function randomRotation(): number {
   return Math.round((Math.random() * 30 - 15) * 10) / 10
 }
 
-function stackTopZ(placed: PlacedSticker[]): number {
-  if (placed.length === 0) return STICKER_Z_BASE
-  return Math.max(STICKER_Z_BASE, ...placed.map((s) => s.zIndex))
+function stackTopZ(placed: PlacedSticker[], base: number): number {
+  if (placed.length === 0) return base
+  return Math.max(base, ...placed.map((s) => s.zIndex))
 }
 
 function withStickerOnTop(
@@ -123,6 +127,11 @@ function nextInstanceId(): string {
 }
 
 export function StickerProvider({ children }: { children: ReactNode }) {
+  const layoutMobile = useLayoutMobile()
+  const zIndices = stickerZIndices(layoutMobile)
+  const zBaseRef = useRef(zIndices.base)
+  zBaseRef.current = zIndices.base
+
   const [deck, setDeck] = useState<StickerAsset[]>([])
   const [deckReady, setDeckReady] = useState(false)
   const [placed, setPlaced] = useState<PlacedSticker[]>([])
@@ -193,7 +202,7 @@ export function StickerProvider({ children }: { children: ReactNode }) {
     setSelectedInstanceId(instanceId)
     if (instanceId) {
       setPlaced((prev) =>
-        withStickerOnTop(prev, instanceId, stackTopZ(prev) + 1),
+        withStickerOnTop(prev, instanceId, stackTopZ(prev, zBaseRef.current) + 1),
       )
     }
   }, [])
@@ -240,7 +249,7 @@ export function StickerProvider({ children }: { children: ReactNode }) {
           x,
           y,
           rotation,
-          zIndex: stackTopZ(prev) + 1,
+          zIndex: stackTopZ(prev, zBaseRef.current) + 1,
           chapterId,
         }
         return [...prev, next]
@@ -367,6 +376,7 @@ export function StickerProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo(
     () => ({
+      zIndices,
       deck,
       deckReady,
       placed,
@@ -381,6 +391,7 @@ export function StickerProvider({ children }: { children: ReactNode }) {
       returnAssetToDeck,
     }),
     [
+      zIndices,
       deck,
       deckReady,
       placed,

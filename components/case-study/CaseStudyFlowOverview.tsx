@@ -8,7 +8,6 @@ interface Props {
   chapterId: string
   headline: string
   body: string
-  meta?: readonly { label: string; value: string }[]
   subhead?: string
   align?: 'left' | 'center'
   className?: string
@@ -19,7 +18,6 @@ export function CaseStudyFlowOverview({
   chapterId,
   headline,
   body,
-  meta = [],
   subhead,
   align = 'center',
   className,
@@ -49,7 +47,6 @@ export function CaseStudyFlowOverview({
         >
           <CaseStudySectionHeader
             headline={headline}
-            meta={meta}
             subhead={subhead}
             align={align}
           />

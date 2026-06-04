@@ -3,24 +3,61 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useChapterPanelOpacity } from '@/lib/useChapterPanelOpacity'
+import { useLayoutMobile } from '@/lib/hooks/useLayoutMobile'
 import { useTheme } from '@/components/ThemeProvider'
 import { BOARD_VIEWBOX } from '@/lib/formation/legoGrid'
 import { useFormationLegoBoard } from '@/lib/formation/useFormationLegoBoard'
 import { FormationLegoBrickPiece } from '@/components/formation/FormationLegoBrickPiece'
-import {
-  BRICK_Z_INDEX_SELECT_BOOST,
-  FORMATION_Z_BRICKS,
-  legoBoardSrc,
-} from '@/lib/formation/legoBricks'
+import { BRICK_Z_INDEX_SELECT_BOOST, legoBoardSrc } from '@/lib/formation/legoBricks'
 import '@/styles/formation-lego-board.css'
+
+function FormationBrickStack({
+  board,
+  resolvedTheme,
+  portal,
+}: {
+  board: ReturnType<typeof useFormationLegoBoard>
+  resolvedTheme: ReturnType<typeof useTheme>['resolvedTheme']
+  portal: boolean
+}) {
+  return (
+    <>
+      {board.pieces.map((p) => (
+        <FormationLegoBrickPiece
+          key={p.id}
+          id={p.id}
+          pivot={p.pivot}
+          color={p.color}
+          boardTheme={resolvedTheme}
+          boardWidth={board.boardW}
+          isPickedUp={board.isPiecePickedUp(p.id)}
+          placement={portal ? p.screenPlacement : p.placement}
+          fixed={portal}
+          isDragging={board.draggingId === p.id && board.isDragging}
+          isSelected={board.activeId === p.id && !p.isAnchored}
+          isAnchored={p.isAnchored}
+          zIndex={
+            p.z +
+            (board.activeId === p.id && !p.isAnchored
+              ? BRICK_Z_INDEX_SELECT_BOOST
+              : 0)
+          }
+          onPointerDown={board.onBrickPointerDown(p.id)}
+        />
+      ))}
+    </>
+  )
+}
 
 export function FormationLegoBoard() {
   const { resolvedTheme } = useTheme()
   const board = useFormationLegoBoard()
   const { plate } = board
+  const layoutMobile = useLayoutMobile()
   const panel = useChapterPanelOpacity('everything-else-formation')
   const [mounted, setMounted] = useState(false)
   const showBricks = mounted && panel.isActive
+  const useBrickPortal = showBricks && !layoutMobile
 
   useEffect(() => {
     setMounted(true)
@@ -78,39 +115,30 @@ export function FormationLegoBoard() {
               className="formation-lego__baseplate"
               draggable={false}
             />
+            {showBricks && layoutMobile ? (
+              <div className="formation-lego__bricks-layer" aria-hidden={false}>
+                <FormationBrickStack
+                  board={board}
+                  resolvedTheme={resolvedTheme}
+                  portal={false}
+                />
+              </div>
+            ) : null}
           </div>
         </div>
       </div>
 
-      {showBricks &&
+      {useBrickPortal &&
         createPortal(
           <div
             className="formation-lego__bricks-portal"
-            style={{ zIndex: FORMATION_Z_BRICKS }}
+            style={{ zIndex: 'var(--formation-z-bricks)' }}
           >
-            {board.pieces.map((p) => (
-              <FormationLegoBrickPiece
-                key={p.id}
-                id={p.id}
-                pivot={p.pivot}
-                color={p.color}
-                boardTheme={resolvedTheme}
-                boardWidth={board.boardW}
-                isPickedUp={board.isPiecePickedUp(p.id)}
-                placement={p.screenPlacement}
-                fixed
-                isDragging={board.draggingId === p.id && board.isDragging}
-                isSelected={board.activeId === p.id && !p.isAnchored}
-                isAnchored={p.isAnchored}
-                zIndex={
-                  p.z +
-                  (board.activeId === p.id && !p.isAnchored
-                    ? BRICK_Z_INDEX_SELECT_BOOST
-                    : 0)
-                }
-                onPointerDown={board.onBrickPointerDown(p.id)}
-              />
-            ))}
+            <FormationBrickStack
+              board={board}
+              resolvedTheme={resolvedTheme}
+              portal
+            />
           </div>,
           document.body,
         )}

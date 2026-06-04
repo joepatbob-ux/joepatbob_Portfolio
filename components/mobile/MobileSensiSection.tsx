@@ -35,10 +35,7 @@ export function MobileSensiSection() {
         </PhoneSwapBoundary>
       }
       copy={
-        <MobileLearnMore
-          headline={MOBILE_SENSI.headline}
-          meta={MOBILE_SENSI.meta}
-        >
+        <MobileLearnMore headline={MOBILE_SENSI.headline}>
           <MobileProse paragraphs={intro} />
           <div className="mobile-sub-stories">
             <MobileSubStory heading={color.heading}>

@@ -6,19 +6,6 @@ export const WEB_APPS_KELVIN = {
   headline: "Unifying Copeland's Product Suite.",
   subhead:
     "Building Kelvin — a design system for four products, two domains, and a user base that can't afford mistakes.",
-  meta: [
-    { label: 'Role', value: 'Principal Product Designer' },
-    { label: 'Design System', value: 'Kelvin' },
-    {
-      label: 'Products',
-      value:
-        'Sensi MTM · Verdant Thermostat Manager · Copeland Connect+ · Copeland TempTrak 6',
-    },
-    {
-      label: 'Status',
-      value: 'Active — parallel track rollout with positive customer validation',
-    },
-  ],
   subStories: [
     {
       number: '01',

@@ -12,18 +12,15 @@ export { splitParagraphs, MobileProse, MobileSubStory, MobileLabelGrid }
 export function WebAppsSectionHeader({
   headline,
   subhead,
-  meta,
 }: {
   headline: string
   subhead: string
-  meta: readonly { label: string; value: string }[]
 }) {
   return (
     <CaseStudySectionHeader
       className="web-apps-section-header"
       headline={headline}
       subhead={subhead}
-      meta={meta}
     />
   )
 }

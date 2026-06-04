@@ -13,12 +13,6 @@ export function mobileChapterId(sectionId: MobileSectionId): string {
 
 export const MOBILE_SENSI = {
   headline: "Don't just redesign.\nFix the foundation.",
-  meta: [
-    { label: 'Role', value: 'Principal Product Designer' },
-    { label: 'Platform', value: 'iOS + Android' },
-    { label: 'Timeline', value: '2018 – Present' },
-    { label: 'Outcome', value: '4.3 → 4.7 iOS · 4.4 Android' },
-  ],
   intro: `Sensi has been around for a while. By the time I took ownership of the app design, it had the kind of UI you'd expect from a product that moved fast and prioritized shipping: functional, but patchy. Custom controls where system components would have worked fine. Patterns that made sense in 2017 and never got revisited. A design language that accumulated inconsistencies over years of one-off decisions.
 
 The ratings reflected it. Around 4.3 stars on the App Store. Not bad, but not a product people were excited about.
@@ -112,11 +106,6 @@ When a dark mode rendering issue surfaced post-launch in the schedules view, it 
 
 export const MOBILE_WR_CONNECT = {
   headline: 'Greenfield design for a high-stakes technical audience.',
-  meta: [
-    { label: 'Product', value: 'WR Connect' },
-    { label: 'Audience', value: 'HVAC technicians' },
-    { label: 'Award', value: 'Gold Dealer Design Award' },
-  ],
   body: `Not all mobile work is modernization. WR Connect was a greenfield product. No legacy to inherit, no existing users to protect, no design debt to pay down. Just a hard problem and a blank canvas.
 
 The problem: configuring an ignition control board is traditionally done through dip switches or by cycling through cryptic 3-digit codes on the board itself. Both methods require the technician to be physically at the board, in an awkward position, with the system potentially live.

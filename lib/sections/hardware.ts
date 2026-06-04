@@ -73,7 +73,7 @@ So I designed a new character set from scratch. In a 4-multiplexed display, four
 
 The answer was angled geometry, sliced forms that break from the horizontal and vertical rigidity of standard 7-segment. The 7 reads cleanly. The 1 centers in its cell. The result reads closer to an LCD without the cost of one. A pending US patent covers the character set.`,
       imageAlt: 'Custom segment character set showing full alphanumeric range in orange on black',
-      imageSrc: '/images/hw-verdant.jpg',
+      imageSrc: '/images/Segment_Drawing.jpeg',
       imageLayout: 'full-width',
       imagePosition: 'left',
     },

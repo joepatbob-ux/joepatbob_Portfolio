@@ -16,10 +16,7 @@ export function MobileWrConnectSection() {
       className="mobile-chapter-slot mobile-chapter-slot--wr-connect"
       stage={<div className="flow-chapter-slide__stage--empty" aria-hidden />}
       copy={
-        <MobileLearnMore
-          headline={MOBILE_WR_CONNECT.headline}
-          meta={MOBILE_WR_CONNECT.meta}
-        >
+        <MobileLearnMore headline={MOBILE_WR_CONNECT.headline}>
           <MobileProse paragraphs={paragraphs} />
           <div className="mobile-phase-panels" role="list">
             {MOBILE_WR_CONNECT.phases.map((phase) => (

@@ -11,10 +11,6 @@
   line-height: 1.15;
 }
 
-.flow-chapter-slide__copy .mobile-meta-row {
-  gap: 8px 16px;
-}
-
 .flow-chapter-slide__copy .mobile-sub-story__heading {
   margin: clamp(20px, 3vh, 28px) 0 0;
   font-family: var(--font-body);

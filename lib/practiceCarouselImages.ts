@@ -14,7 +14,7 @@ export const PRACTICE_CAROUSEL_IMAGES = [
     alt: 'Inspiring Horizons volunteering — community outreach',
   },
   {
-    src: '/images/hw-verdant.jpg',
-    alt: 'Corporate headshot session at the office',
+    src: '/images/Front/VX4.png',
+    alt: 'Verdant VX4 thermostat display',
   },
 ] as const

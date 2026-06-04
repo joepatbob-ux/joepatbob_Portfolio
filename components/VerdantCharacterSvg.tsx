@@ -1,7 +1,10 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { fetchThemedVerdantCharacterSvg } from '@/lib/verdant/themeCharacterSvg'
+import {
+  fetchThemedVerdantCharacterSvg,
+  getCachedThemedVerdantCharacterSvg,
+} from '@/lib/verdant/themeCharacterSvg'
 
 interface Props {
   code: string
@@ -11,9 +14,17 @@ interface Props {
 
 /** Inline themed character SVG (label / secondary label segment colors). */
 export function VerdantCharacterSvg({ code, className, alt }: Props) {
-  const [markup, setMarkup] = useState<string | null>(null)
+  const [markup, setMarkup] = useState(
+    () => getCachedThemedVerdantCharacterSvg(code) ?? null,
+  )
 
   useEffect(() => {
+    const cached = getCachedThemedVerdantCharacterSvg(code)
+    if (cached) {
+      setMarkup(cached)
+      return
+    }
+
     let cancelled = false
     setMarkup(null)
 
