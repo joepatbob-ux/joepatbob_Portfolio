@@ -8,7 +8,6 @@
 @import './overlay-action-pill.css';
 @import './mobile-learn-more.css';
 @import './chapter-copy-drawer.css';
-@import './chapter-compact-expand.css';
 @import './mobile-chapter-viewport.css';
 @import './flow-chapter-slide.css';
 @import './web-apps-kelvin-chapter.css';
@@ -21,6 +20,7 @@
 @import './chapter-slide.css';
 @import './site-layout.css';
 @import './hardware-layout.css';
+@import './chapter-compact-expand.css';
 @import './verdant-interactive.css';
 @import './verdant-character-selector.css';
 @import './sidebar-layout.css';

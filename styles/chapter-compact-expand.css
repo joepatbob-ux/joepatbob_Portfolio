@@ -90,10 +90,50 @@
   flex-shrink: 0;
 }
 
-.chapter-compact-view__header .case-study-section-header,
-.chapter-compact-view__header .case-study-section-header__headline-line,
-.chapter-compact-view__header .chapter-copy__headline {
+/* Beat .chapter-slide .chapter-copy__headline { text-align: left } (loads earlier in bundle) */
+.hardware-slideshow.chapter-slide
+  .chapter-slide__inner--compact-expand
+  .chapter-slide__copy--drawer-teaser,
+.hardware-slideshow.chapter-slide
+  .chapter-slide__inner--compact-expand
+  .chapter-compact-view__header,
+.hardware-slideshow.chapter-slide
+  .chapter-slide__inner--compact-expand
+  .chapter-compact-view__header
+  .case-study-section-header,
+.hardware-slideshow.chapter-slide
+  .chapter-slide__inner--compact-expand
+  .chapter-compact-view__header
+  .mobile-section-header,
+.hardware-slideshow.chapter-slide
+  .chapter-slide__inner--compact-expand
+  .chapter-copy__headline,
+.hardware-slideshow.chapter-slide
+  .chapter-slide__inner--compact-expand
+  .case-study-section-header__headline,
+.hardware-slideshow.chapter-slide
+  .chapter-slide__inner--compact-expand
+  .mobile-section-header__headline,
+.hardware-slideshow.chapter-slide
+  .chapter-slide__inner--compact-expand
+  .case-study-section-header__headline-line,
+.hardware-slideshow.chapter-slide
+  .chapter-slide__inner--compact-expand
+  .mobile-section-header__headline-line {
   text-align: center;
+}
+
+.hardware-slideshow.chapter-slide
+  .chapter-slide__inner--compact-expand
+  .chapter-copy__rule,
+.hardware-slideshow.chapter-slide
+  .chapter-slide__inner--compact-expand
+  .mobile-section-header__rule,
+.hardware-slideshow.chapter-slide
+  .chapter-slide__inner--compact-expand
+  .case-study-section-header__rule {
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .chapter-compact-view__header .case-study-section-header__subhead {
@@ -214,6 +254,29 @@
     flex: 0 1 auto;
   }
 
+  .hardware-slideshow.chapter-slide--eim
+    .chapter-slide__inner--compact-expand
+    .chapter-compact-view__stage-fill
+    > .eim-path-art {
+    width: min(100%, var(--cs-eim-stage-max-w));
+    max-width: min(100%, var(--cs-eim-stage-max-w));
+  }
+
+  .hardware-slideshow.chapter-slide--eim
+    .chapter-slide__inner--compact-expand[data-chapter-expanded='false']
+    .chapter-slide__stage {
+    display: grid;
+    place-items: center;
+  }
+
+  .hardware-slideshow.chapter-slide--eim
+    .chapter-slide__inner--compact-expand
+    .chapter-compact-view__stage-fill {
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+  }
+
   .hardware-slideshow
     .chapter-slide__inner--compact-expand
     .chapter-compact-view__stage-fill
@@ -264,6 +327,54 @@
     .chapter-slide__inner--compact-expand
     .overlay-action-slot {
     justify-content: center;
+  }
+
+  /* Center all copy text — matches mobile teaser layout */
+  .chapter-slide__inner--compact-expand .chapter-slide__copy--drawer-teaser,
+  .chapter-slide__inner--compact-expand .chapter-compact-view__story,
+  .chapter-slide__inner--compact-expand .chapter-compact-view__story-scroll {
+    text-align: center;
+  }
+
+  .chapter-slide__inner--compact-expand .chapter-copy__headline,
+  .chapter-slide__inner--compact-expand .chapter-copy__body,
+  .chapter-slide__inner--compact-expand .chapter-slide__body,
+  .chapter-slide__inner--compact-expand .mobile-prose,
+  .chapter-slide__inner--compact-expand .mobile-prose__p,
+  .chapter-slide__inner--compact-expand .mobile-section-header,
+  .chapter-slide__inner--compact-expand .mobile-section-header__headline,
+  .chapter-slide__inner--compact-expand .mobile-section-header__headline-line,
+  .chapter-slide__inner--compact-expand .case-study-section-header,
+  .chapter-slide__inner--compact-expand .case-study-section-header__headline,
+  .chapter-slide__inner--compact-expand .case-study-section-header__headline-line,
+  .chapter-slide__inner--compact-expand .case-study-section-header__subhead,
+  .chapter-slide__inner--compact-expand .mobile-sub-story,
+  .chapter-slide__inner--compact-expand .mobile-sub-story__heading,
+  .chapter-slide__inner--compact-expand .eib-sub-intro,
+  .chapter-slide__inner--compact-expand .web-apps-numbered-list,
+  .chapter-slide__inner--compact-expand .web-apps-numbered-list li {
+    text-align: center;
+  }
+
+  .chapter-slide__inner--compact-expand .chapter-copy__body,
+  .chapter-slide__inner--compact-expand .mobile-prose__p,
+  .chapter-slide__inner--compact-expand .case-study-section-header__subhead,
+  .chapter-slide__inner--compact-expand .eib-sub-intro {
+    max-width: min(52ch, 100%);
+    margin-inline: auto;
+  }
+
+  .chapter-slide__inner--compact-expand .chapter-slide__body {
+    justify-items: center;
+    align-content: start;
+    width: 100%;
+  }
+
+  .chapter-slide__inner--compact-expand .chapter-copy__rule,
+  .chapter-slide__inner--compact-expand .mobile-section-header__rule,
+  .chapter-slide__inner--compact-expand .case-study-section-header__rule,
+  .chapter-slide__inner--compact-expand .mobile-sub-story__rule {
+    margin-inline: auto;
   }
 
   .hardware-slideshow.chapter-slide--verdant

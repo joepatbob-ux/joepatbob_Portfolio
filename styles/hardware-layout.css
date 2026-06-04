@@ -178,11 +178,15 @@
     max-width: min(100%, var(--hw-stage-gallery-w));
   }
 
-  .hardware-slideshow.chapter-slide--eim .chapter-slide__stage > .eim-path-art {
-    width: var(--hw-stage-gallery-w);
-    max-width: min(100%, var(--hw-stage-gallery-w));
+  .hardware-slideshow.chapter-slide--eim .chapter-slide__stage > .eim-path-art,
+  .hardware-slideshow.chapter-slide--eim
+    .chapter-slide__stage
+    .eim-path-art {
+    width: min(100%, var(--cs-eim-stage-max-w, var(--hw-stage-gallery-w)));
+    max-width: min(100%, var(--cs-eim-stage-max-w, var(--hw-stage-gallery-w)));
     min-width: 0;
     margin-inline: auto;
+    flex: 0 1 auto;
   }
 
   .hardware-slideshow.chapter-slide--eim .eim-path-art__stage-wrap {
