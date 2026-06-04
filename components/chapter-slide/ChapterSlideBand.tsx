@@ -7,7 +7,7 @@ import {
   ChapterCompactViewInner,
   ChapterCompactViewProvider,
 } from '@/components/chapter-slide/ChapterCompactViewContext'
-import { useLayoutCopyDrawer } from '@/lib/hooks/useLayoutCopyDrawer'
+import { useLayoutCompactBand } from '@/lib/hooks/useLayoutCompactBand'
 import { useLayoutMobile } from '@/lib/hooks/useLayoutMobile'
 import { useCopyScrollActive } from '@/lib/useCopyScrollActive'
 import type { ReactNode } from 'react'
@@ -39,8 +39,8 @@ export function ChapterSlideBand({
 }: Props) {
   const copyScrollActive = useCopyScrollActive(chapterId)
   const isMobile = useLayoutMobile()
-  const isCopyDrawer = useLayoutCopyDrawer()
-  const usesCompactCopy = isMobile || isCopyDrawer
+  const isCompactBand = useLayoutCompactBand()
+  const usesCompactCopy = isMobile || isCompactBand
   const modClass = modifier ? `chapter-slide--${modifier}` : ''
   const isFlow = className?.includes('flow-chapter-slide') ?? false
 
@@ -59,7 +59,7 @@ export function ChapterSlideBand({
         .join(' ')}
     >
       <div className="chapter-slide__viewport">
-        <ChapterCompactViewProvider enabled={isCopyDrawer && !copyOnly}>
+        <ChapterCompactViewProvider enabled={isCompactBand && !copyOnly}>
           <ChapterCompactViewInner
             className={[
               'chapter-slide__inner',
@@ -70,7 +70,7 @@ export function ChapterSlideBand({
           >
             {copyOnly ? null : (
               <div className="chapter-slide__stage">
-                {isCopyDrawer ? (
+                {isCompactBand ? (
                   <ChapterCompactStageFill>{stage}</ChapterCompactStageFill>
                 ) : (
                   stage
@@ -88,7 +88,7 @@ export function ChapterSlideBand({
                     ? [
                         'mobile-learn-more-copy',
                         isMobile ? 'chapter-slide__copy--mobile-teaser' : '',
-                        isCopyDrawer ? 'chapter-slide__copy--drawer-teaser' : '',
+                        isCompactBand ? 'chapter-slide__copy--compact-teaser' : '',
                       ]
                         .filter(Boolean)
                         .join(' ')

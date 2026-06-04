@@ -3,7 +3,7 @@
 export const CS_BP = {
   /** Single-column section (stage stacked above copy) */
   mobileMax: 767,
-  /** Two-column section (stage | copy); copy drawer above wideMin — lib/hooks/useLayoutCopyDrawer */
+  /** Two-column section (stage | copy); compact band below wideMin — lib/hooks/useLayoutCompactBand */
   tabletMax: 1199,
   /** Three-column section (stage | context | context) */
   wideMin: 1200,

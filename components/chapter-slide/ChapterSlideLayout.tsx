@@ -10,7 +10,7 @@ import { ChapterSlideCopy } from '@/components/chapter-slide/ChapterSlideCopy'
 import { InteractiveStageCursor } from '@/components/chapter-slide/InteractiveStageCursor'
 import { MobileLearnMore } from '@/components/mobile/MobileLearnMore'
 import { parseChapterBody } from '@/lib/chapter-slide/parseChapterBody'
-import { useLayoutCopyDrawer } from '@/lib/hooks/useLayoutCopyDrawer'
+import { useLayoutCompactBand } from '@/lib/hooks/useLayoutCompactBand'
 import { useLayoutMobile } from '@/lib/hooks/useLayoutMobile'
 import { useCopyScrollActive } from '@/lib/useCopyScrollActive'
 import type { Chapter } from '@/lib/types'
@@ -41,8 +41,8 @@ export function ChapterSlideLayout({
 }: Props) {
   const copyScrollActive = useCopyScrollActive(chapterId)
   const isMobile = useLayoutMobile()
-  const isCopyDrawer = useLayoutCopyDrawer()
-  const usesCompactCopy = isMobile || isCopyDrawer
+  const isCompactBand = useLayoutCompactBand()
+  const usesCompactCopy = isMobile || isCompactBand
   const bodyParagraphs = parseChapterBody(chapter.body)
 
   const stageInner = interactiveCursor ? (
@@ -64,7 +64,7 @@ export function ChapterSlideLayout({
         .join(' ')}
       aria-label={stageAriaLabel}
     >
-      {isCopyDrawer ? (
+      {isCompactBand ? (
         <ChapterCompactStageFill>{stageInner}</ChapterCompactStageFill>
       ) : (
         stageInner
@@ -79,7 +79,7 @@ export function ChapterSlideLayout({
         'chapter-copy',
         'mobile-learn-more-copy',
         isMobile ? 'chapter-slide__copy--mobile-teaser' : '',
-        isCopyDrawer ? 'chapter-slide__copy--drawer-teaser' : '',
+        isCompactBand ? 'chapter-slide__copy--compact-teaser' : '',
       ]
         .filter(Boolean)
         .join(' ')}
@@ -114,7 +114,7 @@ export function ChapterSlideLayout({
       fillViewport
     >
       <div className="chapter-slide__viewport">
-        <ChapterCompactViewProvider enabled={isCopyDrawer}>
+        <ChapterCompactViewProvider enabled={isCompactBand}>
           <ChapterCompactViewInner className="chapter-slide__inner">
             {copyFirst ? (
               <>

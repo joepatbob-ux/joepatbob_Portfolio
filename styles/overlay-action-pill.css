@@ -10,8 +10,7 @@
 .case-study-section-header--center .overlay-action-footer,
 .mobile-learn-more__teaser--center .overlay-action-slot,
 .hardware-slideshow .mobile-learn-more__teaser .overlay-action-slot,
-.mobile-learn-more-sheet__footer.overlay-action-footer,
-.chapter-copy-drawer__footer.overlay-action-footer {
+.mobile-learn-more-sheet__footer.overlay-action-footer {
   justify-content: center;
 }
 

@@ -1,4 +1,12 @@
-/* Compact desktop band — More/Less with matched fade + collapse timing */
+/* Compact desktop band (768–1199) — More/Less in-place expand
+ *
+ * Responsive chapter copy modes (see DESIGN_SPEC.md):
+ *   ≤767    mobile  — centered stack + More → full-screen sheet
+ *   768–1199 compact — centered stack + More/Less expand (this file)
+ *   ≥1200   desktop — stage | copy side-by-side (hardware-layout.css)
+ *
+ * Load after chapter-slide.css in globals.css so compact rules win specificity.
+ */
 
 .chapter-slide__inner--compact-expand {
   --ce-duration: 420ms;
@@ -59,7 +67,7 @@
 
 /* ── Copy column ───────────────────────────────────────────────────────── */
 
-.chapter-slide__inner--compact-expand .chapter-slide__copy.chapter-slide__copy--drawer-teaser {
+.chapter-slide__inner--compact-expand .chapter-slide__copy.chapter-slide__copy--compact-teaser {
   flex: 0 0 auto;
   width: 100%;
   max-width: min(var(--cs-inner-max, var(--cs-mobile-inner-max)), 100%);
@@ -70,7 +78,7 @@
 }
 
 .chapter-slide__inner--compact-expand[data-chapter-expanded='true']
-  .chapter-slide__copy.chapter-slide__copy--drawer-teaser {
+  .chapter-slide__copy.chapter-slide__copy--compact-teaser {
   flex: 1 1 auto;
   max-height: min(78dvh, 100%);
   overflow: hidden;
@@ -93,7 +101,7 @@
 /* Beat .chapter-slide .chapter-copy__headline { text-align: left } (loads earlier in bundle) */
 .hardware-slideshow.chapter-slide
   .chapter-slide__inner--compact-expand
-  .chapter-slide__copy--drawer-teaser,
+  .chapter-slide__copy--compact-teaser,
 .hardware-slideshow.chapter-slide
   .chapter-slide__inner--compact-expand
   .chapter-compact-view__header,
@@ -295,7 +303,7 @@
 
   .hardware-slideshow
     .chapter-slide__inner--compact-expand
-    .chapter-slide__copy.chapter-slide__copy--drawer-teaser {
+    .chapter-slide__copy.chapter-slide__copy--compact-teaser {
     position: relative;
     align-self: center;
     width: 100%;
@@ -305,17 +313,17 @@
 
   .hardware-slideshow
     .chapter-slide__inner--compact-expand[data-chapter-expanded='false']
-    .chapter-slide__copy.chapter-slide__copy--drawer-teaser {
+    .chapter-slide__copy.chapter-slide__copy--compact-teaser {
     flex: 0 0 auto;
   }
 
   .hardware-slideshow
     .chapter-slide__inner--compact-expand
-    .chapter-slide__copy--drawer-teaser
+    .chapter-slide__copy--compact-teaser
     .mobile-learn-more,
   .hardware-slideshow
     .chapter-slide__inner--compact-expand
-    .flow-chapter-slide__copy.chapter-slide__copy--drawer-teaser
+    .flow-chapter-slide__copy.chapter-slide__copy--compact-teaser
     .mobile-learn-more {
     display: flex;
     flex-direction: column;
@@ -330,7 +338,7 @@
   }
 
   /* Center all copy text — matches mobile teaser layout */
-  .chapter-slide__inner--compact-expand .chapter-slide__copy--drawer-teaser,
+  .chapter-slide__inner--compact-expand .chapter-slide__copy--compact-teaser,
   .chapter-slide__inner--compact-expand .chapter-compact-view__story,
   .chapter-slide__inner--compact-expand .chapter-compact-view__story-scroll {
     text-align: center;
@@ -386,7 +394,7 @@
 
   .hardware-slideshow.chapter-slide--verdant
     .chapter-slide__inner--compact-expand
-    .chapter-slide__copy--drawer-teaser
+    .chapter-slide__copy--compact-teaser
     .chapter-copy__headline {
     font-size: clamp(22px, 5.5vw, 32px);
   }
@@ -400,7 +408,7 @@
 
   .hardware-slideshow.mobile-chapter-slot--sensi
     .chapter-slide__inner--compact-expand
-    .chapter-slide__copy--drawer-teaser {
+    .chapter-slide__copy--compact-teaser {
     padding-inline: 0;
     box-sizing: border-box;
   }

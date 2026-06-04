@@ -243,11 +243,20 @@ hw-kelvin.jpg           ← Lord Kelvin illustration (color)
 ## Responsive Breakpoints
 | Tier | Width | Shell | Chapter slides |
 |---|---|---|---|
-| Mobile | ≤767px | No sidebar; morphing top nav | 1 column (stage above copy) |
-| Tablet | 768–1023px | **280px sidebar** (desktop nav + subnav) | 2 columns (stage \| copy) |
-| Desktop | ≥1024px | 400px sidebar | 2 columns |
-| Wide copy | ≥1200px | (unchanged) | 3 columns in copy band |
+| Mobile | ≤767px | No sidebar; morphing top nav | 1 column — centered stack + **More** sheet |
+| Tablet | 768–1023px | Collapsed sidebar (52px) | **Compact band** — centered stack + **More/Less** expand |
+| Desktop | 1024–1199px | 280px sidebar | **Compact band** (same as tablet) |
+| Wide | ≥1200px | 280px sidebar | 2 columns — stage \| copy, vertically centered |
 | Cinema | ≥2560px | Max-width content column | — |
+
+### Chapter copy modes
+| Mode | Width | Hook | UX |
+|---|---|---|---|
+| `mobile` | ≤767 | `useLayoutMobile()` | Headline + **More** → full-screen sheet |
+| `compact` | 768–1199 | `useLayoutCompactBand()` | Headline + **More/Less** in-place expand |
+| `desktop` | ≥1200 | (neither) | Inline copy column beside stage |
+
+CSS: `styles/chapter-compact-expand.css` (compact), `styles/hardware-layout.css` (desktop row). Class: `chapter-slide__copy--compact-teaser`.
 
 Source of truth: `lib/layout/breakpoints.ts`, `lib/chapter-slide/breakpoints.ts`.
 

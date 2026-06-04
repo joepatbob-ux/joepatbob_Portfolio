@@ -9,7 +9,7 @@ import {
 import { ChapterSlideCopy } from '@/components/chapter-slide/ChapterSlideCopy'
 import { MobileLearnMore } from '@/components/mobile/MobileLearnMore'
 import { parseChapterBody } from '@/lib/chapter-slide/parseChapterBody'
-import { useLayoutCopyDrawer } from '@/lib/hooks/useLayoutCopyDrawer'
+import { useLayoutCompactBand } from '@/lib/hooks/useLayoutCompactBand'
 import { useLayoutMobile } from '@/lib/hooks/useLayoutMobile'
 import { useCopyScrollActive } from '@/lib/useCopyScrollActive'
 import type { ReactNode } from 'react'
@@ -32,8 +32,8 @@ export function SectionLessons({
   const chapterId = `${sectionId}-lessons`
   const copyScrollActive = useCopyScrollActive(chapterId)
   const isMobile = useLayoutMobile()
-  const isCopyDrawer = useLayoutCopyDrawer()
-  const usesCompactCopy = isMobile || isCopyDrawer
+  const isCompactBand = useLayoutCompactBand()
+  const usesCompactCopy = isMobile || isCompactBand
   const bodyParagraphs = parseChapterBody(lessonBody)
 
   const lessonsCopy = usesCompactCopy ? (
@@ -44,7 +44,7 @@ export function SectionLessons({
         'chapter-slide__copy--lessons',
         'mobile-learn-more-copy',
         isMobile ? 'chapter-slide__copy--mobile-teaser' : '',
-        isCopyDrawer ? 'chapter-slide__copy--drawer-teaser' : '',
+        isCompactBand ? 'chapter-slide__copy--compact-teaser' : '',
       ]
         .filter(Boolean)
         .join(' ')}
@@ -84,7 +84,7 @@ export function SectionLessons({
       {children}
       {sectionId === 'hardware' ? (
         <div className="chapter-slide__viewport">
-          <ChapterCompactViewProvider enabled={isCopyDrawer && !!children}>
+          <ChapterCompactViewProvider enabled={isCompactBand && !!children}>
             <ChapterCompactViewInner className="chapter-slide__inner">
               {children ? (
                 <div className="chapter-slide__stage">
