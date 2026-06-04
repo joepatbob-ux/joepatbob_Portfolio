@@ -245,7 +245,6 @@
 
   .sidebar-tablet-backdrop__content .sidebar-overlay-close--tablet {
     pointer-events: auto;
-    padding: 10px 18px;
   }
 
   /* Hero: full desktop sidebar inset; opacity/blur driven on scroll (JS) */

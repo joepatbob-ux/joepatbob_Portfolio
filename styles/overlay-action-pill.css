@@ -1,0 +1,82 @@
+/* Shared overlay actions — More (open) + Close (dismiss) */
+
+.overlay-action-slot {
+  display: flex;
+  width: 100%;
+  margin: clamp(16px, 2vw, 22px) 0 clamp(14px, 2vw, 18px);
+}
+
+.case-study-section-header--center .overlay-action-slot,
+.case-study-section-header--center .overlay-action-footer,
+.mobile-learn-more__teaser--center .overlay-action-slot,
+.hardware-slideshow .mobile-learn-more__teaser .overlay-action-slot,
+.mobile-learn-more-sheet__footer.overlay-action-footer,
+.chapter-copy-drawer__footer.overlay-action-footer {
+  justify-content: center;
+}
+
+.overlay-action-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  margin: 0;
+  padding: 8px 18px;
+  border: none;
+  border-radius: 9999px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background 180ms ease,
+    box-shadow 180ms ease,
+    color 180ms ease;
+}
+
+.overlay-action-pill--primary {
+  background: var(--color-accent);
+  color: #fff;
+  box-shadow: none;
+}
+
+.overlay-action-pill--primary:hover {
+  background: var(--color-accent-hover);
+  color: #fff;
+}
+
+.overlay-action-pill--primary:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+  background: var(--color-accent-hover);
+  color: #fff;
+  box-shadow: 0 0 0 2px var(--color-accent);
+}
+
+.overlay-action-pill--secondary {
+  background: transparent;
+  color: var(--color-ink);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-accent) 48%, var(--color-ink) 12%);
+}
+
+.overlay-action-pill--secondary:hover {
+  color: var(--color-nav-faded-selection);
+  background: var(--color-nav-pill-muted-accent-1);
+  box-shadow: 0 0 0 1px var(--color-nav-pill-outline);
+}
+
+.overlay-action-pill--secondary:focus-visible {
+  outline: 2px solid var(--color-nav-pill-outline);
+  outline-offset: 3px;
+}
+
+.overlay-action-footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}

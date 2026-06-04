@@ -166,8 +166,8 @@
     margin-inline: auto;
   }
 
-  .hardware-slideshow .mobile-learn-more__teaser .mobile-learn-more__pill {
-    margin-inline: auto;
+  .hardware-slideshow .mobile-learn-more__teaser .overlay-action-slot {
+    justify-content: center;
   }
 
   /* Verdant — stack stage then copy; avoid centered-cluster overlap on short viewports */

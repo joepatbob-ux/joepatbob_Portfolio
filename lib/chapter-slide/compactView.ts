@@ -1,0 +1,2 @@
+export const CHAPTER_COMPACT_EXPAND_LABEL = 'More'
+export const CHAPTER_COMPACT_COLLAPSE_LABEL = 'Less'
