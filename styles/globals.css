@@ -7,7 +7,6 @@
 @import './mobile-chapter.css';
 @import './overlay-action-pill.css';
 @import './mobile-learn-more.css';
-@import './chapter-copy-drawer.css';
 @import './mobile-chapter-viewport.css';
 @import './flow-chapter-slide.css';
 @import './web-apps-kelvin-chapter.css';
@@ -91,7 +90,6 @@
     --z-mobile-nav-backdrop: 108;
     --z-mobile-drawer:      110;
     --z-mobile-learn-more:  112;
-    --z-chapter-copy-drawer: 112;
     --formation-z-bricks:   120;
   }
 
