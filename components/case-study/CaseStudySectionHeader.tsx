@@ -1,9 +1,7 @@
-import { MobileMetaRow } from '@/components/mobile/MobileSectionParts'
 import type { ReactNode } from 'react'
 
 interface Props {
   headline: string
-  meta?: readonly { label: string; value: string }[]
   subhead?: string
   align?: 'left' | 'center'
   className?: string
@@ -14,7 +12,6 @@ interface Props {
 /** Shared section / chapter headline block for flow case studies. */
 export function CaseStudySectionHeader({
   headline,
-  meta = [],
   subhead,
   align = 'left',
   className,
@@ -44,7 +41,6 @@ export function CaseStudySectionHeader({
       {ruleSlot ?? (
         <div className="mobile-section-header__rule case-study-section-header__rule" aria-hidden />
       )}
-      {meta.length > 0 ? <MobileMetaRow items={meta} /> : null}
     </header>
   )
 }

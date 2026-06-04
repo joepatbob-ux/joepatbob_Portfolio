@@ -1,0 +1,30 @@
+import { LAYOUT_BP } from '@/lib/layout/breakpoints'
+
+/** Max z-index for chapter panels on phone — must stay below `.sidebar-mobile-rail` (100). */
+export const MOBILE_PANEL_Z_MAX = 8
+export const MOBILE_PANEL_Z_ENTERING = 9
+
+export function isLayoutMobileWidth(width: number): boolean {
+  return width <= LAYOUT_BP.mobileMax
+}
+
+export function panelZFromScrollReveal(reveal: number, mobile: boolean): number {
+  if (reveal <= 0.08) return 0
+  if (mobile) {
+    return Math.min(MOBILE_PANEL_Z_MAX, Math.round(1 + reveal * MOBILE_PANEL_Z_MAX))
+  }
+  return Math.round(10 + reveal * 90)
+}
+
+export type StickerZIndices = {
+  base: number
+  pile: number
+  drag: number
+}
+
+/** Inline sticker / pile portal z-index — keep in sync with `--z-stickers` in globals.css. */
+export function stickerZIndices(mobile: boolean): StickerZIndices {
+  return mobile
+    ? { base: 90, pile: 89, drag: 96 }
+    : { base: 105, pile: 104, drag: 200 }
+}

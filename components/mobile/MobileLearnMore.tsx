@@ -7,7 +7,6 @@ import { useState, type ReactNode } from 'react'
 
 interface Props {
   headline: string
-  meta?: readonly { label: string; value: string }[]
   subhead?: string
   align?: 'left' | 'center'
   /** Flow sections use section header; hardware chapters use chapter copy headline. */
@@ -18,7 +17,6 @@ interface Props {
 
 export function MobileLearnMore({
   headline,
-  meta = [],
   subhead,
   align = 'left',
   headerVariant = 'section',
@@ -50,7 +48,6 @@ export function MobileLearnMore({
     ) : (
       <CaseStudySectionHeader
         headline={headline}
-        meta={meta}
         subhead={subhead}
         align={align}
         ruleSlot={isMobile ? learnMorePill : undefined}

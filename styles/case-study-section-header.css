@@ -6,10 +6,6 @@
   text-align: center;
 }
 
-.case-study-section-header--center .mobile-meta-row {
-  justify-content: center;
-}
-
 .case-study-section-header--center .case-study-section-header__rule,
 .case-study-section-header--center .mobile-section-header__rule {
   margin-left: auto;

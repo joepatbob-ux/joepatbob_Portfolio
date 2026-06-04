@@ -1,11 +1,19 @@
-/** Keyboard grid codes map to `verdant_charactor_{CODE}.svg` in `/images/Verdant_Segment/`. */
+/** Character selector — keys map to `verdant_charactor_{CODE}.svg` in `/images/Verdant_Segment/`. */
 
-export type VerdantKeyboardKey =
+export type VerdantSelection =
+  | { kind: 'character'; code: string }
+  | { kind: 'sketch' }
+  | { kind: 'board' }
+
+export type CharacterKeyDef =
   | { kind: 'char'; label: string; code: string }
   | { kind: 'solid'; code: 'ALL' }
   | { kind: 'outline'; code: 'NONE' }
 
-export const VERDANT_KEYBOARD_ROWS: VerdantKeyboardKey[][] = [
+/** Ideal column count at full width; grid adds rows when narrower. */
+export const VERDANT_SELECTOR_COLUMN_COUNT = 10
+
+const CHARACTER_ROWS: CharacterKeyDef[][] = [
   [
     { kind: 'char', label: '0', code: '0' },
     { kind: 'char', label: '1', code: '1' },
@@ -56,12 +64,65 @@ export const VERDANT_KEYBOARD_ROWS: VerdantKeyboardKey[][] = [
   ],
 ]
 
-export function keyboardKeyCode(key: VerdantKeyboardKey): string {
+export const VERDANT_CHARACTER_KEYS: CharacterKeyDef[] =
+  CHARACTER_ROWS.flat()
+
+export const VERDANT_VIEW_TOGGLES = [
+  { kind: 'sketch', label: 'Sketch' },
+  { kind: 'board', label: 'Board' },
+] as const satisfies ReadonlyArray<{
+  kind: Exclude<VerdantSelection['kind'], 'character'>
+  label: string
+}>
+
+export const VERDANT_DEFAULT_SELECTION: VerdantSelection = {
+  kind: 'character',
+  code: 'ALL',
+}
+
+/** Character-set drawing (Segment_Drawing.jpeg) */
+export const VERDANT_SKETCH_IMAGE = '/images/Segment_Drawing.jpeg'
+/** VX4 PCB + display (Front/VX4.png) */
+export const VERDANT_BOARD_IMAGE = '/images/Front/VX4.png'
+
+export function characterKeyCode(key: CharacterKeyDef): string {
   return key.code
 }
 
-export function keyboardKeyAriaLabel(key: VerdantKeyboardKey): string {
+export function characterKeyAriaLabel(key: CharacterKeyDef): string {
   if (key.kind === 'solid') return 'All segments'
   if (key.kind === 'outline') return 'Blank character'
   return `Character ${key.label}`
+}
+
+export function isCharacterSelection(
+  selection: VerdantSelection,
+): selection is { kind: 'character'; code: string } {
+  return selection.kind === 'character'
+}
+
+export function isCharacterKeySelected(
+  selection: VerdantSelection,
+  code: string,
+): boolean {
+  return selection.kind === 'character' && selection.code === code
+}
+
+export function isViewSelected(
+  selection: VerdantSelection,
+  kind: Exclude<VerdantSelection['kind'], 'character'>,
+): boolean {
+  return selection.kind === kind
+}
+
+export function previewKind(
+  selection: VerdantSelection,
+): 'segments' | 'sketch' | 'board' {
+  return selection.kind === 'character' ? 'segments' : selection.kind
+}
+
+export function stageAriaLabel(selection: VerdantSelection): string {
+  if (selection.kind === 'character') return `Character ${selection.code}`
+  if (selection.kind === 'sketch') return 'Sketch'
+  return 'Board'
 }

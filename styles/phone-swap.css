@@ -872,6 +872,11 @@
 }
 
 @media (max-width: 767px) {
+  /* Live phone hit layer must stay under the fixed top rail (100) */
+  .sma-phone-overlay {
+    z-index: var(--z-stickers, 90);
+  }
+
   .hardware-slideshow.mobile-chapter-slot--sensi {
     --phone-viewbox-base-w: 100svw;
     --phone-viewbox-base-h: clamp(300px, 72dvh, 760px);

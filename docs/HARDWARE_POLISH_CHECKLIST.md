@@ -54,9 +54,12 @@ Use this when auditing **Hardware** first, then copy pass/fail notes to Mobile, 
 - [ ] Nav goto lands on correct slide
 
 ### hardware-verdant (`VerdantChapter`, `verdant-interactive.css`)
-- [ ] Keyboard + character SVG
-- [ ] Dark mode character/theme colors
-- [ ] Container queries at 400px / 280px
+- [x] Keyboard + character SVG (flex-wrap keypad; themed segment cache)
+- [x] Dark mode character/theme colors (`--verdant-label` on `.chapter-slide--verdant`)
+- [x] Container queries at 400px split / 340px & 399px stage scale (verify in browser)
+- [x] Sketch/Board photos in segment-aspect frame; assets `Segment_Drawing.jpeg`, `Front/VX4.png`
+- [x] Mobile: copy no longer overlaps keypad (`mobile-chapter-viewport.css` verdant rules)
+- [ ] Manual pass: side-by-side desktop, resize narrow→wide, Sketch/Board/character toggles
 
 ## Sidebar / goto matrix
 

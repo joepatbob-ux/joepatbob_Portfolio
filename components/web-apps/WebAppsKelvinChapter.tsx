@@ -33,7 +33,6 @@ export function WebAppsKelvinChapter() {
         <MobileLearnMore
           headline={WEB_APPS_KELVIN.headline}
           subhead={WEB_APPS_KELVIN.subhead}
-          meta={WEB_APPS_KELVIN.meta}
         >
           <MobileSubStory heading={s01.heading}>
             <MobileProse paragraphs={s01Intro} />

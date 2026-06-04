@@ -734,6 +734,7 @@ export function drawOrderKey(
 export const BRICK_Z_INDEX_BASE = 10
 
 /** Brick layer portal — above sidebar shell (~100–111), on- and off-plate. */
+/** Portal stacking — set via `--formation-z-bricks` in globals.css (lower on mobile). */
 export const FORMATION_Z_BRICKS = 120
 
 /** While dragging, keep the piece above all snapped bricks. */

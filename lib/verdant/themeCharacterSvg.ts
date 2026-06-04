@@ -13,6 +13,12 @@ export function themeVerdantCharacterSvg(svgText: string): string {
     .replace(/\bfill="#bbbbbb"/gi, 'class="verdant-char-seg verdant-char-seg--off"')
 }
 
+export function getCachedThemedVerdantCharacterSvg(
+  code: string,
+): string | undefined {
+  return themedCache.get(code.toUpperCase())
+}
+
 export async function fetchThemedVerdantCharacterSvg(
   code: string,
 ): Promise<string> {

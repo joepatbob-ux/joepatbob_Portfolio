@@ -2,15 +2,23 @@
 
 import { CHAPTER_NAV_FADE_MS, useChapterNav } from '@/components/ChapterNavProvider'
 import { isFixedSlideshowFlowChapter, isFlowChapterId } from '@/lib/chapterFlow'
+import { useLayoutMobile } from '@/lib/hooks/useLayoutMobile'
+import {
+  MOBILE_PANEL_Z_ENTERING,
+  panelZFromScrollReveal,
+} from '@/lib/layout/stacking'
 import { SCROLL_BLUR_PX, blurOutFromReveal } from '@/lib/scrollBlur'
 
 const SCROLL_EASE = 'cubic-bezier(0.16, 1, 0.3, 1)'
 
 export function useChapterPanelOpacity(chapterId: string) {
   const { phase, targetId, activeSlideId, reveals } = useChapterNav()
+  const layoutMobile = useLayoutMobile()
 
   const scrollReveal = reveals[chapterId] ?? 0
   const flowChapter = isFlowChapterId(chapterId)
+  const fixedSlideshowStacking =
+    isFixedSlideshowFlowChapter(chapterId) && !layoutMobile
 
   if (phase === 'out') {
     return {
@@ -30,15 +38,20 @@ export function useChapterPanelOpacity(chapterId: string) {
   if (phase === 'in') {
     const entering = chapterId === targetId
     const { opacity, filter } = blurOutFromReveal(entering ? 1 : 0, SCROLL_BLUR_PX)
-    const flowEntering =
-      entering && isFixedSlideshowFlowChapter(chapterId)
+    const flowEntering = entering && fixedSlideshowStacking
     return {
       opacity,
       isActive: entering,
       style: {
         opacity,
         filter: flowEntering ? 'none' : filter,
-        zIndex: flowEntering ? 110 : entering ? 2 : 0,
+        zIndex: flowEntering
+          ? 110
+          : entering
+            ? layoutMobile
+              ? MOBILE_PANEL_Z_ENTERING
+              : 2
+            : 0,
         pointerEvents: entering ? 'auto' : 'none',
         transition: `opacity ${CHAPTER_NAV_FADE_MS}ms ${SCROLL_EASE}, filter ${CHAPTER_NAV_FADE_MS}ms ${SCROLL_EASE}`,
       } as const,
@@ -48,7 +61,7 @@ export function useChapterPanelOpacity(chapterId: string) {
   if (flowChapter) {
     // Fixed slideshow (Mobile / EIB / Web Apps on desktop): crossfade like Hardware.
     // Binary onScreen opacity stacks every adjacent slide at 1 — overview covers sensi.
-    if (isFixedSlideshowFlowChapter(chapterId)) {
+    if (fixedSlideshowStacking) {
       let reveal = scrollReveal
       let isActive = scrollReveal > 0.5
       if (activeSlideId === chapterId) {
@@ -61,7 +74,7 @@ export function useChapterPanelOpacity(chapterId: string) {
         style: {
           opacity: reveal,
           filter: 'none',
-          zIndex: reveal > 0.08 ? Math.round(10 + reveal * 90) : 0,
+          zIndex: panelZFromScrollReveal(reveal, false),
           pointerEvents: isActive ? 'auto' : 'none',
           transition: 'none',
         } as const,
@@ -95,7 +108,7 @@ export function useChapterPanelOpacity(chapterId: string) {
     style: {
       opacity: reveal,
       filter: 'none',
-      zIndex: reveal > 0.08 ? Math.round(1 + reveal) : 0,
+      zIndex: panelZFromScrollReveal(reveal, layoutMobile),
       pointerEvents: isActive ? 'auto' : 'none',
       transition: 'none',
     } as const,

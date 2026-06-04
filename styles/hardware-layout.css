@@ -156,6 +156,7 @@
   }
 
   .hardware-slideshow.chapter-slide--eim .chapter-slide__stage,
+  .hardware-slideshow.chapter-slide--verdant .chapter-slide__stage,
   .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__stage,
   .hardware-slideshow .chapter-slide__stage:has(.phone-swap) {
     overflow: visible;

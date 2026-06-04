@@ -36,43 +36,6 @@
   background: var(--color-accent);
 }
 
-.mobile-meta-row {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px 20px;
-  margin: 0;
-}
-
-@media (min-width: 560px) {
-  .mobile-meta-row {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-}
-
-.mobile-meta-row__item {
-  margin: 0;
-  min-width: 0;
-}
-
-.mobile-meta-row__label {
-  margin: 0 0 4px;
-  font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: 9px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--color-ink);
-  opacity: 0.5;
-}
-
-.mobile-meta-row__value {
-  margin: 0;
-  font-family: var(--font-body);
-  font-size: 13px;
-  line-height: 1.45;
-  color: var(--color-ink);
-}
-
 /* Prose */
 .mobile-prose {
   margin-bottom: clamp(24px, 3vh, 36px);

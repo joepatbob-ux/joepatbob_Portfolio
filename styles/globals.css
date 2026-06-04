@@ -19,6 +19,7 @@
 @import './site-layout.css';
 @import './hardware-layout.css';
 @import './verdant-interactive.css';
+@import './verdant-character-selector.css';
 @import './sidebar-layout.css';
 @import './sidebar-mobile.css';
 @import './contact-dialog.css';
@@ -87,6 +88,7 @@
     --z-mobile-nav-backdrop: 108;
     --z-mobile-drawer:      110;
     --z-mobile-learn-more:  112;
+    --formation-z-bricks:   120;
   }
 
   @media (prefers-color-scheme: dark) {
@@ -143,6 +145,12 @@
       );
       --mobile-content-bottom-inset: env(safe-area-inset-bottom, 0px);
       --gutter: 24px;
+      /* Portaled interactives + panels stay under the fixed top rail */
+      --z-mobile-chrome: 100;
+      --z-stickers: 90;
+      --z-sticker-pile: 89;
+      --z-sticker-drag: 96;
+      --formation-z-bricks: 90;
     }
 
     html {

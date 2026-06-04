@@ -4,23 +4,6 @@ import { parseChapterBody } from '@/lib/chapter-slide/parseChapterBody'
 /** @deprecated Use parseChapterBody */
 export const splitParagraphs = parseChapterBody
 
-export function MobileMetaRow({
-  items,
-}: {
-  items: readonly { label: string; value: string }[]
-}) {
-  return (
-    <dl className="mobile-meta-row">
-      {items.map((item) => (
-        <div key={item.label} className="mobile-meta-row__item">
-          <dt className="mobile-meta-row__label">{item.label}</dt>
-          <dd className="mobile-meta-row__value">{item.value}</dd>
-        </div>
-      ))}
-    </dl>
-  )
-}
-
 export function MobileLabelGrid({
   items,
   columns = 3,

@@ -38,6 +38,17 @@
   transform-origin: 0 0;
 }
 
+.formation-lego__bricks-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.formation-lego__bricks-layer .formation-lego__block {
+  pointer-events: auto;
+}
+
 .formation-lego__baseplate {
   display: block;
   width: 100% !important;
@@ -140,4 +151,23 @@
 
 .formation-lego__bricks-portal .formation-lego__block {
   pointer-events: auto;
+}
+
+/* Phone: let the page scroll through the board; grab only after drag threshold (JS). */
+@media (max-width: 767px) {
+  .formation-lego__board {
+    touch-action: pan-y;
+  }
+
+  .formation-lego__block {
+    touch-action: pan-y;
+  }
+
+  .formation-lego__block.formation-lego__piece--drag {
+    touch-action: none;
+  }
+
+  .formation-lego__bricks-portal {
+    touch-action: auto;
+  }
 }

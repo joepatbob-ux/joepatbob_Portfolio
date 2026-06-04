@@ -13,7 +13,7 @@
   padding: 5px 11px;
   border: none;
   border-radius: 9999px;
-  background: var(--color-nav-pill-muted-accent-1);
+  background: var(--color-accent);
   box-shadow: none;
   font-family: var(--font-mono);
   font-size: 11px;
@@ -21,7 +21,7 @@
   line-height: 1.2;
   letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: var(--color-accent);
+  color: #fff;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   transition:
@@ -30,11 +30,17 @@
     color 180ms ease;
 }
 
-.mobile-learn-more__pill:hover,
+.mobile-learn-more__pill:hover {
+  background: var(--color-accent-hover);
+  color: #fff;
+}
+
 .mobile-learn-more__pill:focus-visible {
-  outline: none;
-  color: var(--color-accent-hover);
-  box-shadow: 0 0 0 1px var(--color-accent);
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+  background: var(--color-accent-hover);
+  color: #fff;
+  box-shadow: 0 0 0 2px var(--color-accent);
 }
 
 .case-study-section-header--center .mobile-learn-more__pill {

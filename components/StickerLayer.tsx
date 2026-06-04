@@ -4,14 +4,11 @@ import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { PlacedStickerControl } from '@/components/PlacedStickerControl'
 import { Sticker } from '@/components/Sticker'
-import {
-  STICKER_Z_DRAG,
-  useStickers,
-} from '@/components/StickerProvider'
+import { useStickers } from '@/components/StickerProvider'
 import { flushScrollFrame } from '@/lib/scrollFrame'
 
 export function StickerLayer() {
-  const { placed, activeDrag, selectSticker } = useStickers()
+  const { placed, activeDrag, selectSticker, zIndices } = useStickers()
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -63,7 +60,7 @@ export function StickerLayer() {
             style={{
               left: activeDrag.clientX,
               top: activeDrag.clientY,
-              zIndex: STICKER_Z_DRAG,
+              zIndex: zIndices.drag,
             }}
           >
             <Sticker
