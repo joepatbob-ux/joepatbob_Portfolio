@@ -75,7 +75,7 @@ export function MobileLearnMore({
       <CaseStudySectionHeader
         headline={headline}
         subhead={subhead}
-        align={align}
+        align={usesCompactExpand ? 'center' : align}
         ruleSlot={
           usesSheet ? learnMorePill : usesCompactExpand ? expandPill : undefined
         }

@@ -116,9 +116,15 @@
     --cs-touch2-frame-max-w: min(var(--cs-touch2-frame-w), var(--cs-stage-max));
     --cs-verdant-glyph-max-h: min(46dvh, 400px);
     --cs-verdant-max-w: min(100%, var(--cs-stage-gallery-w));
-    --cs-eim-stage-max-w: var(--cs-stage-gallery-w);
+    --cs-eim-stage-max-w: min(100%, clamp(220px, 36vw, 320px));
     --cs-sensi-lite-stage-max-w: var(--cs-stage-gallery-w);
     --cs-hw-pad-max: 40px;
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1199px) {
+  :root {
+    --cs-eim-stage-max-w: min(100%, clamp(240px, 32vw, 340px));
   }
 }
 
