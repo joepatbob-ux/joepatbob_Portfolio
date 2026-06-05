@@ -83,6 +83,11 @@
 }
 
 @media (max-width: 1023px) {
+  #hero,
+  .hero {
+    max-height: none;
+  }
+
   .hero-pin {
     display: block;
   }

@@ -125,9 +125,12 @@ export function SidebarNav() {
   }
 
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false)
-  const [mobileInHero, setMobileInHero] = useState(() =>
-    typeof window !== 'undefined' ? isInHeroScrollZone() : true,
-  )
+  const [mobileInHero, setMobileInHero] = useState(() => {
+    if (typeof window === 'undefined') return true
+    return window.matchMedia(LAYOUT_MQ.topBarNav).matches
+      ? isTopBarInHeroScrollZone()
+      : isInHeroScrollZone()
+  })
   const mobileInHeroRef = useRef(mobileInHero)
   const lastHtmlHeroClassRef = useRef<boolean | null>(null)
 
@@ -396,7 +399,12 @@ export function SidebarNav() {
       } else {
         setDesktopNavReady(false)
         const y = getScrollTop()
-        if (mobileInHero) {
+        const inHero = isTopBarInHeroScrollZone()
+        mobileInHeroRef.current = inHero
+        lastHtmlHeroClassRef.current = inHero
+        document.documentElement.classList.toggle('in-hero-scroll', inHero)
+        document.documentElement.classList.toggle('past-hero-scroll', !inHero)
+        if (inHero) {
           applyMobileHeroScroll(y)
         } else {
           hideSidebarShell(mobileHeroRef.current)
