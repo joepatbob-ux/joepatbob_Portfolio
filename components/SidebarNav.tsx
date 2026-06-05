@@ -39,42 +39,24 @@ const BLUR_PX         = 6
 const NAV_TOP_PX      = 24
 const EMAIL_BOTTOM_PX = 24
 
-/** Phone overlay nav — keep in sync with `LAYOUT_MQ.mobile` / globals.css */
-const MOBILE_MAX = LAYOUT_MQ.mobile
+/** Phone + tablet overlay nav — keep in sync with `LAYOUT_MQ.topBarNav` / globals.css */
+const TOP_BAR_NAV_MQ = LAYOUT_MQ.topBarNav
 
-
-function readIsMobile(): boolean {
+function readUsesTopBarNav(): boolean {
   if (typeof window === 'undefined') return false
-  return window.matchMedia(MOBILE_MAX).matches
+  return window.matchMedia(TOP_BAR_NAV_MQ).matches
 }
 
-function useIsMobile() {
-  const [isMobile, setIsMobile] = useState(readIsMobile)
+function useTopBarNav() {
+  const [usesTopBarNav, setUsesTopBarNav] = useState(readUsesTopBarNav)
   useEffect(() => {
-    const mq = window.matchMedia(MOBILE_MAX)
-    const sync = () => setIsMobile(mq.matches)
+    const mq = window.matchMedia(TOP_BAR_NAV_MQ)
+    const sync = () => setUsesTopBarNav(mq.matches)
     sync()
     mq.addEventListener('change', sync)
     return () => mq.removeEventListener('change', sync)
   }, [])
-  return isMobile
-}
-
-function readIsTablet(): boolean {
-  if (typeof window === 'undefined') return false
-  return window.matchMedia(LAYOUT_MQ.tablet).matches
-}
-
-function useIsTablet() {
-  const [isTablet, setIsTablet] = useState(readIsTablet)
-  useEffect(() => {
-    const mq = window.matchMedia(LAYOUT_MQ.tablet)
-    const sync = () => setIsTablet(mq.matches)
-    sync()
-    mq.addEventListener('change', sync)
-    return () => mq.removeEventListener('change', sync)
-  }, [])
-  return isTablet
+  return usesTopBarNav
 }
 
 function SidebarOverlayClose({
@@ -134,8 +116,7 @@ function getScrollTop(): number {
 
 // ── COMPONENT ─────────────────────────────────────────────────────────────────
 export function SidebarNav() {
-  const isMobile = useIsMobile()
-  const isTablet = useIsTablet()
+  const usesTopBarNav = useTopBarNav()
   const { navigateToChapter, navigateToSection, phase: chapterNavPhase } =
     useChapterNav()
   const C = {
@@ -148,11 +129,6 @@ export function SidebarNav() {
     typeof window !== 'undefined' ? isInHeroScrollZone() : true,
   )
   const mobileInHeroRef = useRef(mobileInHero)
-  const [tabletSidebarOpen, setTabletSidebarOpen] = useState(false)
-  const [tabletInHero, setTabletInHero] = useState(() =>
-    typeof window !== 'undefined' ? isInHeroScrollZone() : true,
-  )
-  const tabletInHeroRef = useRef(tabletInHero)
 
   const [navIsStuck,          setNavIsStuck]          = useState(false)
   const [dividerVisible,      setDividerVisible]      = useState(false)
@@ -203,11 +179,7 @@ export function SidebarNav() {
   }, [])
 
   useEffect(() => {
-    if (
-      isMobile
-        ? !mobileDrawerOpen
-        : isTablet && !tabletSidebarOpen && !tabletInHero
-    ) {
+    if (usesTopBarNav && !mobileDrawerOpen) {
       return
     }
     measureLayout()
@@ -219,7 +191,7 @@ export function SidebarNav() {
       window.removeEventListener('resize', measureLayout)
       ro.disconnect()
     }
-  }, [isMobile, isTablet, mobileDrawerOpen, tabletSidebarOpen, tabletInHero, measureLayout])
+  }, [usesTopBarNav, mobileDrawerOpen, measureLayout])
 
   const staggerIn = useCallback((sectionId: string, isFirst = false) => {
     staggerTimers.current.forEach(clearTimeout)
@@ -272,8 +244,8 @@ export function SidebarNav() {
   }, [activeChapter])
 
   useEffect(() => {
-    overlayOpenRef.current = mobileDrawerOpen || tabletSidebarOpen
-  }, [mobileDrawerOpen, tabletSidebarOpen])
+    overlayOpenRef.current = mobileDrawerOpen
+  }, [mobileDrawerOpen])
 
   const syncSidebarDivider = useCallback((inHero: boolean) => {
     if (overlayOpenRef.current) return
@@ -285,9 +257,8 @@ export function SidebarNav() {
 
   /** Expanded overlay panel: reveal chapter subnav even before scroll-lock threshold. */
   useEffect(() => {
-    const overlayOpen =
-      (isTablet && tabletSidebarOpen) || (isMobile && mobileDrawerOpen)
-    if (!isTablet && !isMobile) return
+    const overlayOpen = usesTopBarNav && mobileDrawerOpen
+    if (!usesTopBarNav) return
     if (overlayOpen) {
       const id = activeSectionRef.current || NAV_SECTIONS[0].id
       setSubNavVisible(true)
@@ -305,7 +276,7 @@ export function SidebarNav() {
       staggerTimers.current.forEach(clearTimeout)
       staggerTimers.current = []
     }
-  }, [isTablet, isMobile, tabletSidebarOpen, mobileDrawerOpen, staggerIn, syncSidebarDivider])
+  }, [usesTopBarNav, mobileDrawerOpen, staggerIn, syncSidebarDivider])
 
   const applyScrollSpy = useCallback(() => {
     if (overlayOpenRef.current) return
@@ -366,30 +337,29 @@ export function SidebarNav() {
   )
 
   useEffect(() => {
-    if (isMobile && mobileInHero && mobileDrawerOpen) {
+    if (usesTopBarNav && mobileInHero && mobileDrawerOpen) {
       setMobileDrawerOpen(false)
     }
-  }, [isMobile, mobileInHero, mobileDrawerOpen])
+  }, [usesTopBarNav, mobileInHero, mobileDrawerOpen])
 
   useEffect(() => {
-    document.documentElement.classList.toggle('mobile-nav-panel-open', isMobile && mobileDrawerOpen)
+    document.documentElement.classList.toggle('mobile-nav-panel-open', usesTopBarNav && mobileDrawerOpen)
     return () => {
       document.documentElement.classList.remove('mobile-nav-panel-open')
     }
-  }, [isMobile, mobileDrawerOpen])
+  }, [usesTopBarNav, mobileDrawerOpen])
 
   useEffect(() => {
-    if (!isMobile || !mobileDrawerOpen) return
+    if (!usesTopBarNav || !mobileDrawerOpen) return
     const prev = document.body.style.overflow
     document.body.style.overflow = 'hidden'
     return () => {
       document.body.style.overflow = prev
     }
-  }, [isMobile, mobileDrawerOpen])
+  }, [usesTopBarNav, mobileDrawerOpen])
 
   const closeOverlays = useCallback(() => {
     setMobileDrawerOpen(false)
-    setTabletSidebarOpen(false)
   }, [])
 
   const applyMobileHeroScroll = useCallback((y: number) => {
@@ -412,25 +382,9 @@ export function SidebarNav() {
     }
   }, [])
 
-  const applyTabletHeroSidebarScroll = useCallback((y: number) => {
-    const { viewportH, navRestTop, threshold } = layoutRef.current
-    const safeThreshold = threshold > 0 ? threshold : 1
-
-    applySidebarShellFade(sidebarShellRef.current, y, viewportH, BLUR_PX)
-
-    const travelT = Math.min(1, y / safeThreshold)
-    const navTop =
-      y >= safeThreshold
-        ? NAV_TOP_PX
-        : navRestTop + (NAV_TOP_PX - navRestTop) * travelT
-    if (navWrapRef.current) {
-      navWrapRef.current.style.top = `${navTop}px`
-    }
-  }, [])
-
   /** Position nav before paint — avoids hero flash at `top: 0` while layout/scroll frame init. */
   useLayoutEffect(() => {
-    if (isMobile) {
+    if (usesTopBarNav) {
       if (mobileDrawerOpen) {
         measureLayout()
         resetSidebarShellFade(sidebarShellRef.current)
@@ -448,26 +402,6 @@ export function SidebarNav() {
       return
     }
 
-    if (isTablet) {
-      if (tabletSidebarOpen || tabletInHero) {
-        measureLayout()
-        const y = getScrollTop()
-        if (tabletInHero && !tabletSidebarOpen) {
-          applyTabletHeroSidebarScroll(y)
-        } else if (tabletSidebarOpen) {
-          resetSidebarShellFade(sidebarShellRef.current)
-          applyDesktopNavScroll(y)
-        } else {
-          hideSidebarShell(sidebarShellRef.current)
-        }
-        setDesktopNavReady(true)
-      } else {
-        hideSidebarShell(sidebarShellRef.current)
-        setDesktopNavReady(false)
-      }
-      return
-    }
-
     measureLayout()
     applyDesktopNavScroll(getScrollTop())
     const inHero = isInHeroScrollZone()
@@ -475,11 +409,11 @@ export function SidebarNav() {
     document.documentElement.classList.toggle('past-hero-scroll', !inHero)
     syncSidebarDivider(inHero)
     setDesktopNavReady(true)
-  }, [isMobile, isTablet, mobileInHero, mobileDrawerOpen, tabletSidebarOpen, tabletInHero, measureLayout, applyDesktopNavScroll, applyTabletHeroSidebarScroll, applyMobileHeroScroll, syncSidebarDivider])
+  }, [usesTopBarNav, mobileInHero, mobileDrawerOpen, measureLayout, applyDesktopNavScroll, applyMobileHeroScroll, syncSidebarDivider])
 
-  /** Mobile: hero intro fades on scroll; pill + drawer overlay after hero. */
+  /** Top-bar nav: hero intro fades on scroll; rail + drawer overlay after hero. */
   useEffect(() => {
-    if (!isMobile) return
+    if (!usesTopBarNav) return
 
     return scheduleScrollFrame(() => {
       const y = getScrollTop()
@@ -501,43 +435,22 @@ export function SidebarNav() {
 
       if (!inHero && !overlayOpenRef.current) applyScrollSpy()
     })
-  }, [isMobile, mobileDrawerOpen, applyScrollSpy, applyMobileHeroScroll])
+  }, [usesTopBarNav, mobileDrawerOpen, applyScrollSpy, applyMobileHeroScroll])
 
   useEffect(() => {
-    if ((!isMobile && !isTablet) || !(mobileDrawerOpen || tabletSidebarOpen)) return
+    if (!usesTopBarNav || !mobileDrawerOpen) return
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') closeOverlays()
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [isMobile, isTablet, mobileDrawerOpen, tabletSidebarOpen, closeOverlays])
+  }, [usesTopBarNav, mobileDrawerOpen, closeOverlays])
 
+  // Scroll-linked sidebar hero name + nav travel — desktop only (top-bar nav uses mobile scroll frame).
   useEffect(() => {
-    if (!isTablet || !tabletSidebarOpen) return
-    const prev = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    return () => {
-      document.body.style.overflow = prev
-    }
-  }, [isTablet, tabletSidebarOpen])
+    if (usesTopBarNav) return
 
-  useEffect(() => {
-    if (!isTablet) return
-    const active = tabletInHero && !tabletSidebarOpen
-    document.documentElement.classList.toggle('sidebar-tablet-hero-active', active)
-    return () => {
-      document.documentElement.classList.remove('sidebar-tablet-hero-active')
-    }
-  }, [isTablet, tabletInHero, tabletSidebarOpen])
-
-  // Scroll-linked sidebar hero name + nav travel — one shared scroll frame (no idle rAF loop).
-  useEffect(() => {
-    if (isMobile) return
-
-    const tabletSidebarLive =
-      isTablet && (tabletSidebarOpen || tabletInHero)
-
-    if (!isTablet || tabletSidebarLive) measureLayout()
+    measureLayout()
 
     return scheduleScrollFrame(() => {
       const y = getScrollTop()
@@ -545,47 +458,25 @@ export function SidebarNav() {
       document.documentElement.classList.toggle('in-hero-scroll', inHero)
       document.documentElement.classList.toggle('past-hero-scroll', !inHero)
       syncSidebarDivider(inHero)
-
-      if (isTablet) {
-        if (inHero !== tabletInHeroRef.current) {
-          tabletInHeroRef.current = inHero
-          setTabletInHero(inHero)
-        }
-
-        if (tabletSidebarOpen) {
-          resetSidebarShellFade(sidebarShellRef.current)
-          applyDesktopNavScroll(y)
-        } else if (inHero) {
-          applyTabletHeroSidebarScroll(y)
-        } else {
-          hideSidebarShell(sidebarShellRef.current)
-        }
-      } else {
-        applyDesktopNavScroll(y)
-      }
-
+      applyDesktopNavScroll(y)
       applyStuckState(y)
-      if ((isTablet || prevStuck.current) && !overlayOpenRef.current) applyScrollSpy()
+      if (prevStuck.current && !overlayOpenRef.current) applyScrollSpy()
     })
   }, [
-    isMobile,
-    isTablet,
-    tabletSidebarOpen,
-    tabletInHero,
+    usesTopBarNav,
     applyStuckState,
     applyScrollSpy,
     measureLayout,
     applyDesktopNavScroll,
-    applyTabletHeroSidebarScroll,
     syncSidebarDivider,
   ])
 
   useEffect(() => {
-    if (isMobile) return
+    if (usesTopBarNav) return
     return () => {
       document.documentElement.classList.remove('in-hero-scroll', 'past-hero-scroll')
     }
-  }, [isMobile])
+  }, [usesTopBarNav])
 
   const syncScrollAfterNavigate = useCallback(() => {
     applyStuckState(getScrollTop())
@@ -601,7 +492,7 @@ export function SidebarNav() {
   )
 
   const scrollToChapter = (chapterId: string) => {
-    const closeAfter = mobileDrawerOpen || tabletSidebarOpen
+    const closeAfter = mobileDrawerOpen
     const sectionId = sectionIdForChapter(chapterId)
     if (sectionId) {
       activeSectionRef.current = sectionId
@@ -614,7 +505,7 @@ export function SidebarNav() {
   }
 
   const scrollToSection = (id: string) => {
-    const closeAfter = mobileDrawerOpen || tabletSidebarOpen
+    const closeAfter = mobileDrawerOpen
     const sec = NAV_SECTIONS.find((s) => s.id === id)
     activeSectionRef.current = id
     setActiveSection(id)
@@ -629,32 +520,23 @@ export function SidebarNav() {
 
   const currentSection = NAV_SECTIONS.find((s) => s.id === activeSection) || NAV_SECTIONS[0]
 
-  const tabletOverlaySubnav = isTablet && tabletSidebarOpen
-  const mobileOverlaySubnav = isMobile && mobileDrawerOpen
-  const overlaySubnav = tabletOverlaySubnav || mobileOverlaySubnav
+  const overlaySubnav = usesTopBarNav && mobileDrawerOpen
   const subnavInteractive = subNavVisible || overlaySubnav
 
-  const showMobileRail = isMobile && !mobileInHero && !mobileDrawerOpen
-  const showMobileHero = isMobile && mobileInHero && !mobileDrawerOpen
+  const showMobileRail = usesTopBarNav && !mobileInHero && !mobileDrawerOpen
+  const showMobileHero = usesTopBarNav && mobileInHero && !mobileDrawerOpen
 
-  const showTabletRail = isTablet && !tabletSidebarOpen && !tabletInHero
-
-  const shellUsesOverlayWidth =
-    (isMobile && mobileDrawerOpen) ||
-    (isTablet && (tabletSidebarOpen || tabletInHero))
+  const shellUsesOverlayWidth = usesTopBarNav && mobileDrawerOpen
 
   const shellClass = [
     'sidebar-desktop-shell',
-    tabletSidebarOpen ? 'sidebar-tablet-expanded' : '',
     mobileDrawerOpen ? 'sidebar-mobile-expanded' : '',
-    tabletInHero && !tabletSidebarOpen ? 'sidebar-tablet-hero' : '',
   ]
     .filter(Boolean)
     .join(' ')
 
   const subnavClass = [
     'sidebar-desktop-subnav',
-    tabletSidebarOpen ? 'sidebar-tablet-expanded' : '',
     mobileDrawerOpen ? 'sidebar-mobile-expanded' : '',
   ]
     .filter(Boolean)
@@ -662,7 +544,7 @@ export function SidebarNav() {
 
   return (
     <>
-      {/* Mobile: hero intro → top rail (tablet pattern) → expand panel + scrim */}
+      {/* Phone + tablet: hero intro → top rail → expand panel + scrim */}
       <div className="sidebar-mobile-nav">
         <div
           className={`sidebar-mobile-backdrop${mobileDrawerOpen ? ' sidebar-mobile-backdrop--visible' : ''}`}
@@ -793,45 +675,13 @@ export function SidebarNav() {
         </button>
       </div>
 
-      {/* Tablet: vertical rail → full desktop sidebar overlay */}
-      {isTablet ? (
-        <button
-          type="button"
-          className={`sidebar-tablet-rail${showTabletRail && !tabletSidebarOpen ? ' sidebar-tablet-rail--visible' : ''}`}
-          aria-expanded={tabletSidebarOpen}
-          aria-controls="sidebar-tablet-panel"
-          aria-hidden={showTabletRail && !tabletSidebarOpen ? undefined : true}
-          tabIndex={showTabletRail && !tabletSidebarOpen ? 0 : -1}
-          onClick={() => setTabletSidebarOpen(true)}
-        >
-          <p className="sidebar-tablet-rail__label">
-            I simplify complex systems for{' '}
-            <span className="sidebar-tablet-rail__label-accent">{currentSection.label}</span>
-          </p>
-        </button>
-      ) : null}
-      {isTablet ? (
-        <div
-          className={`sidebar-tablet-backdrop${tabletSidebarOpen ? ' sidebar-tablet-backdrop--visible' : ''}`}
-          role="presentation"
-          aria-hidden={tabletSidebarOpen ? undefined : true}
-          onClick={closeOverlays}
-        >
-          {tabletSidebarOpen ? (
-            <div className="sidebar-tablet-backdrop__content">
-              <SidebarOverlayClose onClose={closeOverlays} variant="tablet" />
-            </div>
-          ) : null}
-        </div>
-      ) : null}
-
-      {/* Sidebar shell — desktop; tablet expands as overlay */}
+      {/* Sidebar shell — desktop; phone/tablet expand as overlay */}
       <div
         id="sidebar-tablet-panel"
         className={shellClass}
-        role={mobileDrawerOpen ? 'dialog' : undefined}
-        aria-modal={mobileDrawerOpen ? true : undefined}
-        aria-label={mobileDrawerOpen ? 'Navigation menu' : undefined}
+        role={usesTopBarNav && mobileDrawerOpen ? 'dialog' : undefined}
+        aria-modal={usesTopBarNav && mobileDrawerOpen ? true : undefined}
+        aria-label={usesTopBarNav && mobileDrawerOpen ? 'Navigation menu' : undefined}
       >
         <div
           ref={sidebarShellRef}
@@ -847,17 +697,16 @@ export function SidebarNav() {
             height: '100dvh',
             zIndex: 100,
             pointerEvents:
-              (isTablet && tabletSidebarOpen) || (isMobile && mobileDrawerOpen)
+              usesTopBarNav && mobileDrawerOpen
                 ? 'auto'
                 : 'none',
           }}
           onClick={(e) => {
             if ((e.target as Element).closest('[data-sidebar-nav-hit]')) return
-            if (isTablet && tabletSidebarOpen) setTabletSidebarOpen(false)
-            if (isMobile && mobileDrawerOpen) setMobileDrawerOpen(false)
+            if (usesTopBarNav && mobileDrawerOpen) setMobileDrawerOpen(false)
           }}
         >
-        {!(isMobile && mobileDrawerOpen) ? (
+        {!(usesTopBarNav && mobileDrawerOpen) ? (
           <div
             aria-hidden
             className="sidebar-shell__divider"
@@ -961,7 +810,7 @@ export function SidebarNav() {
         </div>
 
         {/* Contact — liquid split; mobile overlay stacks divider + close below */}
-        {isMobile && mobileDrawerOpen ? (
+        {usesTopBarNav && mobileDrawerOpen ? (
           <div className="sidebar-mobile-shell-footer" data-sidebar-nav-hit>
             <div ref={contactRef} className="sidebar-contact">
               <ContactButton />

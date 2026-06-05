@@ -36,7 +36,7 @@ html.sidebar-tablet-hero-active .sidebar-desktop-shell {
 }
 
 /* Viewport-based shell visibility — desktop nav hidden on mobile unless expanded overlay */
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
   .sidebar-desktop-shell:not(.sidebar-mobile-expanded),
   .sidebar-desktop-subnav:not(.sidebar-mobile-expanded) {
     display: none !important;
