@@ -133,19 +133,17 @@
     min-width: 0;
   }
 
-  /* Phone (≤767): full-width column + morphing top nav */
-  @media (max-width: 767px) {
+  /* Phone + tablet (≤1023): full-width column + top-bar nav overlay */
+  @media (max-width: 1023px) {
     :root {
       --sidebar-width: 0px;
-      --content-pad-x: 16px;
-      --content-pad-left: 16px;
+      --sidebar-overlay-width: min(100%, 380px);
       --mobile-nav-bar-height: 52px;
       --mobile-content-top-inset: calc(
         var(--mobile-nav-bar-height) + env(safe-area-inset-top, 0px)
       );
       --mobile-content-bottom-inset: env(safe-area-inset-bottom, 0px);
       --gutter: 24px;
-      /* Portaled interactives + panels stay under the fixed top rail */
       --z-mobile-chrome: 100;
       --z-stickers: 92;
       --z-sticker-pile: 91;
@@ -156,7 +154,6 @@
     html {
       scroll-padding-top: var(--mobile-content-top-inset);
       scroll-padding-bottom: 0;
-      scroll-snap-type: y mandatory;
     }
 
     .site-frame,
@@ -169,7 +166,6 @@
       padding-top: 0;
     }
 
-    /* Full-bleed scroll — content passes under fixed nav + home indicator; snap uses scroll-margin. */
     [data-chapter-id],
     article[data-section-id] {
       scroll-margin-top: var(--mobile-content-top-inset);
@@ -181,23 +177,24 @@
     }
   }
 
-  /* Tablet (768–1023): collapsed vertical rail + overlay expand — lib/layout/breakpoints.ts */
+  /* Phone (≤767): tighter gutters + scroll snap */
+  @media (max-width: 767px) {
+    :root {
+      --content-pad-x: 16px;
+      --content-pad-left: 16px;
+    }
+
+    html {
+      scroll-snap-type: y mandatory;
+    }
+  }
+
+  /* Tablet (768–1023): roomier horizontal padding */
   @media (min-width: 768px) and (max-width: 1023px) {
     :root {
-      --sidebar-width: 52px;
-      --sidebar-overlay-width: 280px;
       --content-pad-x: 20px;
-      --content-pad-left: 0px;
-      --gutter: 48px;
-    }
-
-    html.sidebar-tablet-hero-active {
-      --sidebar-width: var(--sidebar-overlay-width);
-    }
-
-    .content-area {
-      transition: margin-left var(--tablet-sidebar-duration, 0.42s)
-        var(--tablet-sidebar-ease, cubic-bezier(0.32, 0.72, 0, 1));
+      --content-pad-left: 20px;
+      --sidebar-overlay-width: min(100%, 420px);
     }
   }
 

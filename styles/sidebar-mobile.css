@@ -1,10 +1,10 @@
-/* Mobile nav — hero intro, top rail + tablet-style sidebar overlay. */
+/* Phone + tablet nav (≤1023) — hero intro, top rail, sidebar overlay drawer. */
 
 .sidebar-mobile-nav {
   display: none;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
   :root {
     --mobile-sidebar-ease: cubic-bezier(0.32, 0.72, 0, 1);
     --mobile-sidebar-duration: 0.42s;
