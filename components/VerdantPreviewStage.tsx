@@ -38,7 +38,7 @@ export function VerdantPreviewStage({ selection }: Props) {
           alt={
             selection.kind === 'sketch'
               ? 'Verdant custom segment character set sketch'
-              : 'Verdant display PCB board'
+              : 'Verdant segment display on PCB prototype'
           }
           className="verdant-interactive__stage-photo"
           decoding="async"

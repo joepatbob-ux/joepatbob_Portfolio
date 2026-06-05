@@ -42,6 +42,7 @@
     box-sizing: border-box;
     padding-top: 0 !important;
     padding-bottom: 0 !important;
+    padding-inline: var(--content-pad-x, 16px) !important;
   }
 
   .hardware-slideshow .chapter-slide__viewport {
@@ -62,6 +63,32 @@
     flex: 1 1 auto;
     min-height: 0;
     box-sizing: border-box;
+    padding-bottom: var(--mobile-content-bottom-inset);
+  }
+
+  .hardware-slideshow .chapter-slide__inner--copy-only,
+  .hardware-slideshow.case-study-flow-overview .chapter-slide__inner {
+    padding-top: var(--mobile-content-top-inset);
+  }
+
+  .hardware-slideshow
+    .chapter-slide__inner:not(.chapter-slide__inner--compact-expand) {
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: var(
+      --cs-inner-max,
+      min(var(--cs-mobile-inner-max, 440px), 100%)
+    );
+    margin-inline: auto;
+    gap: var(--cs-mobile-section-gap, var(--cs-section-gap));
+  }
+
+  .hardware-slideshow
+    .chapter-slide__stage:not(:has(.flow-chapter-slide__stage--empty)) {
+    margin-top: calc(-1 * env(safe-area-inset-top, 0px));
+    padding-top: env(safe-area-inset-top, 0px);
+    box-sizing: border-box;
   }
 
   .hardware-slideshow .chapter-slide__copy,
@@ -74,6 +101,19 @@
 
   .portfolio-chapter-slot--fill {
     margin-bottom: var(--cs-screen-gap);
+  }
+
+  /* Phone: extra pause between consecutive chapter “pages” */
+  @media (max-width: 767px) {
+    .portfolio-chapter-slot--fill {
+      margin-bottom: var(--cs-inter-chapter-gap, var(--cs-section-scroll-gap));
+    }
+
+    .portfolio-chapter-slot--fill + .portfolio-chapter-slot--fill,
+    .case-study-flow-overview.portfolio-chapter-slot--fill
+      + .portfolio-chapter-slot--fill {
+      margin-top: var(--cs-inter-chapter-gap, var(--cs-section-scroll-gap));
+    }
   }
 
   .portfolio-chapter-slot--fill.hardware-slideshow {

@@ -176,7 +176,7 @@
 
   .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__inner {
     max-width: 100%;
-    overflow-x: clip;
+    overflow: visible;
   }
 
   .portfolio-chapter-slot--fill.hardware-slideshow.mobile-chapter-slot--sensi {
@@ -186,11 +186,11 @@
   .portfolio-chapter-slot--fill.hardware-slideshow.mobile-chapter-slot--sensi
     .portfolio-chapter-panel {
     padding-inline: 0;
-    overflow-x: clip;
+    overflow: visible;
   }
 
   .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__viewport {
-    overflow-x: clip;
+    overflow: visible;
   }
 
   .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__copy--mobile-teaser {

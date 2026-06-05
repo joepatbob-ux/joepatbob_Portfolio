@@ -42,7 +42,6 @@ export function CaseStudy({ section, sectionId }: Props) {
         ...articleFullBleed,
         backgroundColor: 'var(--color-paper)',
         minWidth: 0,
-        scrollMarginTop: 24,
       }}
     >
       {useCustomChapter ? null : (

@@ -82,8 +82,8 @@ export const VERDANT_DEFAULT_SELECTION: VerdantSelection = {
 
 /** Character-set drawing (Segment_Drawing.jpeg) */
 export const VERDANT_SKETCH_IMAGE = '/images/Segment_Drawing.jpeg'
-/** VX4 PCB + display (Front/VX4.png) */
-export const VERDANT_BOARD_IMAGE = '/images/Front/VX4.png'
+/** Verdant segment display on PCB prototype (hw-verdant.jpg) */
+export const VERDANT_BOARD_IMAGE = '/images/hw-verdant.jpg'
 
 export function characterKeyCode(key: CharacterKeyDef): string {
   return key.code

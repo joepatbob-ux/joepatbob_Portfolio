@@ -31,7 +31,7 @@
   max-width: none;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 1024px) {
   .hardware-slideshow.portfolio-chapter-slot--fill,
   [data-section-id='hardware'] .portfolio-chapter-slot--fill.hardware-slideshow {
     height: 100vh;
@@ -39,8 +39,8 @@
   }
 }
 
-/* Desktop + tablet (768+): viewport slideshow band */
-@media (min-width: 768px) {
+/* Desktop (1024+): viewport slideshow band */
+@media (min-width: 1024px) {
   /* Shared shell: Hardware + Flow slideshow (Mobile, EIB, Web Apps, etc.) */
   .hardware-slideshow .chapter-slide__viewport {
     flex: 1 1 auto;

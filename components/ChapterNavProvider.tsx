@@ -112,11 +112,9 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
 
       if (!busyRef.current) {
         const best = state.activeSlideId
-        if (best && best !== activeRef.current) {
+        if (best !== activeRef.current) {
           activeRef.current = best
-          if (!isTopBarNavViewport()) {
-            setActiveSlideId(best)
-          }
+          setActiveSlideId(best)
         }
       }
     }
