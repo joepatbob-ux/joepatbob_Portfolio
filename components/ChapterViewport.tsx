@@ -44,7 +44,7 @@ function ChapterViewportInner({
     >
       <div
         className="portfolio-chapter-panel"
-        style={panelStyle}
+        style={panelStyle ?? undefined}
         aria-hidden={!isActive}
       >
         <ChapterActiveProvider active={isActive}>

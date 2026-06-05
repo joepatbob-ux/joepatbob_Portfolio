@@ -8,7 +8,9 @@ import { useStickers } from '@/components/StickerProvider'
 import { useLayoutMobile } from '@/lib/hooks/useLayoutMobile'
 import { useLayoutTopBarNav } from '@/lib/hooks/useLayoutTopBarNav'
 import { eibChapterId } from '@/lib/everything-in-between/content'
+import { activeSlideIdPublished } from '@/lib/chapterSlideshow'
 import { pileStackOffset, randomPileRotation } from '@/lib/stickers'
+import { scheduleScrollFrame } from '@/lib/scrollFrame'
 import { useAnchorPortalFollow } from '@/lib/useAnchorPortalFollow'
 
 const CONVICTION_CHAPTER_ID = eibChapterId('conviction')
@@ -18,10 +20,12 @@ export function StickerPile() {
     useStickers()
   const layoutMobile = useLayoutMobile()
   const topBarNav = useLayoutTopBarNav()
-  const { reveals, activeSlideId } = useChapterNav()
+  const { activeSlideId } = useChapterNav()
   const rotationsRef = useRef<Map<string, number>>(new Map())
   const anchorRef = useRef<HTMLDivElement>(null)
+  const pileVisibleRef = useRef(false)
   const [mounted, setMounted] = useState(false)
+  const [pileVisible, setPileVisible] = useState(false)
 
   useEffect(() => {
     setMounted(true)
@@ -30,6 +34,23 @@ export function StickerPile() {
   useEffect(() => {
     rotationsRef.current.clear()
   }, [layoutMobile])
+
+  useEffect(() => {
+    const sync = () => {
+      const active = topBarNav
+        ? activeSlideIdPublished()
+        : activeSlideId
+      const vis = active === CONVICTION_CHAPTER_ID
+      if (vis !== pileVisibleRef.current) {
+        pileVisibleRef.current = vis
+        setPileVisible(vis)
+      }
+    }
+
+    sync()
+    if (!topBarNav) return
+    return scheduleScrollFrame(sync)
+  }, [topBarNav, activeSlideId])
 
   const rotationFor = useCallback(
     (id: string) => {
@@ -62,14 +83,6 @@ export function StickerPile() {
       rotationFor(topAsset.id),
     )
   }
-
-  const chapterReveal = reveals[CONVICTION_CHAPTER_ID] ?? 0
-  const effectiveReveal =
-    activeSlideId === CONVICTION_CHAPTER_ID
-      ? Math.max(chapterReveal, 1)
-      : chapterReveal
-  const pileVisible =
-    activeSlideId === CONVICTION_CHAPTER_ID && effectiveReveal > 0.08
 
   const usePortal = !topBarNav
   const portalRef = useAnchorPortalFollow(

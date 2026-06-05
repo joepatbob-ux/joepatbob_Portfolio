@@ -1,6 +1,7 @@
 'use client'
 
 import { applyHeroPinFade } from '@/lib/heroScroll'
+import { LAYOUT_MQ } from '@/lib/layout/breakpoints'
 import { scheduleScrollFrame } from '@/lib/scrollFrame'
 import { useEffect } from 'react'
 import { useTheme } from '@/components/ThemeProvider'
@@ -26,7 +27,13 @@ export function Hero() {
 
     return scheduleScrollFrame(() => {
       const pinEl = document.querySelector<HTMLElement>('#hero .hero-pin')
-      applyHeroPinFade(pinEl, window.scrollY, window.innerHeight)
+      const topBarNav = window.matchMedia(LAYOUT_MQ.topBarNav).matches
+      applyHeroPinFade(
+        pinEl,
+        window.scrollY,
+        window.innerHeight,
+        topBarNav ? 0 : 10,
+      )
     })
   }, [])
 

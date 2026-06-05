@@ -51,9 +51,9 @@ function FormationBrickStack({
 
 export function FormationLegoBoard() {
   const { resolvedTheme } = useTheme()
-  const board = useFormationLegoBoard()
-  const { plate } = board
   const topBarNav = useLayoutTopBarNav()
+  const board = useFormationLegoBoard({ syncBoardRectOnScroll: !topBarNav })
+  const { plate } = board
   const panel = useChapterPanelOpacity('everything-else-formation')
   const [mounted, setMounted] = useState(false)
   const showBricks = mounted && panel.isActive
