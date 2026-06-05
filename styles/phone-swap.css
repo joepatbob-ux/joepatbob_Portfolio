@@ -878,8 +878,8 @@
   }
 
   .hardware-slideshow.mobile-chapter-slot--sensi {
-    --phone-viewbox-base-w: 100svw;
-    --phone-viewbox-base-h: clamp(300px, 72dvh, 760px);
+    --phone-viewbox-base-w: 100%;
+    --phone-viewbox-base-h: clamp(280px, 62dvh, 680px);
     --phone-mobile-bleed: 1;
     --phone-swap-width: 1;
     --phone-swap-height: 1;
@@ -894,17 +894,31 @@
   }
 
   .hardware-slideshow.mobile-chapter-slot--sensi .phone-swap--mobile-bleed {
-    width: calc(100svw * var(--phone-mobile-bleed));
+    width: calc(100% * var(--phone-mobile-bleed));
     max-width: none;
   }
 
   .hardware-slideshow.mobile-chapter-slot--sensi .phone-swap--mobile-bleed .phone-swap__viewbox {
-    width: calc(100svw * var(--phone-mobile-bleed));
+    width: calc(100% * var(--phone-mobile-bleed));
     max-width: none;
     height: min(
       96dvh,
       calc(var(--phone-viewbox-base-h) * var(--phone-swap-height, 1))
     );
+  }
+}
+
+@media (max-width: 1023px) {
+  /* Let vertical page scroll pass through the WebGL canvas (tap-to-swap still works) */
+  .hardware-slideshow.mobile-chapter-slot--sensi
+    .phone-swap__viewbox:not(.phone-swap__viewbox--live-interactive) {
+    touch-action: pan-y;
+  }
+
+  .hardware-slideshow.mobile-chapter-slot--sensi
+    .phone-swap__viewbox:not(.phone-swap__viewbox--live-interactive)
+    canvas {
+    touch-action: pan-y;
   }
 }
 
