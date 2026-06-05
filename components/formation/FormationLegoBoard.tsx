@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useChapterPanelOpacity } from '@/lib/useChapterPanelOpacity'
-import { useLayoutMobile } from '@/lib/hooks/useLayoutMobile'
+import { useLayoutTopBarNav } from '@/lib/hooks/useLayoutTopBarNav'
 import { useTheme } from '@/components/ThemeProvider'
 import { BOARD_VIEWBOX } from '@/lib/formation/legoGrid'
 import { useFormationLegoBoard } from '@/lib/formation/useFormationLegoBoard'
@@ -53,11 +53,12 @@ export function FormationLegoBoard() {
   const { resolvedTheme } = useTheme()
   const board = useFormationLegoBoard()
   const { plate } = board
-  const layoutMobile = useLayoutMobile()
+  const topBarNav = useLayoutTopBarNav()
   const panel = useChapterPanelOpacity('everything-else-formation')
   const [mounted, setMounted] = useState(false)
   const showBricks = mounted && panel.isActive
-  const useBrickPortal = showBricks && !layoutMobile
+  /** Inline bricks on touch-width layouts; portal only on desktop sidebar shell. */
+  const useBrickPortal = showBricks && !topBarNav
 
   useEffect(() => {
     setMounted(true)
@@ -95,9 +96,6 @@ export function FormationLegoBoard() {
           className="formation-lego__board formation-lego__board--clip"
           style={{ width: plate.width, height: plate.height }}
           onPointerDown={board.onBoardPointerDown}
-          onPointerMove={board.onPointerMove}
-          onPointerUp={board.onPointerUp}
-          onPointerCancel={board.onPointerUp}
         >
           <div
             className="formation-lego__board-pan"
@@ -115,7 +113,7 @@ export function FormationLegoBoard() {
               className="formation-lego__baseplate"
               draggable={false}
             />
-            {showBricks && layoutMobile ? (
+            {showBricks && topBarNav ? (
               <div className="formation-lego__bricks-layer" aria-hidden={false}>
                 <FormationBrickStack
                   board={board}
