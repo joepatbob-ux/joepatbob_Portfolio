@@ -228,17 +228,21 @@
   .hardware-slideshow.chapter-slide--verdant .chapter-slide__inner {
     justify-content: flex-start;
     align-items: stretch;
+    gap: clamp(24px, 5vh, 40px);
   }
 
   .hardware-slideshow.chapter-slide--verdant .chapter-slide__stage {
-    flex: 0 1 auto;
+    flex: 0 0 auto;
     min-height: 0;
-    max-height: min(52dvh, 400px);
+    max-height: none;
+    overflow: visible;
   }
 
   .hardware-slideshow.chapter-slide--verdant .chapter-slide__copy--mobile-teaser {
     flex: 0 0 auto;
     margin-top: 0;
+    position: relative;
+    z-index: 1;
   }
 
   .hardware-slideshow.chapter-slide--verdant
@@ -253,7 +257,8 @@
     .chapter-slide__inner--compact-expand[data-chapter-expanded='false']
     .chapter-slide__stage {
     min-height: 0;
-    max-height: min(52dvh, 400px);
+    max-height: none;
+    overflow: visible;
   }
 
   .hardware-slideshow.chapter-slide--verdant
