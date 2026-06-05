@@ -25,6 +25,6 @@ export type StickerZIndices = {
 /** Inline sticker / pile portal z-index — keep in sync with `--z-stickers` in globals.css. */
 export function stickerZIndices(mobile: boolean): StickerZIndices {
   return mobile
-    ? { base: 90, pile: 89, drag: 96 }
-    : { base: 105, pile: 104, drag: 200 }
+    ? { base: 92, pile: 91, drag: 98 }
+    : { base: 116, pile: 115, drag: 220 }
 }

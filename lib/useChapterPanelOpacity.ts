@@ -46,7 +46,7 @@ export function useChapterPanelOpacity(chapterId: string) {
         opacity,
         filter: flowEntering ? 'none' : filter,
         zIndex: flowEntering
-          ? 110
+          ? 100
           : entering
             ? layoutMobile
               ? MOBILE_PANEL_Z_ENTERING

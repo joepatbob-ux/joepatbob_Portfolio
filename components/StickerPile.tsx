@@ -50,6 +50,7 @@ export function StickerPile() {
     if (e.button !== 0 || !deckReady || !topAsset || activeDrag) return
     e.preventDefault()
     e.stopPropagation()
+    e.currentTarget.setPointerCapture(e.pointerId)
     beginDragFromPile(
       topAsset,
       e.clientX,
@@ -58,8 +59,12 @@ export function StickerPile() {
     )
   }
   const chapterReveal = reveals[CONVICTION_CHAPTER_ID] ?? 0
+  const effectiveReveal =
+    activeSlideId === CONVICTION_CHAPTER_ID
+      ? Math.max(chapterReveal, 1)
+      : chapterReveal
   const pileVisible =
-    activeSlideId === CONVICTION_CHAPTER_ID && chapterReveal > 0.08
+    activeSlideId === CONVICTION_CHAPTER_ID && effectiveReveal > 0.08
 
   deck.forEach((asset) => {
     rotationFor(asset.id)

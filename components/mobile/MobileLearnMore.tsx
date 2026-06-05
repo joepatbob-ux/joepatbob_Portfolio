@@ -8,8 +8,7 @@ import {
   CHAPTER_COMPACT_COLLAPSE_LABEL,
   CHAPTER_COMPACT_EXPAND_LABEL,
 } from '@/lib/chapter-slide/compactView'
-import { useLayoutCompactBand } from '@/lib/hooks/useLayoutCompactBand'
-import { useLayoutMobile } from '@/lib/hooks/useLayoutMobile'
+import { useChapterLayoutMode } from '@/lib/hooks/useChapterLayoutMode'
 import { useState, type ReactNode } from 'react'
 
 interface Props {
@@ -30,11 +29,10 @@ export function MobileLearnMore({
   triggerLabel = CHAPTER_COMPACT_EXPAND_LABEL,
   children,
 }: Props) {
-  const isMobile = useLayoutMobile()
-  const isCompactBand = useLayoutCompactBand()
+  const mode = useChapterLayoutMode()
   const compactView = useChapterCompactView()
-  const usesSheet = isMobile
-  const usesCompactExpand = isCompactBand && compactView != null
+  const usesSheet = mode === 'mobile'
+  const usesCompactExpand = mode === 'compact' && compactView != null
   const [open, setOpen] = useState(false)
 
   const accentRule = <div className="chapter-copy__rule" aria-hidden />

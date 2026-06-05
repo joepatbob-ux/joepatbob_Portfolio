@@ -21,7 +21,7 @@ export function installStickerDragListeners(
     if (e.key === 'Escape') listeners.onCancel()
   }
 
-  window.addEventListener('pointermove', onMove, { passive: true })
+  window.addEventListener('pointermove', onMove)
   window.addEventListener('pointerup', onEnd)
   window.addEventListener('pointercancel', onEnd)
   window.addEventListener('keydown', onKey)

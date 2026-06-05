@@ -252,11 +252,11 @@ hw-kelvin.jpg           ← Lord Kelvin illustration (color)
 ### Chapter copy modes
 | Mode | Width | Hook | UX |
 |---|---|---|---|
-| `mobile` | ≤767 | `useLayoutMobile()` | Headline + **More** → full-screen sheet |
-| `compact` | 768–1199 | `useLayoutCompactBand()` | Headline + **More/Less** in-place expand |
-| `desktop` | ≥1200 | (neither) | Inline copy column beside stage |
+| `mobile` | ≤767 | `useLayoutMobile()` / `useChapterLayoutMode()` | Headline + **More** → full-screen sheet |
+| `compact` | 768–1199 | `useLayoutCompactBand()` / `useChapterLayoutMode()` | Headline + **More/Less** in-place expand |
+| `desktop` | ≥1200 | `useChapterLayoutMode()` → `'desktop'` | Inline copy column beside stage |
 
-CSS: `styles/chapter-compact-expand.css` (compact), `styles/hardware-layout.css` (desktop row). Class: `chapter-slide__copy--compact-teaser`.
+Shell: `components/chapter-slide/ChapterSlideShell.tsx`. CSS: `styles/chapter-compact-expand.css` (compact), `styles/hardware-layout.css` (desktop row). Class: `chapter-slide__copy--compact-teaser`.
 
 Source of truth: `lib/layout/breakpoints.ts`, `lib/chapter-slide/breakpoints.ts`.
 

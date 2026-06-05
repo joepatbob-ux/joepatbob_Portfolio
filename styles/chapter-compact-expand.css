@@ -31,7 +31,7 @@
   max-width: 100%;
   opacity: 1;
   overflow: hidden;
-  pointer-events: auto;
+  pointer-events: none;
   transition:
     grid-template-rows var(--ce-duration) var(--ce-ease),
     opacity var(--ce-duration) var(--ce-ease),
@@ -60,6 +60,7 @@
 }
 
 .chapter-slide__inner--compact-expand .chapter-slide__stage > * {
+  pointer-events: auto;
   transition: none;
   transform: none;
   opacity: 1;
