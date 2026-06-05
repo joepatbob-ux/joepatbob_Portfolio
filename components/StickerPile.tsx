@@ -6,6 +6,7 @@ import { useChapterNav } from '@/components/ChapterNavProvider'
 import { Sticker } from '@/components/Sticker'
 import { useStickers } from '@/components/StickerProvider'
 import { useLayoutMobile } from '@/lib/hooks/useLayoutMobile'
+import { useLayoutTopBarNav } from '@/lib/hooks/useLayoutTopBarNav'
 import { eibChapterId } from '@/lib/everything-in-between/content'
 import { pileStackOffset, randomPileRotation } from '@/lib/stickers'
 import { useAnchorPortalFollow } from '@/lib/useAnchorPortalFollow'
@@ -16,6 +17,7 @@ export function StickerPile() {
   const { deck, deckReady, activeDrag, beginDragFromPile, zIndices, stickerHeights } =
     useStickers()
   const layoutMobile = useLayoutMobile()
+  const topBarNav = useLayoutTopBarNav()
   const { reveals, activeSlideId } = useChapterNav()
   const rotationsRef = useRef<Map<string, number>>(new Map())
   const anchorRef = useRef<HTMLDivElement>(null)
@@ -69,7 +71,11 @@ export function StickerPile() {
   const pileVisible =
     activeSlideId === CONVICTION_CHAPTER_ID && effectiveReveal > 0.08
 
-  const portalRef = useAnchorPortalFollow(anchorRef, mounted && pileVisible)
+  const usePortal = !topBarNav
+  const portalRef = useAnchorPortalFollow(
+    anchorRef,
+    mounted && pileVisible && usePortal,
+  )
 
   deck.forEach((asset) => {
     rotationFor(asset.id)
@@ -142,6 +148,7 @@ export function StickerPile() {
   )
 
   const portaledPile =
+    usePortal &&
     mounted &&
     pileVisible &&
     createPortal(
@@ -168,7 +175,12 @@ export function StickerPile() {
 
   return (
     <div
-      className="sticker-pile-wrap"
+      className={[
+        'sticker-pile-wrap',
+        topBarNav ? 'sticker-pile-wrap--inline' : '',
+      ]
+        .filter(Boolean)
+        .join(' ')}
       aria-hidden={!pileVisible}
       style={{
         opacity: pileVisible ? 1 : 0,
@@ -176,13 +188,19 @@ export function StickerPile() {
         pointerEvents: pileVisible ? undefined : 'none',
       }}
     >
-      <div
-        ref={anchorRef}
-        className="sticker-pile-anchor"
-        style={{ width: pileSize, height: pileSize }}
-        aria-hidden
-      />
-      {portaledPile}
+      {usePortal ? (
+        <>
+          <div
+            ref={anchorRef}
+            className="sticker-pile-anchor"
+            style={{ width: pileSize, height: pileSize }}
+            aria-hidden
+          />
+          {portaledPile}
+        </>
+      ) : pileVisible ? (
+        pileStack
+      ) : null}
     </div>
   )
 }

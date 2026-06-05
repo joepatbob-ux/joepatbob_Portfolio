@@ -6,7 +6,7 @@ import {
   useRef,
   type RefObject,
 } from 'react'
-import { scheduleScrollFrameSync } from '@/lib/scrollFrame'
+import { scheduleScrollFrame } from '@/lib/scrollFrame'
 
 /** Imperatively tracks an anchor's viewport rect onto a fixed portal (no React state on scroll). */
 export function useAnchorPortalFollow(
@@ -19,6 +19,8 @@ export function useAnchorPortalFollow(
   useLayoutEffect(() => {
     if (!enabled) return
 
+    let lastLeft = -1
+    let lastTop = -1
     let lastW = 0
     let lastH = 0
 
@@ -29,23 +31,44 @@ export function useAnchorPortalFollow(
 
       const r = anchor.getBoundingClientRect()
       if (r.width < 1 || r.height < 1) {
-        portal.style.visibility = 'hidden'
-        portal.style.pointerEvents = 'none'
+        if (portal.style.visibility !== 'hidden') {
+          portal.style.visibility = 'hidden'
+          portal.style.pointerEvents = 'none'
+        }
+        return
+      }
+
+      const left = Math.round(r.left)
+      const top = Math.round(r.top)
+      const w = Math.round(r.width)
+      const h = Math.round(r.height)
+
+      if (
+        left === lastLeft &&
+        top === lastTop &&
+        w === lastW &&
+        h === lastH
+      ) {
+        if (portal.style.visibility === 'hidden') {
+          portal.style.visibility = 'visible'
+          portal.style.pointerEvents = ''
+        }
         return
       }
 
       portal.style.visibility = 'visible'
       portal.style.pointerEvents = ''
-      portal.style.transform = `translate3d(${r.left}px, ${r.top}px, 0)`
+      portal.style.transform = `translate3d(${left}px, ${top}px, 0)`
 
-      const w = Math.round(r.width)
-      const h = Math.round(r.height)
       if (w !== lastW || h !== lastH) {
         portal.style.width = `${r.width}px`
         portal.style.height = `${r.height}px`
-        lastW = w
-        lastH = h
       }
+
+      lastLeft = left
+      lastTop = top
+      lastW = w
+      lastH = h
     }
 
     syncRef.current = sync
@@ -56,7 +79,7 @@ export function useAnchorPortalFollow(
     sync()
     const ro = new ResizeObserver(sync)
     ro.observe(anchor)
-    const unsubScroll = scheduleScrollFrameSync(sync)
+    const unsubScroll = scheduleScrollFrame(sync)
     window.addEventListener('resize', sync)
 
     const raf = requestAnimationFrame(sync)
