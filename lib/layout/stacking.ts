@@ -1,6 +1,6 @@
 import { LAYOUT_BP } from '@/lib/layout/breakpoints'
 
-/** Max z-index for chapter panels on phone — stay below sticker pile (103+) and nav chrome (100). */
+/** Max z-index for chapter panels on phone — stay below stickers (50+) and nav chrome (120). */
 export const MOBILE_PANEL_Z_MAX = 8
 export const MOBILE_PANEL_Z_ENTERING = 9
 
@@ -25,6 +25,6 @@ export type StickerZIndices = {
 /** Inline sticker / pile portal z-index — keep in sync with `--z-stickers` in globals.css. */
 export function stickerZIndices(mobile: boolean): StickerZIndices {
   return mobile
-    ? { base: 104, pile: 103, drag: 108 }
+    ? { base: 52, pile: 50, drag: 130 }
     : { base: 116, pile: 115, drag: 220 }
 }

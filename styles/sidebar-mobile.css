@@ -56,7 +56,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    z-index: var(--z-mobile-chrome, 100);
+    z-index: var(--z-mobile-chrome, 120);
     isolation: isolate;
     padding: 18px max(16px, env(safe-area-inset-left)) max(28px, env(safe-area-inset-bottom))
       max(16px, env(safe-area-inset-right));
@@ -85,7 +85,7 @@
     top: 0;
     left: 0;
     right: 0;
-    z-index: var(--z-mobile-chrome, 100);
+    z-index: var(--z-mobile-chrome, 120);
     isolation: isolate;
     height: calc(var(--mobile-nav-bar-height) + env(safe-area-inset-top, 0px));
     margin: 0;
@@ -118,9 +118,8 @@
     pointer-events: auto;
   }
 
-  /* Uniform frosted bar — behind label, above divider */
-  .sidebar-mobile-rail::before {
-    content: '';
+  /* Frosted bar + safe-area inset — edge to edge, blur to physical top */
+  .sidebar-mobile-rail__chrome {
     position: absolute;
     top: 0;
     left: 0;

@@ -661,6 +661,7 @@ export function SidebarNav() {
           tabIndex={showMobileRail ? 0 : -1}
           onClick={() => setMobileDrawerOpen(true)}
         >
+          <span className="sidebar-mobile-rail__chrome" aria-hidden />
           <span className="sidebar-mobile-rail__blur" aria-hidden />
           <p className="sidebar-mobile-rail__label">
             <span className="sidebar-mobile-rail__copy sidebar-mobile-rail__copy--long">
@@ -695,7 +696,7 @@ export function SidebarNav() {
               ? 'var(--sidebar-overlay-width)'
               : 'var(--sidebar-width)',
             height: '100dvh',
-            zIndex: 100,
+            zIndex: usesTopBarNav ? undefined : 100,
             pointerEvents:
               usesTopBarNav && mobileDrawerOpen
                 ? 'auto'

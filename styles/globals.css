@@ -144,10 +144,13 @@
       );
       --mobile-content-bottom-inset: env(safe-area-inset-bottom, 0px);
       --gutter: 24px;
-      --z-mobile-chrome: 100;
-      --z-stickers: 104;
-      --z-sticker-pile: 103;
-      --z-sticker-drag: 108;
+      --z-mobile-chrome: 120;
+      --z-stickers: 52;
+      --z-sticker-pile: 50;
+      --z-sticker-drag: 130;
+      --z-mobile-nav-backdrop: 115;
+      --z-mobile-drawer: 125;
+      --z-mobile-learn-more: 128;
       --formation-z-bricks: 90;
     }
 
@@ -860,6 +863,16 @@
 .sticker-pile-wrap--inline {
   display: flex;
   justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+
+.sticker-pile-wrap--inline .sticker-pile {
+  touch-action: pan-y;
+}
+
+.sticker-pile-wrap--inline .sticker-pile__grab {
+  touch-action: none;
 }
 
 /* In-flow spacer; interactive stack is portaled beside .sticker-layer */
@@ -1264,6 +1277,13 @@ html {
     overflow: hidden;
     z-index: 1;
     will-change: opacity;
+  }
+
+  /* Top-bar nav (≤1023): keep chapter art below frosted rail + safe area */
+  @media (max-width: 1023px) {
+    .portfolio-chapter-slot--fill.hardware-slideshow .portfolio-chapter-panel {
+      padding-top: var(--mobile-content-top-inset);
+    }
   }
 
   .portfolio-chapter-slot--fill.hardware-slideshow
