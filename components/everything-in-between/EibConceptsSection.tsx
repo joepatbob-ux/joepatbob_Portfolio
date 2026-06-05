@@ -2,7 +2,7 @@
 
 import { ConceptEightBall } from '@/components/everything-in-between/ConceptEightBall'
 import { FlowChapterSlideLayout } from '@/components/chapter-slide/FlowChapterSlideLayout'
-import { MobileLearnMore } from '@/components/mobile/MobileLearnMore'
+import { ChapterCopyReveal } from '@/components/chapter-slide/ChapterCopyReveal'
 import {
   EibSubSectionIntro,
   splitParagraphs,
@@ -28,13 +28,13 @@ export function EibConceptsSection() {
         />
       }
       copy={
-        <MobileLearnMore headline={EIB_CONCEPTS.headline}>
+        <ChapterCopyReveal headline={EIB_CONCEPTS.headline}>
           <EibSubSectionIntro>
             {splitParagraphs(EIB_CONCEPTS.intro).map((p, i) => (
               <p key={i}>{p}</p>
             ))}
           </EibSubSectionIntro>
-        </MobileLearnMore>
+        </ChapterCopyReveal>
       }
     />
   )

@@ -4,7 +4,7 @@ import { ChapterViewport } from '@/components/ChapterViewport'
 import { ChapterCompactStageFill } from '@/components/chapter-slide/ChapterCompactStageFill'
 import { ChapterSlideCopy } from '@/components/chapter-slide/ChapterSlideCopy'
 import { ChapterSlideShell } from '@/components/chapter-slide/ChapterSlideShell'
-import { MobileLearnMore } from '@/components/mobile/MobileLearnMore'
+import { ChapterCopyReveal } from '@/components/chapter-slide/ChapterCopyReveal'
 import { getChapterCopyColumnClasses } from '@/lib/chapter-slide/layoutMode'
 import { parseChapterBody } from '@/lib/chapter-slide/parseChapterBody'
 import { useChapterLayoutMode } from '@/lib/hooks/useChapterLayoutMode'
@@ -50,7 +50,7 @@ export function SectionLessons({
           ],
         })}
       >
-        <MobileLearnMore headline={lessonTitle} headerVariant="chapter">
+        <ChapterCopyReveal headline={lessonTitle} headerVariant="chapter">
           <div className="chapter-slide__body">
             {bodyParagraphs.map((paragraph, index) => (
               <p key={index} className="chapter-copy__body">
@@ -58,7 +58,7 @@ export function SectionLessons({
               </p>
             ))}
           </div>
-        </MobileLearnMore>
+        </ChapterCopyReveal>
       </div>
     )
 

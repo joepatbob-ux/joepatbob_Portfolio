@@ -1,0 +1,265 @@
+/* Per-chapter stage artifact sizing — EIM, Verdant, Sensi Lite.
+ * Tokens: styles/case-study-layout-tokens.css (--cs-eim-stage-max-w, etc.)
+ * Pattern: .chapter-slide--{modifier} … > artifact root
+ */
+
+/* ── Shared stage artifact width (non-slideshow + in-flow chapters) ─────── */
+
+.chapter-slide__stage .touch2-carousel,
+.chapter-slide__stage .verdant-interactive,
+.chapter-slide__stage .eim-path-art,
+.chapter-slide__stage .chapter-stage-media,
+.chapter-slide__stage .before-after-slider,
+.chapter-slide__stage .sticker-pile-wrap {
+  width: var(--cs-stage-gallery-w, var(--cs-stage-artifact-w, 100%));
+  max-width: 100%;
+  margin-inline: auto;
+}
+
+.chapter-slide--verdant .chapter-slide__stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chapter-slide--eim .chapter-slide__stage,
+.chapter-slide.flow-chapter-slide--formation .chapter-slide__stage {
+  overflow: visible;
+}
+
+/* ── Sensi Lite prototype stage ─────────────────────────────────────────── */
+
+.chapter-slide--sensi-lite .chapter-slide__interactive-content > div {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+}
+
+.sensi-lite-proto__stage {
+  width: 100%;
+  max-width: min(var(--cs-sensi-lite-stage-max-w), 100%);
+  margin-inline: auto;
+  aspect-ratio: 240 / 147;
+  position: relative;
+}
+
+@media (min-width: 768px) {
+  .hardware-slideshow.chapter-slide--sensi-lite .sensi-lite-proto__stage {
+    max-width: 100%;
+  }
+}
+
+.sensi-lite-proto__stage-inner {
+  position: absolute;
+  inset: 0;
+}
+
+/* Sensi Lite — accent dot cursor (chapter only) */
+.chapter-slide--sensi-lite .chapter-slide__interactive-wrap {
+  position: relative;
+  width: 100%;
+  cursor: none;
+  isolation: isolate;
+}
+
+.chapter-slide--sensi-lite .chapter-slide__interactive-content {
+  position: relative;
+  z-index: 0;
+  width: 100%;
+}
+
+.chapter-slide--sensi-lite .chapter-slide__interactive-dot-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.chapter-slide--sensi-lite .sensi-lite-proto--dot-cursor button {
+  cursor: none !important;
+}
+
+.chapter-slide--sensi-lite .chapter-slide__interactive-dot {
+  --dot-size: 40px;
+  --dot-fill: color-mix(in srgb, var(--color-accent) 26%, transparent);
+  position: absolute;
+  box-sizing: border-box;
+  width: var(--dot-size) !important;
+  height: var(--dot-size) !important;
+  max-width: var(--dot-size) !important;
+  min-width: var(--dot-size);
+  min-height: var(--dot-size);
+  aspect-ratio: 1;
+  flex: none;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  pointer-events: none;
+  border: none;
+  background: var(--dot-fill);
+  box-shadow: none;
+  transition: box-shadow 180ms ease, background 180ms ease;
+}
+
+.chapter-slide--sensi-lite .chapter-slide__interactive-dot--ring {
+  --dot-fill: color-mix(in srgb, var(--color-accent) 34%, transparent);
+  box-shadow: 0 0 0 1px var(--color-nav-pill-outline);
+}
+
+/* ── EIM ────────────────────────────────────────────────────────────────── */
+
+@media (min-width: 768px) {
+  .hardware-slideshow.chapter-slide--eim .chapter-slide__stage > .eim-path-art,
+  .hardware-slideshow.chapter-slide--eim .chapter-slide__stage .eim-path-art {
+    width: min(100%, var(--cs-eim-stage-max-w, var(--hw-stage-gallery-w)));
+    max-width: min(100%, var(--cs-eim-stage-max-w, var(--hw-stage-gallery-w)));
+    min-width: 0;
+    margin-inline: auto;
+    flex: 0 1 auto;
+  }
+
+  .hardware-slideshow.chapter-slide--eim .eim-path-art__stage-wrap {
+    width: 100%;
+    max-width: 100%;
+    margin-inline: auto;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1199px) {
+  .hardware-slideshow.chapter-slide--eim
+    .chapter-slide__inner--compact-expand
+    .chapter-compact-view__stage-fill
+    > .eim-path-art {
+    width: min(100%, var(--cs-eim-stage-max-w));
+    max-width: min(100%, var(--cs-eim-stage-max-w));
+  }
+
+  .hardware-slideshow.chapter-slide--eim
+    .chapter-slide__inner--compact-expand[data-chapter-expanded='false']
+    .chapter-slide__stage {
+    display: grid;
+    place-items: center;
+  }
+
+  .hardware-slideshow.chapter-slide--eim
+    .chapter-slide__inner--compact-expand
+    .chapter-compact-view__stage-fill {
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+  }
+}
+
+@media (max-width: 767px) {
+  .chapter-slide:not(.hardware-slideshow).chapter-slide--eim .chapter-slide__stage {
+    max-width: var(--stage-tune-eim-max, var(--cs-eim-stage-max-w));
+  }
+
+  .hardware-slideshow.chapter-slide--eim .chapter-slide__stage {
+    max-width: min(100%, var(--cs-stage-gallery-w));
+  }
+
+  .hardware-slideshow.chapter-slide--eim .chapter-slide__stage > .eim-path-art {
+    width: min(100%, var(--cs-stage-gallery-w));
+    max-width: 100%;
+  }
+}
+
+/* ── Sensi Lite (hardware slideshow) ────────────────────────────────────── */
+
+@media (min-width: 768px) {
+  .hardware-slideshow.chapter-slide--sensi-lite
+    .chapter-slide__stage
+    > .chapter-slide__interactive-wrap {
+    width: var(--hw-stage-gallery-w);
+    max-width: 100%;
+    min-width: min(100%, var(--hw-stage-gallery-w));
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: min(calc(var(--hw-stage-gallery-w) * 147 / 240), 56dvh);
+  }
+
+  .hardware-slideshow.chapter-slide--sensi-lite .chapter-slide__interactive-content {
+    width: min(100%, var(--hw-stage-gallery-w));
+    max-width: 100%;
+    flex: 0 0 auto;
+  }
+
+  .hardware-slideshow.chapter-slide--sensi-lite .sensi-lite-proto__stage {
+    width: 100%;
+    max-width: 100%;
+    aspect-ratio: 240 / 147;
+  }
+}
+
+@media (max-width: 767px) {
+  .hardware-slideshow.chapter-slide--sensi-lite .chapter-slide__interactive-wrap {
+    width: min(100%, var(--cs-stage-gallery-w));
+    max-width: 100%;
+  }
+
+  .hardware-slideshow.chapter-slide--sensi-lite .chapter-slide__interactive-content,
+  .hardware-slideshow.chapter-slide--sensi-lite .sensi-lite-proto__stage {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1199px) {
+  .hardware-slideshow.mobile-chapter-slot--sensi
+    .chapter-slide__inner--compact-expand[data-chapter-expanded='false']
+    .chapter-slide__stage:has(.phone-swap) {
+    max-height: none;
+    min-height: 0;
+  }
+
+  .hardware-slideshow.mobile-chapter-slot--sensi
+    .chapter-slide__inner--compact-expand
+    .chapter-slide__copy--compact-teaser {
+    padding-inline: 0;
+    box-sizing: border-box;
+  }
+}
+
+/* ── Verdant ────────────────────────────────────────────────────────────── */
+
+@media (max-width: 767px) {
+  .hardware-slideshow.chapter-slide--verdant .chapter-slide__inner {
+    justify-content: flex-start;
+    align-items: stretch;
+  }
+
+  .hardware-slideshow.chapter-slide--verdant .chapter-slide__stage {
+    flex: 0 1 auto;
+    min-height: 0;
+    max-height: min(52dvh, 400px);
+  }
+
+  .hardware-slideshow.chapter-slide--verdant .chapter-slide__copy--mobile-teaser {
+    flex: 0 0 auto;
+    margin-top: 0;
+  }
+
+  .hardware-slideshow.chapter-slide--verdant
+    .mobile-learn-more__teaser
+    .chapter-copy__headline {
+    font-size: clamp(22px, 5.5vw, 32px);
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1199px) {
+  .hardware-slideshow.chapter-slide--verdant
+    .chapter-slide__inner--compact-expand[data-chapter-expanded='false']
+    .chapter-slide__stage {
+    min-height: 0;
+    max-height: min(52dvh, 400px);
+  }
+
+  .hardware-slideshow.chapter-slide--verdant
+    .chapter-slide__inner--compact-expand
+    .chapter-slide__copy--compact-teaser
+    .chapter-copy__headline {
+    font-size: clamp(22px, 5.5vw, 32px);
+  }
+}

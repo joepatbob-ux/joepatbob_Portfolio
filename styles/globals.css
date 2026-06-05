@@ -7,7 +7,6 @@
 @import './mobile-chapter.css';
 @import './overlay-action-pill.css';
 @import './mobile-learn-more.css';
-@import './mobile-chapter-viewport.css';
 @import './flow-chapter-slide.css';
 @import './web-apps-kelvin-chapter.css';
 @import './kelvin-scratch.css';
@@ -16,10 +15,8 @@
 @import './concept-eight-ball.css';
 @import './spotlight-phone.css';
 @import './phone-swap.css';
-@import './chapter-slide.css';
+@import './chapter/index.css';
 @import './site-layout.css';
-@import './hardware-layout.css';
-@import './chapter-compact-expand.css';
 @import './verdant-interactive.css';
 @import './verdant-character-selector.css';
 @import './sidebar-layout.css';

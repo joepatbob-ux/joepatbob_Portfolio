@@ -1,7 +1,7 @@
 'use client'
 
 import { FlowChapterSlideLayout } from '@/components/chapter-slide/FlowChapterSlideLayout'
-import { MobileLearnMore } from '@/components/mobile/MobileLearnMore'
+import { ChapterCopyReveal } from '@/components/chapter-slide/ChapterCopyReveal'
 import { Touch2Carousel } from '@/components/touch2/Touch2Carousel'
 import {
   EibPracticeClose,
@@ -31,14 +31,14 @@ export function EibPracticeSection() {
         />
       }
       copy={
-        <MobileLearnMore headline={EIB_PRACTICE.headline}>
+        <ChapterCopyReveal headline={EIB_PRACTICE.headline}>
           <EibSubSectionIntro>
             {splitParagraphs(EIB_PRACTICE.intro).map((p, i) => (
               <p key={i}>{p}</p>
             ))}
           </EibSubSectionIntro>
           <EibPracticeClose statement={EIB_PRACTICE.close} />
-        </MobileLearnMore>
+        </ChapterCopyReveal>
       }
     />
   )
