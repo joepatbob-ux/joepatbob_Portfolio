@@ -153,8 +153,8 @@
   pointer-events: auto;
 }
 
-/* Phone: let the page scroll through the board; grab only after drag threshold (JS). */
-@media (max-width: 767px) {
+/* Touch-width layouts: allow page scroll until drag starts (threshold in JS). */
+@media (max-width: 1023px) {
   .formation-lego__board {
     touch-action: pan-y;
   }

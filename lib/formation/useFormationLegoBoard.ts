@@ -149,6 +149,7 @@ export function useFormationLegoBoard() {
   /** Selected brick tapped again (not ring) — set down on pointer up without drag. */
   const tapToSetDownRef = useRef(false)
   const capturePointerIdRef = useRef<number | null>(null)
+  const captureTargetRef = useRef<HTMLElement | null>(null)
 
   const layerLift = useMemo(() => brickLayerLift(boardW), [boardW])
   const plate = useMemo(() => plateDisplayLayout(boardW), [boardW])
@@ -471,6 +472,7 @@ export function useFormationLegoBoard() {
       setDragHasMoved(false)
       setDragId(pieceId)
       setDragFree(null)
+      captureTargetRef.current = e.currentTarget as HTMLElement
       capturePointerIdRef.current = e.pointerId
     },
     [
@@ -485,36 +487,44 @@ export function useFormationLegoBoard() {
     ],
   )
 
-  const onPointerMove = useCallback(
-    (e: React.PointerEvent) => {
+  const onPointerMoveAt = useCallback(
+    (clientX: number, clientY: number, pointerId: number) => {
       if (!dragId || !boardRef.current) return
+      if (
+        capturePointerIdRef.current != null &&
+        pointerId !== capturePointerIdRef.current
+      ) {
+        return
+      }
       const piece = pieces.find((p) => p.id === dragId)
       if (!piece) return
-      const pointer = clientToClip(boardRef.current, e.clientX, e.clientY)
+      const pointer = clientToClip(boardRef.current, clientX, clientY)
       const start = dragPointerStartClip.current
       if (start) {
         const dx = pointer.clipX - start.x
         const dy = pointer.clipY - start.y
-        if (!dragHasMoved && dx * dx + dy * dy < DRAG_THRESHOLD_PX * DRAG_THRESHOLD_PX) {
+        if (
+          !dragHasMoved &&
+          dx * dx + dy * dy < DRAG_THRESHOLD_PX * DRAG_THRESHOLD_PX
+        ) {
           return
         }
         if (!dragHasMoved) {
           dragHasMovedRef.current = true
           setDragHasMoved(true)
-          const pointerId = capturePointerIdRef.current
+          const target = captureTargetRef.current
           if (
-            pointerId != null &&
-            boardRef.current &&
-            !boardRef.current.hasPointerCapture(pointerId)
+            target &&
+            !target.hasPointerCapture(pointerId)
           ) {
-            boardRef.current.setPointerCapture(pointerId)
+            target.setPointerCapture(pointerId)
           }
         }
       }
       const pointerNative = clientToBoardNative(
         boardRef.current,
-        e.clientX,
-        e.clientY,
+        clientX,
+        clientY,
         boardW,
       )
       const anchorNative = {
@@ -569,16 +579,70 @@ export function useFormationLegoBoard() {
     [boardW, dragHasMoved, dragId, pieces],
   )
 
-  const onPointerUp = useCallback(
+  const onPointerMove = useCallback(
     (e: React.PointerEvent) => {
-      if (boardRef.current?.hasPointerCapture(e.pointerId)) {
-        boardRef.current.releasePointerCapture(e.pointerId)
+      onPointerMoveAt(e.clientX, e.clientY, e.pointerId)
+    },
+    [onPointerMoveAt],
+  )
+
+  const finishPointer = useCallback(
+    (pointerId: number) => {
+      const target = captureTargetRef.current
+      if (target?.hasPointerCapture(pointerId)) {
+        target.releasePointerCapture(pointerId)
       }
       capturePointerIdRef.current = null
+      captureTargetRef.current = null
       endDrag()
     },
     [endDrag],
   )
+
+  const onPointerUp = useCallback(
+    (e: React.PointerEvent) => {
+      if (
+        capturePointerIdRef.current != null &&
+        e.pointerId !== capturePointerIdRef.current
+      ) {
+        return
+      }
+      finishPointer(e.pointerId)
+    },
+    [finishPointer],
+  )
+
+  useEffect(() => {
+    if (dragId == null) return
+
+    const onWinMove = (e: PointerEvent) => {
+      if (dragHasMovedRef.current) {
+        e.preventDefault()
+      }
+      onPointerMoveAt(e.clientX, e.clientY, e.pointerId)
+    }
+
+    const onWinEnd = (e: PointerEvent) => {
+      if (
+        capturePointerIdRef.current != null &&
+        e.pointerId !== capturePointerIdRef.current
+      ) {
+        return
+      }
+      e.preventDefault()
+      finishPointer(e.pointerId)
+    }
+
+    window.addEventListener('pointermove', onWinMove, { passive: false })
+    window.addEventListener('pointerup', onWinEnd)
+    window.addEventListener('pointercancel', onWinEnd)
+
+    return () => {
+      window.removeEventListener('pointermove', onWinMove)
+      window.removeEventListener('pointerup', onWinEnd)
+      window.removeEventListener('pointercancel', onWinEnd)
+    }
+  }, [dragId, finishPointer, onPointerMoveAt])
 
   const piecesWithPlacement = useMemo(() => {
     return pieces
