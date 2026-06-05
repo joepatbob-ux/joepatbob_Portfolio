@@ -179,7 +179,7 @@
     --verdant-gap: var(--cs-verdant-mobile-gap);
     --verdant-key-gap: clamp(4px, 1.1vw, 7px);
     --verdant-key-font: clamp(10px, 2.8cqi, 13px);
-    --verdant-stage-h: clamp(130px, 28dvh, 260px);
+    --verdant-stage-h: clamp(120px, 22dvh, 220px);
     --verdant-stage-w: min(100%, calc(var(--verdant-stage-h) * 350 / 582));
 
     display: grid;
@@ -188,17 +188,27 @@
     grid-template-areas: 'glyph' 'keys';
     width: 100%;
     max-width: 100%;
-    max-height: min(48dvh, 380px);
+    max-height: none;
     margin-inline: 0;
     padding-inline: 0;
     align-self: stretch;
   }
 
+  .hardware-slideshow.chapter-slide--verdant .portfolio-chapter-panel {
+    justify-content: flex-start;
+    padding-top: var(--mobile-content-top-inset);
+  }
+
   .verdant-interactive__glyph-stage {
-    align-self: end;
+    align-self: center;
     justify-self: center;
     width: var(--verdant-stage-w);
     height: var(--verdant-stage-h);
+  }
+
+  .verdant-selector {
+    position: relative;
+    z-index: 0;
   }
 }
 
