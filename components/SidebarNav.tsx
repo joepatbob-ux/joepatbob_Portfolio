@@ -15,7 +15,7 @@
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { activeSlideIdPublished } from '@/lib/chapterSlideshow'
-import { applySidebarHeroNameFade, applySidebarShellFade, hideSidebarShell, isInHeroScrollZone, resetSidebarShellFade } from '@/lib/heroScroll'
+import { applySidebarHeroNameFade, applySidebarShellFade, hideSidebarShell, isInHeroScrollZone, isTopBarInHeroScrollZone, resetSidebarShellFade } from '@/lib/heroScroll'
 import { NAV_SECTIONS, sectionIdForChapter } from '@/lib/nav'
 import { sectionEntryChapterId } from '@/lib/sectionEntryChapter'
 import { OverlayActionPill } from '@/components/ui/OverlayActionPill'
@@ -129,6 +129,7 @@ export function SidebarNav() {
     typeof window !== 'undefined' ? isInHeroScrollZone() : true,
   )
   const mobileInHeroRef = useRef(mobileInHero)
+  const lastHtmlHeroClassRef = useRef<boolean | null>(null)
 
   const [navIsStuck,          setNavIsStuck]          = useState(false)
   const [dividerVisible,      setDividerVisible]      = useState(false)
@@ -283,7 +284,9 @@ export function SidebarNav() {
     if (chapterNavPhase !== 'idle') return
 
     const chapterId = activeSlideIdPublished()
-    const sectionId = chapterId ? sectionIdForChapter(chapterId) : null
+    if (!chapterId) return
+
+    const sectionId = sectionIdForChapter(chapterId)
     if (!sectionId) return
 
     if (activeChapterRef.current !== chapterId) {
@@ -405,6 +408,7 @@ export function SidebarNav() {
     measureLayout()
     applyDesktopNavScroll(getScrollTop())
     const inHero = isInHeroScrollZone()
+    lastHtmlHeroClassRef.current = inHero
     document.documentElement.classList.toggle('in-hero-scroll', inHero)
     document.documentElement.classList.toggle('past-hero-scroll', !inHero)
     syncSidebarDivider(inHero)
@@ -417,15 +421,18 @@ export function SidebarNav() {
 
     return scheduleScrollFrame(() => {
       const y = getScrollTop()
-      const inHero = isInHeroScrollZone()
+      const inHero = isTopBarInHeroScrollZone()
 
       if (inHero !== mobileInHeroRef.current) {
         mobileInHeroRef.current = inHero
         setMobileInHero(inHero)
       }
 
-      document.documentElement.classList.toggle('in-hero-scroll', inHero)
-      document.documentElement.classList.toggle('past-hero-scroll', !inHero)
+      if (inHero !== lastHtmlHeroClassRef.current) {
+        lastHtmlHeroClassRef.current = inHero
+        document.documentElement.classList.toggle('in-hero-scroll', inHero)
+        document.documentElement.classList.toggle('past-hero-scroll', !inHero)
+      }
 
       if (inHero && !mobileDrawerOpen) {
         applyMobileHeroScroll(y)
@@ -455,8 +462,11 @@ export function SidebarNav() {
     return scheduleScrollFrame(() => {
       const y = getScrollTop()
       const inHero = isInHeroScrollZone()
-      document.documentElement.classList.toggle('in-hero-scroll', inHero)
-      document.documentElement.classList.toggle('past-hero-scroll', !inHero)
+      if (inHero !== lastHtmlHeroClassRef.current) {
+        lastHtmlHeroClassRef.current = inHero
+        document.documentElement.classList.toggle('in-hero-scroll', inHero)
+        document.documentElement.classList.toggle('past-hero-scroll', !inHero)
+      }
       syncSidebarDivider(inHero)
       applyDesktopNavScroll(y)
       applyStuckState(y)

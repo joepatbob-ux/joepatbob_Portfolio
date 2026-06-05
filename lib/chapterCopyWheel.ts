@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { LAYOUT_MQ } from '@/lib/layout/breakpoints'
 
 const CHAPTER_SLOT_SELECTOR = '.portfolio-chapter-slot[data-chapter-id]'
 
@@ -102,6 +103,7 @@ export function bindChapterCopyWheelHandlers(): () => void {
 export function useChapterCopyWheelTrap(): void {
   useEffect(() => {
     if (typeof window === 'undefined') return
+    if (window.matchMedia(LAYOUT_MQ.topBarNav).matches) return
 
     let unbind = bindChapterCopyWheelHandlers()
     let debounceId = 0

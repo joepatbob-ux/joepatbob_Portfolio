@@ -15,6 +15,7 @@ import { useChapterCopyWheelTrap } from '@/lib/chapterCopyWheel'
 import { waitForChapterSlot } from '@/lib/chapterNav/waitForChapterSlot'
 import { sectionEntryChapterId } from '@/lib/sectionEntryChapter'
 import { flushScrollFrame, scheduleScrollFrame } from '@/lib/scrollFrame'
+import { bindTopBarScrollSpy } from '@/lib/topBarScrollSpy'
 import { isTopBarNavViewport } from '@/lib/layout/isTopBarNavViewport'
 import {
   createContext,
@@ -67,6 +68,7 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
   const targetIdRef = useRef<string | null>(null)
   const revealsRef = useRef<Record<string, number>>({})
   const phaseRef = useRef<ChapterNavPhase>('idle')
+  const lastScrollActiveRef = useRef<string | null>(null)
   useEffect(() => {
     activeRef.current = activeSlideId
   }, [activeSlideId])
@@ -88,14 +90,15 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
   }, [])
 
   useEffect(() => {
-    const measureSlides = () => {
-      const lockId = busyRef.current ? targetIdRef.current : null
-      const state = measureSlideScrollState(phaseRef.current, lockId)
-      publishSlideScrollState(state)
-
+    const applyScrollState = (state: ReturnType<typeof measureSlideScrollState>) => {
       if (phaseRef.current === 'idle') {
-        applyChapterPanelScrollStyles(state.revealMap, state.activeSlideId)
-        applyPlacedStickerScrollVisibility(state.revealMap, state.activeSlideId)
+        if (!isTopBarNavViewport()) {
+          applyChapterPanelScrollStyles(state.revealMap, state.activeSlideId)
+        }
+        if (state.activeSlideId !== lastScrollActiveRef.current) {
+          lastScrollActiveRef.current = state.activeSlideId
+          applyPlacedStickerScrollVisibility(state.revealMap, state.activeSlideId)
+        }
         revealsRef.current = state.revealMap
       } else if (state.inHero || phaseRef.current === 'out') {
         if (Object.keys(revealsRef.current).length > 0) {
@@ -116,6 +119,21 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
           }
         }
       }
+    }
+
+    if (isTopBarNavViewport()) {
+      return bindTopBarScrollSpy(
+        () => phaseRef.current,
+        () => (busyRef.current ? targetIdRef.current : null),
+        applyScrollState,
+      )
+    }
+
+    const measureSlides = () => {
+      const lockId = busyRef.current ? targetIdRef.current : null
+      const state = measureSlideScrollState(phaseRef.current, lockId)
+      publishSlideScrollState(state)
+      applyScrollState(state)
     }
 
     return scheduleScrollFrame(measureSlides)

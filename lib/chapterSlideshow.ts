@@ -165,6 +165,38 @@ function pickActiveSlideIdByVisibility(): string | null {
   return bestId
 }
 
+/** Top-bar nav: stick to current chapter until challenger leads by ~12% viewport. */
+export function pickActiveSlideIdForTopBarNav(): string | null {
+  const vh = window.innerHeight
+  const minLeadPx = Math.max(72, Math.round(vh * 0.12))
+  const slots = chapterSlots()
+
+  let bestId: string | null = null
+  let bestVisible = 0
+  const visibleById = new Map<string, number>()
+
+  slots.forEach((el) => {
+    const id = el.dataset.chapterId
+    if (!id) return
+    const visible = visibleHeightInViewport(el.getBoundingClientRect(), vh)
+    visibleById.set(id, visible)
+    if (visible > bestVisible) {
+      bestVisible = visible
+      bestId = id
+    }
+  })
+
+  const current = publishedActiveSlideId
+  if (current && bestId && current !== bestId) {
+    const currentVisible = visibleById.get(current) ?? 0
+    if (bestVisible - currentVisible < minLeadPx) {
+      return current
+    }
+  }
+
+  return bestId
+}
+
 /**
  * Active chapter from scroll reveal weights (matches panel crossfade).
  * Hysteresis stops sidebar highlight flipping between adjacent snap slides.

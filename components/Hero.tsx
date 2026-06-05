@@ -25,6 +25,8 @@ export function Hero() {
     portrait?.style.removeProperty('object-position')
     pin?.style.removeProperty('transform')
 
+    if (window.matchMedia(LAYOUT_MQ.topBarNav).matches) return
+
     return scheduleScrollFrame(() => {
       const pinEl = document.querySelector<HTMLElement>('#hero .hero-pin')
       const topBarNav = window.matchMedia(LAYOUT_MQ.topBarNav).matches
