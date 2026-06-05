@@ -12,7 +12,6 @@
     overscroll-behavior-y: auto;
   }
 
-  #hero,
   .portfolio-chapter-slot--fill.hardware-slideshow,
   .case-study-flow-overview.portfolio-chapter-slot--fill {
     scroll-snap-align: none !important;
@@ -73,13 +72,6 @@
     overscroll-behavior-y: auto !important;
   }
 
-  .hero-pin {
-    position: relative !important;
-    top: auto !important;
-    overflow: visible !important;
-    will-change: auto !important;
-  }
-
   .portfolio-chapter-slot--fill {
     margin-bottom: var(--cs-screen-gap);
   }
@@ -89,12 +81,35 @@
     min-height: 100dvh;
   }
 
-  #hero {
-    margin-bottom: var(--cs-screen-gap);
-  }
-
   article[data-section-id] + article[data-section-id] {
     margin-top: var(--cs-section-scroll-gap);
+  }
+
+  /* Hero: full viewport + portrait bleed under status bar (viewport-fit=cover) */
+  #hero {
+    position: relative !important;
+    height: 100dvh !important;
+    height: 100svh !important;
+    min-height: 100dvh !important;
+    min-height: 100svh !important;
+    min-height: -webkit-fill-available !important;
+    max-height: none !important;
+    overflow: hidden;
+    margin-bottom: var(--cs-screen-gap);
+    box-sizing: border-box;
+  }
+
+  #hero .hero-pin {
+    position: absolute !important;
+    top: calc(-1 * env(safe-area-inset-top, 0px)) !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    height: calc(100% + env(safe-area-inset-top, 0px)) !important;
+    min-height: calc(100dvh + env(safe-area-inset-top, 0px)) !important;
+    min-height: calc(100svh + env(safe-area-inset-top, 0px)) !important;
+    overflow: hidden !important;
+    will-change: auto !important;
   }
 
   .sidebar-mobile-rail {
