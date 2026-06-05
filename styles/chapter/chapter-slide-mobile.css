@@ -10,8 +10,6 @@
   }
 
   .portfolio-chapter-slot--fill.hardware-slideshow {
-    min-height: calc(100dvh + var(--cs-screen-gap));
-    min-height: calc(100svh + var(--cs-screen-gap));
     box-sizing: border-box;
   }
 
@@ -20,9 +18,6 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    min-height: 100dvh;
-    min-height: 100svh;
-    min-height: -webkit-fill-available;
     box-sizing: border-box;
     padding: 0 var(--content-pad-x, 16px);
   }

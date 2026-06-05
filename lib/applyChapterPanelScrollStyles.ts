@@ -29,10 +29,7 @@ export function applyChapterPanelScrollStyles(
   revealMap: Record<string, number>,
   activeSlideId: string | null,
 ): void {
-  if (isTopBarNavViewport()) {
-    resetInFlowChapterPanels()
-    return
-  }
+  if (isTopBarNavViewport()) return
 
   const layoutMobile = isLayoutMobileWidth()
 
@@ -110,6 +107,10 @@ export function applyPlacedStickerScrollVisibility(
       visible = reveal > 0.08
     }
 
+    const next = visible ? 'true' : 'false'
+    if (root.dataset.stickerScrollVisible === next) return
+
+    root.dataset.stickerScrollVisible = next
     root.style.opacity = visible ? '1' : '0'
     root.style.visibility = visible ? 'visible' : 'hidden'
   })

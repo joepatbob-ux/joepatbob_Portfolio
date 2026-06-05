@@ -18,8 +18,39 @@ const HERO_PIN_SIDEBAR_PASSTHROUGH_THRESHOLD = 0.05
 let heroZoneCommitted: boolean | null = null
 let lastResizeInnerH = 0
 
+/** Phone + tablet top-bar nav: scroll-Y hysteresis for hero intro vs frosted rail. */
+let topBarHeroScrollCommitted: boolean | null = null
+
+export function resetTopBarHeroScrollHysteresis(): void {
+  topBarHeroScrollCommitted = null
+}
+
+/** Wider band than desktop hero zone — avoids rail ↔ hero flip on scroll reversal. */
+export function isTopBarInHeroScrollZone(): boolean {
+  if (typeof window === 'undefined') return true
+
+  const y = window.scrollY
+  const vh = window.innerHeight
+  const leaveAt = vh * 0.48
+  const enterAt = vh * 0.36
+
+  if (topBarHeroScrollCommitted === null) {
+    topBarHeroScrollCommitted = y < leaveAt
+    return topBarHeroScrollCommitted
+  }
+
+  if (topBarHeroScrollCommitted) {
+    if (y >= leaveAt) topBarHeroScrollCommitted = false
+  } else if (y <= enterAt) {
+    topBarHeroScrollCommitted = true
+  }
+
+  return topBarHeroScrollCommitted
+}
+
 export function resetHeroScrollZoneHysteresis(): void {
   heroZoneCommitted = null
+  resetTopBarHeroScrollHysteresis()
 }
 
 function onViewportResize(): void {
@@ -124,10 +155,21 @@ export function applyHeroPinFade(
   const fadeOut = getHeroPinFadeOut(scrollY, viewportH)
   const reveal = 1 - fadeOut
   const blur = fadeOut < 0.02 ? 0 : fadeOut * blurPx
+  const opacityStr = String(reveal)
+  const filterStr = blur > 0 ? `blur(${blur}px)` : 'none'
+  const pointerEvents = reveal < 0.02 ? 'none' : ''
 
-  el.style.opacity = String(reveal)
-  el.style.filter = blur > 0 ? `blur(${blur}px)` : 'none'
-  el.style.pointerEvents = reveal < 0.02 ? 'none' : ''
+  if (
+    el.style.opacity === opacityStr &&
+    el.style.filter === filterStr &&
+    el.style.pointerEvents === pointerEvents
+  ) {
+    return
+  }
+
+  el.style.opacity = opacityStr
+  el.style.filter = filterStr
+  el.style.pointerEvents = pointerEvents
 }
 
 export function resetHeroPinFade(el: HTMLElement | null): void {
@@ -178,9 +220,13 @@ export function applySidebarShellFade(
   const fadeOut = sidebarNameFadeProgress(scrollY, viewportH)
   const reveal = 1 - fadeOut
   const blur = fadeOut < 0.02 ? 0 : fadeOut * blurPx
+  const opacityStr = String(reveal)
+  const filterStr = blur > 0 ? `blur(${blur}px)` : 'none'
 
-  el.style.opacity = String(reveal)
-  el.style.filter = blur > 0 ? `blur(${blur}px)` : 'none'
+  if (el.style.opacity === opacityStr && el.style.filter === filterStr) return
+
+  el.style.opacity = opacityStr
+  el.style.filter = filterStr
 }
 
 export function resetSidebarShellFade(el: HTMLElement | null): void {

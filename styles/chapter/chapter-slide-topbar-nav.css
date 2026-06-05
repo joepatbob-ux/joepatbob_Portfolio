@@ -1,10 +1,15 @@
-/* Phone + tablet top-bar nav (≤1023): in-flow scroll — no fixed panel stack / crossfade.
- * Loaded last in styles/chapter/index.css to override globals slideshow fixed panels.
+/* Phone + tablet top-bar nav (≤1023): native document scroll — no fixed panel stack.
+ * Loaded last in styles/chapter/index.css.
  */
 
 @media (max-width: 1023px) {
   html {
     scroll-snap-type: none !important;
+    overscroll-behavior-y: auto;
+  }
+
+  body {
+    overscroll-behavior-y: auto;
   }
 
   #hero,
@@ -13,7 +18,7 @@
     scroll-snap-align: none !important;
     scroll-snap-stop: normal !important;
     height: auto !important;
-    min-height: calc(100dvh + var(--cs-screen-gap));
+    min-height: 0 !important;
     box-sizing: border-box;
   }
 
@@ -24,8 +29,7 @@
     right: auto !important;
     width: 100% !important;
     height: auto !important;
-    min-height: 100dvh;
-    min-height: 100svh;
+    min-height: 0 !important;
     overflow: visible !important;
     opacity: 1 !important;
     visibility: visible !important;
@@ -37,8 +41,8 @@
     justify-content: center;
     align-items: stretch;
     box-sizing: border-box;
-    padding-top: var(--mobile-content-top-inset);
-    padding-bottom: var(--mobile-content-bottom-inset);
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
   }
 
   .hardware-slideshow .chapter-slide__viewport {
@@ -61,18 +65,27 @@
     box-sizing: border-box;
   }
 
-  .hardware-slideshow .chapter-slide__copy {
+  .hardware-slideshow .chapter-slide__copy,
+  .hardware-slideshow .chapter-copy-scroller {
     min-height: 0;
     max-height: none !important;
     overflow: visible !important;
-  }
-
-  .hardware-slideshow .chapter-copy-scroller {
-    max-height: none !important;
-    overflow: visible !important;
+    overscroll-behavior-y: auto !important;
   }
 
   .hero-pin {
-    will-change: auto;
+    position: relative !important;
+    top: auto !important;
+    overflow: visible !important;
+    will-change: auto !important;
+  }
+
+  .portfolio-chapter-slot--fill.hardware-slideshow {
+    min-height: 100svh;
+    min-height: 100dvh;
+  }
+
+  .sidebar-mobile-rail {
+    transition: none !important;
   }
 }

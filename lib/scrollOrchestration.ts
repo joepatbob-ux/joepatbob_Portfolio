@@ -2,11 +2,12 @@ import {
   CHAPTER_SLOT_SELECTOR,
   computeChapterRevealMap,
   pickActiveSlideId,
+  pickActiveSlideIdForTopBarNav,
   publishActiveSlideId,
   publishChapterRevealMap,
 } from '@/lib/chapterSlideshow'
 import { FLOW_CHAPTER_SLOT_SELECTOR } from '@/lib/chapterFlow'
-import { shouldSuppressChapterReveal } from '@/lib/heroScroll'
+import { isTopBarInHeroScrollZone, shouldSuppressChapterReveal } from '@/lib/heroScroll'
 import { isTopBarNavViewport } from '@/lib/layout/isTopBarNavViewport'
 
 export type SlideNavPhase = 'idle' | 'out' | 'in'
@@ -71,17 +72,18 @@ export function measureSlideScrollState(
     return { revealMap: {}, activeSlideId: null, inHero: false }
   }
 
-  if (shouldSuppressChapterReveal()) {
-    return { revealMap: {}, activeSlideId: null, inHero: true }
-  }
-
   if (isTopBarNavViewport()) {
+    const inHero = isTopBarInHeroScrollZone()
     const revealMap = computeInFlowRevealMap()
     return {
       revealMap,
-      activeSlideId: pickActiveSlideId(revealMap),
-      inHero: false,
+      activeSlideId: inHero ? null : pickActiveSlideIdForTopBarNav(),
+      inHero,
     }
+  }
+
+  if (shouldSuppressChapterReveal()) {
+    return { revealMap: {}, activeSlideId: null, inHero: true }
   }
 
   const revealMap = {
