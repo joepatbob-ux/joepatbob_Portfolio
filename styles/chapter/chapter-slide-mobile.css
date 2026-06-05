@@ -1,4 +1,6 @@
-/* Mobile — full viewport slides; content scrolls under nav + home indicator */
+/* Mobile — full viewport slides; content scrolls under nav + home indicator
+ * See styles/chapter/index.css for load order.
+ */
 
 @media (max-width: 767px) {
   #hero,
@@ -169,31 +171,6 @@
   .hardware-slideshow .mobile-learn-more__teaser .overlay-action-slot {
     justify-content: center;
   }
-
-  /* Verdant — stack stage then copy; avoid centered-cluster overlap on short viewports */
-  .hardware-slideshow.chapter-slide--verdant .chapter-slide__inner {
-    justify-content: flex-start;
-    align-items: stretch;
-  }
-
-  .hardware-slideshow.chapter-slide--verdant .chapter-slide__stage {
-    flex: 0 1 auto;
-    min-height: 0;
-    max-height: min(52dvh, 400px);
-  }
-
-  .hardware-slideshow.chapter-slide--verdant .chapter-slide__copy--mobile-teaser {
-    flex: 0 0 auto;
-    margin-top: 0;
-  }
-
-  .hardware-slideshow.chapter-slide--verdant
-    .mobile-learn-more__teaser
-    .chapter-copy__headline {
-    font-size: clamp(22px, 5.5vw, 32px);
-  }
-
-  /* Overview — inline copy (case-study-flow-overview.css); panel pad via .portfolio-chapter-panel */
 
   .hardware-slideshow.section-lessons .chapter-slide__viewport {
     padding: 0;

@@ -256,7 +256,7 @@ hw-kelvin.jpg           ← Lord Kelvin illustration (color)
 | `compact` | 768–1199 | `useLayoutCompactBand()` / `useChapterLayoutMode()` | Headline + **More/Less** in-place expand |
 | `desktop` | ≥1200 | `useChapterLayoutMode()` → `'desktop'` | Inline copy column beside stage |
 
-Shell: `components/chapter-slide/ChapterSlideShell.tsx`. CSS: `styles/chapter-compact-expand.css` (compact), `styles/hardware-layout.css` (desktop row). Class: `chapter-slide__copy--compact-teaser`.
+Shell: `components/chapter-slide/ChapterSlideShell.tsx`. CSS: `styles/chapter/` (compact, hardware, mobile, artifacts). Class: `chapter-slide__copy--compact-teaser`.
 
 Source of truth: `lib/layout/breakpoints.ts`, `lib/chapter-slide/breakpoints.ts`.
 

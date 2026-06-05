@@ -1,4 +1,4 @@
-/* Flow case studies — stage/copy shell in hardware-layout.css (shared with Hardware) */
+/* Flow case studies — stage/copy shell in styles/chapter/chapter-slide-hardware.css */
 
 .flow-chapter-slide__copy .case-study-section-header,
 .flow-chapter-slide__copy .mobile-section-header {
@@ -75,4 +75,4 @@
   max-width: 100%;
 }
 
-/* Mobile viewport layout — mobile-chapter-viewport.css */
+/* Mobile viewport layout — styles/chapter/chapter-slide-mobile.css */

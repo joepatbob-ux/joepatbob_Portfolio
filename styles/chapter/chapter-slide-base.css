@@ -99,60 +99,6 @@
 }
 
 .chapter-slide__copy {
-  grid-column: 2;
-  grid-row: 1;
-  min-width: 0;
-  text-align: left;
-}
-
-.chapter-slide__stage .touch2-carousel,
-.chapter-slide__stage .verdant-interactive,
-.chapter-slide__stage .eim-path-art,
-.chapter-slide__stage .chapter-stage-media,
-.chapter-slide__stage .before-after-slider,
-.chapter-slide__stage .sticker-pile-wrap {
-  width: var(--cs-stage-gallery-w, var(--cs-stage-artifact-w, 100%));
-  max-width: 100%;
-  margin-inline: auto;
-}
-
-.chapter-slide--verdant .chapter-slide__stage {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.chapter-slide--sensi-lite .chapter-slide__interactive-content > div {
-  width: 100%;
-  max-width: 100%;
-  margin: 0;
-}
-
-.sensi-lite-proto__stage {
-  width: 100%;
-  max-width: min(var(--cs-sensi-lite-stage-max-w), 100%);
-  margin-inline: auto;
-  aspect-ratio: 240 / 147;
-  position: relative;
-}
-
-@media (min-width: 768px) {
-  .hardware-slideshow.chapter-slide--sensi-lite .sensi-lite-proto__stage {
-    max-width: 100%;
-  }
-}
-
-.sensi-lite-proto__stage-inner {
-  position: absolute;
-  inset: 0;
-}
-
-.chapter-slide--eim .chapter-slide__stage,
-.chapter-slide.flow-chapter-slide--formation .chapter-slide__stage {
-  overflow: visible;
-}
-
-.chapter-slide__copy {
   min-width: 0;
   min-height: 0;
   max-height: var(--cs-copy-max-h);
@@ -171,15 +117,6 @@
   overscroll-behavior-y: contain;
 }
 
-.chapter-slide .chapter-copy__headline {
-  text-align: left;
-}
-
-.chapter-slide .chapter-copy__rule {
-  margin-left: 0;
-  margin-right: auto;
-}
-
 .chapter-slide__body {
   margin: 0;
   display: grid;
@@ -187,7 +124,6 @@
   gap: clamp(1rem, 2.5vw, 1.5rem);
   align-content: start;
   justify-items: start;
-  text-align: left;
 }
 
 @media (min-width: 1200px) {
@@ -202,7 +138,6 @@
   font-size: 14px;
   line-height: 1.65;
   margin: 0;
-  text-align: left;
 }
 
 /* Tablet shell: fluid inner width (narrower content column) */
@@ -234,7 +169,7 @@
     margin-inline: auto;
   }
 
-  /* Slideshow chapters: full-width band, left-aligned — see hardware-layout.css */
+  /* Slideshow chapters: full-width band — see chapter/chapter-slide-hardware.css */
 
   .hardware-slideshow
     .chapter-slide__copy:not(.chapter-slide__copy--lessons)
@@ -301,10 +236,6 @@
     max-height: none;
   }
 
-  .chapter-slide:not(.hardware-slideshow).chapter-slide--eim .chapter-slide__stage {
-    max-width: var(--stage-tune-eim-max, var(--cs-eim-stage-max-w));
-  }
-
   .chapter-slide:not(.hardware-slideshow)
     .chapter-slide__copy:not(.chapter-slide__copy--lessons)
     .chapter-copy__body {
@@ -313,6 +244,33 @@
 
   .chapter-slide__body {
     grid-template-columns: 1fr;
+  }
+}
+
+/* Desktop row (≥1200): left-aligned copy — mobile/compact center in their sheets */
+@media (min-width: 1200px) {
+  .chapter-slide__inner:not(.chapter-slide__inner--compact-expand) .chapter-slide__copy {
+    text-align: left;
+  }
+
+  .chapter-slide__inner:not(.chapter-slide__inner--compact-expand) .chapter-copy__headline {
+    text-align: left;
+  }
+
+  .chapter-slide__inner:not(.chapter-slide__inner--compact-expand) .chapter-copy__rule {
+    margin-left: 0;
+    margin-right: auto;
+  }
+
+  .chapter-slide__inner:not(.chapter-slide__inner--compact-expand) .chapter-slide__body {
+    text-align: left;
+    justify-items: start;
+  }
+
+  .chapter-slide__inner:not(.chapter-slide__inner--compact-expand)
+    .chapter-slide__copy:not(.chapter-slide__copy--lessons)
+    .chapter-copy__body {
+    text-align: left;
   }
 }
 
@@ -398,57 +356,4 @@
   .chapter-slide--full-width .chapter-slide__copy {
     grid-column: 1;
   }
-}
-
-/* Sensi Lite — 40px accent dot cursor (chapter only) */
-.chapter-slide--sensi-lite .chapter-slide__interactive-wrap {
-  position: relative;
-  width: 100%;
-  cursor: none;
-  isolation: isolate;
-}
-
-.chapter-slide--sensi-lite .chapter-slide__interactive-content {
-  position: relative;
-  z-index: 0;
-  width: 100%;
-}
-
-.chapter-slide--sensi-lite .chapter-slide__interactive-dot-layer {
-  position: absolute;
-  inset: 0;
-  z-index: 50;
-  pointer-events: none;
-  overflow: visible;
-}
-
-.chapter-slide--sensi-lite .sensi-lite-proto--dot-cursor button {
-  cursor: none !important;
-}
-
-/* Default: soft accent fill (stronger than nav pill). Ring only on click targets. */
-.chapter-slide--sensi-lite .chapter-slide__interactive-dot {
-  --dot-size: 40px;
-  --dot-fill: color-mix(in srgb, var(--color-accent) 26%, transparent);
-  position: absolute;
-  box-sizing: border-box;
-  width: var(--dot-size) !important;
-  height: var(--dot-size) !important;
-  max-width: var(--dot-size) !important;
-  min-width: var(--dot-size);
-  min-height: var(--dot-size);
-  aspect-ratio: 1;
-  flex: none;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  pointer-events: none;
-  border: none;
-  background: var(--dot-fill);
-  box-shadow: none;
-  transition: box-shadow 180ms ease, background 180ms ease;
-}
-
-.chapter-slide--sensi-lite .chapter-slide__interactive-dot--ring {
-  --dot-fill: color-mix(in srgb, var(--color-accent) 34%, transparent);
-  box-shadow: 0 0 0 1px var(--color-nav-pill-outline);
 }

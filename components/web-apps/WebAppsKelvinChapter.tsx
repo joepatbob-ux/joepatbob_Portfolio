@@ -1,7 +1,7 @@
 'use client'
 
 import { FlowChapterSlideLayout } from '@/components/chapter-slide/FlowChapterSlideLayout'
-import { MobileLearnMore } from '@/components/mobile/MobileLearnMore'
+import { ChapterCopyReveal } from '@/components/chapter-slide/ChapterCopyReveal'
 import { KelvinScratch } from '@/components/web-apps/KelvinScratch'
 import {
   MobileProse,
@@ -30,7 +30,7 @@ export function WebAppsKelvinChapter() {
       className="mobile-chapter-slot web-apps-chapter-slot"
       stage={<KelvinScratch />}
       copy={
-        <MobileLearnMore
+        <ChapterCopyReveal
           headline={WEB_APPS_KELVIN.headline}
           subhead={WEB_APPS_KELVIN.subhead}
         >
@@ -61,7 +61,7 @@ export function WebAppsKelvinChapter() {
             <MobileProse paragraphs={splitParagraphs(s04.body)} />
             <WebAppsThesisClose>{s04.thesisClose}</WebAppsThesisClose>
           </MobileSubStory>
-        </MobileLearnMore>
+        </ChapterCopyReveal>
       }
     />
   )

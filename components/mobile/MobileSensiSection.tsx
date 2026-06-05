@@ -4,7 +4,7 @@ import { Suspense } from 'react'
 import { PhoneSwap } from '@/components/PhoneSwap'
 import { FlowChapterSlideLayout } from '@/components/chapter-slide/FlowChapterSlideLayout'
 import { PhoneSwapBoundary } from '@/components/phone-swap/PhoneSwapBoundary'
-import { MobileLearnMore } from '@/components/mobile/MobileLearnMore'
+import { ChapterCopyReveal } from '@/components/chapter-slide/ChapterCopyReveal'
 import {
   MobileLabelGrid,
   MobileProse,
@@ -35,7 +35,7 @@ export function MobileSensiSection() {
         </PhoneSwapBoundary>
       }
       copy={
-        <MobileLearnMore headline={MOBILE_SENSI.headline}>
+        <ChapterCopyReveal headline={MOBILE_SENSI.headline}>
           <MobileProse paragraphs={intro} />
           <div className="mobile-sub-stories">
             <MobileSubStory heading={color.heading}>
@@ -59,7 +59,7 @@ export function MobileSensiSection() {
               </aside>
             </MobileSubStory>
           </div>
-        </MobileLearnMore>
+        </ChapterCopyReveal>
       }
     />
   )
