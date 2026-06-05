@@ -80,9 +80,21 @@
     will-change: auto !important;
   }
 
+  .portfolio-chapter-slot--fill {
+    margin-bottom: var(--cs-screen-gap);
+  }
+
   .portfolio-chapter-slot--fill.hardware-slideshow {
     min-height: 100svh;
     min-height: 100dvh;
+  }
+
+  #hero {
+    margin-bottom: var(--cs-screen-gap);
+  }
+
+  article[data-section-id] + article[data-section-id] {
+    margin-top: var(--cs-section-scroll-gap);
   }
 
   .sidebar-mobile-rail {

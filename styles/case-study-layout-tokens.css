@@ -35,6 +35,8 @@
 
   /* Extra scroll between snap slides (hold before next screen) */
   --cs-screen-gap: clamp(16px, 3vh, 40px);
+  /* Larger pause between portfolio sections on in-flow mobile scroll */
+  --cs-section-scroll-gap: clamp(40px, 7vh, 88px);
 
   /* ── Mobile full-bleed slides (≤767) ──────────────────────────────────── */
   --cs-mobile-inner-max: 440px;
