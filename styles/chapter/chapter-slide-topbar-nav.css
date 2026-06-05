@@ -162,4 +162,28 @@
   .sidebar-mobile-rail {
     transition: none !important;
   }
+
+  /* Sensi PhoneSwap — full-bleed stage; panel pad clips 3D phones at the gutters */
+  .portfolio-chapter-slot--fill.hardware-slideshow.mobile-chapter-slot--sensi
+    .portfolio-chapter-panel {
+    padding-inline: 0 !important;
+  }
+
+  .portfolio-chapter-slot--fill.hardware-slideshow.mobile-chapter-slot--sensi {
+    min-height: 0;
+    overflow-x: visible;
+  }
+
+  .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__inner {
+    justify-content: flex-start;
+    max-width: 100%;
+  }
+
+  .hardware-slideshow.mobile-chapter-slot--sensi
+    .chapter-slide__copy--mobile-teaser,
+  .hardware-slideshow.mobile-chapter-slot--sensi
+    .chapter-slide__copy--compact-teaser {
+    padding-inline: var(--content-pad-x, 16px);
+    box-sizing: border-box;
+  }
 }

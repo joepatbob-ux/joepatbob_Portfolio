@@ -160,9 +160,9 @@
   }
 
   .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__stage:has(.phone-swap) {
-    width: 100vw;
-    max-width: 100vw;
-    margin-inline: calc(50% - 50vw);
+    width: 100%;
+    max-width: 100%;
+    margin-inline: 0;
     max-height: none;
     min-height: 0;
     flex: 0 0 auto;
@@ -179,13 +179,8 @@
     overflow: visible;
   }
 
-  .portfolio-chapter-slot--fill.hardware-slideshow.mobile-chapter-slot--sensi {
-    overflow-x: clip;
-  }
-
   .portfolio-chapter-slot--fill.hardware-slideshow.mobile-chapter-slot--sensi
     .portfolio-chapter-panel {
-    padding-inline: 0;
     overflow: visible;
   }
 
