@@ -4,39 +4,42 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useChapterNav } from '@/components/ChapterNavProvider'
 import { Sticker } from '@/components/Sticker'
-import {
-  useStickers,
-} from '@/components/StickerProvider'
+import { useStickers } from '@/components/StickerProvider'
+import { useLayoutMobile } from '@/lib/hooks/useLayoutMobile'
 import { eibChapterId } from '@/lib/everything-in-between/content'
-import {
-  pileStackOffset,
-  randomPileRotation,
-  STICKER_SIZE_PILE,
-} from '@/lib/stickers'
-import { useAnchorViewportRect } from '@/lib/useAnchorViewportRect'
+import { pileStackOffset, randomPileRotation } from '@/lib/stickers'
+import { useAnchorPortalFollow } from '@/lib/useAnchorPortalFollow'
 
 const CONVICTION_CHAPTER_ID = eibChapterId('conviction')
 
 export function StickerPile() {
-  const { deck, deckReady, activeDrag, beginDragFromPile, zIndices } =
+  const { deck, deckReady, activeDrag, beginDragFromPile, zIndices, stickerHeights } =
     useStickers()
+  const layoutMobile = useLayoutMobile()
   const { reveals, activeSlideId } = useChapterNav()
   const rotationsRef = useRef<Map<string, number>>(new Map())
   const anchorRef = useRef<HTMLDivElement>(null)
-  const anchorRect = useAnchorViewportRect(anchorRef)
+  const portalRef = useRef<HTMLDivElement>(null)
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
     setMounted(true)
   }, [])
 
-  const rotationFor = useCallback((id: string) => {
-    const cached = rotationsRef.current.get(id)
-    if (cached !== undefined) return cached
-    const rotation = randomPileRotation()
-    rotationsRef.current.set(id, rotation)
-    return rotation
-  }, [])
+  useEffect(() => {
+    rotationsRef.current.clear()
+  }, [layoutMobile])
+
+  const rotationFor = useCallback(
+    (id: string) => {
+      const cached = rotationsRef.current.get(id)
+      if (cached !== undefined) return cached
+      const rotation = randomPileRotation(layoutMobile)
+      rotationsRef.current.set(id, rotation)
+      return rotation
+    },
+    [layoutMobile],
+  )
 
   const topAsset = deck[0]
   const draggingTop =
@@ -44,7 +47,7 @@ export function StickerPile() {
     topAsset != null &&
     activeDrag.asset.id === topAsset.id
 
-  const pileSize = STICKER_SIZE_PILE + 48
+  const pileSize = stickerHeights.pile + stickerHeights.pilePad
 
   const onGrabPointerDown = (e: React.PointerEvent<HTMLButtonElement>) => {
     if (e.button !== 0 || !deckReady || !topAsset || activeDrag) return
@@ -58,6 +61,7 @@ export function StickerPile() {
       rotationFor(topAsset.id),
     )
   }
+
   const chapterReveal = reveals[CONVICTION_CHAPTER_ID] ?? 0
   const effectiveReveal =
     activeSlideId === CONVICTION_CHAPTER_ID
@@ -65,6 +69,8 @@ export function StickerPile() {
       : chapterReveal
   const pileVisible =
     activeSlideId === CONVICTION_CHAPTER_ID && effectiveReveal > 0.08
+
+  useAnchorPortalFollow(anchorRef, portalRef, mounted && pileVisible)
 
   deck.forEach((asset) => {
     rotationFor(asset.id)
@@ -85,7 +91,7 @@ export function StickerPile() {
           {[...deck].reverse().map((asset, reverseIndex) => {
             const indexFromTop = deck.length - 1 - reverseIndex
             const isTopCard = asset.id === topAsset?.id
-            const layout = pileStackOffset(indexFromTop, deck.length)
+            const layout = pileStackOffset(indexFromTop, deck.length, layoutMobile)
             const rotation = rotationFor(asset.id)
 
             const cardClass = [
@@ -138,10 +144,10 @@ export function StickerPile() {
 
   const portaledPile =
     mounted &&
-    anchorRect &&
     pileVisible &&
     createPortal(
       <div
+        ref={portalRef}
         className={[
           'sticker-pile-portal',
           draggingTop ? 'sticker-pile-portal--pile-drag' : '',
@@ -149,11 +155,6 @@ export function StickerPile() {
           .filter(Boolean)
           .join(' ')}
         style={{
-          position: 'fixed',
-          left: anchorRect.left,
-          top: anchorRect.top,
-          width: anchorRect.width,
-          height: anchorRect.height,
           zIndex: draggingTop ? zIndices.pile - 2 : zIndices.pile,
           display: 'flex',
           alignItems: 'center',

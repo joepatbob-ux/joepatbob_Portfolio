@@ -46,6 +46,30 @@ export const STICKER_ASSETS: StickerAsset[] = [
 
 export const STICKER_SIZE_PILE = 184
 export const STICKER_SIZE_PLACED = 216
+export const STICKER_SIZE_PILE_MOBILE = 128
+export const STICKER_SIZE_PLACED_MOBILE = 160
+export const STICKER_PILE_PAD = 48
+export const STICKER_PILE_PAD_MOBILE = 28
+
+export type StickerHeights = {
+  pile: number
+  placed: number
+  pilePad: number
+}
+
+export function stickerHeights(mobile: boolean): StickerHeights {
+  return mobile
+    ? {
+        pile: STICKER_SIZE_PILE_MOBILE,
+        placed: STICKER_SIZE_PLACED_MOBILE,
+        pilePad: STICKER_PILE_PAD_MOBILE,
+      }
+    : {
+        pile: STICKER_SIZE_PILE,
+        placed: STICKER_SIZE_PLACED,
+        pilePad: STICKER_PILE_PAD,
+      }
+}
 
 const STICKER_SCALE_BY_ID: Record<string, number> = {
   copeland_sticker: 0.55,
@@ -60,17 +84,33 @@ export function stickerHeight(base: number, id: string): number {
 }
 
 /** Fan offset for a card in the pile (0 = top, total - 1 = bottom). */
-export function pileStackOffset(indexFromTop: number, total: number): { x: number; y: number } {
+export function pileStackOffset(
+  indexFromTop: number,
+  total: number,
+  mobile = false,
+): { x: number; y: number } {
   if (total <= 1) return { x: 0, y: 0 }
   const depth = indexFromTop / (total - 1)
+  if (mobile) {
+    const layer = indexFromTop + 1
+    return {
+      x: Math.round(
+        22 * depth + Math.sin(layer * 1.9) * 9 + (layer % 3) * 4,
+      ),
+      y: Math.round(
+        18 * depth + Math.cos(layer * 2.35) * 7 + (layer % 2) * 5,
+      ),
+    }
+  }
   return {
     x: Math.round(14 * depth),
     y: Math.round(11 * depth),
   }
 }
 
-export function randomPileRotation(): number {
-  return Math.round((Math.random() * 30 - 15) * 10) / 10
+export function randomPileRotation(mobile = false): number {
+  const spread = mobile ? 26 : 15
+  return Math.round((Math.random() * spread * 2 - spread) * 10) / 10
 }
 
 export function uniqueStickerDeck(assets: StickerAsset[]): StickerAsset[] {
