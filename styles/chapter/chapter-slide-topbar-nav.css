@@ -177,6 +177,12 @@
   .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__inner {
     justify-content: flex-start;
     max-width: 100%;
+    width: 100%;
+  }
+
+  .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__viewport {
+    width: 100%;
+    max-width: 100%;
   }
 
   .hardware-slideshow.mobile-chapter-slot--sensi

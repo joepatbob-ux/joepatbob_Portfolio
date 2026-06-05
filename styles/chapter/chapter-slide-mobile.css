@@ -171,6 +171,8 @@
   }
 
   .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__stage > .phone-swap {
+    width: 100%;
+    max-width: 100%;
     margin-inline: 0;
   }
 

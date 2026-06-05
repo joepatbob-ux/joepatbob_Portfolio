@@ -39,7 +39,8 @@ import {
 } from '@/lib/phone-swap/phoneMaterialTune'
 import { getStageArtifactTune, STAGE_TUNE_CHANGE } from '@/lib/stage-artifact-tune/settings'
 import { readPhoneLayoutMode } from '@/lib/phone-swap/usePhoneLayoutMode'
-import { useLayoutMobile } from '@/lib/hooks/useLayoutMobile'
+import { usePhoneSwapTouchScroll } from '@/lib/phone-swap/usePhoneSwapTouchScroll'
+import { useLayoutTopBarNav } from '@/lib/hooks/useLayoutTopBarNav'
 import type { PhoneSwapSceneApi } from '@/components/phone-swap/PhoneSwapScene'
 import {
   Suspense,
@@ -73,7 +74,8 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
   const [selectedDevice, setSelectedDevice] = useState<PhoneDevice>('android')
   const [gizmoMode, setGizmoMode] = useState<'translate' | 'rotate' | 'scale'>('translate')
   const [showGuides, setShowGuides] = useState(false)
-  const isMobile = useLayoutMobile()
+  const topBarNav = useLayoutTopBarNav()
+  const viewboxRef = useRef<HTMLDivElement>(null)
   const [locks, setLocks] = useState<LayoutLocks>(() => ({ ...DEFAULT_LAYOUT_LOCKS }))
   const [liveSnapshot, setLiveSnapshot] = useState<PhoneSwapSnapshot>(() =>
     cloneSnapshot(PHONE_SWAP_LAYOUT.androidFocus),
@@ -238,7 +240,8 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
     setDevMenu({ x: event.clientX, y: event.clientY })
   }, [])
 
-  const useAuthoredStageScale = layoutMode || !isMobile
+  const inFlowChapter = topBarNav && !layoutMode
+  const useAuthoredStageScale = layoutMode || !topBarNav
   const viewBoxWidth = layoutMode ? layout.stageWidth : stageTune.phoneWidth
   const viewBoxHeight = layoutMode ? layout.stageSize : stageTune.phoneHeight
   const viewBoxVars = useAuthoredStageScale
@@ -248,9 +251,11 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
       } as CSSProperties)
     : undefined
 
+  usePhoneSwapTouchScroll(viewboxRef, inFlowChapter)
+
   return (
     <div
-      className={`phone-swap${isMobile && !layoutMode ? ' phone-swap--mobile-bleed' : ''}${layoutMode ? ' phone-swap--layout-mode' : ''}${animTuneOpen ? ' phone-swap--anim-tune' : ''}${materialTuneOpen ? ' phone-swap--material-tune' : ''}${layoutMode && showGuides ? ' phone-swap--guides' : ''}`}
+      className={`phone-swap${inFlowChapter ? ' phone-swap--mobile-bleed phone-swap--in-flow' : ''}${layoutMode ? ' phone-swap--layout-mode' : ''}${animTuneOpen ? ' phone-swap--anim-tune' : ''}${materialTuneOpen ? ' phone-swap--material-tune' : ''}${layoutMode && showGuides ? ' phone-swap--guides' : ''}`}
       style={viewBoxVars}
     >
       {devToolsEnabled ? (
@@ -345,6 +350,7 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
       ) : null}
 
       <div
+        ref={viewboxRef}
         className={`phone-swap__viewbox${backPhoneHover ? ' phone-swap__viewbox--swap-target' : ''}${swapped && iphoneLiveScreen && !layoutMode && !animating ? ' phone-swap__viewbox--live-interactive' : ''}`}
         tabIndex={layoutMode ? undefined : 0}
         onContextMenu={handleViewboxContextMenu}

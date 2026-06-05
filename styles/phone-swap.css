@@ -88,6 +88,16 @@
   pointer-events: auto;
 }
 
+.phone-swap__viewbox--scroll-passthrough,
+.phone-swap__viewbox--scroll-passthrough canvas {
+  pointer-events: none !important;
+  touch-action: pan-y;
+}
+
+.phone-swap__viewbox--live-interactive.phone-swap__viewbox--scroll-passthrough {
+  pointer-events: none !important;
+}
+
 .phone-swap__viewbox--live-interactive {
   isolation: isolate;
 }
@@ -879,7 +889,7 @@
 
   .hardware-slideshow.mobile-chapter-slot--sensi {
     --phone-viewbox-base-w: 100%;
-    --phone-viewbox-base-h: clamp(280px, 62dvh, 680px);
+    --phone-viewbox-base-h: clamp(240px, 50dvh, 560px);
     --phone-mobile-bleed: 1;
     --phone-swap-width: 1;
     --phone-swap-height: 1;
@@ -901,22 +911,54 @@
   .hardware-slideshow.mobile-chapter-slot--sensi .phone-swap--mobile-bleed .phone-swap__viewbox {
     width: calc(100% * var(--phone-mobile-bleed));
     max-width: none;
+    overflow: visible;
     height: min(
-      96dvh,
+      72dvh,
       calc(var(--phone-viewbox-base-h) * var(--phone-swap-height, 1))
     );
   }
 }
 
 @media (max-width: 1023px) {
-  /* Let vertical page scroll pass through the WebGL canvas (tap-to-swap still works) */
+  .hardware-slideshow.mobile-chapter-slot--sensi {
+    --phone-swap-width: 1;
+    --phone-swap-height: 1;
+    --phone-viewbox-base-w: 100%;
+    --phone-mobile-bleed: 1;
+    --hw-stage-max-w: none;
+  }
+
+  .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__stage:has(.phone-swap) {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-inline: 0 !important;
+    flex: 0 0 auto;
+    min-height: 0;
+    overflow: visible;
+  }
+
+  .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__stage > .phone-swap,
+  .hardware-slideshow.mobile-chapter-slot--sensi .phone-swap--in-flow {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-inline: 0 !important;
+    align-self: stretch;
+  }
+
+  .hardware-slideshow.mobile-chapter-slot--sensi .phone-swap--in-flow .phone-swap__viewbox {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-inline: 0 !important;
+    overflow: visible;
+  }
+
   .hardware-slideshow.mobile-chapter-slot--sensi
-    .phone-swap__viewbox:not(.phone-swap__viewbox--live-interactive) {
+    .phone-swap__viewbox:not(.phone-swap__viewbox--scroll-passthrough) {
     touch-action: pan-y;
   }
 
   .hardware-slideshow.mobile-chapter-slot--sensi
-    .phone-swap__viewbox:not(.phone-swap__viewbox--live-interactive)
+    .phone-swap__viewbox:not(.phone-swap__viewbox--scroll-passthrough)
     canvas {
     touch-action: pan-y;
   }
@@ -924,8 +966,15 @@
 
 @media (min-width: 768px) and (max-width: 1023px) {
   .hardware-slideshow.mobile-chapter-slot--sensi {
-    --phone-viewbox-base-w: min(var(--cs-phone-viewbox-max-w), clamp(280px, 48vw, 480px));
-    --phone-viewbox-base-h: clamp(400px, 66dvh, 760px);
+    --phone-viewbox-base-w: 100%;
+    --phone-viewbox-base-h: clamp(300px, 54dvh, 600px);
+  }
+
+  .hardware-slideshow.mobile-chapter-slot--sensi .phone-swap--in-flow .phone-swap__viewbox {
+    height: min(
+      72dvh,
+      calc(var(--phone-viewbox-base-h) * var(--phone-swap-height, 1))
+    );
   }
 }
 
