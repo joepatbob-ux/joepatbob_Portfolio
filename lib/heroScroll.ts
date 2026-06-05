@@ -52,8 +52,9 @@ export function isTopBarInHeroScrollZone(): boolean {
   }
 
   const bottom = hero.getBoundingClientRect().bottom
-  const leaveAt = 32
-  const enterAt = vh * 0.92
+  /** Switch intro → rail once ~35% of the hero has scrolled off (not at the very end). */
+  const leaveAt = vh * 0.62
+  const enterAt = vh * 0.88
 
   if (topBarHeroScrollCommitted === null) {
     topBarHeroScrollCommitted = bottom > leaveAt

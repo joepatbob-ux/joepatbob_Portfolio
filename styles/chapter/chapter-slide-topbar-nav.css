@@ -85,7 +85,7 @@
     margin-top: var(--cs-section-scroll-gap);
   }
 
-  /* Hero: sticky pin fills viewport — no fixed/absolute flip while scrolling */
+  /* Hero: sticky pin — shorter scroll track so portrait releases sooner */
   #hero {
     position: relative !important;
     width: 100vw !important;
@@ -96,13 +96,13 @@
     margin-right: calc(-1 * var(--content-pad-x)) !important;
     margin-top: calc(-1 * env(safe-area-inset-top, 0px)) !important;
     padding-top: env(safe-area-inset-top, 0px) !important;
-    min-height: calc(100svh + env(safe-area-inset-bottom, 0px)) !important;
-    min-height: calc(100dvh + env(safe-area-inset-bottom, 0px)) !important;
-    height: calc(100svh + env(safe-area-inset-bottom, 0px)) !important;
-    height: calc(100dvh + env(safe-area-inset-bottom, 0px)) !important;
+    min-height: 88svh !important;
+    min-height: 88dvh !important;
+    height: 88svh !important;
+    height: 88dvh !important;
     max-height: none !important;
     overflow: visible !important;
-    margin-bottom: var(--cs-screen-gap);
+    margin-bottom: var(--cs-hero-exit-gap, var(--cs-screen-gap));
     box-sizing: border-box;
   }
 
@@ -110,10 +110,10 @@
     position: sticky !important;
     top: 0 !important;
     width: 100% !important;
-    height: calc(100svh + env(safe-area-inset-bottom, 0px)) !important;
-    height: calc(100dvh + env(safe-area-inset-bottom, 0px)) !important;
-    min-height: calc(100svh + env(safe-area-inset-bottom, 0px)) !important;
-    min-height: calc(100dvh + env(safe-area-inset-bottom, 0px)) !important;
+    height: 100svh !important;
+    height: 100dvh !important;
+    min-height: 100svh !important;
+    min-height: 100dvh !important;
     display: block !important;
     overflow: hidden !important;
     will-change: auto !important;

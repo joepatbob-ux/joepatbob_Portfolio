@@ -37,6 +37,7 @@
   --cs-screen-gap: clamp(16px, 3vh, 40px);
   /* Larger pause between portfolio sections on in-flow mobile scroll */
   --cs-section-scroll-gap: clamp(40px, 7vh, 88px);
+  --cs-hero-exit-gap: var(--cs-screen-gap);
   --cs-mobile-inner-max: 440px;
   --cs-mobile-section-gap: clamp(20px, 3vh, 28px);
   --cs-mobile-stage-min-h: min(38dvh, 320px);
@@ -105,6 +106,7 @@
     /* Generous scroll pauses on phone — in-flow chapters, margin-based gaps */
     --cs-screen-gap: clamp(56px, 14vh, 128px);
     --cs-section-scroll-gap: clamp(112px, 26vh, 240px);
+    --cs-hero-exit-gap: clamp(28px, 6vh, 56px);
   }
 }
 
