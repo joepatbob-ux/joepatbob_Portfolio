@@ -61,6 +61,12 @@
   .hardware-slideshow.case-study-flow-overview .chapter-slide__copy,
   .hardware-slideshow .chapter-slide__inner--copy-only .chapter-slide__copy {
     padding-top: 0;
+    text-align: center;
+  }
+
+  .hardware-slideshow.case-study-flow-overview .case-study-flow-overview__prose,
+  .hardware-slideshow.case-study-flow-overview .mobile-prose {
+    text-align: left;
   }
 
   .hardware-slideshow .chapter-slide__copy--mobile-teaser,
@@ -72,10 +78,9 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 100vw;
-    max-width: 100vw;
-    margin-left: calc(50% - 50vw);
-    margin-right: calc(50% - 50vw);
+    width: 100%;
+    max-width: 100%;
+    margin-inline: 0;
     margin-top: calc(-1 * env(safe-area-inset-top, 0px));
     padding-top: env(safe-area-inset-top, 0px);
     flex: 1 1 auto;
@@ -93,6 +98,48 @@
     overflow: hidden;
     margin: 0;
     padding: 0;
+  }
+
+  .hardware-slideshow .chapter-slide__copy:not(.chapter-slide__copy--lessons) {
+    width: 100%;
+    max-width: 100%;
+    align-self: center;
+    text-align: center;
+  }
+
+  .hardware-slideshow
+    .chapter-slide__copy:not(.chapter-slide__copy--lessons)
+    .chapter-copy__headline,
+  .hardware-slideshow
+    .chapter-slide__copy:not(.chapter-slide__copy--lessons)
+    .case-study-section-header__headline,
+  .hardware-slideshow
+    .chapter-slide__copy:not(.chapter-slide__copy--lessons)
+    .mobile-section-header__headline,
+  .hardware-slideshow
+    .chapter-slide__copy:not(.chapter-slide__copy--lessons)
+    .mobile-sub-story__heading {
+    text-align: center;
+  }
+
+  .hardware-slideshow
+    .chapter-slide__copy:not(.chapter-slide__copy--lessons)
+    .chapter-copy__rule,
+  .hardware-slideshow
+    .chapter-slide__copy:not(.chapter-slide__copy--lessons)
+    .case-study-section-header__rule,
+  .hardware-slideshow
+    .chapter-slide__copy:not(.chapter-slide__copy--lessons)
+    .mobile-section-header__rule,
+  .hardware-slideshow
+    .chapter-slide__copy:not(.chapter-slide__copy--lessons)
+    .mobile-sub-story__rule {
+    margin-inline: auto;
+  }
+
+  .hardware-slideshow .chapter-slide__copy .mobile-learn-more,
+  .hardware-slideshow .chapter-slide__copy .overlay-action-slot {
+    justify-content: center;
   }
 
   .hardware-slideshow .chapter-slide__stage > * {
