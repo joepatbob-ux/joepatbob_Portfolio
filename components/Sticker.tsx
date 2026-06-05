@@ -1,11 +1,8 @@
 'use client'
 
 import type { CSSProperties } from 'react'
-import {
-  STICKER_SIZE_PILE,
-  STICKER_SIZE_PLACED,
-  stickerHeight,
-} from '@/lib/stickers'
+import { stickerHeight } from '@/lib/stickers'
+import { useStickers } from '@/components/StickerProvider'
 
 type StickerSize = 'pile' | 'placed' | 'drag'
 
@@ -25,8 +22,11 @@ interface StickerProps {
   style?: CSSProperties
 }
 
-function baseHeightForSize(size: StickerSize): number {
-  return size === 'pile' ? STICKER_SIZE_PILE : STICKER_SIZE_PLACED
+function baseHeightForSize(
+  size: StickerSize,
+  heights: { pile: number; placed: number },
+): number {
+  return size === 'pile' ? heights.pile : heights.placed
 }
 
 function stickerClassName(
@@ -55,7 +55,8 @@ export function Sticker({
   className = '',
   style,
 }: StickerProps) {
-  const baseHeight = baseHeightForSize(size)
+  const { stickerHeights: heights } = useStickers()
+  const baseHeight = baseHeightForSize(size, heights)
   const height = assetId ? stickerHeight(baseHeight, assetId) : baseHeight
   const mergedStyle: StickerStyle = {
     '--sticker-h': `${height}px`,

@@ -28,7 +28,9 @@ import {
   readStoredDeckIds,
   uniqueStickerDeck,
   writeStoredDeckIds,
+  stickerHeights,
   type StickerAsset,
+  type StickerHeights,
 } from '@/lib/stickers'
 
 /** Desktop defaults — on phone use `useStickers().zIndices` (matches globals.css). */
@@ -70,6 +72,7 @@ export type ActiveDrag =
 
 interface StickerContextValue {
   zIndices: StickerZIndices
+  stickerHeights: StickerHeights
   deck: StickerAsset[]
   deckReady: boolean
   placed: PlacedSticker[]
@@ -129,6 +132,7 @@ function nextInstanceId(): string {
 export function StickerProvider({ children }: { children: ReactNode }) {
   const layoutMobile = useLayoutMobile()
   const zIndices = stickerZIndices(layoutMobile)
+  const heights = useMemo(() => stickerHeights(layoutMobile), [layoutMobile])
   const zBaseRef = useRef(zIndices.base)
   zBaseRef.current = zIndices.base
 
@@ -377,6 +381,7 @@ export function StickerProvider({ children }: { children: ReactNode }) {
   const value = useMemo(
     () => ({
       zIndices,
+      stickerHeights: heights,
       deck,
       deckReady,
       placed,
@@ -392,6 +397,7 @@ export function StickerProvider({ children }: { children: ReactNode }) {
     }),
     [
       zIndices,
+      heights,
       deck,
       deckReady,
       placed,

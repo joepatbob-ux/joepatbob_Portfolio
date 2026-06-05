@@ -862,9 +862,13 @@
 }
 
 .sticker-pile-portal {
+  position: fixed;
+  left: 0;
+  top: 0;
   z-index: var(--z-sticker-pile);
   pointer-events: auto;
   touch-action: none;
+  will-change: transform;
 }
 
 .sticker-pile-portal--pile-drag {
@@ -940,6 +944,19 @@
   color: var(--color-muted);
   margin: 0;
   padding: 48px 0;
+}
+
+@media (max-width: 767px) {
+  .sticker-pile__card {
+    transition: opacity 0.18s ease;
+  }
+
+  .sticker-pile:has(.sticker-pile__grab:hover) .sticker-pile__card--top {
+    transform: translate(
+      calc(-50% + var(--stack-x, 0px)),
+      calc(-50% + var(--stack-y, 0px) - 4px)
+    );
+  }
 }
 
 .sticker-layer {
