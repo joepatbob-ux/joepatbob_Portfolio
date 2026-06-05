@@ -11,7 +11,8 @@ import {
   writeStickerPickData,
   type StickerArtMetrics,
 } from '@/lib/stickerPickBounds'
-import { chapterRevealForId } from '@/lib/chapterSlideshow'
+import { chapterRevealForId, activeSlideIdPublished } from '@/lib/chapterSlideshow'
+import { useLayoutTopBarNav } from '@/lib/hooks/useLayoutTopBarNav'
 import {
   pointerAngleDeg,
   roundStickerRotation,
@@ -59,6 +60,10 @@ export function PlacedStickerControl({ sticker }: Props) {
     beginDragPlaced,
   } = useStickers()
   const { activeSlideId } = useChapterNav()
+  const topBarNav = useLayoutTopBarNav()
+  const effectiveActiveSlideId = topBarNav
+    ? (activeSlideId ?? activeSlideIdPublished())
+    : activeSlideId
 
   const selected = selectedInstanceId === sticker.instanceId
   const isDragging = draggingInstanceId === sticker.instanceId
@@ -212,11 +217,11 @@ export function PlacedStickerControl({ sticker }: Props) {
     if (reveal < 0.12) {
       selectSticker(null)
     }
-  }, [activeSlideId, selected, sticker.chapterId, selectSticker])
+  }, [effectiveActiveSlideId, selected, sticker.chapterId, selectSticker])
 
   const stickerVisible =
     selected ||
-    (sticker.chapterId ? activeSlideId === sticker.chapterId : true)
+    (sticker.chapterId ? effectiveActiveSlideId === sticker.chapterId : true)
 
   const ring = artLayout
   const scrubberX = ring ? ring.cx : 0

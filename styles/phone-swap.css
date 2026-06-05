@@ -880,10 +880,17 @@
   .hardware-slideshow.mobile-chapter-slot--sensi {
     --phone-viewbox-base-w: 100svw;
     --phone-viewbox-base-h: clamp(300px, 72dvh, 760px);
-    --phone-mobile-bleed: 1.32;
+    --phone-mobile-bleed: 1;
     --phone-swap-width: 1;
     --phone-swap-height: 1;
     --hw-stage-max-w: none;
+  }
+
+  .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__inner,
+  .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__viewport,
+  .portfolio-chapter-slot--fill.hardware-slideshow.mobile-chapter-slot--sensi
+    .portfolio-chapter-panel {
+    overflow: visible;
   }
 
   .hardware-slideshow.mobile-chapter-slot--sensi .phone-swap--mobile-bleed {

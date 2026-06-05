@@ -1235,8 +1235,8 @@ html {
   z-index: auto !important;
 }
 
-/* Viewport snap slideshow — tablet/desktop (Hardware + flow slideshow chapters) */
-@media (min-width: 768px) {
+/* Viewport snap slideshow — desktop only (≥1024); top-bar ≤1023 uses in-flow scroll */
+@media (min-width: 1024px) {
   html {
     scroll-snap-type: y proximity;
     scroll-behavior: auto;
@@ -1277,13 +1277,6 @@ html {
     overflow: hidden;
     z-index: 1;
     will-change: opacity;
-  }
-
-  /* Top-bar nav (≤1023): keep chapter art below frosted rail + safe area */
-  @media (max-width: 1023px) {
-    .portfolio-chapter-slot--fill.hardware-slideshow .portfolio-chapter-panel {
-      padding-top: var(--mobile-content-top-inset);
-    }
   }
 
   .portfolio-chapter-slot--fill.hardware-slideshow

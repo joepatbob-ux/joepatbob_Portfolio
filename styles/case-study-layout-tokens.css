@@ -104,9 +104,10 @@
       clamp(200px, 92vw, var(--cs-mobile-inner-max))
     );
     /* Generous scroll pauses on phone — in-flow chapters, margin-based gaps */
-    --cs-screen-gap: clamp(56px, 14vh, 128px);
-    --cs-section-scroll-gap: clamp(112px, 26vh, 240px);
-    --cs-hero-exit-gap: clamp(28px, 6vh, 56px);
+    --cs-screen-gap: clamp(72px, 20vh, 168px);
+    --cs-section-scroll-gap: clamp(160px, 34vh, 320px);
+    --cs-hero-exit-gap: clamp(40px, 10vh, 80px);
+    --cs-inter-chapter-gap: clamp(120px, 28vh, 280px);
   }
 }
 

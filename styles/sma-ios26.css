@@ -246,6 +246,12 @@
 
 .sma-glass--card {
   border-radius: 24px;
+  overflow: visible;
+}
+
+.sma-glass--card > .sma-glass__blur,
+.sma-glass--card > .sma-glass__fill,
+.sma-glass--card > .sma-glass__edge {
   overflow: hidden;
 }
 
@@ -834,6 +840,7 @@
   justify-content: space-between;
   width: 100%;
   min-height: 104px;
+  overflow: visible;
 }
 
 .sma-setpoint-module__leading {
@@ -842,6 +849,7 @@
   gap: 4px;
   padding: 8px 16px;
   min-width: 0;
+  flex: 1 1 auto;
 }
 
 .sma-setpoint-module__icon {
@@ -867,14 +875,17 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 8px 0;
+  padding: 8px 8px 8px 0;
+  flex-shrink: 0;
+  overflow: visible;
 }
 
 .sma-setpoint-control {
   position: relative;
   width: 112px;
-  height: 53px;
+  min-height: 53px;
   flex-shrink: 0;
+  overflow: visible;
 }
 
 .sma-setpoint-control__zone {
@@ -959,9 +970,9 @@
 
 .sma-setpoint-switcher {
   position: absolute;
-  left: 8px;
+  left: 0;
+  right: 0;
   top: 50%;
-  width: 96px;
   height: 48px;
   transform: translateY(-50%);
   z-index: 2;
@@ -974,6 +985,7 @@
   background: transparent;
   transition: background 0.2s ease;
   pointer-events: none;
+  overflow: visible;
 }
 
 .sma-setpoint-control--editing .sma-setpoint-switcher {
@@ -1105,11 +1117,13 @@
   flex: 1;
   max-width: 352px;
   width: 100%;
+  overflow: visible;
 }
 
 .sma-tab-bar__track .sma-glass__content {
   display: flex;
   width: 100%;
+  overflow: visible;
 }
 
 .sma-tab-bar__buttons {
@@ -1118,6 +1132,7 @@
   flex: 1;
   width: 100%;
   padding: 2px;
+  overflow: visible;
 }
 
 .sma-tab-bar__btn {
