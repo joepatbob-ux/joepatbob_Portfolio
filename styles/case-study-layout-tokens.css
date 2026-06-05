@@ -37,8 +37,6 @@
   --cs-screen-gap: clamp(16px, 3vh, 40px);
   /* Larger pause between portfolio sections on in-flow mobile scroll */
   --cs-section-scroll-gap: clamp(40px, 7vh, 88px);
-
-  /* ── Mobile full-bleed slides (≤767) ──────────────────────────────────── */
   --cs-mobile-inner-max: 440px;
   --cs-mobile-section-gap: clamp(20px, 3vh, 28px);
   --cs-mobile-stage-min-h: min(38dvh, 320px);
@@ -104,6 +102,9 @@
       100%,
       clamp(200px, 92vw, var(--cs-mobile-inner-max))
     );
+    /* Generous scroll pauses on phone — in-flow chapters, margin-based gaps */
+    --cs-screen-gap: clamp(56px, 14vh, 128px);
+    --cs-section-scroll-gap: clamp(112px, 26vh, 240px);
   }
 }
 
