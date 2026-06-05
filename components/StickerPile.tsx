@@ -19,7 +19,6 @@ export function StickerPile() {
   const { reveals, activeSlideId } = useChapterNav()
   const rotationsRef = useRef<Map<string, number>>(new Map())
   const anchorRef = useRef<HTMLDivElement>(null)
-  const portalRef = useRef<HTMLDivElement>(null)
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -70,7 +69,7 @@ export function StickerPile() {
   const pileVisible =
     activeSlideId === CONVICTION_CHAPTER_ID && effectiveReveal > 0.08
 
-  useAnchorPortalFollow(anchorRef, portalRef, mounted && pileVisible)
+  const portalRef = useAnchorPortalFollow(anchorRef, mounted && pileVisible)
 
   deck.forEach((asset) => {
     rotationFor(asset.id)
