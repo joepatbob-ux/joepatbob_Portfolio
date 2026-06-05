@@ -145,9 +145,9 @@
       --mobile-content-bottom-inset: env(safe-area-inset-bottom, 0px);
       --gutter: 24px;
       --z-mobile-chrome: 100;
-      --z-stickers: 92;
-      --z-sticker-pile: 91;
-      --z-sticker-drag: 98;
+      --z-stickers: 104;
+      --z-sticker-pile: 103;
+      --z-sticker-drag: 108;
       --formation-z-bricks: 90;
     }
 
