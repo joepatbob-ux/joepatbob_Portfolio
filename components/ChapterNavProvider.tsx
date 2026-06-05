@@ -2,6 +2,11 @@
 
 import { chapterRevealsChanged } from '@/lib/chapterReveals'
 import {
+  applyChapterPanelScrollStyles,
+  applyPlacedStickerScrollVisibility,
+  resetInFlowChapterPanels,
+} from '@/lib/applyChapterPanelScrollStyles'
+import {
   measureSlideScrollState,
   publishSlideScrollState,
   type SlideNavPhase,
@@ -10,6 +15,7 @@ import { useChapterCopyWheelTrap } from '@/lib/chapterCopyWheel'
 import { waitForChapterSlot } from '@/lib/chapterNav/waitForChapterSlot'
 import { sectionEntryChapterId } from '@/lib/sectionEntryChapter'
 import { flushScrollFrame, scheduleScrollFrame } from '@/lib/scrollFrame'
+import { isTopBarNavViewport } from '@/lib/layout/isTopBarNavViewport'
 import {
   createContext,
   useCallback,
@@ -76,12 +82,22 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
   useChapterCopyWheelTrap()
 
   useEffect(() => {
+    if (isTopBarNavViewport()) {
+      resetInFlowChapterPanels()
+    }
+  }, [])
+
+  useEffect(() => {
     const measureSlides = () => {
       const lockId = busyRef.current ? targetIdRef.current : null
       const state = measureSlideScrollState(phaseRef.current, lockId)
       publishSlideScrollState(state)
 
-      if (state.inHero || phaseRef.current === 'out') {
+      if (phaseRef.current === 'idle') {
+        applyChapterPanelScrollStyles(state.revealMap, state.activeSlideId)
+        applyPlacedStickerScrollVisibility(state.revealMap, state.activeSlideId)
+        revealsRef.current = state.revealMap
+      } else if (state.inHero || phaseRef.current === 'out') {
         if (Object.keys(revealsRef.current).length > 0) {
           revealsRef.current = {}
           setReveals({})
@@ -95,10 +111,11 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
         const best = state.activeSlideId
         if (best && best !== activeRef.current) {
           activeRef.current = best
-          setActiveSlideId(best)
+          if (!isTopBarNavViewport()) {
+            setActiveSlideId(best)
+          }
         }
       }
-
     }
 
     return scheduleScrollFrame(measureSlides)

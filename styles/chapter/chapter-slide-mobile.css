@@ -5,8 +5,8 @@
 @media (max-width: 767px) {
   #hero,
   .portfolio-chapter-slot--fill.hardware-slideshow {
-    scroll-snap-align: start;
-    scroll-snap-stop: always;
+    scroll-snap-align: none;
+    scroll-snap-stop: normal;
   }
 
   .portfolio-chapter-slot--fill.hardware-slideshow {

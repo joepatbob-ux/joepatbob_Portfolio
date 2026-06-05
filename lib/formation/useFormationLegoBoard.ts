@@ -22,7 +22,7 @@ import {
 } from '@/lib/formation/legoBricks'
 import { roundPlacementPx } from '@/lib/formation/pixelNudge'
 import { spritePlacement } from '@/lib/formation/spritePlacement'
-import { scheduleScrollFrameSync } from '@/lib/scrollFrame'
+import { scheduleScrollFrame } from '@/lib/scrollFrame'
 import {
   clientToBoardNative,
   clientToClip,
@@ -116,7 +116,11 @@ function clampPieceToPlate(
   return { ...piece, gx: pin.gx, gy: pin.gy, level }
 }
 
-export function useFormationLegoBoard() {
+export function useFormationLegoBoard(options?: {
+  /** Desktop portal bricks track viewport position on scroll. */
+  syncBoardRectOnScroll?: boolean
+}) {
+  const syncBoardRectOnScroll = options?.syncBoardRectOnScroll ?? true
   const stageRef = useRef<HTMLDivElement>(null)
   const [boardW, setBoardW] = useState(FORMATION_BOARD_DISPLAY_W)
   const [pieces, setPieces] = useState<FormationPiece[]>(() => {
@@ -327,21 +331,33 @@ export function useFormationLegoBoard() {
 
     const sync = () => {
       const rect = boardEl.getBoundingClientRect()
-      setBoardRect({ left: rect.left, top: rect.top })
+      const left = Math.round(rect.left)
+      const top = Math.round(rect.top)
+      setBoardRect((prev) =>
+        prev.left === left && prev.top === top ? prev : { left, top },
+      )
     }
 
     sync()
     const ro = new ResizeObserver(sync)
     ro.observe(boardEl)
-    const unsubScroll = scheduleScrollFrameSync(sync)
     window.addEventListener('resize', sync)
+
+    if (!syncBoardRectOnScroll) {
+      return () => {
+        ro.disconnect()
+        window.removeEventListener('resize', sync)
+      }
+    }
+
+    const unsubScroll = scheduleScrollFrame(sync)
 
     return () => {
       ro.disconnect()
       unsubScroll()
       window.removeEventListener('resize', sync)
     }
-  }, [boardW, plate.panX, plate.panY])
+  }, [boardW, plate.panX, plate.panY, syncBoardRectOnScroll])
 
   const rotateActivePiece = useCallback(
     (next: BrickPivot) => {

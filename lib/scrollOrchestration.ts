@@ -7,7 +7,7 @@ import {
 } from '@/lib/chapterSlideshow'
 import { FLOW_CHAPTER_SLOT_SELECTOR } from '@/lib/chapterFlow'
 import { shouldSuppressChapterReveal } from '@/lib/heroScroll'
-import { LAYOUT_MQ } from '@/lib/layout/breakpoints'
+import { isTopBarNavViewport } from '@/lib/layout/isTopBarNavViewport'
 
 export type SlideNavPhase = 'idle' | 'out' | 'in'
 
@@ -15,11 +15,6 @@ export type SlideScrollState = {
   revealMap: Record<string, number>
   activeSlideId: string | null
   inHero: boolean
-}
-
-function isMobileViewport(): boolean {
-  if (typeof window === 'undefined') return false
-  return window.matchMedia(LAYOUT_MQ.mobile).matches
 }
 
 function computeFlowChapterRevealMap(): Record<string, number> {
@@ -39,8 +34,8 @@ function computeFlowChapterRevealMap(): Record<string, number> {
   return map
 }
 
-/** Phone: everything in-flow; no viewport snap crossfade. */
-function computeMobileRevealMap(): Record<string, number> {
+/** Phone + tablet top-bar nav: in-flow chapters, binary on/off (no crossfade jank). */
+function computeInFlowRevealMap(): Record<string, number> {
   const map: Record<string, number> = {}
   const vh = window.innerHeight
 
@@ -80,8 +75,8 @@ export function measureSlideScrollState(
     return { revealMap: {}, activeSlideId: null, inHero: true }
   }
 
-  if (isMobileViewport()) {
-    const revealMap = computeMobileRevealMap()
+  if (isTopBarNavViewport()) {
+    const revealMap = computeInFlowRevealMap()
     return {
       revealMap,
       activeSlideId: pickActiveSlideId(revealMap),

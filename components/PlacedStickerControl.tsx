@@ -11,6 +11,7 @@ import {
   writeStickerPickData,
   type StickerArtMetrics,
 } from '@/lib/stickerPickBounds'
+import { chapterRevealForId } from '@/lib/chapterSlideshow'
 import {
   pointerAngleDeg,
   roundStickerRotation,
@@ -57,7 +58,7 @@ export function PlacedStickerControl({ sticker }: Props) {
     updatePlaced,
     beginDragPlaced,
   } = useStickers()
-  const { reveals, activeSlideId } = useChapterNav()
+  const { activeSlideId } = useChapterNav()
 
   const selected = selectedInstanceId === sticker.instanceId
   const isDragging = draggingInstanceId === sticker.instanceId
@@ -207,20 +208,15 @@ export function PlacedStickerControl({ sticker }: Props) {
 
   useEffect(() => {
     if (!selected || !sticker.chapterId) return
-    const reveal = reveals[sticker.chapterId]
-    if (reveal !== undefined && reveal < 0.12) {
+    const reveal = chapterRevealForId(sticker.chapterId)
+    if (reveal < 0.12) {
       selectSticker(null)
     }
-  }, [reveals, selected, sticker.chapterId, selectSticker])
+  }, [activeSlideId, selected, sticker.chapterId, selectSticker])
 
-  const rawChapterReveal = sticker.chapterId
-    ? (reveals[sticker.chapterId] ?? 0)
-    : 1
-  const chapterReveal =
-    sticker.chapterId && activeSlideId === sticker.chapterId
-      ? Math.max(rawChapterReveal, 1)
-      : rawChapterReveal
-  const stickerVisible = chapterReveal > 0.08 || selected
+  const stickerVisible =
+    selected ||
+    (sticker.chapterId ? activeSlideId === sticker.chapterId : true)
 
   const ring = artLayout
   const scrubberX = ring ? ring.cx : 0
@@ -259,8 +255,10 @@ export function PlacedStickerControl({ sticker }: Props) {
         zIndex: sticker.zIndex,
         left: sticker.x,
         top: sticker.y,
-        opacity: stickerVisible && !isDragging ? 1 : 0,
-        visibility: stickerVisible && !isDragging ? 'visible' : 'hidden',
+        opacity:
+          isDragging ? 0 : selected || !sticker.chapterId ? 1 : undefined,
+        visibility:
+          isDragging ? 'hidden' : selected || !sticker.chapterId ? 'visible' : undefined,
       }}
     >
       <div

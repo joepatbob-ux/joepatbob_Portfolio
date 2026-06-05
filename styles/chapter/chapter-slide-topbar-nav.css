@@ -1,0 +1,78 @@
+/* Phone + tablet top-bar nav (≤1023): in-flow scroll — no fixed panel stack / crossfade.
+ * Loaded last in styles/chapter/index.css to override globals slideshow fixed panels.
+ */
+
+@media (max-width: 1023px) {
+  html {
+    scroll-snap-type: none !important;
+  }
+
+  #hero,
+  .portfolio-chapter-slot--fill.hardware-slideshow,
+  .case-study-flow-overview.portfolio-chapter-slot--fill {
+    scroll-snap-align: none !important;
+    scroll-snap-stop: normal !important;
+    height: auto !important;
+    min-height: calc(100dvh + var(--cs-screen-gap));
+    box-sizing: border-box;
+  }
+
+  .portfolio-chapter-slot--fill.hardware-slideshow .portfolio-chapter-panel {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 100dvh;
+    min-height: 100svh;
+    overflow: visible !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    z-index: auto !important;
+    will-change: auto !important;
+    pointer-events: auto !important;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: stretch;
+    box-sizing: border-box;
+    padding-top: var(--mobile-content-top-inset);
+    padding-bottom: var(--mobile-content-bottom-inset);
+  }
+
+  .hardware-slideshow .chapter-slide__viewport {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none !important;
+    overflow: visible !important;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .hardware-slideshow .chapter-slide__inner {
+    height: auto !important;
+    max-height: none !important;
+    flex: 1 1 auto;
+    min-height: 0;
+    box-sizing: border-box;
+  }
+
+  .hardware-slideshow .chapter-slide__copy {
+    min-height: 0;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .hardware-slideshow .chapter-copy-scroller {
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .hero-pin {
+    will-change: auto;
+  }
+}

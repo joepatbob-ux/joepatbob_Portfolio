@@ -128,7 +128,6 @@ export function applyHeroPinFade(
   el.style.opacity = String(reveal)
   el.style.filter = blur > 0 ? `blur(${blur}px)` : 'none'
   el.style.pointerEvents = reveal < 0.02 ? 'none' : ''
-  el.style.visibility = reveal < 0.02 ? 'hidden' : ''
 }
 
 export function resetHeroPinFade(el: HTMLElement | null): void {
@@ -136,7 +135,6 @@ export function resetHeroPinFade(el: HTMLElement | null): void {
   el.style.opacity = '1'
   el.style.filter = 'none'
   el.style.pointerEvents = ''
-  el.style.visibility = ''
 }
 
 const HERO_NAME_FADE_VH = 0.62

@@ -2,7 +2,9 @@
 
 import { CHAPTER_NAV_FADE_MS, useChapterNav } from '@/components/ChapterNavProvider'
 import { isFixedSlideshowFlowChapter, isFlowChapterId } from '@/lib/chapterFlow'
+import { chapterRevealForId } from '@/lib/chapterSlideshow'
 import { useLayoutMobile } from '@/lib/hooks/useLayoutMobile'
+import { useLayoutTopBarNav } from '@/lib/hooks/useLayoutTopBarNav'
 import {
   MOBILE_PANEL_Z_ENTERING,
   panelZFromScrollReveal,
@@ -14,12 +16,35 @@ const SCROLL_EASE = 'cubic-bezier(0.16, 1, 0.3, 1)'
 export function useChapterPanelOpacity(chapterId: string) {
   const { phase, targetId, activeSlideId, reveals } = useChapterNav()
   const layoutMobile = useLayoutMobile()
+  const topBarNav = useLayoutTopBarNav()
 
-  const scrollReveal = reveals[chapterId] ?? 0
+  const scrollReveal =
+    phase === 'idle'
+      ? chapterRevealForId(chapterId)
+      : (reveals[chapterId] ?? 0)
   const flowChapter = isFlowChapterId(chapterId)
   const fixedSlideshowStacking =
     isFixedSlideshowFlowChapter(chapterId) && !layoutMobile
 
+  if (phase === 'idle' && topBarNav) {
+    return {
+      opacity: 1,
+      isActive: true,
+      style: undefined,
+    }
+  }
+
+  if (phase === 'idle') {
+    const isActive =
+      activeSlideId === chapterId || scrollReveal > 0.25
+    return {
+      opacity: scrollReveal,
+      isActive,
+      style: undefined,
+    }
+  }
+
+  // Nav transition phases — React owns panel styles.
   if (phase === 'out') {
     return {
       opacity: 0,
