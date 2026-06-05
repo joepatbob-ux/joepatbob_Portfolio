@@ -84,9 +84,10 @@
     --font-body:  "Alte Haas Grotesk", sans-serif;
     /* Stickers above page + sidebar; mobile drawer stays on top */
     /* Stickers above fixed chapter panels (panels stay z-index 1–3) */
-    --z-stickers:           105;
-    --z-sticker-pile:       104;
-    --z-sticker-drag:       200;
+    /* Above chapter panels (≤100), nav transition (110), and learn-more sheet (112) */
+    --z-stickers:           116;
+    --z-sticker-pile:       115;
+    --z-sticker-drag:       220;
     --z-mobile-nav-backdrop: 108;
     --z-mobile-drawer:      110;
     --z-mobile-learn-more:  112;
@@ -149,9 +150,9 @@
       --gutter: 24px;
       /* Portaled interactives + panels stay under the fixed top rail */
       --z-mobile-chrome: 100;
-      --z-stickers: 90;
-      --z-sticker-pile: 89;
-      --z-sticker-drag: 96;
+      --z-stickers: 92;
+      --z-sticker-pile: 91;
+      --z-sticker-drag: 98;
       --formation-z-bricks: 90;
     }
 

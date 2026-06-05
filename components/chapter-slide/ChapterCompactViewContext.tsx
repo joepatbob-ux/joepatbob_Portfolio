@@ -1,5 +1,10 @@
 'use client'
 
+/**
+ * Compact-band (768–1199) More/Less expand state.
+ * Provider is a no-op outside compact mode — see ChapterSlideShell.
+ */
+
 import {
   createContext,
   useCallback,

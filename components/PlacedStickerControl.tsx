@@ -57,7 +57,7 @@ export function PlacedStickerControl({ sticker }: Props) {
     updatePlaced,
     beginDragPlaced,
   } = useStickers()
-  const { reveals } = useChapterNav()
+  const { reveals, activeSlideId } = useChapterNav()
 
   const selected = selectedInstanceId === sticker.instanceId
   const isDragging = draggingInstanceId === sticker.instanceId
@@ -164,6 +164,7 @@ export function PlacedStickerControl({ sticker }: Props) {
 
     e.preventDefault()
     e.stopPropagation()
+    e.currentTarget.setPointerCapture(e.pointerId)
 
     const wasSelected = selected
     if (!wasSelected) {
@@ -212,10 +213,14 @@ export function PlacedStickerControl({ sticker }: Props) {
     }
   }, [reveals, selected, sticker.chapterId, selectSticker])
 
-  const chapterReveal = sticker.chapterId
+  const rawChapterReveal = sticker.chapterId
     ? (reveals[sticker.chapterId] ?? 0)
     : 1
-  const stickerVisible = chapterReveal > 0.08
+  const chapterReveal =
+    sticker.chapterId && activeSlideId === sticker.chapterId
+      ? Math.max(rawChapterReveal, 1)
+      : rawChapterReveal
+  const stickerVisible = chapterReveal > 0.08 || selected
 
   const ring = artLayout
   const scrubberX = ring ? ring.cx : 0

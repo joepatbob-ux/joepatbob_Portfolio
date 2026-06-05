@@ -32,9 +32,9 @@ import {
 } from '@/lib/stickers'
 
 /** Desktop defaults — on phone use `useStickers().zIndices` (matches globals.css). */
-export const STICKER_Z_BASE = 105
+export const STICKER_Z_BASE = 116
 export const STICKER_Z_PILE = STICKER_Z_BASE - 1
-export const STICKER_Z_DRAG = STICKER_Z_BASE + 95
+export const STICKER_Z_DRAG = STICKER_Z_BASE + 104
 
 export interface PlacedSticker {
   instanceId: string
