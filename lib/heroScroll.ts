@@ -25,23 +25,44 @@ export function resetTopBarHeroScrollHysteresis(): void {
   topBarHeroScrollCommitted = null
 }
 
-/** Wider band than desktop hero zone — avoids rail ↔ hero flip on scroll reversal. */
+/** Phone + tablet top-bar nav: stick until hero section has mostly scrolled away. */
 export function isTopBarInHeroScrollZone(): boolean {
   if (typeof window === 'undefined') return true
 
-  const y = window.scrollY
+  const hero = document.getElementById('hero')
   const vh = window.innerHeight
-  const leaveAt = vh * 0.48
-  const enterAt = vh * 0.36
+
+  if (!hero) {
+    const y = window.scrollY
+    const leaveAt = vh * 0.65
+    const enterAt = vh * 0.45
+
+    if (topBarHeroScrollCommitted === null) {
+      topBarHeroScrollCommitted = y < leaveAt
+      return topBarHeroScrollCommitted
+    }
+
+    if (topBarHeroScrollCommitted) {
+      if (y >= leaveAt) topBarHeroScrollCommitted = false
+    } else if (y <= enterAt) {
+      topBarHeroScrollCommitted = true
+    }
+
+    return topBarHeroScrollCommitted
+  }
+
+  const bottom = hero.getBoundingClientRect().bottom
+  const leaveAt = 32
+  const enterAt = vh * 0.92
 
   if (topBarHeroScrollCommitted === null) {
-    topBarHeroScrollCommitted = y < leaveAt
+    topBarHeroScrollCommitted = bottom > leaveAt
     return topBarHeroScrollCommitted
   }
 
   if (topBarHeroScrollCommitted) {
-    if (y >= leaveAt) topBarHeroScrollCommitted = false
-  } else if (y <= enterAt) {
+    if (bottom <= leaveAt) topBarHeroScrollCommitted = false
+  } else if (bottom >= enterAt) {
     topBarHeroScrollCommitted = true
   }
 

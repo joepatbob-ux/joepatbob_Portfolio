@@ -36,8 +36,8 @@
   pointer-events: none;
 }
 
-/* Full-viewport pin under transparent sidebar (tablet + desktop) */
-@media (min-width: 768px) {
+/* Full-viewport pin under transparent sidebar (desktop only) */
+@media (min-width: 1024px) {
   html.in-hero-scroll #hero .hero-pin {
     position: fixed;
     top: 0;
@@ -94,7 +94,10 @@
 
   .hero-media {
     position: absolute;
-    inset: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     width: 100%;
     height: 100%;
     max-width: none;
@@ -107,7 +110,7 @@
     max-width: none;
     max-height: none;
     object-fit: cover;
-    object-position: center center;
+    object-position: center bottom;
   }
 
   .hero-mobile-scrim {
