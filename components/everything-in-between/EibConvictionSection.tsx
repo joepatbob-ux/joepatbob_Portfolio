@@ -1,10 +1,9 @@
 'use client'
 
+import { ConceptQuoteBowl } from '@/components/everything-in-between/ConceptQuoteBowl'
 import { FlowChapterSlideLayout } from '@/components/chapter-slide/FlowChapterSlideLayout'
-import { StickerPile } from '@/components/StickerPile'
 import { ChapterCopyReveal } from '@/components/chapter-slide/ChapterCopyReveal'
 import {
-  EibPrinciplesList,
   EibSubSectionIntro,
   splitParagraphs,
 } from '@/components/everything-in-between/EibSectionParts'
@@ -20,8 +19,8 @@ export function EibConvictionSection() {
     <FlowChapterSlideLayout
       chapterId={chapterId}
       fillViewport
-      className="mobile-chapter-slot eib-section-slot eib-section-slot--conviction"
-      stage={<StickerPile />}
+      className="mobile-chapter-slot eib-section-slot eib-section-slot--conviction flow-chapter-slide--conviction"
+      stage={<ConceptQuoteBowl answers={EIB_CONVICTION.answers} />}
       copy={
         <ChapterCopyReveal headline={EIB_CONVICTION.headline}>
           <EibSubSectionIntro>
@@ -29,7 +28,6 @@ export function EibConvictionSection() {
               <p key={i}>{p}</p>
             ))}
           </EibSubSectionIntro>
-          <EibPrinciplesList items={EIB_CONVICTION.principles} />
         </ChapterCopyReveal>
       }
     />

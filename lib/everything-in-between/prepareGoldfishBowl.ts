@@ -52,6 +52,32 @@ export type PreparedGoldfishBowl = {
   pileTopY: number
 }
 
+function measureBowlFloor(
+  bowl: THREE.Object3D,
+  innerRadius: number,
+): number | null {
+  const floorYs: number[] = []
+  const v = new THREE.Vector3()
+
+  bowl.traverse((child) => {
+    if (!(child instanceof THREE.Mesh)) return
+    const pos = child.geometry.attributes.position as THREE.BufferAttribute
+    if (!pos) return
+
+    for (let i = 0; i < pos.count; i += 1) {
+      v.fromBufferAttribute(pos, i)
+      child.localToWorld(v)
+      const r = Math.hypot(v.x, v.z)
+      if (r > innerRadius * 0.34) continue
+      floorYs.push(v.y)
+    }
+  })
+
+  if (floorYs.length < 6) return null
+  floorYs.sort((a, b) => a - b)
+  return floorYs[Math.floor(floorYs.length * 0.06)]
+}
+
 function measureBowlCavity(
   bowl: THREE.Object3D,
   innerRadius: number,
@@ -112,9 +138,11 @@ export function prepareGoldfishBowl(
 
   const innerRadius = radius * 0.52
   const cavity = measureBowlCavity(bowl, innerRadius)
+  const floorY = measureBowlFloor(bowl, innerRadius)
   const pileBottomY =
+    floorY ??
     cavity?.bottom ??
-    fitted.min.y + fittedSize.y * 0.14
+    fitted.min.y + fittedSize.y * 0.05
   const pileTopY =
     cavity?.top ??
     fitted.max.y - fittedSize.y * 0.08

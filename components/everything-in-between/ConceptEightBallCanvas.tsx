@@ -15,8 +15,8 @@ import * as THREE from 'three'
 const ROLL_MS = 960
 /** Idle: number 8 faces the camera (+Z). */
 const IDLE_ROT_X = 0
-/** Reveal: tip so the glass circle faces the camera. */
-const REVEAL_TILT_X = Math.PI / 2
+/** Reveal: tip backward so the glass circle faces the camera. */
+const REVEAL_TILT_X = -Math.PI / 2
 const DIE_FLOAT_MS = 800
 
 export type ConceptEightBallPhase = 'idle' | 'shaking' | 'revealed'

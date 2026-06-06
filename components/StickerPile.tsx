@@ -13,7 +13,7 @@ import { pileStackOffset, randomPileRotation } from '@/lib/stickers'
 import { scheduleScrollFrame } from '@/lib/scrollFrame'
 import { useAnchorPortalFollow } from '@/lib/useAnchorPortalFollow'
 
-const CONVICTION_CHAPTER_ID = eibChapterId('conviction')
+const PRACTICE_CHAPTER_ID = eibChapterId('practice')
 
 export function StickerPile() {
   const { deck, deckReady, activeDrag, beginDragFromPile, zIndices, stickerHeights } =
@@ -40,7 +40,7 @@ export function StickerPile() {
       const active = topBarNav
         ? activeSlideIdPublished()
         : activeSlideId
-      const vis = active === CONVICTION_CHAPTER_ID
+      const vis = active === PRACTICE_CHAPTER_ID
       if (vis !== pileVisibleRef.current) {
         pileVisibleRef.current = vis
         setPileVisible(vis)

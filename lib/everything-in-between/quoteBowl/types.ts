@@ -1,5 +1,6 @@
 import type { BowlGlassTuneSettings } from '@/lib/everything-in-between/bowlGlassTune'
 import type { QuoteSlipLayout } from '@/lib/everything-in-between/quotePaper'
+import type { MutableRefObject, RefObject } from 'react'
 import type * as THREE from 'three'
 
 export type QuoteBowlStep = 'pick' | 'revealed'
@@ -13,6 +14,9 @@ export type QuoteBowlCanvasProps = {
   glassTune: BowlGlassTuneSettings
   onPickSlip: (layout: QuoteSlipLayout) => void
   onReset: () => void
+  pickActionRef?: MutableRefObject<(() => void) | null>
+  debugOutlines?: boolean
+  stackRef?: RefObject<HTMLElement | null>
 }
 
 export type SlipHomeTransform = {

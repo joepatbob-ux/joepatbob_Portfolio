@@ -9,46 +9,55 @@ type Props = {
 }
 
 export function QuoteBowlSceneLighting({ darkSurface }: Props) {
-  const { environment, darkSurface: dark } = QUOTE_BOWL
-  const env = darkSurface ? dark.environment : environment
-  const lights = darkSurface ? dark.lighting : null
+  const { environment, lighting } = darkSurface
+    ? QUOTE_BOWL.darkSurface
+    : QUOTE_BOWL.lightSurface
+  const { shadows } = QUOTE_BOWL
+  const shadowHalf = shadows.camera.size
 
   return (
     <>
       <QuoteBowlCameraRig />
-      <ambientLight intensity={lights?.ambient ?? 0.48} />
+      <ambientLight intensity={lighting.ambient} />
       <directionalLight
-        position={
-          lights?.key.position ?? ([3.5, 6, 4.5] as [number, number, number])
-        }
-        intensity={lights?.key.intensity ?? 0.82}
+        position={[...lighting.key.position]}
+        intensity={lighting.key.intensity}
+        castShadow
+        shadow-mapSize-width={shadows.mapSize}
+        shadow-mapSize-height={shadows.mapSize}
+        shadow-camera-near={shadows.camera.near}
+        shadow-camera-far={shadows.camera.far}
+        shadow-camera-left={-shadowHalf}
+        shadow-camera-right={shadowHalf}
+        shadow-camera-top={shadowHalf}
+        shadow-camera-bottom={-shadowHalf}
+        shadow-bias={shadows.bias}
+        shadow-normalBias={shadows.normalBias}
       />
       <directionalLight
-        position={
-          lights?.fill.position ?? ([-3.5, 2.5, -2] as [number, number, number])
-        }
-        intensity={lights?.fill.intensity ?? 0.24}
+        position={[...lighting.fill.position]}
+        intensity={lighting.fill.intensity}
       />
-      {lights?.rim ? (
+      {'rim' in lighting && lighting.rim ? (
         <pointLight
-          position={[...lights.rim.position]}
-          intensity={lights.rim.intensity}
-          color={lights.rim.color}
+          position={[...lighting.rim.position]}
+          intensity={lighting.rim.intensity}
+          color={lighting.rim.color}
           distance={14}
           decay={2}
         />
       ) : null}
       <hemisphereLight
-        args={
-          darkSurface
-            ? [lights!.hemisphere.sky, lights!.hemisphere.ground, lights!.hemisphere.intensity]
-            : ['#faf6eb', '#1a1a1a', 0.22]
-        }
+        args={[
+          lighting.hemisphere.sky,
+          lighting.hemisphere.ground,
+          lighting.hemisphere.intensity,
+        ]}
       />
       <Environment
-        preset={env.preset}
-        environmentIntensity={env.intensity}
-        resolution={env.resolution}
+        preset={environment.preset}
+        environmentIntensity={environment.intensity}
+        resolution={environment.resolution}
       />
     </>
   )

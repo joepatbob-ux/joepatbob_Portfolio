@@ -109,10 +109,9 @@
   filter: none;
 }
 
-/* All bricks — viewport-fixed above sidebar, never clipped by chapter panel */
-.formation-lego__bricks-portal {
+/* Desktop slideshow — base + bricks escape crossfading chapter panel opacity */
+.formation-lego__board-portal {
   position: fixed;
-  inset: 0;
   margin: 0;
   padding: 0;
   pointer-events: none;
@@ -120,8 +119,13 @@
   overflow: visible;
 }
 
-.formation-lego__bricks-portal .formation-lego__block {
+.formation-lego__board-portal .formation-lego__board {
   pointer-events: auto;
+}
+
+.formation-lego__board--anchor {
+  visibility: hidden;
+  pointer-events: none;
 }
 
 /* Touch-width layouts: allow page scroll until drag starts (threshold in JS). */
@@ -138,7 +142,7 @@
     touch-action: none;
   }
 
-  .formation-lego__bricks-portal {
+  .formation-lego__board-portal {
     touch-action: auto;
   }
 }

@@ -9,6 +9,8 @@ export type PreparedPaperCrumpled = {
   material: THREE.MeshStandardMaterial
   /** Normalized mesh bounding-sphere radius — use for matching physics colliders. */
   radius: number
+  /** Distance from mesh origin down to the lowest vertex — use for floor placement. */
+  restOffsetY: number
 }
 
 function extractMesh(root: THREE.Object3D): THREE.Mesh | null {
@@ -63,6 +65,7 @@ export function preparePaperCrumpled(raw: THREE.Object3D): PreparedPaperCrumpled
       geometry: new THREE.BoxGeometry(0.08, 0.04, 0.08),
       material: new THREE.MeshStandardMaterial({ color: '#faf6eb', roughness: 0.92 }),
       radius: 0.05,
+      restOffsetY: 0.02,
     }
   }
 
@@ -81,10 +84,15 @@ export function preparePaperCrumpled(raw: THREE.Object3D): PreparedPaperCrumpled
   const geometry = mesh.geometry.clone()
   geometry.applyMatrix4(mesh.matrixWorld)
   geometry.computeBoundingSphere()
+  geometry.computeBoundingBox()
+  const restOffsetY = geometry.boundingBox
+    ? Math.max(-geometry.boundingBox.min.y, 0.001)
+    : geometry.boundingSphere?.radius ?? PAPER_TARGET * 0.5
 
   return {
     geometry,
     material,
     radius: geometry.boundingSphere?.radius ?? PAPER_TARGET * 0.5,
+    restOffsetY,
   }
 }
