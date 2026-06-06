@@ -23,7 +23,7 @@ export function resetInFlowChapterPanels(): void {
 /** Imperative panel opacity/z-index during scroll — desktop fixed slideshow only. */
 export function applyChapterPanelScrollStyles(
   revealMap: Record<string, number>,
-  activeSlideId: string | null,
+  _activeSlideId: string | null,
 ): void {
   if (isTopBarNavViewport()) return
 
@@ -46,12 +46,8 @@ export function applyChapterPanelScrollStyles(
 
     if (flowChapter) {
       if (fixedSlideshowStacking) {
-        let reveal = scrollReveal
-        let isActive = scrollReveal > 0.5
-        if (activeSlideId === id) {
-          reveal = Math.max(reveal, 1)
-          isActive = true
-        }
+        const reveal = scrollReveal
+        const isActive = scrollReveal > 0.5
         opacity = reveal
         zIndex = panelZFromScrollReveal(reveal, false)
         pointerEvents = isActive ? 'auto' : 'none'
@@ -63,8 +59,7 @@ export function applyChapterPanelScrollStyles(
       }
     } else {
       const reveal = scrollReveal
-      const isActive =
-        activeSlideId === id ? scrollReveal > 0.25 : scrollReveal > 0.5
+      const isActive = scrollReveal > 0.5
       opacity = reveal
       zIndex = panelZFromScrollReveal(reveal, layoutMobile)
       pointerEvents = isActive ? 'auto' : 'none'
@@ -97,9 +92,7 @@ export function applyPlacedStickerScrollVisibility(
     if (topBarNav) {
       visible = activeSlideId === chapterId
     } else {
-      const raw = revealMap[chapterId] ?? 0
-      const reveal =
-        activeSlideId === chapterId ? Math.max(raw, 1) : raw
+      const reveal = revealMap[chapterId] ?? 0
       visible = reveal > CHAPTER_STICKER_SCROLL_VISIBILITY
     }
 

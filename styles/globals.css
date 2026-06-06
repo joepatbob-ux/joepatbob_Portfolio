@@ -1293,6 +1293,9 @@ html {
     overflow: hidden;
     z-index: 1;
     will-change: opacity;
+    /* Hidden until scroll orchestration sets reveal — prevents last slide (Practice) stacking on top */
+    opacity: 0;
+    pointer-events: none;
   }
 
   .portfolio-chapter-slot--fill.hardware-slideshow
@@ -1412,6 +1415,7 @@ html {
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior-y: contain;
+  overflow-anchor: none;
   -webkit-overflow-scrolling: touch;
   scrollbar-gutter: stable;
   outline: none;

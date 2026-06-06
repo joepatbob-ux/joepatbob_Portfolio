@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, type ReactNode } from 'react'
+import { useEffect, useLayoutEffect, useRef, type ReactNode } from 'react'
 
 interface Props {
   /** When true, reset scroll position (becomes the snap-active slide). */
@@ -16,11 +16,27 @@ export function ChapterCopyScroller({
   children,
 }: Props) {
   const ref = useRef<HTMLDivElement>(null)
+  const wasActiveRef = useRef(false)
+
+  useLayoutEffect(() => {
+    const el = ref.current
+    if (!el) return
+
+    if (active && !wasActiveRef.current) {
+      el.scrollTop = 0
+    }
+    wasActiveRef.current = active
+  }, [active])
 
   useEffect(() => {
     if (!active) return
     const el = ref.current
-    if (el) el.scrollTop = 0
+    if (!el) return
+    el.scrollTop = 0
+    const raf = requestAnimationFrame(() => {
+      if (ref.current) ref.current.scrollTop = 0
+    })
+    return () => cancelAnimationFrame(raf)
   }, [active])
 
   return (
@@ -29,6 +45,7 @@ export function ChapterCopyScroller({
       className={['chapter-copy-scroller', className].filter(Boolean).join(' ')}
       tabIndex={-1}
       aria-label="Chapter text"
+      data-copy-scroll-active={active ? 'true' : 'false'}
     >
       {children}
     </div>

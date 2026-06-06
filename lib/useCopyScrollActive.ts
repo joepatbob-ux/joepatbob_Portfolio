@@ -1,18 +1,16 @@
 'use client'
 
 import { useChapterNav } from '@/components/ChapterNavProvider'
-import { isFlowChapterId } from '@/lib/chapterFlow'
-import {
-  activeSlideIdPublished,
-  chapterRevealForId,
-} from '@/lib/chapterSlideshow'
+import { chapterSlotAtScrollY } from '@/lib/chapterSnapScroll'
 
+/** True when this chapter's copy column should receive wheel + reset to top on entry. */
 export function useCopyScrollActive(chapterId: string): boolean {
-  const { activeSlideId } = useChapterNav()
-  const active = activeSlideId ?? activeSlideIdPublished()
-  if (active === chapterId) return true
-  if (isFlowChapterId(chapterId) && chapterRevealForId(chapterId) >= 1) {
-    return true
+  const { activeSlideId, phase, targetId } = useChapterNav()
+
+  if (phase === 'in' || phase === 'out') {
+    return targetId === chapterId || activeSlideId === chapterId
   }
-  return false
+
+  const slot = chapterSlotAtScrollY()
+  return slot?.dataset.chapterId === chapterId
 }

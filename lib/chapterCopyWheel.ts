@@ -1,5 +1,8 @@
 import { useEffect } from 'react'
-import { activeSlideIdPublished } from '@/lib/chapterSlideshow'
+import {
+  chapterSlotAtScrollY,
+  scrollDocumentToChapterSlot,
+} from '@/lib/chapterSnapScroll'
 import { LAYOUT_MQ } from '@/lib/layout/breakpoints'
 
 const CHAPTER_SLOT_SELECTOR = '.portfolio-chapter-slot[data-chapter-id]'
@@ -48,24 +51,12 @@ function previousChapterSlot(scrollY: number): HTMLElement | null {
 
 function scrollToChapterSlot(slot: HTMLElement): void {
   lastHandoffAt = Date.now()
-  slot.scrollIntoView({ block: 'start', behavior: 'auto' })
+  scrollDocumentToChapterSlot(slot)
 }
 
+/** Copy trap for the chapter at the current document scroll position — not nav highlight. */
 function activeChapterCopyScroller(): HTMLElement | null {
-  const activeId = activeSlideIdPublished()
-  let slot: HTMLElement | null = null
-
-  if (activeId) {
-    slot = document.querySelector<HTMLElement>(
-      `.portfolio-chapter-slot[data-chapter-id="${CSS.escape(activeId)}"]`,
-    )
-  }
-
-  if (!slot) {
-    const slots = chapterSlotsOrdered()
-    slot = slots[activeSlotIndex(slots, window.scrollY)] ?? null
-  }
-
+  const slot = chapterSlotAtScrollY()
   return slot?.querySelector<HTMLElement>(SCROLL_TRAP_SELECTOR) ?? null
 }
 

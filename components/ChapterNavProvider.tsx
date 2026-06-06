@@ -1,17 +1,21 @@
 'use client'
 
 import { chapterRevealsChanged } from '@/lib/chapterReveals'
-import {
-  applyChapterPanelScrollStyles,
-  applyPlacedStickerScrollVisibility,
-  resetInFlowChapterPanels,
-} from '@/lib/applyChapterPanelScrollStyles'
+import { applySlideScrollFromMeasure } from '@/lib/applySlideScrollFromMeasure'
+import { resetInFlowChapterPanels } from '@/lib/applyChapterPanelScrollStyles'
 import {
   measureSlideScrollState,
-  publishSlideScrollState,
   type SlideNavPhase,
 } from '@/lib/scrollOrchestration'
 import { useChapterCopyWheelTrap } from '@/lib/chapterCopyWheel'
+import {
+  resetChapterCopyScrollersAfterSnap,
+  waitForChapterScrollSettle,
+} from '@/lib/chapterCopyScrollReset'
+import {
+  chapterSlotScrollTop,
+  scrollDocumentToChapterSlot,
+} from '@/lib/chapterSnapScroll'
 import { waitForChapterSlot } from '@/lib/chapterNav/waitForChapterSlot'
 import { sectionEntryChapterId } from '@/lib/sectionEntryChapter'
 import { flushScrollFrame, scheduleScrollFrame } from '@/lib/scrollFrame'
@@ -64,6 +68,7 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
   const [activeSlideId, setActiveSlideId] = useState<string | null>(null)
   const [reveals, setReveals] = useState<Record<string, number>>({})
   const busyRef = useRef(false)
+  const navGuardRef = useRef<{ chapterId: string; until: number } | null>(null)
   const activeRef = useRef<string | null>(null)
   const targetIdRef = useRef<string | null>(null)
   const revealsRef = useRef<Record<string, number>>({})
@@ -91,10 +96,6 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const applyScrollState = (state: ReturnType<typeof measureSlideScrollState>) => {
       if (phaseRef.current === 'idle') {
-        if (!isTopBarNavViewport()) {
-          applyChapterPanelScrollStyles(state.revealMap, state.activeSlideId)
-        }
-        applyPlacedStickerScrollVisibility(state.revealMap, state.activeSlideId)
         if (
           isTopBarNavViewport() &&
           chapterRevealsChanged(revealsRef.current, state.revealMap)
@@ -115,12 +116,34 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
       }
 
       if (!busyRef.current) {
-        const best = state.activeSlideId
+        let best = state.activeSlideId
+        const guard = navGuardRef.current
+        if (guard && performance.now() < guard.until) {
+          const slot = document.querySelector<HTMLElement>(
+            `.portfolio-chapter-slot[data-chapter-id="${CSS.escape(guard.chapterId)}"]`,
+          )
+          if (
+            slot &&
+            Math.abs(window.scrollY - chapterSlotScrollTop(slot)) <= 24
+          ) {
+            best = guard.chapterId
+          }
+        }
+
         if (best !== activeRef.current) {
           activeRef.current = best
           setActiveSlideId(best)
         }
       }
+    }
+
+    const measureAndApplySlides = () => {
+      const state = applySlideScrollFromMeasure(
+        phaseRef.current,
+        busyRef.current ? targetIdRef.current : null,
+        busyRef.current ? null : navGuardRef.current,
+      )
+      applyScrollState(state)
     }
 
     if (isTopBarNavViewport()) {
@@ -131,14 +154,9 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
       )
     }
 
-    const measureSlides = () => {
-      const lockId = busyRef.current ? targetIdRef.current : null
-      const state = measureSlideScrollState(phaseRef.current, lockId)
-      publishSlideScrollState(state)
-      applyScrollState(state)
-    }
+    measureAndApplySlides()
 
-    return scheduleScrollFrame(measureSlides)
+    return scheduleScrollFrame(measureAndApplySlides)
   }, [])
 
   const runNavigate = useCallback(
@@ -173,7 +191,10 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
       setPhase('out')
       await waitForPaint()
 
-      target.scrollIntoView({ behavior: 'auto', block: 'start' })
+      scrollDocumentToChapterSlot(target)
+      await waitForChapterScrollSettle(target)
+      resetChapterCopyScrollersAfterSnap()
+      applySlideScrollFromMeasure('in', chapterId, null)
       flushScrollFrame()
 
       setPhase('in')
@@ -181,7 +202,12 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
 
       setPhase('idle')
       setTargetId(null)
+      navGuardRef.current = {
+        chapterId,
+        until: performance.now() + 720,
+      }
       busyRef.current = false
+      applySlideScrollFromMeasure('idle', null, navGuardRef.current)
       flushScrollFrame()
     },
     [],

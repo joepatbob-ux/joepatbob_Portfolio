@@ -91,42 +91,29 @@
   min-width: 0;
 }
 
-/* Label grids */
+/* Label grids — stacked blocks; label over value inside each cell */
 .mobile-label-grid {
-  display: grid;
-  gap: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   margin: 0 0 24px;
   padding: 0;
-  list-style: none;
-}
-
-.mobile-label-grid--cols-3 {
-  grid-template-columns: 1fr;
-}
-
-.mobile-label-grid--cols-2 {
-  grid-template-columns: 1fr;
-}
-
-@media (min-width: 600px) {
-  .mobile-label-grid--cols-3 {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .mobile-label-grid--cols-2 {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
 }
 
 .mobile-label-grid__cell {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
   margin: 0;
-  padding: 14px 16px;
-  background: var(--cs-grid-cell-bg);
+  padding: 13px 14px;
+  background: var(--cs-overview-meta-bg, var(--cs-grid-cell-bg));
+  border: 1px solid var(--cs-overview-meta-border);
   border-radius: 6px;
 }
 
 .mobile-label-grid__label {
-  margin: 0 0 8px;
+  margin: 0;
   font-family: var(--font-mono);
   font-weight: 700;
   font-size: var(--cs-label-size);
@@ -137,6 +124,7 @@
 
 .mobile-label-grid__text {
   margin: 0;
+  margin-inline-start: 0;
   font-family: var(--font-body);
   font-size: 13px;
   line-height: 1.55;

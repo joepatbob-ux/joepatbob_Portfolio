@@ -6,6 +6,7 @@ import { KelvinScratch } from '@/components/web-apps/KelvinScratch'
 import {
   MobileProse,
   MobileSubStory,
+  MobileSubStoryHeading,
   splitParagraphs,
   WebAppsComplianceCallout,
   WebAppsNdaNote,
@@ -20,7 +21,6 @@ import {
 
 export function WebAppsKelvinChapter() {
   const [s01, s02, s03, s04] = WEB_APPS_KELVIN.subStories
-  const s01Intro = splitParagraphs(s01.intro)
 
   return (
     <FlowChapterSlideLayout
@@ -35,9 +35,13 @@ export function WebAppsKelvinChapter() {
           subhead={WEB_APPS_KELVIN.subhead}
         >
           <MobileSubStory heading={s01.heading}>
-            <MobileProse paragraphs={s01Intro} />
             <WebAppsProductGrid products={s01.products} />
-            <MobileProse paragraphs={splitParagraphs(s01.inertia)} />
+            {s01.inertia.trim() ? (
+              <>
+                <MobileSubStoryHeading heading="Revenue-protecting inertia is a real force." />
+                <MobileProse paragraphs={splitParagraphs(s01.inertia)} />
+              </>
+            ) : null}
           </MobileSubStory>
 
           <MobileSubStory heading={s02.heading}>
@@ -59,7 +63,9 @@ export function WebAppsKelvinChapter() {
           <MobileSubStory heading={s04.heading}>
             {s04.ndaNote ? <WebAppsNdaNote>{s04.ndaNote}</WebAppsNdaNote> : null}
             <MobileProse paragraphs={splitParagraphs(s04.body)} />
-            <WebAppsThesisClose>{s04.thesisClose}</WebAppsThesisClose>
+            {s04.thesisClose ? (
+              <WebAppsThesisClose>{s04.thesisClose}</WebAppsThesisClose>
+            ) : null}
           </MobileSubStory>
         </ChapterCopyReveal>
       }

@@ -55,7 +55,9 @@ export function EibPatentRow({
             {p.number}
             {p.title ? ` — ${p.title}` : ''}
           </dt>
-          <dd className="eib-patent-row__status">({p.status})</dd>
+          <dd className="eib-patent-row__status">
+            {p.status ? `(${p.status})` : null}
+          </dd>
         </div>
       ))}
     </dl>
