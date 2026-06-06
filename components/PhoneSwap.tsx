@@ -39,6 +39,7 @@ import {
 } from '@/lib/phone-swap/phoneMaterialTune'
 import { getStageArtifactTune, STAGE_TUNE_CHANGE } from '@/lib/stage-artifact-tune/settings'
 import { readPhoneLayoutMode } from '@/lib/phone-swap/usePhoneLayoutMode'
+import { useChapterActive } from '@/lib/chapterActiveContext'
 import { usePhoneSwapTouchScroll } from '@/lib/phone-swap/usePhoneSwapTouchScroll'
 import { useLayoutTopBarNav } from '@/lib/hooks/useLayoutTopBarNav'
 import type { PhoneSwapSceneApi } from '@/components/phone-swap/PhoneSwapScene'
@@ -75,6 +76,7 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
   const [gizmoMode, setGizmoMode] = useState<'translate' | 'rotate' | 'scale'>('translate')
   const [showGuides, setShowGuides] = useState(false)
   const topBarNav = useLayoutTopBarNav()
+  const chapterActive = useChapterActive()
   const viewboxRef = useRef<HTMLDivElement>(null)
   const [locks, setLocks] = useState<LayoutLocks>(() => ({ ...DEFAULT_LAYOUT_LOCKS }))
   const [liveSnapshot, setLiveSnapshot] = useState<PhoneSwapSnapshot>(() =>
@@ -242,6 +244,8 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
 
   const inFlowChapter = topBarNav && !layoutMode
   const useAuthoredStageScale = layoutMode || !topBarNav
+  const shouldRenderScene = chapterActive || layoutMode || devToolsEnabled
+  const useScrollPassthrough = inFlowChapter && !layoutMode
   const viewBoxWidth = layoutMode ? layout.stageWidth : stageTune.phoneWidth
   const viewBoxHeight = layoutMode ? layout.stageSize : stageTune.phoneHeight
   const viewBoxVars = useAuthoredStageScale
@@ -251,7 +255,7 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
       } as CSSProperties)
     : undefined
 
-  usePhoneSwapTouchScroll(viewboxRef, inFlowChapter)
+  usePhoneSwapTouchScroll(viewboxRef, useScrollPassthrough)
 
   return (
     <div
@@ -364,7 +368,7 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
               }
         }
         aria-label={
-          layoutMode
+          layoutMode || inFlowChapter
             ? undefined
             : swapped
               ? 'Phone models: iPhone in front. Tap the Android in back to swap.'
@@ -372,6 +376,7 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
         }
       >
         {layoutMode && showGuides ? <PhoneLayoutGuides /> : null}
+        {shouldRenderScene ? (
         <Canvas
             camera={{
               position: layout.camera.position,
@@ -387,7 +392,7 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
               logarithmicDepthBuffer: true,
             }}
             dpr={[1, 2]}
-            frameloop="always"
+            frameloop={animating ? 'always' : 'demand'}
             onCreated={({ gl }) => {
               gl.setClearColor(0x000000, 0)
             }}
@@ -428,7 +433,24 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
               />
             </Suspense>
         </Canvas>
+        ) : (
+          <p className="phone-swap__fallback phone-swap__viewbox-placeholder">
+            Loading 3D preview…
+          </p>
+        )}
       </div>
+
+      {inFlowChapter ? (
+        <button
+          type="button"
+          className="phone-swap__in-flow-swap"
+          onClick={doSwap}
+          disabled={animating}
+          aria-live="polite"
+        >
+          {swapped ? 'Show Android in front' : 'Show iPhone in front'}
+        </button>
+      ) : null}
 
       {devMenu ? (
         <PhoneDevToolsMenu

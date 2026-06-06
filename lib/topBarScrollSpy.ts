@@ -23,15 +23,9 @@ export function bindTopBarScrollSpy(
   const publish = () => {
     const state = measureSlideScrollState(getPhase(), getLockId())
     publishSlideScrollState(state)
-
-    const changed =
-      state.inHero !== lastInHero || state.activeSlideId !== lastActiveId
-
-    if (changed) {
-      lastInHero = state.inHero
-      lastActiveId = state.activeSlideId
-      onUpdate(state)
-    }
+    lastInHero = state.inHero
+    lastActiveId = state.activeSlideId
+    onUpdate(state)
   }
 
   const schedulePublish = () => {

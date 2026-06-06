@@ -187,7 +187,8 @@
   .hardware-slideshow .chapter-slide__stage .chapter-stage-media,
   .hardware-slideshow .chapter-slide__stage .before-after-slider,
   .hardware-slideshow .chapter-slide__stage .kelvin-scratch,
-  .hardware-slideshow .chapter-slide__stage .concept-eight-ball,
+  .hardware-slideshow .chapter-slide__stage .fortune-teller,
+  .hardware-slideshow .chapter-slide__stage .quote-bowl,
   .hardware-slideshow .chapter-slide__stage .sticker-pile-wrap,
   .hardware-slideshow .chapter-slide__stage .formation-lego {
     width: var(--hw-stage-gallery-w);

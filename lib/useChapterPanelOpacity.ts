@@ -2,6 +2,10 @@
 
 import { CHAPTER_NAV_FADE_MS, useChapterNav } from '@/components/ChapterNavProvider'
 import { isFixedSlideshowFlowChapter, isFlowChapterId } from '@/lib/chapterFlow'
+import {
+  chapterIsAccessible,
+  chapterIsInteractive,
+} from '@/lib/chapterVisibility'
 import { chapterRevealForId } from '@/lib/chapterSlideshow'
 import { useLayoutMobile } from '@/lib/hooks/useLayoutMobile'
 import { useLayoutTopBarNav } from '@/lib/hooks/useLayoutTopBarNav'
@@ -20,16 +24,25 @@ export function useChapterPanelOpacity(chapterId: string) {
 
   const scrollReveal =
     phase === 'idle'
-      ? chapterRevealForId(chapterId)
+      ? topBarNav
+        ? (reveals[chapterId] ?? 0)
+        : chapterRevealForId(chapterId)
       : (reveals[chapterId] ?? 0)
   const flowChapter = isFlowChapterId(chapterId)
   const fixedSlideshowStacking =
     isFixedSlideshowFlowChapter(chapterId) && !layoutMobile
 
   if (phase === 'idle' && topBarNav) {
+    const visibility = scrollReveal
+    const isActive = chapterIsInteractive(
+      visibility,
+      activeSlideId,
+      chapterId,
+    )
     return {
       opacity: 1,
-      isActive: true,
+      isActive,
+      ariaHidden: !chapterIsAccessible(visibility),
       style: undefined,
     }
   }
@@ -40,6 +53,7 @@ export function useChapterPanelOpacity(chapterId: string) {
     return {
       opacity: scrollReveal,
       isActive,
+      ariaHidden: !isActive,
       style: undefined,
     }
   }
@@ -49,6 +63,7 @@ export function useChapterPanelOpacity(chapterId: string) {
     return {
       opacity: 0,
       isActive: false,
+      ariaHidden: true,
       style: {
         opacity: 0,
         filter: blurOutFromReveal(0, SCROLL_BLUR_PX).filter,
@@ -67,6 +82,7 @@ export function useChapterPanelOpacity(chapterId: string) {
     return {
       opacity,
       isActive: entering,
+      ariaHidden: !entering,
       style: {
         opacity,
         filter: flowEntering ? 'none' : filter,
@@ -96,6 +112,7 @@ export function useChapterPanelOpacity(chapterId: string) {
       return {
         opacity: reveal,
         isActive,
+        ariaHidden: !isActive,
         style: {
           opacity: reveal,
           filter: 'none',
@@ -110,6 +127,7 @@ export function useChapterPanelOpacity(chapterId: string) {
     return {
       opacity: onScreen ? 1 : 0,
       isActive: onScreen,
+      ariaHidden: !onScreen,
       style: {
         opacity: onScreen ? 1 : 0,
         filter: 'none',
@@ -130,6 +148,7 @@ export function useChapterPanelOpacity(chapterId: string) {
   return {
     opacity: reveal,
     isActive,
+    ariaHidden: !isActive,
     style: {
       opacity: reveal,
       filter: 'none',

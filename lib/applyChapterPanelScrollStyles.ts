@@ -1,13 +1,8 @@
 import { isFixedSlideshowFlowChapter, isFlowChapterId } from '@/lib/chapterFlow'
 import { CHAPTER_SLOT_SELECTOR } from '@/lib/chapterSlideshow'
-import { LAYOUT_MQ } from '@/lib/layout/breakpoints'
+import { isLayoutMobileViewport } from '@/lib/layout/isLayoutMobileViewport'
 import { isTopBarNavViewport } from '@/lib/layout/isTopBarNavViewport'
 import { panelZFromScrollReveal } from '@/lib/layout/stacking'
-
-function isLayoutMobileWidth(): boolean {
-  if (typeof window === 'undefined') return false
-  return window.matchMedia(LAYOUT_MQ.mobile).matches
-}
 
 const PANEL_SELECTOR = `${CHAPTER_SLOT_SELECTOR} .portfolio-chapter-panel`
 
@@ -31,7 +26,7 @@ export function applyChapterPanelScrollStyles(
 ): void {
   if (isTopBarNavViewport()) return
 
-  const layoutMobile = isLayoutMobileWidth()
+  const layoutMobile = isLayoutMobileViewport()
 
   document.querySelectorAll<HTMLElement>(CHAPTER_SLOT_SELECTOR).forEach((slot) => {
     const id = slot.dataset.chapterId

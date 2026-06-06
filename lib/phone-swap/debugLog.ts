@@ -10,6 +10,8 @@ export function debugLog(
   hypothesisId: string,
   runId = 'pre-fix',
 ) {
+  if (!import.meta.env.DEV) return
+
   fetch(DEBUG_ENDPOINT, {
     method: 'POST',
     headers: {

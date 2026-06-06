@@ -1,0 +1,18 @@
+newmtl glass_bowl_a_Mat
+Ni 1.6
+Ka 0 0 0
+map_Ke glass_bowl_a/glass_bowl_a_Mat_glow.png
+d 1
+Kd 0 0 0
+adobe_map_normal glass_bowl_a/glass_bowl_a_Mat_normal.png
+map_d glass_bowl_a/glass_bowl_a_Mat_opacity.png
+Tr 0
+illum 7
+Ks 1 1 1
+adobe_map_roughness glass_bowl_a/glass_bowl_a_Mat_roughness.png
+adobe_interior_color 1.0 1.0 1.0
+adobe_density 0.0
+map_Pm glass_bowl_a/glass_bowl_a_Mat_metallic.png
+Ns 16
+adobe_map_translucence glass_bowl_a/glass_bowl_a_Mat_translucence.png
+map_Kd glass_bowl_a/glass_bowl_a_Mat_baseColor.png

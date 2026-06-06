@@ -35,17 +35,18 @@ function computeFlowChapterRevealMap(): Record<string, number> {
   return map
 }
 
-/** Phone + tablet top-bar nav: in-flow chapters, binary on/off (no crossfade jank). */
+/** Phone + tablet top-bar nav: visible viewport fraction per chapter (0–1). */
 function computeInFlowRevealMap(): Record<string, number> {
   const map: Record<string, number> = {}
   const vh = window.innerHeight
+  if (vh <= 0) return map
 
   document.querySelectorAll<HTMLElement>(CHAPTER_SLOT_SELECTOR).forEach((el) => {
     const id = el.dataset.chapterId
     if (!id) return
     const rect = el.getBoundingClientRect()
-    const onScreen = rect.bottom > 0 && rect.top < vh
-    map[id] = onScreen ? 1 : 0
+    const visible = Math.max(0, Math.min(rect.bottom, vh) - Math.max(rect.top, 0))
+    map[id] = visible / vh
   })
 
   return map

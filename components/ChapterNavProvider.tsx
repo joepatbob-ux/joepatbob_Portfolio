@@ -99,7 +99,15 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
           lastScrollActiveRef.current = state.activeSlideId
           applyPlacedStickerScrollVisibility(state.revealMap, state.activeSlideId)
         }
-        revealsRef.current = state.revealMap
+        if (
+          isTopBarNavViewport() &&
+          chapterRevealsChanged(revealsRef.current, state.revealMap)
+        ) {
+          revealsRef.current = state.revealMap
+          setReveals(state.revealMap)
+        } else {
+          revealsRef.current = state.revealMap
+        }
       } else if (state.inHero || phaseRef.current === 'out') {
         if (Object.keys(revealsRef.current).length > 0) {
           revealsRef.current = {}
