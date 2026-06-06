@@ -6,6 +6,7 @@ import { PhoneLayoutPanel } from '@/components/phone-swap/PhoneLayoutPanel'
 import { PhoneMaterialTunePanel } from '@/components/phone-swap/PhoneMaterialTunePanel'
 import { PhoneLayoutGuides } from '@/components/phone-swap/PhoneLayoutGuides'
 import { PhoneSwapScene } from '@/components/phone-swap/PhoneSwapScene'
+import { StageSpinner } from '@/components/stage/StageSpinner'
 import { SmaPhoneScreenOverlay } from '@/components/sma-ios26/SmaPhoneScreenOverlay'
 import type { DisplayScreenRect } from '@/lib/sma-ios26/displayScreenRect'
 import { Html } from '@react-three/drei'
@@ -399,8 +400,8 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
           >
             <Suspense
               fallback={
-                <Html center className="phone-swap__fallback">
-                  Loading phones…
+                <Html center>
+                  <StageSpinner label="Loading phones…" />
                 </Html>
               }
             >
@@ -434,9 +435,9 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
             </Suspense>
         </Canvas>
         ) : (
-          <p className="phone-swap__fallback phone-swap__viewbox-placeholder">
-            Loading 3D preview…
-          </p>
+          <div className="phone-swap__viewbox-placeholder">
+            <StageSpinner label="Loading 3D preview…" />
+          </div>
         )}
       </div>
 

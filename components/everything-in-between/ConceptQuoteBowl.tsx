@@ -2,17 +2,21 @@
 
 import { BowlGlassTunePanel } from '@/components/everything-in-between/BowlGlassTunePanel'
 import { QuoteBowlControls } from '@/components/everything-in-between/quote-bowl/QuoteBowlControls'
+import { StageLoadingOverlay } from '@/components/stage/StageLoadingOverlay'
+import { StageSceneReady } from '@/components/stage/StageSceneReady'
 import { useTheme } from '@/components/ThemeProvider'
 import { QUOTE_BOWL } from '@/lib/everything-in-between/quoteBowl/constants'
 import { useQuoteBowlDebugOutlines } from '@/lib/everything-in-between/quoteBowl/useQuoteBowlDebugOutlines'
 import { useQuoteBowlFlow } from '@/lib/everything-in-between/quoteBowl/useQuoteBowlFlow'
 import { useQuoteBowlGlassTune } from '@/lib/everything-in-between/quoteBowl/useQuoteBowlGlassTune'
-import { useChapterActive } from '@/lib/chapterActiveContext'
 import { useCanvasDpr } from '@/lib/hooks/useCanvasDpr'
+import { useChapterStageMount } from '@/lib/hooks/useChapterStageMount'
 import { usePrefersReducedMotion } from '@/lib/hooks/usePrefersReducedMotion'
+import { useStagePreload } from '@/lib/hooks/useStagePreload'
+import { preloadQuoteBowlStage } from '@/lib/stagePreload/quoteBowl'
 import { Canvas } from '@react-three/fiber'
 import dynamic from 'next/dynamic'
-import { Suspense, useCallback, useRef } from 'react'
+import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
 
 const ConceptQuoteBowlCanvas = dynamic(
   () =>
@@ -24,6 +28,7 @@ const ConceptQuoteBowlCanvas = dynamic(
 
 type Props = {
   answers: readonly string[]
+  chapterId: string
 }
 
 function bowlActionLabel(step: ReturnType<typeof useQuoteBowlFlow>['step']) {
@@ -31,8 +36,11 @@ function bowlActionLabel(step: ReturnType<typeof useQuoteBowlFlow>['step']) {
   return 'Reach into the bowl again'
 }
 
-export function ConceptQuoteBowl({ answers }: Props) {
-  const chapterActive = useChapterActive()
+export function ConceptQuoteBowl({ answers, chapterId }: Props) {
+  const { mount: stageMount, active: chapterActive } =
+    useChapterStageMount(chapterId)
+  const [sceneReady, setSceneReady] = useState(false)
+  useStagePreload(chapterId, preloadQuoteBowlStage)
   const { resolvedTheme } = useTheme()
   const darkSurface = resolvedTheme === 'dark'
   const canvasDpr = useCanvasDpr(QUOTE_BOWL.canvas.maxDpr)
@@ -61,7 +69,14 @@ export function ConceptQuoteBowl({ answers }: Props) {
   const handlePickAction = useCallback(() => {
     pickActionRef.current?.()
   }, [])
+  const handleSceneReady = useCallback(() => {
+    setSceneReady(true)
+  }, [])
+  useEffect(() => {
+    if (!stageMount) setSceneReady(false)
+  }, [stageMount])
   const { camera } = QUOTE_BOWL
+  const showLoading = stageMount && !sceneReady
 
   return (
     <div className={['quote-bowl', debugOutlines ? 'quote-bowl--debug' : ''].filter(Boolean).join(' ')}>
@@ -99,7 +114,11 @@ export function ConceptQuoteBowl({ answers }: Props) {
           </button>
         ) : null}
 
-        {chapterActive ? (
+        {showLoading ? (
+          <StageLoadingOverlay label="Loading bowl…" />
+        ) : null}
+
+        {stageMount ? (
           <Canvas
             className="quote-bowl__canvas"
             data-debug="canvas"
@@ -128,19 +147,21 @@ export function ConceptQuoteBowl({ answers }: Props) {
             }}
           >
             <Suspense fallback={null}>
-              <ConceptQuoteBowlCanvas
-                answers={answers}
-                step={step}
-                selectedSlipId={selectedSlipId}
-                reducedMotion={reducedMotion}
-                darkSurface={darkSurface}
-                glassTune={glassTune}
-                onPickSlip={onPickSlip}
-                onReset={reset}
-                pickActionRef={pickActionRef}
-                debugOutlines={debugOutlines}
-                stackRef={stackRef}
-              />
+              <StageSceneReady onReady={handleSceneReady}>
+                <ConceptQuoteBowlCanvas
+                  answers={answers}
+                  step={step}
+                  selectedSlipId={selectedSlipId}
+                  reducedMotion={reducedMotion}
+                  darkSurface={darkSurface}
+                  glassTune={glassTune}
+                  onPickSlip={onPickSlip}
+                  onReset={reset}
+                  pickActionRef={pickActionRef}
+                  debugOutlines={debugOutlines}
+                  stackRef={stackRef}
+                />
+              </StageSceneReady>
             </Suspense>
           </Canvas>
         ) : (

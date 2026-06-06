@@ -1,0 +1,13 @@
+'use client'
+
+import { eibChapterId } from '@/lib/everything-in-between/content'
+import { useStagePreload } from '@/lib/hooks/useStagePreload'
+import { preloadFormationLegoStage } from '@/lib/stagePreload/formationLego'
+import { preloadQuoteBowlStage } from '@/lib/stagePreload/quoteBowl'
+
+/** Background warm-up for EIB stage assets as chapters enter the scroll viewport. */
+export function EibStagePreloads() {
+  useStagePreload(eibChapterId('conviction'), preloadQuoteBowlStage)
+  useStagePreload(eibChapterId('formation'), preloadFormationLegoStage)
+  return null
+}
