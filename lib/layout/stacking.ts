@@ -20,11 +20,13 @@ export type StickerZIndices = {
   base: number
   pile: number
   drag: number
+  /** Selected placed sticker — above formation board portal. */
+  selected: number
 }
 
 /** Inline sticker / pile portal z-index — keep in sync with `--z-stickers` in globals.css. */
 export function stickerZIndices(mobile: boolean): StickerZIndices {
   return mobile
-    ? { base: 52, pile: 50, drag: 130 }
-    : { base: 116, pile: 115, drag: 220 }
+    ? { base: 52, pile: 50, drag: 130, selected: 95 }
+    : { base: 116, pile: 115, drag: 220, selected: 125 }
 }
