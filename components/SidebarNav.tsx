@@ -17,6 +17,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react
 import { activeSlideIdPublished } from '@/lib/chapterSlideshow'
 import { applySidebarHeroNameFade, applySidebarShellFade, hideSidebarShell, isInHeroScrollZone, isTopBarInHeroScrollZone, resetSidebarShellFade } from '@/lib/heroScroll'
 import { NAV_SECTIONS, sectionIdForChapter } from '@/lib/nav'
+import { SidebarMainNavSentence } from '@/components/SidebarMainNavSentence'
 import { sectionEntryChapterId } from '@/lib/sectionEntryChapter'
 import { OverlayActionPill } from '@/components/ui/OverlayActionPill'
 import { LAYOUT_MQ } from '@/lib/layout/breakpoints'
@@ -143,6 +144,8 @@ export function SidebarNav() {
   const [dimActive,           setDimActive]           = useState(false)
   const [hoverSectionId, setHoverSectionId] = useState<string | null>(null)
   const [hoverChapterId, setHoverChapterId] = useState<string | null>(null)
+  const [compactRailLabel, setCompactRailLabel] = useState(false)
+  const mobileRailRef = useRef<HTMLButtonElement>(null)
 
   /** Fade main keywords only when hovering a different section (subnav hover does not dim main). */
   const fadeMainNavSelection =
@@ -181,6 +184,16 @@ export function SidebarNav() {
     layoutRef.current = { viewportH: vh, navRestTop: navRest, threshold: vh * 0.72 }
     stickThresholdRef.current = vh * 0.72
   }, [])
+
+  useEffect(() => {
+    const el = mobileRailRef.current
+    if (!el) return
+    const sync = () => setCompactRailLabel(el.clientWidth <= 380)
+    sync()
+    const ro = new ResizeObserver(sync)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [usesTopBarNav, mobileInHero, mobileDrawerOpen])
 
   useEffect(() => {
     if (usesTopBarNav && !mobileDrawerOpen) {
@@ -616,60 +629,15 @@ export function SidebarNav() {
                   ROBERTS<span style={{ color: ACCENT }}>.</span>
                 </div>
               </div>
-              <p
-                style={{
-                  fontFamily: FONT_AHG,
-                  fontWeight: 700,
-                  fontSize: 'clamp(18px, 6vw, 24px)',
-                  lineHeight: 1.2,
-                  letterSpacing: '0.02em',
-                  textTransform: 'uppercase',
-                  color: C.ink,
-                  margin: 0,
-                  width: 'min(100%, 380px)',
-                }}
-              >
-                {'I simplify complex systems across '}
-                {NAV_SECTIONS.map((sec, i) => {
-                  const connector =
-                    i === NAV_SECTIONS.length - 2
-                      ? ', and '
-                      : i < NAV_SECTIONS.length - 1
-                        ? ', '
-                        : '.'
-                  return (
-                    <span key={sec.id}>
-                      <button
-                        type="button"
-                        onClick={() => scrollToSection(sec.id)}
-                        style={{
-                          display: 'inline',
-                          margin: 0,
-                          padding: 0,
-                          border: 'none',
-                          background: 'none',
-                          font: 'inherit',
-                          letterSpacing: 'inherit',
-                          textTransform: 'inherit',
-                          lineHeight: 'inherit',
-                          color: ACCENT,
-                          cursor: 'pointer',
-                          verticalAlign: 'baseline',
-                          textAlign: 'inherit',
-                          transition: 'opacity 220ms ease, color 200ms ease',
-                        }}
-                      >
-                        {sec.label}
-                      </button>
-                      {connector}
-                    </span>
-                  )
-                })}
-              </p>
+              <SidebarMainNavSentence
+                variant="mobile-hero"
+                onSelect={scrollToSection}
+              />
           </div>
         </nav>
 
         <button
+          ref={mobileRailRef}
           type="button"
           className={[
             'sidebar-mobile-rail',
@@ -679,21 +647,29 @@ export function SidebarNav() {
             .join(' ')}
           aria-expanded={mobileDrawerOpen}
           aria-controls="sidebar-tablet-panel"
+          aria-label={`Open navigation — ${currentSection.label}`}
           aria-hidden={showMobileRail ? undefined : true}
           tabIndex={showMobileRail ? 0 : -1}
           onClick={() => setMobileDrawerOpen(true)}
         >
           <span className="sidebar-mobile-rail__chrome" aria-hidden />
           <span className="sidebar-mobile-rail__blur" aria-hidden />
-          <p className="sidebar-mobile-rail__label">
-            <span className="sidebar-mobile-rail__copy sidebar-mobile-rail__copy--long">
-              I simplify complex systems for{' '}
-              <span className="sidebar-mobile-rail__label-accent">{currentSection.label}</span>
-            </span>
-            <span className="sidebar-mobile-rail__copy sidebar-mobile-rail__copy--short">
-              I simplify systems for{' '}
-              <span className="sidebar-mobile-rail__label-accent">{currentSection.label}</span>
-            </span>
+          <p className="sidebar-mobile-rail__label" aria-hidden="true">
+            {compactRailLabel ? (
+              <>
+                I simplify systems for{' '}
+                <span className="sidebar-mobile-rail__label-accent">
+                  {currentSection.label}
+                </span>
+              </>
+            ) : (
+              <>
+                I simplify complex systems for{' '}
+                <span className="sidebar-mobile-rail__label-accent">
+                  {currentSection.label}
+                </span>
+              </>
+            )}
           </p>
         </button>
       </div>
@@ -783,53 +759,25 @@ export function SidebarNav() {
           ref={navWrapRef}
           data-sidebar-main-nav
           data-sidebar-nav-hit
+          aria-hidden={usesTopBarNav && !mobileDrawerOpen ? true : undefined}
           style={{
             position: 'absolute',
             transition: 'none',
             pointerEvents: 'auto',
           }}
         >
-          <p className="sidebar-main-nav__sentence" style={{ color: C.ink }}>
-            {'I simplify complex systems across '}
-            {NAV_SECTIONS.map((sec, i) => {
-              const isActive  = activeSection === sec.id
-              const connector = i === NAV_SECTIONS.length - 2 ? ', and ' : i < NAV_SECTIONS.length - 1 ? ', ' : '.'
-              const isHoverThis = hoverSectionId === sec.id
-              const { color: mainColor, opacity: mainOpacity } = navKeywordStyle({
-                dimActive,
-                isActive,
-                selectionExploringElsewhere: fadeMainNavSelection,
-              })
-              const keywordClass = [
-                'sidebar-main-nav__keyword',
-                isHoverThis ? 'sidebar-main-nav__keyword--hover' : '',
-              ]
-                .filter(Boolean)
-                .join(' ')
-              return (
-                  <span key={sec.id}>
-                  <span
-                    className={keywordClass}
-                    onClick={() => scrollToSection(sec.id)}
-                    style={{
-                      color: isHoverThis ? 'transparent' : mainColor,
-                      opacity: mainOpacity,
-                    }}
-                    onMouseEnter={() => {
-                      setHoverSectionId(sec.id)
-                      setHoverChapterId(null)
-                    }}
-                    onMouseLeave={() => {
-                      setHoverSectionId((prev) => (prev === sec.id ? null : prev))
-                    }}
-                  >
-                    {sec.label}
-                  </span>
-                  {connector}
-                </span>
-              )
-            })}
-          </p>
+          <SidebarMainNavSentence
+            variant="desktop"
+            inkColor={C.ink}
+            dimActive={dimActive}
+            activeSection={activeSection}
+            hoverSectionId={hoverSectionId}
+            fadeMainNavSelection={fadeMainNavSelection}
+            navKeywordStyle={navKeywordStyle}
+            onSelect={scrollToSection}
+            onHoverSection={setHoverSectionId}
+            onClearChapterHover={() => setHoverChapterId(null)}
+          />
         </div>
 
         {/* Contact — liquid split; mobile overlay stacks divider + close below */}
@@ -885,7 +833,11 @@ export function SidebarNav() {
           const chapterFill = isActive && !isHoverThis ? NAV_PILL_1 : 'transparent'
           const chapterRing = isHoverThis ? `0 0 0 1px ${ACCENT}` : 'none'
           return (
-            <span key={chapter.id} onClick={() => scrollToChapter(chId)}
+            <button
+              key={chapter.id}
+              type="button"
+              className="sidebar-subnav__chapter"
+              onClick={() => scrollToChapter(chId)}
               aria-current={isActive ? 'true' : undefined}
               style={{
                 display: 'inline-flex',
@@ -902,6 +854,8 @@ export function SidebarNav() {
                 padding: '5px 14px',
                 background: chapterFill,
                 boxShadow: chapterRing,
+                border: 'none',
+                font: 'inherit',
               }}
               onMouseEnter={() => {
                 setHoverChapterId(chId)
@@ -924,7 +878,7 @@ export function SidebarNav() {
               >
                 {chapter.label}
               </span>
-            </span>
+            </button>
           )
         })}
       </div>

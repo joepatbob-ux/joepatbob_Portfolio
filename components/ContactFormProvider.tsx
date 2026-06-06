@@ -6,6 +6,7 @@ import {
   useCallback,
   useContext,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from 'react'
@@ -19,8 +20,15 @@ const ContactFormContext = createContext<ContactFormContextValue | null>(null)
 
 export function ContactFormProvider({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false)
+  const returnFocusRef = useRef<HTMLElement | null>(null)
 
-  const openContact = useCallback(() => setOpen(true), [])
+  const openContact = useCallback(() => {
+    returnFocusRef.current =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null
+    setOpen(true)
+  }, [])
   const closeContact = useCallback(() => setOpen(false), [])
 
   const value = useMemo(
@@ -31,7 +39,11 @@ export function ContactFormProvider({ children }: { children: ReactNode }) {
   return (
     <ContactFormContext.Provider value={value}>
       {children}
-      <ContactDialog open={open} onClose={closeContact} />
+      <ContactDialog
+        open={open}
+        onClose={closeContact}
+        returnFocusRef={returnFocusRef}
+      />
     </ContactFormContext.Provider>
   )
 }

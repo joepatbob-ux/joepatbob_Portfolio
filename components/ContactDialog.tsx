@@ -7,15 +7,18 @@ import {
   CONTACT_NAME_MAX,
   type ContactFormStatus,
 } from '@/lib/contactForm'
+import { bindFocusTrap, getFocusableElements } from '@/lib/focusTrap'
 import { useCallback, useEffect, useId, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
 interface Props {
   open: boolean
   onClose: () => void
+  /** Element to restore focus when the dialog closes. */
+  returnFocusRef?: React.RefObject<HTMLElement | null>
 }
 
-export function ContactDialog({ open, onClose }: Props) {
+export function ContactDialog({ open, onClose, returnFocusRef }: Props) {
   const titleId = useId()
   const descId = useId()
   const [mounted, setMounted] = useState(false)
@@ -23,10 +26,39 @@ export function ContactDialog({ open, onClose }: Props) {
   const [error, setError] = useState<string | null>(null)
   const startedAtRef = useRef(0)
   const panelRef = useRef<HTMLDivElement>(null)
+  const returnFocusStoredRef = useRef<HTMLElement | null>(null)
 
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  useEffect(() => {
+    if (!open) return
+    returnFocusStoredRef.current =
+      returnFocusRef?.current ??
+      (document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null)
+  }, [open, returnFocusRef])
+
+  useEffect(() => {
+    if (!open) return
+    const panel = panelRef.current
+    if (!panel) return
+
+    const focusable = getFocusableElements(panel)
+    focusable[0]?.focus()
+
+    const releaseTrap = bindFocusTrap(panel)
+    return releaseTrap
+  }, [open, status])
+
+  useEffect(() => {
+    if (open) return
+    const el = returnFocusStoredRef.current
+    if (el?.isConnected) el.focus()
+    returnFocusStoredRef.current = null
+  }, [open])
 
   useEffect(() => {
     if (!open) return

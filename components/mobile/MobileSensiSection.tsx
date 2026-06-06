@@ -1,7 +1,6 @@
 'use client'
 
-import { Suspense } from 'react'
-import { PhoneSwap } from '@/components/PhoneSwap'
+import dynamic from 'next/dynamic'
 import { FlowChapterSlideLayout } from '@/components/chapter-slide/FlowChapterSlideLayout'
 import { PhoneSwapBoundary } from '@/components/phone-swap/PhoneSwapBoundary'
 import { ChapterCopyReveal } from '@/components/chapter-slide/ChapterCopyReveal'
@@ -13,6 +12,15 @@ import {
   splitParagraphs,
 } from '@/components/mobile/MobileSectionParts'
 import { MOBILE_SENSI, mobileChapterId } from '@/lib/mobile/content'
+
+const PhoneSwap = dynamic(
+  () => import('@/components/PhoneSwap').then((m) => ({ default: m.PhoneSwap })),
+  {
+    loading: () => (
+      <p className="phone-swap__fallback">Loading 3D preview…</p>
+    ),
+  },
+)
 
 export function MobileSensiSection() {
   const chapterId = mobileChapterId('sensi')
@@ -26,13 +34,7 @@ export function MobileSensiSection() {
       className="mobile-chapter-slot mobile-chapter-slot--sensi"
       stage={
         <PhoneSwapBoundary key="phone-swap-3d">
-          <Suspense
-            fallback={
-              <p className="phone-swap__fallback">Loading 3D preview…</p>
-            }
-          >
-            <PhoneSwap />
-          </Suspense>
+          <PhoneSwap />
         </PhoneSwapBoundary>
       }
       copy={

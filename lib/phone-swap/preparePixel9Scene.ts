@@ -14,7 +14,7 @@ import {
 } from '@/lib/phone-swap/pixel9Assets'
 import { splitMeshesByMaterial } from '@/lib/phone-swap/splitMeshByMaterial'
 
-const HIDDEN_SHELLS = new Set([
+const HIDDEN_SHELLS = new Set<string>([
   PIXEL9_MESH.glass,
   PIXEL9_MESH.cameraGlass,
   PIXEL9_MESH.flashGlass,

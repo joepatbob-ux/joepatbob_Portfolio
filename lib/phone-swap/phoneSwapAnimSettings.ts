@@ -24,7 +24,7 @@ export function clampAnimSettings(
   const durationMs = Number.isFinite(raw.durationMs)
     ? Math.max(
         PHONE_SWAP_ANIM_MS_MIN,
-        Math.min(PHONE_SWAP_ANIM_MS_MAX, Math.round(raw.durationMs)),
+        Math.min(PHONE_SWAP_ANIM_MS_MAX, Math.round(raw.durationMs!)),
       )
     : DEFAULT_PHONE_SWAP_ANIM.durationMs
 

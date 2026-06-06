@@ -50,7 +50,8 @@ export const PIXEL8_CREAM = {
 } as const
 
 /** Cream / MTL use OBJ. FBX only for `fbx_default`. */
-export const PIXEL8_USE_FBX = PIXEL8_COLOR_VARIANT === 'fbx_default'
+export const PIXEL8_USE_FBX: boolean =
+  (PIXEL8_COLOR_VARIANT as Pixel8ColorVariant) === 'fbx_default'
 
 /** Pixel 8 OBJ is already right-handed — unlike iPhone/Pixel 9 C4D exports. */
 export const PIXEL8_MIRROR_X = false
