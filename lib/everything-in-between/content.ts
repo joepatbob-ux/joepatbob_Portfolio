@@ -1,7 +1,12 @@
 /** Structured copy for Everything In Between (Concepts · Formation · Practice). */
 
-import uxBeliefsSource from '@/content/eib-ux-beliefs.md?raw'
+import eibSource from '@/content/everything-in-between.md?raw'
 import { parseUxBeliefs } from '@/lib/everything-in-between/parseUxBeliefs'
+
+function extractBowlQuotes(markdown: string): string {
+  const match = markdown.match(/### Bowl quotes\s*\n([\s\S]*?)(?=^## |\z)/m)
+  return match?.[1]?.trim() ?? ''
+}
 
 export const EIB_SECTION_TABS = [
   { id: 'concepts', label: 'Concepts' },
@@ -21,8 +26,8 @@ The work shows where that produced something. This chapter is about the methodol
 
 Concepts. Formation. Practice.`
 
-/** UX belief slips for the quote bowl — edit `content/eib-ux-beliefs.md`. */
-export const EIB_CONCEPT_QUOTES = parseUxBeliefs(uxBeliefsSource)
+/** UX belief slips — edit `content/everything-in-between.md` → Bowl quotes. */
+export const EIB_CONCEPT_QUOTES = parseUxBeliefs(extractBowlQuotes(eibSource))
 
 export const EIB_CONCEPTS = {
   headline: 'Concepts',
