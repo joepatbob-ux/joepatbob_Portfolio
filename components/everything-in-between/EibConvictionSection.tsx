@@ -20,7 +20,12 @@ export function EibConvictionSection() {
       chapterId={chapterId}
       fillViewport
       className="mobile-chapter-slot eib-section-slot eib-section-slot--conviction flow-chapter-slide--conviction"
-      stage={<ConceptQuoteBowl answers={EIB_CONVICTION.answers} />}
+      stage={
+        <ConceptQuoteBowl
+          chapterId={chapterId}
+          answers={EIB_CONVICTION.answers}
+        />
+      }
       copy={
         <ChapterCopyReveal headline={EIB_CONVICTION.headline}>
           <EibSubSectionIntro>

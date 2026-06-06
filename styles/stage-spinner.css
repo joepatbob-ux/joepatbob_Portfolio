@@ -1,0 +1,54 @@
+.stage-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.stage-spinner__ring {
+  width: 28px;
+  height: 28px;
+  border: 2px solid color-mix(in srgb, var(--color-muted) 30%, transparent);
+  border-top-color: var(--color-fg);
+  border-radius: 50%;
+  animation: stage-spinner-spin 0.75s linear infinite;
+}
+
+.stage-spinner__ring--static {
+  animation: none;
+  border-top-color: color-mix(in srgb, var(--color-muted) 55%, transparent);
+}
+
+.stage-spinner__label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--color-muted);
+  text-align: center;
+  margin: 0;
+  max-width: 16rem;
+}
+
+.stage-loading-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+@keyframes stage-spinner-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stage-spinner__ring {
+    animation: none;
+    border-top-color: color-mix(in srgb, var(--color-muted) 55%, transparent);
+  }
+}
