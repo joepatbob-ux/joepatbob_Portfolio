@@ -9,7 +9,7 @@ interface Props {
   children: ReactNode
 }
 
-/** Scroll container for long copy; at scroll edges, wheel advances the snap chapter (useChapterCopyWheelTrap). */
+/** Scroll container for long copy; wheel routes here first, then snaps chapter at edges (chapterCopyWheel). */
 export function ChapterCopyScroller({
   active = false,
   className,

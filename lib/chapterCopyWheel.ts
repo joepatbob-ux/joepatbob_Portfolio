@@ -1,10 +1,13 @@
 import { useEffect } from 'react'
+import { activeSlideIdPublished } from '@/lib/chapterSlideshow'
 import { LAYOUT_MQ } from '@/lib/layout/breakpoints'
 
 const CHAPTER_SLOT_SELECTOR = '.portfolio-chapter-slot[data-chapter-id]'
-
-/** Only nested copy scrollers — never the fixed panel (avoids scroll fighting). */
 const SCROLL_TRAP_SELECTOR = '.chapter-copy-scroller'
+
+/** Regions that keep native wheel behavior (sidebar, overlays, etc.). */
+const WHEEL_IGNORE_SELECTOR =
+  '.sidebar-shell, .sidebar-desktop-shell, .sidebar-desktop-subnav, .contact-dialog, .phone-swap__tune-panel, .phone-swap__devtools'
 
 const HANDOFF_COOLDOWN_MS = 240
 const EDGE_EPSILON_PX = 4
@@ -48,17 +51,63 @@ function scrollToChapterSlot(slot: HTMLElement): void {
   slot.scrollIntoView({ block: 'start', behavior: 'auto' })
 }
 
-function onWheelAtScrollEdge(el: HTMLElement, e: WheelEvent): void {
+function activeChapterCopyScroller(): HTMLElement | null {
+  const activeId = activeSlideIdPublished()
+  let slot: HTMLElement | null = null
+
+  if (activeId) {
+    slot = document.querySelector<HTMLElement>(
+      `.portfolio-chapter-slot[data-chapter-id="${CSS.escape(activeId)}"]`,
+    )
+  }
+
+  if (!slot) {
+    const slots = chapterSlotsOrdered()
+    slot = slots[activeSlotIndex(slots, window.scrollY)] ?? null
+  }
+
+  return slot?.querySelector<HTMLElement>(SCROLL_TRAP_SELECTOR) ?? null
+}
+
+function shouldRouteWheel(e: WheelEvent): boolean {
+  const target = e.target
+  if (!(target instanceof HTMLElement)) return false
+  if (target.closest(WHEEL_IGNORE_SELECTOR)) return false
+  if (target.closest('#hero')) return false
+  return !!target.closest(
+    '.portfolio-chapter-slot--fill.hardware-slideshow[data-chapter-id]',
+  )
+}
+
+function scrollCopyBy(scroller: HTMLElement, deltaY: number): void {
+  scroller.scrollBy({ top: deltaY, left: 0 })
+}
+
+/**
+ * Desktop slideshow: wheel scrolls long copy inside the slide first;
+ * only at top/bottom edges does the page snap to the prev/next chapter.
+ */
+function onDocumentWheel(e: WheelEvent): void {
   if (e.deltaY === 0) return
-  if (!isVerticallyScrollable(el)) return
+  if (!shouldRouteWheel(e)) return
   if (Date.now() - lastHandoffAt < HANDOFF_COOLDOWN_MS) return
 
-  const { scrollTop, scrollHeight, clientHeight } = el
+  const scroller = activeChapterCopyScroller()
+  if (!scroller || !isVerticallyScrollable(scroller)) return
+
+  const { scrollTop, scrollHeight, clientHeight } = scroller
   const atBottom =
     scrollTop + clientHeight >= scrollHeight - EDGE_EPSILON_PX
   const atTop = scrollTop <= EDGE_EPSILON_PX
 
-  if (e.deltaY > 0 && atBottom) {
+  if (e.deltaY > 0) {
+    if (!atBottom) {
+      e.preventDefault()
+      e.stopPropagation()
+      scrollCopyBy(scroller, e.deltaY)
+      return
+    }
+
     const next = nextChapterSlot(window.scrollY)
     if (!next) return
     e.preventDefault()
@@ -67,34 +116,29 @@ function onWheelAtScrollEdge(el: HTMLElement, e: WheelEvent): void {
     return
   }
 
-  if (e.deltaY < 0 && atTop) {
-    const previous = previousChapterSlot(window.scrollY)
-    if (!previous) return
+  if (!atTop) {
     e.preventDefault()
     e.stopPropagation()
-    scrollToChapterSlot(previous)
+    scrollCopyBy(scroller, e.deltaY)
+    return
   }
-}
 
-function scrollTrapTargets(): HTMLElement[] {
-  return Array.from(
-    document.querySelectorAll<HTMLElement>(SCROLL_TRAP_SELECTOR),
-  ).filter(isVerticallyScrollable)
+  const previous = previousChapterSlot(window.scrollY)
+  if (!previous) return
+  e.preventDefault()
+  e.stopPropagation()
+  scrollToChapterSlot(previous)
 }
 
 export function bindChapterCopyWheelHandlers(): () => void {
   const generation = ++bindGeneration
-  const cleanups: (() => void)[] = []
+  const handler = (e: WheelEvent) => onDocumentWheel(e)
 
-  scrollTrapTargets().forEach((el) => {
-    const handler = (e: WheelEvent) => onWheelAtScrollEdge(el, e)
-    el.addEventListener('wheel', handler, { passive: false })
-    cleanups.push(() => el.removeEventListener('wheel', handler))
-  })
+  window.addEventListener('wheel', handler, { passive: false, capture: true })
 
   return () => {
     if (bindGeneration === generation) {
-      cleanups.forEach((off) => off())
+      window.removeEventListener('wheel', handler, { capture: true })
     }
   }
 }
@@ -104,31 +148,6 @@ export function useChapterCopyWheelTrap(): void {
     if (typeof window === 'undefined') return
     if (window.matchMedia(LAYOUT_MQ.topBarNav).matches) return
 
-    let unbind = bindChapterCopyWheelHandlers()
-    let debounceId = 0
-    let trapCount = scrollTrapTargets().length
-
-    const scheduleRebind = () => {
-      window.clearTimeout(debounceId)
-      debounceId = window.setTimeout(() => {
-        const nextCount = scrollTrapTargets().length
-        if (nextCount === trapCount) return
-        trapCount = nextCount
-        unbind()
-        unbind = bindChapterCopyWheelHandlers()
-      }, 120)
-    }
-
-    const root =
-      document.querySelector<HTMLElement>('.content-area') ?? document.body
-
-    const observer = new MutationObserver(scheduleRebind)
-    observer.observe(root, { childList: true, subtree: true })
-
-    return () => {
-      window.clearTimeout(debounceId)
-      observer.disconnect()
-      unbind()
-    }
+    return bindChapterCopyWheelHandlers()
   }, [])
 }
