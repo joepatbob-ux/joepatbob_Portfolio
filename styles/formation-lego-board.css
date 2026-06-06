@@ -95,37 +95,8 @@
   filter: none;
 }
 
-/* Selected brick — hover hints (Lego SVG assets only) */
-.formation-lego__hover-ring-art {
-  position: absolute;
-  left: 0;
-  top: 0;
-  display: block;
-  width: 100% !important;
-  height: auto !important;
-  max-width: none;
-  pointer-events: none;
-  opacity: 0.45;
-}
-
-.formation-lego__hover-guides {
-  position: absolute;
-  left: 0;
-  top: 0;
-  display: block;
-  width: 100% !important;
-  height: auto !important;
-  max-width: none;
-  pointer-events: none;
-  opacity: 0.5;
-}
-
-.formation-lego__block--hover-move {
+.formation-lego__block--picked-up {
   cursor: grab;
-}
-
-.formation-lego__block--hover-rotate {
-  cursor: pointer;
 }
 
 .formation-lego__piece--drag {

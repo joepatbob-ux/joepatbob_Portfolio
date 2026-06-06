@@ -1,0 +1,57 @@
+'use client'
+
+type Props = {
+  fitRadius: number
+  height: number
+  topY: number
+  pickable: boolean
+  onPick: () => void
+  onHoverChange: (hovering: boolean) => void
+}
+
+export function QuoteBowlPickTarget({
+  fitRadius,
+  height,
+  topY,
+  pickable,
+  onPick,
+  onHoverChange,
+}: Props) {
+  const centerY = topY - height * 0.38
+
+  return (
+    <mesh
+      position={[0, centerY, 0]}
+      renderOrder={4}
+      onPointerOver={
+        pickable
+          ? (e) => {
+              e.stopPropagation()
+              onHoverChange(true)
+              document.body.style.cursor = 'pointer'
+            }
+          : undefined
+      }
+      onPointerOut={
+        pickable
+          ? (e) => {
+              e.stopPropagation()
+              onHoverChange(false)
+              document.body.style.cursor = 'auto'
+            }
+          : undefined
+      }
+      onClick={
+        pickable
+          ? (e) => {
+              e.stopPropagation()
+              onPick()
+            }
+          : undefined
+      }
+    >
+      <sphereGeometry args={[fitRadius * 0.92, 24, 18]} />
+      <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+    </mesh>
+  )
+}

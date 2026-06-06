@@ -1,5 +1,5 @@
 import { VIEWPORT_SNAP_SLOT_SELECTOR } from '@/lib/chapterFlow'
-import { LAYOUT_MQ } from '@/lib/layout/breakpoints'
+import { isLayoutMobileViewport } from '@/lib/layout/isLayoutMobileViewport'
 
 /** Real snap slides only — excludes placed stickers (they use data-sticker-chapter-id). */
 export const CHAPTER_SLOT_SELECTOR = '.portfolio-chapter-slot[data-chapter-id]'
@@ -230,11 +230,6 @@ export function pickActiveSlideIdFromRevealMap(
   return bestId
 }
 
-function isMobileViewport(): boolean {
-  if (typeof window === 'undefined') return false
-  return window.matchMedia(LAYOUT_MQ.mobile).matches
-}
-
 /** Chapter with the largest visible area (snap slides and in-flow sections). */
 export function pickActiveSlideId(
   revealMap?: Record<string, number>,
@@ -242,7 +237,7 @@ export function pickActiveSlideId(
   if (revealMap && Object.keys(revealMap).length > 0) {
     return pickActiveSlideIdFromRevealMap(
       revealMap,
-      isMobileViewport() ? 0 : 0.12,
+      isLayoutMobileViewport() ? 0 : 0.12,
     )
   }
   return pickActiveSlideIdByVisibility()

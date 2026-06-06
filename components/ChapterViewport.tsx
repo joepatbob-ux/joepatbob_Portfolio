@@ -24,7 +24,7 @@ function ChapterViewportInner({
   children,
   afterPanel,
 }: Props) {
-  const { style: panelStyle, isActive } = useChapterPanelOpacity(chapterId)
+  const { style: panelStyle, isActive, ariaHidden } = useChapterPanelOpacity(chapterId)
 
   return (
     <section
@@ -45,7 +45,7 @@ function ChapterViewportInner({
       <div
         className="portfolio-chapter-panel"
         style={panelStyle ?? undefined}
-        aria-hidden={!isActive}
+        aria-hidden={ariaHidden}
       >
         <ChapterActiveProvider active={isActive}>
           {children}

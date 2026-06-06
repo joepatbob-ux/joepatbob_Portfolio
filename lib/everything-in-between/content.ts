@@ -71,8 +71,13 @@ export const EIB_PRACTICE = {
 
 export const EIB_CONCEPTS = {
   headline: 'Concepts',
-  intro: `The principles travel. The constraints change. Shake the ball when you want a reminder of how I think about the work — fragments from conviction, formation, and practice that don't always land in a case study slide.`,
-  prompt: 'Tap to shake',
+  intro: `The principles travel. The constraints change. Reach into the bowl, pull a folded slip from the top, and unfold it — fragments from conviction, formation, and practice that don't always land on a case study slide.`,
+  colors: [
+    { id: 'ink', label: 'Ink', spellCount: 3, tint: '#2a2a2a' },
+    { id: 'rust', label: 'Rust', spellCount: 4, tint: '#b85c38' },
+    { id: 'graph', label: 'Graph', spellCount: 5, tint: '#6b7280' },
+    { id: 'cream', label: 'Cream', spellCount: 4, tint: '#c4a882' },
+  ],
   answers: [
     "If it's worth buying, it sells itself.",
     'Value flows from the user up, not the boardroom down.',

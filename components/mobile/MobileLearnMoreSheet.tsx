@@ -1,5 +1,6 @@
 'use client'
 
+import { useDialogFocusTrap } from '@/lib/hooks/useDialogFocusTrap'
 import { OverlayActionPill } from '@/components/ui/OverlayActionPill'
 import { useEffect, useId, useRef } from 'react'
 import { createPortal } from 'react-dom'
@@ -14,6 +15,8 @@ interface Props {
 export function MobileLearnMoreSheet({ open, onClose, title, children }: Props) {
   const titleId = useId()
   const panelRef = useRef<HTMLDivElement>(null)
+
+  useDialogFocusTrap(panelRef, open)
 
   useEffect(() => {
     if (!open) return
