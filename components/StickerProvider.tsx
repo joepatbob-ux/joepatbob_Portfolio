@@ -202,14 +202,21 @@ export function StickerProvider({ children }: { children: ReactNode }) {
     setDeckReady(true)
   }, [commitDeck])
 
-  const selectSticker = useCallback((instanceId: string | null) => {
-    setSelectedInstanceId(instanceId)
-    if (instanceId) {
-      setPlaced((prev) =>
-        withStickerOnTop(prev, instanceId, stackTopZ(prev, zBaseRef.current) + 1),
-      )
-    }
-  }, [])
+  const selectSticker = useCallback(
+    (instanceId: string | null) => {
+      setSelectedInstanceId(instanceId)
+      if (instanceId) {
+        setPlaced((prev) => {
+          const selectedZ = Math.max(
+            stackTopZ(prev, zBaseRef.current) + 1,
+            zIndices.selected,
+          )
+          return withStickerOnTop(prev, instanceId, selectedZ)
+        })
+      }
+    },
+    [zIndices.selected],
+  )
 
   const updatePlaced = useCallback(
     (

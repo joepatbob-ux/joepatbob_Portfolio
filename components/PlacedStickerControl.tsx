@@ -213,6 +213,7 @@ export function PlacedStickerControl({ sticker }: Props) {
 
   useEffect(() => {
     if (!selected || !sticker.chapterId) return
+    if (effectiveActiveSlideId === sticker.chapterId) return
     const reveal = chapterRevealForId(sticker.chapterId)
     if (reveal < 0.12) {
       selectSticker(null)
