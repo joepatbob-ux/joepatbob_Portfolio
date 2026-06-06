@@ -9,13 +9,14 @@ import {
   MobileLabelGrid,
   MobileProse,
   MobileSubStory,
+  MobileSubStoryHeading,
   splitParagraphs,
 } from '@/components/mobile/MobileSectionParts'
 import { MOBILE_SENSI, mobileChapterId } from '@/lib/mobile/content'
 
 export function MobileSensiSection() {
   const chapterId = mobileChapterId('sensi')
-  const [color, install, spotlight, platform] = MOBILE_SENSI.subStories
+  const [color, install, spotlight] = MOBILE_SENSI.subStories
   const intro = splitParagraphs(MOBILE_SENSI.intro)
 
   return (
@@ -40,23 +41,17 @@ export function MobileSensiSection() {
           <div className="mobile-sub-stories">
             <MobileSubStory heading={color.heading}>
               <MobileProse paragraphs={splitParagraphs(color.body)} />
-              <MobileLabelGrid items={color.problems} columns={3} />
+              <MobileLabelGrid items={color.problems} />
             </MobileSubStory>
             <MobileSubStory heading={install.heading}>
               <MobileProse paragraphs={splitParagraphs(install.body)} />
-              <blockquote className="mobile-blockquote">
-                <p>{install.quote}</p>
-              </blockquote>
             </MobileSubStory>
             <MobileSubStory heading={spotlight.heading}>
-              <MobileProse paragraphs={splitParagraphs(spotlight.body)} />
-              <MobileLabelGrid items={spotlight.decisions} columns={2} />
-            </MobileSubStory>
-            <MobileSubStory heading={platform.heading}>
-              <MobileProse paragraphs={splitParagraphs(platform.body)} />
-              <aside className="mobile-thesis-close">
-                <p>{platform.thesisClose}</p>
-              </aside>
+              <MobileProse paragraphs={splitParagraphs(spotlight.intro)} />
+              <MobileLabelGrid items={spotlight.decisions} />
+              <MobileSubStoryHeading heading={spotlight.testingHeading} />
+              <MobileProse paragraphs={splitParagraphs(spotlight.testingBody)} />
+              <MobileProse paragraphs={splitParagraphs(spotlight.closeBody)} />
             </MobileSubStory>
           </div>
         </ChapterCopyReveal>

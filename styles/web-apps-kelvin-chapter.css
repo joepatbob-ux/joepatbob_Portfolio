@@ -15,32 +15,29 @@
   opacity: 0.88;
 }
 
-/* 2×2 product grid */
+/* Product list — stacked blocks; domain over name over description */
 .web-apps-product-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   margin: 0 0 24px;
   padding: 0;
-  list-style: none;
-}
-
-@media (min-width: 560px) {
-  .web-apps-product-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
 }
 
 .web-apps-product-grid__cell {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
   margin: 0;
-  padding: 16px 18px;
-  background: var(--cs-grid-cell-bg);
+  padding: 13px 14px;
+  background: var(--cs-overview-meta-bg, var(--cs-grid-cell-bg));
+  border: 1px solid var(--cs-overview-meta-border);
   border-radius: 6px;
-  border: 1px solid rgba(26, 26, 26, 0.08);
 }
 
 .web-apps-product-grid__domain {
-  margin: 0 0 6px;
+  margin: 0;
   font-family: var(--font-mono);
   font-weight: 700;
   font-size: var(--cs-label-size);
@@ -50,7 +47,8 @@
 }
 
 .web-apps-product-grid__name {
-  margin: 0 0 8px;
+  margin: 0;
+  margin-inline-start: 0;
   font-family: var(--font-body);
   font-weight: 600;
   font-size: 15px;
@@ -60,6 +58,7 @@
 
 .web-apps-product-grid__desc {
   margin: 0;
+  margin-inline-start: 0;
   font-size: 13px;
   line-height: 1.55;
   color: var(--cs-body-color);

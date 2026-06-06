@@ -48,8 +48,7 @@ export function useChapterPanelOpacity(chapterId: string) {
   }
 
   if (phase === 'idle') {
-    const isActive =
-      activeSlideId === chapterId || scrollReveal > 0.25
+    const isActive = scrollReveal > 0.25
     return {
       opacity: scrollReveal,
       isActive,
@@ -103,12 +102,8 @@ export function useChapterPanelOpacity(chapterId: string) {
     // Fixed slideshow (Mobile / EIB / Web Apps on desktop): crossfade like Hardware.
     // Binary onScreen opacity stacks every adjacent slide at 1 — overview covers sensi.
     if (fixedSlideshowStacking) {
-      let reveal = scrollReveal
-      let isActive = scrollReveal > 0.5
-      if (activeSlideId === chapterId) {
-        reveal = Math.max(reveal, 1)
-        isActive = true
-      }
+      const reveal = scrollReveal
+      const isActive = scrollReveal > 0.5
       return {
         opacity: reveal,
         isActive,
@@ -139,11 +134,7 @@ export function useChapterPanelOpacity(chapterId: string) {
   }
 
   let reveal = scrollReveal
-  let isActive = scrollReveal > 0.5
-
-  if (activeSlideId === chapterId) {
-    isActive = scrollReveal > 0.25
-  }
+  const isActive = scrollReveal > 0.5
 
   return {
     opacity: reveal,

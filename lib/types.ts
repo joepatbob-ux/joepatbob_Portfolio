@@ -11,12 +11,20 @@ export interface Chapter {
   imagePosition: 'left' | 'right'
 }
 
+export interface OverviewMetaItem {
+  label: string
+  value: string
+  /** Full-width band below the tile grid — long outcome / products lines. */
+  wide?: boolean
+}
+
 export interface Section {
   id: string
   label: string
   eyebrow: string
   headline: string
   overviewBody: string
+  overviewMeta?: readonly OverviewMetaItem[]
   lessonTitle: string
   lessonBody: string
   chapters: Chapter[]

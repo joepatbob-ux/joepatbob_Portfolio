@@ -72,6 +72,10 @@ function crossfadeWeights(t: number): { outgoing: number; incoming: number } {
 type SlideAnchor = { id: string; centerY: number }
 
 function snapSlideCenterY(el: HTMLElement): number {
+  const height = el.offsetHeight
+  if (height > 0) {
+    return el.offsetTop + height / 2
+  }
   const vh = window.innerHeight
   if (vh > 0) {
     return el.offsetTop + vh / 2
@@ -226,6 +230,9 @@ export function pickActiveSlideIdFromRevealMap(
   const current = publishedActiveSlideId
   if (current && bestId && current !== bestId) {
     const currentReveal = map[current] ?? 0
+    if (currentReveal < 0.02) {
+      return bestId
+    }
     if (bestReveal - currentReveal < hysteresis) {
       return current
     }

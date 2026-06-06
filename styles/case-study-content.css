@@ -13,6 +13,9 @@
   --cs-label-size: 9px;
   --cs-label-tracking: 0.1em;
   --cs-grid-cell-bg: rgba(26, 26, 26, 0.04);
+  --cs-overview-meta-bg: var(--cs-grid-cell-bg);
+  --cs-overview-meta-border: color-mix(in srgb, var(--color-ink) 10%, transparent);
+  --cs-overview-meta-divider: color-mix(in srgb, var(--color-ink) 7%, transparent);
   --cs-callout-border: rgba(245, 67, 27, 0.35);
   --cs-callout-bg: rgba(245, 67, 27, 0.05);
   --cs-quote-bg: rgba(245, 67, 27, 0.06);
@@ -65,32 +68,27 @@
 }
 
 [data-section-id='hardware'] .cs-label-grid {
-  display: grid;
-  gap: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   margin: 1.25em 0 1.5em;
   padding: 0;
-  list-style: none;
-}
-
-@media (min-width: 600px) {
-  [data-section-id='hardware'] .cs-label-grid--2 {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  [data-section-id='hardware'] .cs-label-grid--3 {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
 }
 
 [data-section-id='hardware'] .cs-label-grid__cell {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
   margin: 0;
-  padding: 14px 16px;
-  background: var(--cs-grid-cell-bg);
+  padding: 13px 14px;
+  background: var(--cs-overview-meta-bg);
+  border: 1px solid var(--cs-overview-meta-border);
   border-radius: 6px;
 }
 
 [data-section-id='hardware'] .cs-label-grid__label {
-  margin: 0 0 8px;
+  margin: 0;
   font-family: var(--font-mono);
   font-weight: 700;
   font-size: var(--cs-label-size);
@@ -104,4 +102,15 @@
   font-size: 13px;
   line-height: 1.55;
   color: var(--cs-body-color);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --cs-grid-cell-bg: rgba(255, 255, 255, 0.045);
+    --cs-overview-meta-border: color-mix(in srgb, var(--color-ink) 14%, transparent);
+    --cs-overview-meta-divider: color-mix(in srgb, var(--color-ink) 9%, transparent);
+    --cs-callout-border: rgba(222, 62, 24, 0.42);
+    --cs-callout-bg: rgba(222, 62, 24, 0.08);
+    --cs-quote-bg: rgba(222, 62, 24, 0.1);
+  }
 }

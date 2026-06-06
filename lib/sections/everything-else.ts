@@ -38,8 +38,4 @@ export const everythingElse: Section = {
       imagePosition: 'left',
     },
   ],
-  closingQuote: {
-    quote: 'Our job is to do the hard work\nso users don\'t have to.',
-    attribution: 'Joseph Patrick Roberts',
-  },
 }

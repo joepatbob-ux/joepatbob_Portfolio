@@ -4,10 +4,17 @@ import {
   MobileLabelGrid,
   MobileProse,
   MobileSubStory,
+  MobileSubStoryHeading,
   splitParagraphs,
 } from '@/components/mobile/MobileSectionParts'
 
-export { splitParagraphs, MobileProse, MobileSubStory, MobileLabelGrid }
+export {
+  splitParagraphs,
+  MobileProse,
+  MobileSubStory,
+  MobileSubStoryHeading,
+  MobileLabelGrid,
+}
 
 export function WebAppsSectionHeader({
   headline,
@@ -35,15 +42,15 @@ export function WebAppsProductGrid({
   }[]
 }) {
   return (
-    <ul className="web-apps-product-grid" role="list">
+    <dl className="web-apps-product-grid">
       {products.map((product) => (
-        <li key={product.name} className="web-apps-product-grid__cell">
-          <p className="web-apps-product-grid__domain">{product.domain}</p>
-          <p className="web-apps-product-grid__name">{product.name}</p>
-          <p className="web-apps-product-grid__desc">{product.description}</p>
-        </li>
+        <div key={product.name} className="web-apps-product-grid__cell">
+          <dt className="web-apps-product-grid__domain">{product.domain}</dt>
+          <dd className="web-apps-product-grid__name">{product.name}</dd>
+          <dd className="web-apps-product-grid__desc">{product.description}</dd>
+        </div>
       ))}
-    </ul>
+    </dl>
   )
 }
 

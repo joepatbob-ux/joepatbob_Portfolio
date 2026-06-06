@@ -11,6 +11,7 @@ export function WebAppsChapter() {
         chapterId="web-apps-overview"
         headline={webApps.headline}
         body={webApps.overviewBody}
+        meta={webApps.overviewMeta}
         className="web-apps-chapter-slot--overview"
       />
       <WebAppsKelvinChapter />

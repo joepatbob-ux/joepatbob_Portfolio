@@ -1,6 +1,6 @@
 /** Quote bowl scene tuning — camera, pile, unfold slip, canvas. */
 export const QUOTE_BOWL = {
-  slipCount: 4,
+  slipCount: 5,
   contentYOffset: 0.35,
   hoverTiltRad: 0.34,
   idleWobbleAmp: 0.018,

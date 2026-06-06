@@ -1,6 +1,7 @@
 'use client'
 
 import { ChapterCopyScroller } from '@/components/ChapterCopyScroller'
+import { formatChapterInline } from '@/lib/chapter-slide/formatChapterInline'
 import { parseChapterBody } from '@/lib/chapter-slide/parseChapterBody'
 
 export type ChapterSlideCopyLayout = 'chapter' | 'lessons'
@@ -45,7 +46,7 @@ export function ChapterSlideCopy({
         <div className="chapter-slide__body">
           {paragraphs.map((paragraph, index) => (
             <p key={index} className="chapter-copy__body">
-              {paragraph}
+              {formatChapterInline(paragraph)}
             </p>
           ))}
         </div>

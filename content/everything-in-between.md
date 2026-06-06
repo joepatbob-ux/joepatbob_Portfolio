@@ -31,8 +31,9 @@ I believe the interface has to do the hard work. Not because it's a principle I 
 
 - If it's worth buying, it sells itself.
 - Value flows from the user up, not the boardroom down.
-- Our job is to do the hard work so users don't have to.
 - It's okay to move the cheese, as long as you put it somewhere better.
+- The best interface is the one that disappears.
+- Our job is to do the hard work so users don't have to.
 
 ## Formation
 

@@ -6,6 +6,7 @@ import { ChapterSlideCopy } from '@/components/chapter-slide/ChapterSlideCopy'
 import { ChapterSlideShell } from '@/components/chapter-slide/ChapterSlideShell'
 import { InteractiveStageCursor } from '@/components/chapter-slide/InteractiveStageCursor'
 import { ChapterCopyReveal } from '@/components/chapter-slide/ChapterCopyReveal'
+import { formatChapterInline } from '@/lib/chapter-slide/formatChapterInline'
 import { parseChapterBody } from '@/lib/chapter-slide/parseChapterBody'
 import { getChapterCopyColumnClasses } from '@/lib/chapter-slide/layoutMode'
 import { useChapterLayoutMode } from '@/lib/hooks/useChapterLayoutMode'
@@ -82,7 +83,7 @@ export function ChapterSlideLayout({
           <div className="chapter-slide__body">
             {bodyParagraphs.map((paragraph, index) => (
               <p key={index} className="chapter-copy__body">
-                {paragraph}
+                {formatChapterInline(paragraph)}
               </p>
             ))}
           </div>
