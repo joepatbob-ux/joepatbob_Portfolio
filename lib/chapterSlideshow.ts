@@ -71,6 +71,15 @@ function crossfadeWeights(t: number): { outgoing: number; incoming: number } {
 
 type SlideAnchor = { id: string; centerY: number }
 
+function snapSlideCenterY(el: HTMLElement): number {
+  const vh = window.innerHeight
+  if (vh > 0) {
+    return el.offsetTop + vh / 2
+  }
+  const rect = el.getBoundingClientRect()
+  return rect.top + window.scrollY + rect.height / 2
+}
+
 function snapSlideAnchors(): SlideAnchor[] {
   return Array.from(
     document.querySelectorAll<HTMLElement>(VIEWPORT_SNAP_SLOT_SELECTOR),
@@ -78,10 +87,9 @@ function snapSlideAnchors(): SlideAnchor[] {
     .map((el) => {
       const id = el.dataset.chapterId
       if (!id) return null
-      const rect = el.getBoundingClientRect()
       return {
         id,
-        centerY: rect.top + window.scrollY + rect.height / 2,
+        centerY: snapSlideCenterY(el),
       }
     })
     .filter((s): s is SlideAnchor => s !== null)

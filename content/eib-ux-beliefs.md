@@ -1,11 +1,11 @@
 # UX beliefs
 
-Your four Conviction principles. Each bullet becomes a quote slip in the **Conviction** bowl.
+Your four Concepts principles. Each bullet becomes a quote slip in the **Concepts** bowl.
 
 <!--
   How to edit
   ───────────
-  • Keep beliefs aligned with the Conviction section — one principle per bullet.
+  • Keep beliefs aligned with the Concepts section — one principle per bullet.
   • Save this file — the dev server picks up changes automatically.
 -->
 

@@ -7,7 +7,7 @@ import { preloadQuoteBowlStage } from '@/lib/stagePreload/quoteBowl'
 
 /** Background warm-up for EIB stage assets as chapters enter the scroll viewport. */
 export function EibStagePreloads() {
-  useStagePreload(eibChapterId('conviction'), preloadQuoteBowlStage)
+  useStagePreload(eibChapterId('concepts'), preloadQuoteBowlStage)
   useStagePreload(eibChapterId('formation'), preloadFormationLegoStage)
   return null
 }

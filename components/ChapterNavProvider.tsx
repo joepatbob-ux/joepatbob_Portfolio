@@ -68,7 +68,6 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
   const targetIdRef = useRef<string | null>(null)
   const revealsRef = useRef<Record<string, number>>({})
   const phaseRef = useRef<ChapterNavPhase>('idle')
-  const lastScrollActiveRef = useRef<string | null>(null)
   useEffect(() => {
     activeRef.current = activeSlideId
   }, [activeSlideId])
@@ -95,10 +94,7 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
         if (!isTopBarNavViewport()) {
           applyChapterPanelScrollStyles(state.revealMap, state.activeSlideId)
         }
-        if (state.activeSlideId !== lastScrollActiveRef.current) {
-          lastScrollActiveRef.current = state.activeSlideId
-          applyPlacedStickerScrollVisibility(state.revealMap, state.activeSlideId)
-        }
+        applyPlacedStickerScrollVisibility(state.revealMap, state.activeSlideId)
         if (
           isTopBarNavViewport() &&
           chapterRevealsChanged(revealsRef.current, state.revealMap)

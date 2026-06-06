@@ -5,10 +5,12 @@ import { createPortal } from 'react-dom'
 import { PlacedStickerControl } from '@/components/PlacedStickerControl'
 import { Sticker } from '@/components/Sticker'
 import { useStickers } from '@/components/StickerProvider'
+import { useStickerActiveChapterSync } from '@/lib/hooks/useStickerActiveChapterSync'
 import { flushScrollFrame } from '@/lib/scrollFrame'
 
 export function StickerLayer() {
   const { placed, activeDrag, selectSticker, zIndices } = useStickers()
+  useStickerActiveChapterSync()
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {

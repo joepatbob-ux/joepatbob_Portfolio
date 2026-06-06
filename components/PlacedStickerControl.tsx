@@ -11,7 +11,7 @@ import {
   writeStickerPickData,
   type StickerArtMetrics,
 } from '@/lib/stickerPickBounds'
-import { chapterRevealForId, activeSlideIdPublished } from '@/lib/chapterSlideshow'
+import { activeSlideIdPublished } from '@/lib/chapterSlideshow'
 import { useLayoutTopBarNav } from '@/lib/hooks/useLayoutTopBarNav'
 import {
   pointerAngleDeg,
@@ -210,15 +210,6 @@ export function PlacedStickerControl({ sticker }: Props) {
     window.addEventListener('pointerup', onUp)
     window.addEventListener('pointercancel', onUp)
   }
-
-  useEffect(() => {
-    if (!selected || !sticker.chapterId) return
-    if (effectiveActiveSlideId === sticker.chapterId) return
-    const reveal = chapterRevealForId(sticker.chapterId)
-    if (reveal < 0.12) {
-      selectSticker(null)
-    }
-  }, [effectiveActiveSlideId, selected, sticker.chapterId, selectSticker])
 
   const stickerVisible =
     selected ||

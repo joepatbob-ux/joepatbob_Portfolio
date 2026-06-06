@@ -6,7 +6,7 @@ const CHAPTER_SLOT_SELECTOR = '.portfolio-chapter-slot[data-chapter-id]'
 /** Only nested copy scrollers — never the fixed panel (avoids scroll fighting). */
 const SCROLL_TRAP_SELECTOR = '.chapter-copy-scroller'
 
-const HANDOFF_COOLDOWN_MS = 560
+const HANDOFF_COOLDOWN_MS = 240
 const EDGE_EPSILON_PX = 4
 
 let bindGeneration = 0
@@ -45,8 +45,7 @@ function previousChapterSlot(scrollY: number): HTMLElement | null {
 
 function scrollToChapterSlot(slot: HTMLElement): void {
   lastHandoffAt = Date.now()
-  const top = slot.offsetTop
-  window.scrollTo({ top, left: 0, behavior: 'auto' })
+  slot.scrollIntoView({ block: 'start', behavior: 'auto' })
 }
 
 function onWheelAtScrollEdge(el: HTMLElement, e: WheelEvent): void {

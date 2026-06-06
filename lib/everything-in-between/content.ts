@@ -1,10 +1,10 @@
-/** Structured copy for Everything In Between (Conviction · Formation · Practice). */
+/** Structured copy for Everything In Between (Concepts · Formation · Practice). */
 
 import uxBeliefsSource from '@/content/eib-ux-beliefs.md?raw'
 import { parseUxBeliefs } from '@/lib/everything-in-between/parseUxBeliefs'
 
 export const EIB_SECTION_TABS = [
-  { id: 'conviction', label: 'Conviction' },
+  { id: 'concepts', label: 'Concepts' },
   { id: 'formation', label: 'Formation' },
   { id: 'practice', label: 'Practice' },
 ] as const
@@ -19,13 +19,13 @@ export const EIB_CHAPTER_INTRO = `Good design work doesn't come from talent appl
 
 The work shows where that produced something. This chapter is about the methodology underneath it — how it formed, what it holds, and where it shows up when there's no finished product to point to.
 
-Conviction. Formation. Practice.`
+Concepts. Formation. Practice.`
 
 /** UX belief slips for the quote bowl — edit `content/eib-ux-beliefs.md`. */
 export const EIB_CONCEPT_QUOTES = parseUxBeliefs(uxBeliefsSource)
 
-export const EIB_CONVICTION = {
-  headline: 'Conviction',
+export const EIB_CONCEPTS = {
+  headline: 'Concepts',
   intro: `The principles didn't come from a workshop. They came from shipping things that couldn't be updated once they left the building, from watching users encounter interfaces that assumed too much, and from working inside organizations where the loudest voice in the room often wasn't the user.
 
 I believe the interface has to do the hard work. Not because it's a principle I hold — because I've seen what happens when it doesn't.`,

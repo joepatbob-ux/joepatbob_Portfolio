@@ -11,8 +11,8 @@ export const everythingElse: Section = {
   lessonBody: '',
   chapters: [
     {
-      id: 'conviction',
-      title: 'Conviction',
+      id: 'concepts',
+      title: 'Concepts',
       subtitle: '',
       body: '',
       imageAlt: '',

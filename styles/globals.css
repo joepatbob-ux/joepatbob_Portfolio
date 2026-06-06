@@ -1258,28 +1258,24 @@ html {
 /* Viewport snap slideshow — desktop only (≥1024); top-bar ≤1023 uses in-flow scroll */
 @media (min-width: 1024px) {
   html {
-    scroll-snap-type: y proximity;
+    scroll-snap-type: y mandatory;
     scroll-behavior: auto;
   }
 
-  /* Snap: hero, slideshow chapters, EIB intro */
+  /* Snap: hero + every full-viewport chapter slot */
   #hero,
-  .portfolio-chapter-slot--fill.hardware-slideshow,
+  .portfolio-chapter-slot--fill[data-chapter-id],
   .case-study-flow-overview.portfolio-chapter-slot--fill {
     scroll-snap-align: start;
     scroll-snap-stop: always;
   }
 
   #hero,
-  .portfolio-chapter-slot--fill.hardware-slideshow {
+  .portfolio-chapter-slot--fill[data-chapter-id] {
     height: 100vh;
     height: 100dvh;
+    min-height: 100dvh;
     position: relative;
-  }
-
-  .portfolio-chapter-slot--fill.hardware-slideshow,
-  .case-study-flow-overview.portfolio-chapter-slot--fill {
-    min-height: calc(100dvh + var(--cs-screen-gap));
   }
 
   .portfolio-chapter-slot--fill.hardware-slideshow .portfolio-chapter-panel {

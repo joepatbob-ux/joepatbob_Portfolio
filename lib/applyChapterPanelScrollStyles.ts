@@ -1,4 +1,5 @@
 import { isFixedSlideshowFlowChapter, isFlowChapterId } from '@/lib/chapterFlow'
+import { CHAPTER_STICKER_SCROLL_VISIBILITY } from '@/lib/chapterVisibility'
 import { CHAPTER_SLOT_SELECTOR } from '@/lib/chapterSlideshow'
 import { isLayoutMobileViewport } from '@/lib/layout/isLayoutMobileViewport'
 import { isTopBarNavViewport } from '@/lib/layout/isTopBarNavViewport'
@@ -99,7 +100,7 @@ export function applyPlacedStickerScrollVisibility(
       const raw = revealMap[chapterId] ?? 0
       const reveal =
         activeSlideId === chapterId ? Math.max(raw, 1) : raw
-      visible = reveal > 0.08
+      visible = reveal > CHAPTER_STICKER_SCROLL_VISIBILITY
     }
 
     const next = visible ? 'true' : 'false'
