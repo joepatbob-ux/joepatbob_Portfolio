@@ -37,15 +37,6 @@ export const everythingElse: Section = {
       imageLayout: 'full-width',
       imagePosition: 'left',
     },
-    {
-      id: 'concepts',
-      title: 'Concepts',
-      subtitle: '',
-      body: '',
-      imageAlt: '',
-      imageLayout: 'full-width',
-      imagePosition: 'left',
-    },
   ],
   closingQuote: {
     quote: 'Our job is to do the hard work\nso users don\'t have to.',

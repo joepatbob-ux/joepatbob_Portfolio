@@ -1,7 +1,6 @@
 'use client'
 
 import { CaseStudyFlowOverview } from '@/components/case-study/CaseStudyFlowOverview'
-import { EibConceptsSection } from '@/components/everything-in-between/EibConceptsSection'
 import { EibConvictionSection } from '@/components/everything-in-between/EibConvictionSection'
 import { EibFormationSection } from '@/components/everything-in-between/EibFormationSection'
 import { EibPracticeSection } from '@/components/everything-in-between/EibPracticeSection'
@@ -22,7 +21,6 @@ export function EverythingInBetweenChapter() {
       <EibConvictionSection />
       <EibFormationSection />
       <EibPracticeSection />
-      <EibConceptsSection />
     </div>
   )
 }

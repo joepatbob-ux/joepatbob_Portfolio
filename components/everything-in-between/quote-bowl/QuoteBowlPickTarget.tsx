@@ -1,5 +1,7 @@
 'use client'
 
+import { useEffect } from 'react'
+
 type Props = {
   fitRadius: number
   height: number
@@ -19,6 +21,17 @@ export function QuoteBowlPickTarget({
 }: Props) {
   const centerY = topY - height * 0.38
 
+  useEffect(() => {
+    const resetCursor = () => {
+      document.body.style.cursor = ''
+    }
+    window.addEventListener('blur', resetCursor)
+    return () => {
+      window.removeEventListener('blur', resetCursor)
+      resetCursor()
+    }
+  }, [])
+
   return (
     <mesh
       position={[0, centerY, 0]}
@@ -37,7 +50,15 @@ export function QuoteBowlPickTarget({
           ? (e) => {
               e.stopPropagation()
               onHoverChange(false)
-              document.body.style.cursor = 'auto'
+              document.body.style.cursor = ''
+            }
+          : undefined
+      }
+      onPointerMissed={
+        pickable
+          ? () => {
+              onHoverChange(false)
+              document.body.style.cursor = ''
             }
           : undefined
       }

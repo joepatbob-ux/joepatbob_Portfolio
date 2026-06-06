@@ -1,14 +1,44 @@
+import { settlePaperPile } from '@/lib/everything-in-between/quoteBowl/settlePaperPile'
+import { QUOTE_BOWL } from '@/lib/everything-in-between/quoteBowl/constants'
+import {
+  bowlRadiusAtY,
+  clampBallCenterToBowl,
+  randomPointInsideBowl,
+} from '@/lib/everything-in-between/quoteBowl/bowlGeometry'
 import * as THREE from 'three'
+
+export { bowlRadiusAtY }
 
 export type QuoteSlipLayout = {
   id: number
   quote: string
   preview: string
   position: [number, number, number]
+  /** Starting point for the drop animation — set before settling. */
+  spawnPosition?: [number, number, number]
   rotation: [number, number, number]
+  /** Non-uniform scale per axis — varies which crumpled edges read in the pile. */
+  stretch: [number, number, number]
   scale: number
   foldSeed: number
   crinkleSeed: number
+}
+
+function randomPaperPose(rand: () => number): {
+  rotation: [number, number, number]
+  stretch: [number, number, number]
+} {
+  const { ballTiltRad, ballStretch } = QUOTE_BOWL.paper
+  const tilt = () =>
+    THREE.MathUtils.lerp(ballTiltRad.min, ballTiltRad.max, rand()) *
+    (rand() < 0.5 ? -1 : 1)
+  const stretchAxis = () =>
+    THREE.MathUtils.lerp(ballStretch.min, ballStretch.max, rand())
+
+  return {
+    rotation: [tilt(), rand() * Math.PI * 2, tilt()],
+    stretch: [stretchAxis(), stretchAxis(), stretchAxis()],
+  }
 }
 
 const TYPEWRITER_FONT =
@@ -51,7 +81,7 @@ export function quotePreview(quote: string, maxLen = 38): string {
   return `${quote.slice(0, maxLen - 1).trim()}…`
 }
 
-/** Pack crumpled paper inside the bowl cavity — below the rim. */
+/** Pack crumpled paper — spawn above the pile for gravity settling. */
 export function buildQuoteSlipLayouts(
   answers: readonly string[],
   slipCount: number,
@@ -60,6 +90,7 @@ export function buildQuoteSlipLayouts(
   pileTopY: number,
   pileBottomY: number,
   paperRadius: number,
+  paperRestOffsetY: number,
 ): QuoteSlipLayout[] {
   const rand = seededRandom(1464)
   const pool = [...answers]
@@ -70,35 +101,30 @@ export function buildQuoteSlipLayouts(
 
   const count = slipCount
   const layouts: QuoteSlipLayout[] = []
-  const fillHeight = Math.max(pileTopY - pileBottomY, 0.01)
-  const floorY = pileBottomY + paperRadius * 1.02
-  const pileCeilingY = pileBottomY + fillHeight * 0.48
 
   for (let i = 0; i < count; i += 1) {
     const quote = pool[i % pool.length]
-    const angle = rand() * Math.PI * 2
-
-    const heightT = Math.pow(rand(), 1.05)
-    const y =
-      floorY +
-      heightT * (pileCeilingY - floorY) +
-      (rand() - 0.5) * fillHeight * 0.05
-    const r =
-      innerRadius *
-      (0.12 + rand() * 0.46) *
-      THREE.MathUtils.lerp(0.82, 1.1, heightT)
+    const { min, max } = QUOTE_BOWL.paper.ballScale
+    const scale = THREE.MathUtils.lerp(min, max, Math.pow(rand(), 0.82))
+    const bounds = {
+      innerRadius,
+      pileBottomY,
+      pileTopY,
+      paperRadius: paperRadius * scale,
+      restOffsetY: paperRestOffsetY * scale,
+    }
+    const [x, y, z] = randomPointInsideBowl(rand, bounds, 'upper')
+    const pose = randomPaperPose(seededRandom(1464 + i * 97))
 
     layouts.push({
       id: i,
       quote,
       preview: quotePreview(quote),
-      position: [Math.cos(angle) * r, y, Math.sin(angle) * r],
-      rotation: [
-        (rand() - 0.5) * Math.PI * 2,
-        rand() * Math.PI * 2,
-        (rand() - 0.5) * Math.PI * 2,
-      ],
-      scale: 0.86 + rand() * 0.24,
+      position: [x, y, z],
+      spawnPosition: [x, y, z],
+      rotation: pose.rotation,
+      stretch: pose.stretch,
+      scale,
       foldSeed: 100 + i * 17,
       crinkleSeed: 400 + i * 23,
     })
@@ -116,39 +142,52 @@ export function buildInsideBowlLayouts(
   pileTopY: number,
   pileBottomY: number,
   paperRadius: number,
+  paperRestOffsetY: number,
 ): QuoteSlipLayout[] {
-  return snapLayoutsInsideBowl(
-    buildQuoteSlipLayouts(
-      answers,
-      slipCount,
-      bowlHeight,
-      innerRadius,
-      pileTopY,
-      pileBottomY,
-      paperRadius,
-    ),
+  const dropped = buildQuoteSlipLayouts(
+    answers,
+    slipCount,
+    bowlHeight,
+    innerRadius,
+    pileTopY,
+    pileBottomY,
+    paperRadius,
+    paperRestOffsetY,
+  )
+
+  return settlePaperPile(dropped, {
     innerRadius,
     pileBottomY,
     pileTopY,
     paperRadius,
-  )
-}
-
-function bowlRadiusAtY(
-  y: number,
-  innerRadius: number,
-  bottomY: number,
-  topY: number,
-): number {
-  const height = Math.max(topY - bottomY, 0.01)
-  const t = THREE.MathUtils.clamp((y - bottomY) / height, 0, 1)
-  const rimR = innerRadius * 0.94
-  const bellyR = innerRadius * 1.04
-  const bottomR = innerRadius * 0.36
-
-  if (t < 0.14) return THREE.MathUtils.lerp(bottomR, bellyR * 0.7, t / 0.14)
-  if (t < 0.52) return THREE.MathUtils.lerp(bellyR * 0.7, bellyR, (t - 0.14) / 0.38)
-  return THREE.MathUtils.lerp(bellyR, rimR, (t - 0.52) / 0.48)
+    paperRestOffsetY,
+  }).map((layout) => {
+    const [x, y, z] = clampBallCenterToBowl(
+      layout.position[0],
+      layout.position[1],
+      layout.position[2],
+      {
+        innerRadius,
+        pileBottomY,
+        pileTopY,
+        paperRadius: paperRadius * layout.scale,
+        restOffsetY: paperRestOffsetY * layout.scale,
+      },
+    )
+    const spawn = layout.spawnPosition ?? layout.position
+    const clampedSpawn = clampBallCenterToBowl(spawn[0], spawn[1], spawn[2], {
+      innerRadius,
+      pileBottomY,
+      pileTopY,
+      paperRadius: paperRadius * layout.scale,
+      restOffsetY: paperRestOffsetY * layout.scale,
+    })
+    return {
+      ...layout,
+      position: [x, y, z] as [number, number, number],
+      spawnPosition: clampedSpawn,
+    }
+  })
 }
 
 /** Keep settled in-bowl slips inside the visible glass cavity. */
@@ -158,12 +197,13 @@ export function snapLayoutsInsideBowl(
   bottomY: number,
   topY: number,
   paperRadius: number,
+  paperRestOffsetY: number,
 ): QuoteSlipLayout[] {
   return layouts.map((layout) => {
     const [x, y, z] = layout.position
     const fillHeight = topY - bottomY
-    const minY = bottomY + paperRadius * 0.98
-    const pileTop = bottomY + fillHeight * 0.52
+    const minY = bottomY + paperRestOffsetY * layout.scale
+    const pileTop = bottomY + fillHeight * 0.5
     const clampedY = THREE.MathUtils.clamp(y, minY, pileTop)
     const maxR = bowlRadiusAtY(clampedY, innerRadius, bottomY, topY) * 0.58
     const xz = Math.hypot(x, z)
@@ -181,7 +221,10 @@ export function snapLayoutsInsideBowl(
 }
 
 /** Topmost folded slip — pulled when the bowl is clicked. */
-export function pickSlipFromBowl(slips: readonly QuoteSlipLayout[]): QuoteSlipLayout {
+export function pickSlipFromBowl(
+  slips: readonly QuoteSlipLayout[],
+  liveY?: (slip: QuoteSlipLayout) => number,
+): QuoteSlipLayout {
   if (slips.length === 0) {
     return {
       id: 0,
@@ -189,14 +232,17 @@ export function pickSlipFromBowl(slips: readonly QuoteSlipLayout[]): QuoteSlipLa
       preview: 'Ask again.',
       position: [0, 0, 0],
       rotation: [0, 0, 0],
+      stretch: [1, 1, 1],
       scale: 1,
       foldSeed: 1,
       crinkleSeed: 1,
     }
   }
+  const yOf = (slip: QuoteSlipLayout) =>
+    liveY ? liveY(slip) : slip.position[1]
   const topN = [...slips]
-    .sort((a, b) => b.position[1] - a.position[1])
-    .slice(0, Math.max(3, Math.floor(slips.length * 0.12)))
+    .sort((a, b) => yOf(b) - yOf(a))
+    .slice(0, Math.max(1, Math.ceil(slips.length * 0.5)))
   const idx = Math.floor(Math.random() * topN.length)
   return topN[idx] ?? slips[0]
 }

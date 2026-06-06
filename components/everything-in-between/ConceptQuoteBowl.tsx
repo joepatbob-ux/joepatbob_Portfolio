@@ -4,15 +4,15 @@ import { BowlGlassTunePanel } from '@/components/everything-in-between/BowlGlass
 import { QuoteBowlControls } from '@/components/everything-in-between/quote-bowl/QuoteBowlControls'
 import { useTheme } from '@/components/ThemeProvider'
 import { QUOTE_BOWL } from '@/lib/everything-in-between/quoteBowl/constants'
+import { useQuoteBowlDebugOutlines } from '@/lib/everything-in-between/quoteBowl/useQuoteBowlDebugOutlines'
 import { useQuoteBowlFlow } from '@/lib/everything-in-between/quoteBowl/useQuoteBowlFlow'
 import { useQuoteBowlGlassTune } from '@/lib/everything-in-between/quoteBowl/useQuoteBowlGlassTune'
-import { useQuoteTypewriter } from '@/lib/everything-in-between/useQuoteTypewriter'
 import { useChapterActive } from '@/lib/chapterActiveContext'
 import { useCanvasDpr } from '@/lib/hooks/useCanvasDpr'
 import { usePrefersReducedMotion } from '@/lib/hooks/usePrefersReducedMotion'
 import { Canvas } from '@react-three/fiber'
 import dynamic from 'next/dynamic'
-import { Suspense } from 'react'
+import { Suspense, useCallback, useRef } from 'react'
 
 const ConceptQuoteBowlCanvas = dynamic(
   () =>
@@ -26,12 +26,9 @@ type Props = {
   answers: readonly string[]
 }
 
-function stageAriaLabel(step: ReturnType<typeof useQuoteBowlFlow>['step']) {
-  if (step === 'pick') return 'Pick a quote from the bowl'
-  if (step === 'revealed') {
-    return 'Quote revealed — click the bowl to pick again'
-  }
-  return undefined
+function bowlActionLabel(step: ReturnType<typeof useQuoteBowlFlow>['step']) {
+  if (step === 'pick') return 'Reach into the bowl'
+  return 'Reach into the bowl again'
 }
 
 export function ConceptQuoteBowl({ answers }: Props) {
@@ -57,22 +54,40 @@ export function ConceptQuoteBowl({ answers }: Props) {
     closeTune,
     onGlassTuneChange,
   } = useQuoteBowlGlassTune()
+  const debugOutlines = useQuoteBowlDebugOutlines()
+  const stackRef = useRef<HTMLDivElement>(null)
+  const pickActionRef = useRef<(() => void) | null>(null)
 
-  const typedQuote = useQuoteTypewriter(answer, showTypedQuote, reducedMotion)
+  const handlePickAction = useCallback(() => {
+    pickActionRef.current?.()
+  }, [])
   const { camera } = QUOTE_BOWL
 
   return (
-    <div className="quote-bowl">
-      <div
-        className={[
-          'quote-bowl__stage',
-          isPickTarget ? 'quote-bowl__stage--pick-target' : '',
-        ]
-          .filter(Boolean)
-          .join(' ')}
-        aria-label={stageAriaLabel(step)}
-        onContextMenu={openTune}
-      >
+    <div className={['quote-bowl', debugOutlines ? 'quote-bowl--debug' : ''].filter(Boolean).join(' ')}>
+      <div className="quote-bowl__stack" data-debug="stack" ref={stackRef}>
+        <QuoteBowlControls
+          showSlip={showTypedQuote && answer != null}
+          quote={answer ?? ''}
+          debugOutlines={debugOutlines}
+        />
+
+        <div
+          className={[
+            'quote-bowl__stage',
+            isPickTarget ? 'quote-bowl__stage--pick-target' : '',
+          ]
+            .filter(Boolean)
+            .join(' ')}
+          data-debug="stage"
+          onContextMenu={tuneDev ? openTune : undefined}
+        >
+        <button
+          type="button"
+          className="quote-bowl__a11y-trigger"
+          onClick={handlePickAction}
+          aria-label={bowlActionLabel(step)}
+        />
         {tuneDev ? (
           <button
             type="button"
@@ -87,6 +102,8 @@ export function ConceptQuoteBowl({ answers }: Props) {
         {chapterActive ? (
           <Canvas
             className="quote-bowl__canvas"
+            data-debug="canvas"
+            shadows
             style={{ width: '100%', height: '100%' }}
             camera={{
               position: [...camera.position],
@@ -105,9 +122,9 @@ export function ConceptQuoteBowl({ answers }: Props) {
             onCreated={({ gl }) => {
               gl.setClearColor(0x000000, 0)
               gl.setPixelRatio(Math.min(window.devicePixelRatio || 1, QUOTE_BOWL.canvas.maxDpr))
-              if (darkSurface) {
-                gl.toneMappingExposure = 1.08
-              }
+              gl.toneMappingExposure = darkSurface
+                ? QUOTE_BOWL.darkSurface.toneMappingExposure
+                : QUOTE_BOWL.lightSurface.toneMappingExposure
             }}
           >
             <Suspense fallback={null}>
@@ -120,13 +137,24 @@ export function ConceptQuoteBowl({ answers }: Props) {
                 glassTune={glassTune}
                 onPickSlip={onPickSlip}
                 onReset={reset}
+                pickActionRef={pickActionRef}
+                debugOutlines={debugOutlines}
+                stackRef={stackRef}
               />
             </Suspense>
           </Canvas>
         ) : (
           <div className="quote-bowl__canvas quote-bowl__canvas--placeholder" />
         )}
+        </div>
       </div>
+
+      {debugOutlines ? (
+        <p className="quote-bowl__debug-legend" aria-hidden>
+          HTML: stack · stage · canvas · controls · slip — 3D: orange bbox · red rim ·
+          green pile · blue pick
+        </p>
+      ) : null}
 
       {tuneOpen ? (
         <BowlGlassTunePanel
@@ -135,11 +163,6 @@ export function ConceptQuoteBowl({ answers }: Props) {
           onClose={closeTune}
         />
       ) : null}
-
-      <QuoteBowlControls
-        showSlip={showTypedQuote && answer != null}
-        typedQuote={typedQuote}
-      />
     </div>
   )
 }

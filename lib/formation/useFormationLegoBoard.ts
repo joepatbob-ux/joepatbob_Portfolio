@@ -119,8 +119,11 @@ function clampPieceToPlate(
 export function useFormationLegoBoard(options?: {
   /** Desktop portal bricks track viewport position on scroll. */
   syncBoardRectOnScroll?: boolean
+  /** Re-measure board anchor when the chapter becomes visible (nav / scroll). */
+  visible?: boolean
 }) {
   const syncBoardRectOnScroll = options?.syncBoardRectOnScroll ?? true
+  const visible = options?.visible ?? true
   const stageRef = useRef<HTMLDivElement>(null)
   const [boardW, setBoardW] = useState(FORMATION_BOARD_DISPLAY_W)
   const [pieces, setPieces] = useState<FormationPiece[]>(() => {
@@ -358,6 +361,18 @@ export function useFormationLegoBoard(options?: {
       window.removeEventListener('resize', sync)
     }
   }, [boardW, plate.panX, plate.panY, syncBoardRectOnScroll])
+
+  useEffect(() => {
+    if (!visible) return
+    const boardEl = boardRef.current
+    if (!boardEl) return
+    const rect = boardEl.getBoundingClientRect()
+    const left = Math.round(rect.left)
+    const top = Math.round(rect.top)
+    setBoardRect((prev) =>
+      prev.left === left && prev.top === top ? prev : { left, top },
+    )
+  }, [visible, boardW, plate.panX, plate.panY])
 
   const rotateActivePiece = useCallback(
     (next: BrickPivot) => {
@@ -701,6 +716,7 @@ export function useFormationLegoBoard(options?: {
   return {
     stageRef,
     boardRef,
+    boardRect,
     boardW,
     plate,
     isPiecePickedUp,

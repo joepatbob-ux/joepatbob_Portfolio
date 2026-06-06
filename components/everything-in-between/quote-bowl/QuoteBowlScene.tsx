@@ -1,8 +1,12 @@
 'use client'
 
 import { CrumpledPaperPile } from '@/components/everything-in-between/quote-bowl/CrumpledPaperPile'
+import { QuoteBowlDebugOutlines } from '@/components/everything-in-between/quote-bowl/QuoteBowlDebugOutlines'
+import { QuoteBowlPileShadowReceiver } from '@/components/everything-in-between/quote-bowl/QuoteBowlPileShadowReceiver'
 import { QuoteBowlPickTarget } from '@/components/everything-in-between/quote-bowl/QuoteBowlPickTarget'
+import { QuoteBowlRimTracker } from '@/components/everything-in-between/quote-bowl/QuoteBowlRimTracker'
 import { QUOTE_BOWL } from '@/lib/everything-in-between/quoteBowl/constants'
+import type { PaperSimBall } from '@/lib/everything-in-between/quoteBowl/paperPilePhysics'
 import type { QuoteBowlCanvasProps } from '@/lib/everything-in-between/quoteBowl/types'
 import {
   applyBowlGlassHover,
@@ -15,7 +19,7 @@ import {
 import { useGoldfishBowlModel } from '@/lib/everything-in-between/useGoldfishBowlModel'
 import { usePaperCrumpledModel } from '@/lib/everything-in-between/usePaperCrumpledModel'
 import { useFrame, useThree } from '@react-three/fiber'
-import { useEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three'
 
 export function QuoteBowlScene({
@@ -27,15 +31,20 @@ export function QuoteBowlScene({
   glassTune,
   onPickSlip,
   onReset,
+  pickActionRef,
+  debugOutlines = false,
+  stackRef,
 }: QuoteBowlCanvasProps) {
   const prepared = useGoldfishBowlModel()
-  const { bowl, height, innerRadius, topY, pileBottomY, pileTopY, fitRadius } =
+  const { bowl, height, innerRadius, topY, pileBottomY, pileTopY, fitRadius, bottomY } =
     prepared
-  const { radius: paperMeshRadius } = usePaperCrumpledModel()
+  const { radius: paperMeshRadius, restOffsetY: paperRestOffsetY } =
+    usePaperCrumpledModel()
   const paperRadius = paperMeshRadius * 1.1
   const hoverStrength = useRef(0)
   const hoverTarget = useRef(0)
   const groupRef = useRef<THREE.Group>(null)
+  const liveBallsRef = useRef<PaperSimBall[]>([])
   const invalidate = useThree((s) => s.invalidate)
 
   const layouts = useMemo(
@@ -48,8 +57,9 @@ export function QuoteBowlScene({
         pileTopY,
         pileBottomY,
         paperRadius,
+        paperRestOffsetY,
       ),
-    [answers, height, innerRadius, pileTopY, pileBottomY, paperRadius],
+    [answers, height, innerRadius, pileTopY, pileBottomY, paperRadius, paperRestOffsetY],
   )
 
   const pileReady = layouts.length > 0
@@ -63,65 +73,102 @@ export function QuoteBowlScene({
     invalidate()
   }, [step, selectedSlipId, invalidate])
 
+  useEffect(() => {
+    if (step === 'pick') return
+    hoverTarget.current = 0
+    hoverStrength.current = 0
+    const root = groupRef.current
+    if (root) {
+      root.rotation.x = 0
+      root.rotation.y = 0
+    }
+    applyBowlGlassHover(bowl, 0)
+    invalidate()
+  }, [bowl, invalidate, step])
+
   useFrame((state, delta) => {
     const root = groupRef.current
     if (!root) return
 
+    const motionActive = step === 'pick' && pileReady
+
     const lerpFactor = 1 - Math.pow(0.001, delta)
     hoverStrength.current = THREE.MathUtils.lerp(
       hoverStrength.current,
-      hoverTarget.current,
+      motionActive ? hoverTarget.current : 0,
       lerpFactor,
     )
 
     const hoverTilt = hoverStrength.current * QUOTE_BOWL.hoverTiltRad
     root.rotation.x = THREE.MathUtils.lerp(
       root.rotation.x,
-      pileReady && step === 'pick' ? hoverTilt : 0,
+      motionActive ? hoverTilt : 0,
       lerpFactor,
     )
 
-    if (
-      step === 'pick' &&
-      !reducedMotion &&
-      pileReady &&
-      hoverStrength.current < 0.05
-    ) {
+    if (motionActive && !reducedMotion && hoverStrength.current < 0.05) {
       const t = state.clock.elapsedTime
       root.rotation.y =
         Math.sin(t * QUOTE_BOWL.idleWobbleHz) * QUOTE_BOWL.idleWobbleAmp
-    } else if (step !== 'pick' || hoverStrength.current >= 0.05) {
+    } else {
       root.rotation.y = THREE.MathUtils.lerp(root.rotation.y, 0, 0.06)
     }
 
     const showBowlHover =
-      (step === 'pick' || step === 'revealed') && hoverStrength.current > 0.001
+      motionActive && hoverStrength.current > 0.001
     applyBowlGlassHover(bowl, showBowlHover ? hoverStrength.current : 0)
 
-    invalidate()
   })
 
   const pickable = (step === 'pick' && pileReady) || step === 'revealed'
 
-  const handlePick = () => {
+  const handlePick = useCallback(() => {
     if (step === 'revealed') {
       onReset()
       return
     }
     if (!pickable || step !== 'pick') return
-    onPickSlip(pickSlipFromBowl(layouts))
-  }
+    const liveY = new Map(
+      liveBallsRef.current.map((ball) => [ball.layout.id, ball.y]),
+    )
+    onPickSlip(
+      pickSlipFromBowl(layouts, (slip) => liveY.get(slip.id) ?? slip.position[1]),
+    )
+  }, [layouts, onPickSlip, onReset, pickable, step])
+
+  useEffect(() => {
+    if (!pickActionRef) return
+    pickActionRef.current = handlePick
+    return () => {
+      pickActionRef.current = null
+    }
+  }, [handlePick, pickActionRef])
 
   return (
     <group ref={groupRef}>
       <group position={[0, QUOTE_BOWL.contentYOffset, 0]}>
         <primitive object={bowl} />
 
+        <QuoteBowlPileShadowReceiver
+          pileBottomY={pileBottomY}
+          innerRadius={innerRadius}
+          darkSurface={darkSurface}
+        />
+
         <CrumpledPaperPile
           layouts={layouts}
           step={step}
           selectedSlipId={selectedSlipId}
           dimmed={false}
+          darkSurface={darkSurface}
+          reducedMotion={reducedMotion}
+          bowlRotationRef={groupRef}
+          innerRadius={innerRadius}
+          pileBottomY={pileBottomY}
+          pileTopY={pileTopY}
+          paperRadius={paperRadius}
+          paperRestOffsetY={paperRestOffsetY}
+          liveBallsRef={liveBallsRef}
         />
 
         <QuoteBowlPickTarget
@@ -136,6 +183,19 @@ export function QuoteBowlScene({
           }}
         />
       </group>
+
+      {debugOutlines ? (
+        <QuoteBowlDebugOutlines
+          bottomY={bottomY}
+          topY={topY}
+          fitRadius={fitRadius}
+          innerRadius={innerRadius}
+          pileBottomY={pileBottomY}
+          pileTopY={pileTopY}
+        />
+      ) : null}
+
+      {stackRef ? <QuoteBowlRimTracker topY={topY} stackRef={stackRef} /> : null}
     </group>
   )
 }
