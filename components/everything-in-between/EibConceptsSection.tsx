@@ -8,28 +8,28 @@ import {
   splitParagraphs,
 } from '@/components/everything-in-between/EibSectionParts'
 import {
-  EIB_CONVICTION,
+  EIB_CONCEPTS,
   eibChapterId,
 } from '@/lib/everything-in-between/content'
 
-export function EibConvictionSection() {
-  const chapterId = eibChapterId('conviction')
+export function EibConceptsSection() {
+  const chapterId = eibChapterId('concepts')
 
   return (
     <FlowChapterSlideLayout
       chapterId={chapterId}
       fillViewport
-      className="mobile-chapter-slot eib-section-slot eib-section-slot--conviction flow-chapter-slide--conviction"
+      className="mobile-chapter-slot eib-section-slot eib-section-slot--concepts flow-chapter-slide--concepts"
       stage={
         <ConceptQuoteBowl
           chapterId={chapterId}
-          answers={EIB_CONVICTION.answers}
+          answers={EIB_CONCEPTS.answers}
         />
       }
       copy={
-        <ChapterCopyReveal headline={EIB_CONVICTION.headline}>
+        <ChapterCopyReveal headline={EIB_CONCEPTS.headline}>
           <EibSubSectionIntro>
-            {splitParagraphs(EIB_CONVICTION.intro).map((p, i) => (
+            {splitParagraphs(EIB_CONCEPTS.intro).map((p, i) => (
               <p key={i}>{p}</p>
             ))}
           </EibSubSectionIntro>

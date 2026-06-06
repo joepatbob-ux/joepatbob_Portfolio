@@ -89,7 +89,7 @@ interface StickerContextValue {
   selectSticker: (instanceId: string | null) => void
   updatePlaced: (
     instanceId: string,
-    patch: Partial<Pick<PlacedSticker, 'x' | 'y' | 'rotation'>>,
+    patch: Partial<Pick<PlacedSticker, 'x' | 'y' | 'rotation' | 'chapterId'>>,
   ) => void
   removePlaced: (instanceId: string) => void
   returnAssetToDeck: (assetId: string) => void
@@ -221,7 +221,7 @@ export function StickerProvider({ children }: { children: ReactNode }) {
   const updatePlaced = useCallback(
     (
       instanceId: string,
-      patch: Partial<Pick<PlacedSticker, 'x' | 'y' | 'rotation'>>,
+      patch: Partial<Pick<PlacedSticker, 'x' | 'y' | 'rotation' | 'chapterId'>>,
     ) => {
       setPlaced((prev) =>
         prev.map((s) =>
@@ -290,6 +290,7 @@ export function StickerProvider({ children }: { children: ReactNode }) {
       updatePlaced(drag.instanceId, {
         x: clientX - drag.grabOffsetX,
         y: clientY - drag.grabOffsetY,
+        chapterId,
       })
       setSelectedInstanceId(drag.instanceId)
     }

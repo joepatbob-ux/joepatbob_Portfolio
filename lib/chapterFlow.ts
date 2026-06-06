@@ -1,6 +1,6 @@
-/** Viewport-height snap slides (Hardware, etc.) — not in-flow case studies. */
+/** Viewport-height snap slides — hardware, flow chapters, lessons, closing quotes. */
 export const VIEWPORT_SNAP_SLOT_SELECTOR =
-  '.portfolio-chapter-slot--fill.hardware-slideshow[data-chapter-id]'
+  '.portfolio-chapter-slot--fill[data-chapter-id]'
 
 /** Flow case studies (Mobile, EIB, Web Apps) — all use .flow-chapter-slide on the slot. */
 export const FLOW_CHAPTER_SLOT_SELECTOR =
