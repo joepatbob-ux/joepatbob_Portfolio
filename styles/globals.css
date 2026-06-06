@@ -1300,7 +1300,7 @@ html {
     overflow: visible;
   }
 
-  /* Long copy scrolls inside the slide before snap advances the page */
+  /* Long copy scrolls inside the slide first; chapterCopyWheel hands off at edges */
   .portfolio-chapter-slot--fill.hardware-slideshow .chapter-slide__viewport {
     flex: 1 1 auto;
     min-height: 0;
