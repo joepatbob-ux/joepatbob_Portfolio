@@ -5,8 +5,10 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  container-type: inline-size;
+  container-name: quote-bowl-root;
   width: 100%;
-  max-width: min(var(--cs-stage-gallery-w, var(--cs-stage-artifact-w, 420px)), 100%);
+  max-width: 100%;
   margin-inline: auto;
   pointer-events: auto;
   --quote-bowl-slip-gap: -10px;
@@ -20,7 +22,8 @@
 
 .quote-bowl__stack {
   position: relative;
-  width: min(420px, 94vw);
+  width: 100%;
+  max-width: min(420px, 100%);
   margin-inline: auto;
   overflow: visible;
 }

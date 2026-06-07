@@ -3,20 +3,20 @@
 import { Touch2CarouselDots } from '@/components/touch2/Touch2CarouselDots'
 import { useChapterActive } from '@/lib/chapterActiveContext'
 import { TOUCH2_CAROUSEL_IMAGES } from '@/lib/touch2CarouselImages'
+import {
+  touch2RailMetrics,
+  touch2RailMetricsForWidth,
+  TOUCH2_DOT_RING,
+  TOUCH2_DOT_SLOT_H,
+} from '@/lib/touch2/touch2StageMetrics'
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
 
-/** Fixed stage — images crop with object-fit: cover inside this box. */
-export const TOUCH2_FRAME_WIDTH = 520
-export const TOUCH2_FRAME_HEIGHT = 580
-const AUTO_PLAY_MS = 6200
-const TOUCH2_DOT_SLOT_H = 80
-const TOUCH2_DOT_GAP = 8
+export {
+  TOUCH2_FRAME_HEIGHT,
+  TOUCH2_FRAME_WIDTH,
+} from '@/lib/touch2/touch2StageMetrics'
 
-function touch2RailMetrics(slideCount: number) {
-  const railH = slideCount * TOUCH2_DOT_SLOT_H + (slideCount - 1) * TOUCH2_DOT_GAP
-  const slideW = Math.round((railH * TOUCH2_FRAME_WIDTH) / TOUCH2_FRAME_HEIGHT)
-  return { railH, slideW }
-}
+const AUTO_PLAY_MS = 6200
 
 interface Slide {
   src: string
@@ -138,15 +138,49 @@ function Touch2CarouselInner({
 
   const showProgressBar = autoPlay && isActive && !reducedMotion
   const indicatorProgress = showProgressBar ? progress : 0
-  const { railH, slideW } = touch2RailMetrics(count)
+  const rootRef = useRef<HTMLDivElement>(null)
+  const [railMetrics, setRailMetrics] = useState(() => touch2RailMetrics(count))
+
+  useEffect(() => {
+    const el = rootRef.current
+    if (!el || typeof ResizeObserver === 'undefined') {
+      setRailMetrics(touch2RailMetrics(count))
+      return
+    }
+
+    const update = () => {
+      const style = getComputedStyle(el)
+      const gap =
+        parseFloat(style.columnGap) ||
+        parseFloat(style.gap) ||
+        parseFloat(style.getPropertyValue('--cs-touch2-gap')) ||
+        32
+      setRailMetrics(
+        touch2RailMetricsForWidth(count, el.clientWidth, gap),
+      )
+    }
+
+    update()
+    const observer = new ResizeObserver(update)
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [count])
+
+  const { railH, slideW, scale } = railMetrics
 
   return (
     <div
+      ref={rootRef}
       className={['touch2-carousel', className].filter(Boolean).join(' ')}
       style={
         {
           '--touch2-rail-h': `${railH}px`,
           '--touch2-slide-w': `${slideW}px`,
+          '--touch2-dot-slot-h': `${Math.max(48, Math.round(TOUCH2_DOT_SLOT_H * scale))}px`,
+          '--touch2-dot-slot-w': `${Math.max(48, Math.round(TOUCH2_DOT_SLOT_H * scale))}px`,
+          '--touch2-dot-active-h': `${Math.max(36, Math.round(56 * scale))}px`,
+          '--touch2-dot-active-w': `${Math.max(36, Math.round(56 * scale))}px`,
+          '--touch2-dot-ring-size': `${Math.max(28, Math.round(TOUCH2_DOT_RING * scale))}px`,
         } as React.CSSProperties
       }
       role="region"

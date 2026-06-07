@@ -6,15 +6,18 @@
   align-items: center;
   justify-content: center;
   gap: clamp(14px, 2.2vh, 20px);
+  container-type: inline-size;
+  container-name: fortune-teller-root;
   width: 100%;
-  max-width: min(var(--cs-stage-gallery-w, var(--cs-stage-artifact-w, 320px)), 100%);
+  max-width: 100%;
   margin-inline: auto;
   pointer-events: auto;
 }
 
 .fortune-teller__stage {
   position: relative;
-  width: min(300px, 84vw);
+  width: 100%;
+  max-width: min(300px, 100%);
   aspect-ratio: 1;
   display: flex;
   align-items: center;

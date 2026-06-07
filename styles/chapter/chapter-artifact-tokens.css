@@ -11,8 +11,8 @@
 .chapter-slide__stage .chapter-stage-media,
 .chapter-slide__stage .before-after-slider,
 .chapter-slide__stage .sticker-pile-wrap {
-  width: var(--cs-stage-gallery-w, var(--cs-stage-artifact-w, 100%));
-  max-width: 100%;
+  width: 100%;
+  max-width: min(100%, var(--cs-stage-gallery-w, var(--cs-stage-artifact-w, 100%)));
   margin-inline: auto;
 }
 
@@ -111,7 +111,7 @@
 @media (min-width: 768px) {
   .hardware-slideshow.chapter-slide--eim .chapter-slide__stage > .eim-path-art,
   .hardware-slideshow.chapter-slide--eim .chapter-slide__stage .eim-path-art {
-    width: min(100%, var(--cs-eim-stage-max-w, var(--hw-stage-gallery-w)));
+    width: 100%;
     max-width: min(100%, var(--cs-eim-stage-max-w, var(--hw-stage-gallery-w)));
     min-width: 0;
     margin-inline: auto;
@@ -125,7 +125,7 @@
   }
 }
 
-@media (min-width: 768px) and (max-width: 1199px) {
+@media (min-width: 768px) and (max-width: 1023px) {
   .hardware-slideshow.chapter-slide--eim
     .chapter-slide__inner--compact-expand
     .chapter-compact-view__stage-fill
@@ -171,17 +171,17 @@
   .hardware-slideshow.chapter-slide--sensi-lite
     .chapter-slide__stage
     > .chapter-slide__interactive-wrap {
-    width: var(--hw-stage-gallery-w);
+    width: 100%;
     max-width: 100%;
-    min-width: min(100%, var(--hw-stage-gallery-w));
+    min-width: 0;
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: min(calc(var(--hw-stage-gallery-w) * 147 / 240), 56dvh);
+    min-height: min(calc(100cqw * 147 / 240), 56dvh);
   }
 
   .hardware-slideshow.chapter-slide--sensi-lite .chapter-slide__interactive-content {
-    width: min(100%, var(--hw-stage-gallery-w));
+    width: 100%;
     max-width: 100%;
     flex: 0 0 auto;
   }
@@ -206,7 +206,7 @@
   }
 }
 
-@media (min-width: 768px) and (max-width: 1199px) {
+@media (min-width: 768px) and (max-width: 1023px) {
   .hardware-slideshow.mobile-chapter-slot--sensi
     .chapter-slide__inner--compact-expand[data-chapter-expanded='false']
     .chapter-slide__stage:has(.phone-swap) {
@@ -252,7 +252,7 @@
   }
 }
 
-@media (min-width: 768px) and (max-width: 1199px) {
+@media (min-width: 768px) and (max-width: 1023px) {
   .hardware-slideshow.chapter-slide--verdant
     .chapter-slide__inner--compact-expand[data-chapter-expanded='false']
     .chapter-slide__stage {

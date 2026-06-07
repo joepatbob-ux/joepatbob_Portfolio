@@ -19,19 +19,25 @@
     calc(
       100vw - var(--sidebar-width, 280px) - var(--content-pad-x, 32px) -
         var(--content-pad-left, 0px) - var(--cs-stage-max) -
-        var(--cs-split-gap, 20px) - 3rem
+        var(--cs-split-gap, 40px) - 3rem
     )
   );
   --cs-copy-measure-max: min(96ch, 100%);
+
+  /* Usable width inside the content pane (sidebar → right pad) */
+  --cs-content-pane-max: calc(
+    100vw - var(--sidebar-width, 280px) - var(--content-pad-left, 0px) -
+      var(--content-pad-x, 32px)
+  );
 
   --cs-band-max-raw: calc(
     var(--cs-stage-max) + var(--cs-split-gap, clamp(24px, 3.5vw, 56px)) +
       var(--cs-copy-column-max)
   );
-  --cs-band-max: var(--cs-band-max-raw);
+  --cs-band-max: min(var(--cs-band-max-raw), var(--cs-content-pane-max));
 
-  /* Section overview copy column (centered in content area, sidebar → right edge) */
-  --cs-overview-measure: 900px;
+  /* Section overview — same width as stage | copy band */
+  --cs-overview-measure: 100%;
 
   /* Extra scroll between snap slides (hold before next screen) */
   --cs-screen-gap: clamp(16px, 3vh, 40px);
@@ -136,8 +142,9 @@
 
 @media (min-width: 768px) {
   :root {
-    --cs-stage-col: minmax(min(var(--cs-stage-min), 100%), 1fr);
-    --cs-copy-col: minmax(min(var(--cs-copy-measure-min), 100%), 2fr);
+    /* 1/3 component · 2/3 copy */
+    --cs-stage-col: minmax(0, 1fr);
+    --cs-copy-col: minmax(0, 2fr);
   }
 }
 
@@ -145,6 +152,9 @@
   :root {
     --cs-stage-min: 220px;
     --cs-stage-max: 560px;
+    --cs-stage-col: minmax(0, 1fr);
+    --cs-copy-col: minmax(0, 2fr);
+    --cs-band-max: var(--cs-content-pane-max);
     --cs-verdant-glyph-max-h: min(50dvh, 440px);
     --cs-verdant-max-w: min(100%, var(--cs-stage-gallery-w));
     --cs-eim-stage-max-w: var(--cs-stage-gallery-w);
@@ -160,7 +170,8 @@
       var(--site-frame-max, 1400px) - var(--sidebar-width, 280px) -
         var(--content-pad-left, 40px) - var(--content-pad-x, 40px)
     );
-    --cs-band-max: min(var(--cs-band-max-raw), var(--cs-band-viewport-cap));
+    --cs-content-pane-max: var(--cs-band-viewport-cap);
+    --cs-band-max: var(--cs-content-pane-max);
     --cs-hw-pad-max: 56px;
   }
 }

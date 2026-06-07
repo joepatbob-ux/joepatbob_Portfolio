@@ -205,7 +205,7 @@
   }
 
   /*
-   * Desktop (1024–2559): 280px sidebar, 1fr stage / 2fr copy, 20px between columns,
+   * Desktop (1024–2559): 280px sidebar, 1/3 stage · 2/3 copy, 40px gap,
    * 32px copy to screen edge; sidebar inset 32px from edge, 20px to divider.
    */
   @media (min-width: 1024px) and (max-width: 2559px) {
@@ -215,9 +215,9 @@
       --sidebar-pad-right: 20px;
       --content-pad-x: 32px;
       --content-pad-left: 0px;
-      --cs-stage-col: minmax(min(var(--cs-stage-min), 100%), 1fr);
-      --cs-copy-col: minmax(min(var(--cs-copy-measure-min), 100%), 2fr);
-      --cs-split-gap: 20px;
+      --cs-stage-col: minmax(0, 1fr);
+      --cs-copy-col: minmax(0, 2fr);
+      --cs-split-gap: 40px;
       --cs-section-gap: 20px;
       --gutter: 72px;
     }
@@ -1297,6 +1297,8 @@ html {
     box-sizing: border-box;
     background-color: var(--color-paper);
     overflow: hidden;
+    overflow-x: clip;
+    min-width: 0;
     z-index: 1;
     will-change: opacity;
     /* Hidden until scroll orchestration sets reveal — prevents last slide (Practice) stacking on top */
@@ -1343,6 +1345,16 @@ html {
     -webkit-overflow-scrolling: touch;
   }
 
+}
+
+/* Cinema (2560+): cap fixed panel to site frame — not full viewport width */
+@media (min-width: 2560px) {
+  .portfolio-chapter-slot--fill.hardware-slideshow .portfolio-chapter-panel {
+    left: calc(var(--sidebar-width) + var(--content-pad-left, 40px)) !important;
+    right: auto !important;
+    width: var(--cs-content-pane-max) !important;
+    max-width: var(--cs-content-pane-max) !important;
+  }
 }
 
 .chapter-slide .portfolio-chapter-panel {

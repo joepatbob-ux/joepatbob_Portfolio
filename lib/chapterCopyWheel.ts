@@ -137,8 +137,22 @@ export function bindChapterCopyWheelHandlers(): () => void {
 export function useChapterCopyWheelTrap(): void {
   useEffect(() => {
     if (typeof window === 'undefined') return
-    if (window.matchMedia(LAYOUT_MQ.topBarNav).matches) return
 
-    return bindChapterCopyWheelHandlers()
+    let cleanup: (() => void) | undefined
+
+    const sync = () => {
+      cleanup?.()
+      cleanup = undefined
+      if (window.matchMedia(LAYOUT_MQ.topBarNav).matches) return
+      cleanup = bindChapterCopyWheelHandlers()
+    }
+
+    sync()
+    const mq = window.matchMedia(LAYOUT_MQ.topBarNav)
+    mq.addEventListener('change', sync)
+    return () => {
+      mq.removeEventListener('change', sync)
+      cleanup?.()
+    }
   }, [])
 }

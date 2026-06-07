@@ -3,8 +3,8 @@
 export const CS_BP = {
   /** Single-column section (stage stacked above copy) */
   mobileMax: 767,
-  /** Two-column section (stage | copy); compact band below wideMin — lib/hooks/useLayoutCompactBand */
-  tabletMax: 1199,
+  /** Compact band (More/Less) ends at tablet — desktop slideshow starts at 1024 */
+  tabletMax: 1023,
   /** Three-column section (stage | context | context) */
   wideMin: 1200,
 } as const

@@ -10,15 +10,97 @@
   --cs-body-color: var(--color-ink);
   --cs-subhead-size: clamp(20px, 2.4vw, 26px);
   --cs-subhead-leading: 1.2;
-  --cs-label-size: 9px;
-  --cs-label-tracking: 0.1em;
+  --cs-label-size: 10px;
+  --cs-label-tracking: 0.08em;
   --cs-grid-cell-bg: rgba(26, 26, 26, 0.04);
-  --cs-overview-meta-bg: var(--cs-grid-cell-bg);
-  --cs-overview-meta-border: color-mix(in srgb, var(--color-ink) 10%, transparent);
-  --cs-overview-meta-divider: color-mix(in srgb, var(--color-ink) 7%, transparent);
-  --cs-callout-border: rgba(245, 67, 27, 0.35);
+  --cs-block-bg: var(--cs-grid-cell-bg);
+  --cs-block-radius: 8px;
+  --cs-block-pad: 14px 16px;
+  --cs-block-gap: 7px;
+  --cs-block-body-size: 13px;
+  --cs-block-body-leading: 1.55;
+  --cs-overview-meta-bg: var(--cs-block-bg);
   --cs-callout-bg: rgba(245, 67, 27, 0.05);
   --cs-quote-bg: rgba(245, 67, 27, 0.06);
+  --cs-emphasis-pad: 16px 20px;
+}
+
+/* ── Shared content blocks (meta tiles, label grids, product cells) ──────── */
+
+.case-study-overview-meta__tile,
+.case-study-overview-meta__band,
+.cs-label-grid__cell,
+.mobile-label-grid__cell,
+.web-apps-product-grid__cell,
+.mobile-phase-panels__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cs-block-gap);
+  min-width: 0;
+  margin: 0;
+  padding: var(--cs-block-pad);
+  background: var(--cs-block-bg);
+  border: none;
+  border-radius: var(--cs-block-radius);
+}
+
+.case-study-overview-meta__key,
+.cs-label-grid__label,
+.mobile-label-grid__label,
+.web-apps-product-grid__domain,
+.mobile-phase-panels__label {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: var(--cs-label-size);
+  letter-spacing: var(--cs-label-tracking);
+  text-transform: uppercase;
+  color: var(--color-accent);
+  line-height: 1.35;
+}
+
+.case-study-overview-meta__value,
+.cs-label-grid__text,
+.mobile-label-grid__text,
+.web-apps-product-grid__desc,
+.mobile-phase-panels__text {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--cs-block-body-size);
+  line-height: var(--cs-block-body-leading);
+  color: var(--cs-body-color);
+}
+
+/* Emphasis blocks — quote, callout, thesis (borderless) */
+.chapter-copy__body--quote,
+.cs-blockquote,
+.cs-callout,
+.mobile-blockquote,
+.mobile-thesis-close,
+.mobile-award-callout,
+.web-apps-compliance-callout {
+  margin: 0.5em 0 1em;
+  padding: var(--cs-emphasis-pad);
+  background: var(--cs-quote-bg);
+  border: none;
+  border-radius: var(--cs-block-radius);
+}
+
+.cs-callout,
+.mobile-thesis-close {
+  background: var(--cs-callout-bg);
+  font-weight: 500;
+}
+
+.mobile-blockquote,
+.chapter-copy__body--quote,
+.cs-blockquote {
+  font-style: italic;
+}
+
+.mobile-award-callout,
+.web-apps-compliance-callout {
+  background: var(--cs-block-bg);
 }
 
 /* ── Hardware: chapter copy ──────────────────────────────────────────────── */
@@ -48,25 +130,6 @@
   gap: 1em;
 }
 
-/* Pull quotes / emphasis blocks inside hardware copy (opt-in class) */
-[data-section-id='hardware'] .chapter-copy__body--quote,
-[data-section-id='hardware'] .cs-blockquote {
-  margin: 0.25em 0 1em;
-  padding: 16px 20px;
-  border-left: 3px solid var(--color-accent);
-  background: var(--cs-quote-bg);
-  font-style: italic;
-}
-
-[data-section-id='hardware'] .cs-callout {
-  margin: 0.5em 0 1em;
-  padding: 18px 20px;
-  border: 1px solid var(--cs-callout-border);
-  border-radius: 8px;
-  background: var(--cs-callout-bg);
-  font-weight: 500;
-}
-
 [data-section-id='hardware'] .cs-label-grid {
   display: flex;
   flex-direction: column;
@@ -75,41 +138,9 @@
   padding: 0;
 }
 
-[data-section-id='hardware'] .cs-label-grid__cell {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-  min-width: 0;
-  margin: 0;
-  padding: 13px 14px;
-  background: var(--cs-overview-meta-bg);
-  border: 1px solid var(--cs-overview-meta-border);
-  border-radius: 6px;
-}
-
-[data-section-id='hardware'] .cs-label-grid__label {
-  margin: 0;
-  font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: var(--cs-label-size);
-  letter-spacing: var(--cs-label-tracking);
-  text-transform: uppercase;
-  color: var(--color-accent);
-}
-
-[data-section-id='hardware'] .cs-label-grid__text {
-  margin: 0;
-  font-size: 13px;
-  line-height: 1.55;
-  color: var(--cs-body-color);
-}
-
 @media (prefers-color-scheme: dark) {
   :root {
     --cs-grid-cell-bg: rgba(255, 255, 255, 0.045);
-    --cs-overview-meta-border: color-mix(in srgb, var(--color-ink) 14%, transparent);
-    --cs-overview-meta-divider: color-mix(in srgb, var(--color-ink) 9%, transparent);
-    --cs-callout-border: rgba(222, 62, 24, 0.42);
     --cs-callout-bg: rgba(222, 62, 24, 0.08);
     --cs-quote-bg: rgba(222, 62, 24, 0.1);
   }
