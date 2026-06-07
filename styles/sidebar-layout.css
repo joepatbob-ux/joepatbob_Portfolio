@@ -22,6 +22,15 @@
   content: '';
 }
 
+/* Hero scroll — divider stays hidden until past the pinned portrait handoff */
+@media (min-width: 1024px) {
+  html.in-hero-scroll .sidebar-shell__divider {
+    opacity: 0 !important;
+    visibility: hidden;
+    filter: blur(6px);
+  }
+}
+
 .sidebar-shell--fixed .sidebar-hero-name {
   left: var(--sidebar-pad-inline);
   width: min(

@@ -120,13 +120,9 @@ export function QuoteBowlScene({
 
   })
 
-  const pickable = (step === 'pick' && pileReady) || step === 'revealed'
+  const pickable = step === 'pick' && pileReady
 
   const handlePick = useCallback(() => {
-    if (step === 'revealed') {
-      onReset()
-      return
-    }
     if (!pickable || step !== 'pick') return
     const liveY = new Map(
       liveBallsRef.current.map((ball) => [ball.layout.id, ball.y]),
@@ -134,7 +130,7 @@ export function QuoteBowlScene({
     onPickSlip(
       pickSlipFromBowl(layouts, (slip) => liveY.get(slip.id) ?? slip.position[1]),
     )
-  }, [layouts, onPickSlip, onReset, pickable, step])
+  }, [layouts, onPickSlip, pickable, step])
 
   useEffect(() => {
     if (!pickActionRef) return

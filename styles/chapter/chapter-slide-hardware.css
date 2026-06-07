@@ -325,7 +325,49 @@
   }
 }
 
-/* Compact + mobile layouts: styles/chapter/chapter-slide-compact.css, chapter-slide-mobile.css */
+@media (min-width: 2560px) {
+  .hardware-slideshow {
+    --hw-gap: var(--cs-split-gap, 160px);
+    --hw-stage-max-w: var(--cs-stage-max);
+  }
+
+  .hardware-slideshow .chapter-slide__viewport {
+    align-items: stretch;
+    padding-inline: 0;
+  }
+
+  .hardware-slideshow .chapter-slide__inner {
+    width: 100%;
+    max-width: 100% !important;
+    margin-inline: 0;
+    column-gap: var(--hw-gap);
+    align-items: center;
+  }
+
+  .hardware-slideshow .chapter-slide__stage {
+    justify-self: stretch;
+    --hw-stage-gallery-w: min(100cqw, var(--cs-stage-max));
+  }
+
+  .hardware-slideshow .chapter-slide__stage > * {
+    max-width: min(100cqw, var(--cs-stage-max));
+  }
+
+  .hardware-slideshow .chapter-slide__copy {
+    justify-self: stretch;
+    max-width: none;
+  }
+
+  .hardware-slideshow .chapter-copy__headline {
+    font-size: clamp(36px, 2.4vw, 52px);
+  }
+
+  .hardware-slideshow .chapter-copy__body {
+    font-size: 17px;
+    line-height: 1.72;
+    max-width: min(112ch, 100%);
+  }
+}
 
 @media (max-width: 767px) {
   [data-section-id='hardware'] .portfolio-chapter-slot--fill .portfolio-chapter-panel,

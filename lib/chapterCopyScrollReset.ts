@@ -1,5 +1,7 @@
 const SCROLL_TRAP_SELECTOR = '.chapter-copy-scroller'
 
+import { chapterSlotScrollTop } from '@/lib/chapterSnapScroll'
+
 const SCROLL_SETTLE_TOLERANCE_PX = 8
 const SCROLL_SETTLE_MAX_MS = 900
 
@@ -37,7 +39,7 @@ export function resetChapterCopyScrollersAfterSnap(_root?: ParentNode): void {
 
 /** Wait until document scrollY matches the chapter slot (mandatory snap can settle async). */
 export function waitForChapterScrollSettle(slot: HTMLElement): Promise<void> {
-  const expectedTop = slot.offsetTop
+  const expectedTop = chapterSlotScrollTop(slot)
 
   return new Promise((resolve) => {
     const start = performance.now()

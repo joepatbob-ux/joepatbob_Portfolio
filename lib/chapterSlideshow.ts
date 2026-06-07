@@ -1,3 +1,4 @@
+import { chapterSlotScrollCenter } from '@/lib/chapterSnapScroll'
 import { VIEWPORT_SNAP_SLOT_SELECTOR } from '@/lib/chapterFlow'
 import { isLayoutMobileViewport } from '@/lib/layout/isLayoutMobileViewport'
 
@@ -72,16 +73,7 @@ function crossfadeWeights(t: number): { outgoing: number; incoming: number } {
 type SlideAnchor = { id: string; centerY: number }
 
 function snapSlideCenterY(el: HTMLElement): number {
-  const height = el.offsetHeight
-  if (height > 0) {
-    return el.offsetTop + height / 2
-  }
-  const vh = window.innerHeight
-  if (vh > 0) {
-    return el.offsetTop + vh / 2
-  }
-  const rect = el.getBoundingClientRect()
-  return rect.top + window.scrollY + rect.height / 2
+  return chapterSlotScrollCenter(el)
 }
 
 function snapSlideAnchors(): SlideAnchor[] {

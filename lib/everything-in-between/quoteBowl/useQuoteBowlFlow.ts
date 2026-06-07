@@ -34,6 +34,6 @@ export function useQuoteBowlFlow(_reducedMotion: boolean) {
     isPick: step === 'pick',
     isRevealed: step === 'revealed',
     showTypedQuote: step === 'revealed',
-    isPickTarget: step === 'pick' || step === 'revealed',
+    isPickTarget: step === 'pick',
   }
 }

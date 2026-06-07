@@ -2,7 +2,7 @@
 
 import { useEffect, type RefObject } from 'react'
 
-const MOVE_THRESHOLD_PX = 8
+const MOVE_THRESHOLD_PX = 3
 const VERTICAL_RATIO = 1.1
 
 /** On in-flow chapters, vertical drags over the canvas should scroll the page. */

@@ -38,7 +38,6 @@ import {
   EMPTY_PHONE_MATERIAL_TUNES,
   type PhoneMaterialTunesByDevice,
 } from '@/lib/phone-swap/phoneMaterialTune'
-import { getStageArtifactTune, STAGE_TUNE_CHANGE } from '@/lib/stage-artifact-tune/settings'
 import { readPhoneLayoutMode } from '@/lib/phone-swap/usePhoneLayoutMode'
 import { useChapterActive } from '@/lib/chapterActiveContext'
 import { usePhoneSwapTouchScroll } from '@/lib/phone-swap/usePhoneSwapTouchScroll'
@@ -86,9 +85,6 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
   const [animating, setAnimating] = useState(false)
   const [animSession, setAnimSession] = useState(0)
   const [backPhoneHover, setBackPhoneHover] = useState(false)
-  const [stageTune, setStageTune] = useState(() =>
-    typeof window === 'undefined' ? getStageArtifactTune() : getStageArtifactTune(),
-  )
   const [liveScreenRect, setLiveScreenRect] = useState<DisplayScreenRect | null>(
     null,
   )
@@ -108,13 +104,6 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
   layoutRef.current = layout
 
   const swapProgress = swapped ? 1 : 0
-
-  useEffect(() => {
-    const sync = () => setStageTune(getStageArtifactTune())
-    sync()
-    window.addEventListener(STAGE_TUNE_CHANGE, sync)
-    return () => window.removeEventListener(STAGE_TUNE_CHANGE, sync)
-  }, [])
 
   useEffect(() => {
     if (!layoutMode) return
@@ -244,19 +233,29 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
   }, [])
 
   const inFlowChapter = topBarNav && !layoutMode
-  const useAuthoredStageScale = layoutMode || !topBarNav
   const shouldRenderScene = chapterActive || layoutMode || devToolsEnabled
   const useScrollPassthrough = inFlowChapter && !layoutMode
-  const viewBoxWidth = layoutMode ? layout.stageWidth : stageTune.phoneWidth
-  const viewBoxHeight = layoutMode ? layout.stageSize : stageTune.phoneHeight
-  const viewBoxVars = useAuthoredStageScale
+  /** Layout editor only — production uses CSS container size + camera fit, not stage tune shrink. */
+  const viewBoxVars = layoutMode
     ? ({
-        '--phone-swap-height': String(viewBoxHeight),
-        '--phone-swap-width': String(viewBoxWidth),
+        '--phone-swap-height': String(layout.stageSize),
+        '--phone-swap-width': String(layout.stageWidth),
       } as CSSProperties)
     : undefined
+  const invalidateCanvasRef = useRef<(() => void) | null>(null)
 
   usePhoneSwapTouchScroll(viewboxRef, useScrollPassthrough)
+
+  useEffect(() => {
+    if (!shouldRenderScene) return
+    const el = viewboxRef.current
+    if (!el) return
+    const ro = new ResizeObserver(() => {
+      invalidateCanvasRef.current?.()
+    })
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [shouldRenderScene])
 
   return (
     <div
@@ -394,8 +393,9 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
             }}
             dpr={[1, 2]}
             frameloop={animating ? 'always' : 'demand'}
-            onCreated={({ gl }) => {
+            onCreated={({ gl, invalidate }) => {
               gl.setClearColor(0x000000, 0)
+              invalidateCanvasRef.current = invalidate
             }}
           >
             <Suspense
@@ -440,18 +440,6 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
           </div>
         )}
       </div>
-
-      {inFlowChapter ? (
-        <button
-          type="button"
-          className="phone-swap__in-flow-swap"
-          onClick={doSwap}
-          disabled={animating}
-          aria-live="polite"
-        >
-          {swapped ? 'Show Android in front' : 'Show iPhone in front'}
-        </button>
-      ) : null}
 
       {devMenu ? (
         <PhoneDevToolsMenu

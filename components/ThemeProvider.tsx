@@ -90,6 +90,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     preference === 'system' ? systemTheme : preference
 
   useEffect(() => {
+    document.documentElement.dataset.theme = resolvedTheme
     const heroCanvas =
       resolvedTheme === 'dark' ? HERO_CANVAS_BG.dark : HERO_CANVAS_BG.light
     document.documentElement.style.backgroundColor = ''

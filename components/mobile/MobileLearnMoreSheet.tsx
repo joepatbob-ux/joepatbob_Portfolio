@@ -74,7 +74,7 @@ export function MobileLearnMoreSheet({ open, onClose, title, children }: Props) 
           />
         </div>
         <div className="mobile-learn-more-sheet__footer overlay-action-footer">
-          <OverlayActionPill variant="secondary" onClick={onClose}>
+          <OverlayActionPill variant="primary" onClick={onClose}>
             Close
           </OverlayActionPill>
         </div>

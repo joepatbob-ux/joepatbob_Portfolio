@@ -84,6 +84,7 @@ export function ConceptQuoteBowl({ answers, chapterId }: Props) {
         <QuoteBowlControls
           showSlip={showTypedQuote && answer != null}
           quote={answer ?? ''}
+          onReset={reset}
           debugOutlines={debugOutlines}
         />
 

@@ -49,11 +49,36 @@ export function useChapterPanelOpacity(chapterId: string) {
 
   if (phase === 'idle') {
     const isActive = scrollReveal > 0.25
+
+    if (fixedSlideshowStacking) {
+      const active = scrollReveal > 0.5
+      return {
+        opacity: scrollReveal,
+        isActive: active,
+        ariaHidden: !active,
+        style: {
+          opacity: scrollReveal,
+          filter: 'none',
+          zIndex: panelZFromScrollReveal(scrollReveal, false),
+          pointerEvents: active ? 'auto' : 'none',
+          visibility: scrollReveal <= 0.02 ? 'hidden' : 'visible',
+          transition: 'none',
+        } as const,
+      }
+    }
+
     return {
       opacity: scrollReveal,
       isActive,
       ariaHidden: !isActive,
-      style: undefined,
+      style: {
+        opacity: scrollReveal,
+        filter: 'none',
+        zIndex: panelZFromScrollReveal(scrollReveal, layoutMobile),
+        pointerEvents: isActive ? 'auto' : 'none',
+        visibility: scrollReveal <= 0.02 ? 'hidden' : 'visible',
+        transition: 'none',
+      } as const,
     }
   }
 

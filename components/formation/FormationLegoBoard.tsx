@@ -53,7 +53,7 @@ export function FormationLegoBoard() {
   const panel = useChapterPanelOpacity('everything-else-formation')
   const [mounted, setMounted] = useState(false)
   const showBoard = mounted && !panel.ariaHidden
-  const showBricks = showBoard && panel.isActive
+  const showBricks = showBoard && (panel.opacity ?? 0) > 0.12
   /** Desktop slideshow: portal base + bricks above crossfading chapter panels. */
   const useBoardPortal = showBoard && !topBarNav
 

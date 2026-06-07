@@ -177,9 +177,9 @@
   .chapter-slide--verdant .verdant-interactive,
   .hardware-slideshow.chapter-slide--verdant .verdant-interactive {
     --verdant-gap: var(--cs-verdant-mobile-gap);
-    --verdant-key-gap: clamp(4px, 1.1vw, 7px);
-    --verdant-key-font: clamp(10px, 2.8cqi, 13px);
-    --verdant-stage-h: clamp(120px, 22dvh, 220px);
+    --verdant-key-gap: clamp(3px, 0.9vw, 6px);
+    --verdant-key-font: clamp(9px, 2.5cqi, 12px);
+    --verdant-stage-h: clamp(148px, 28dvh, 280px);
     --verdant-stage-w: min(100%, calc(var(--verdant-stage-h) * 350 / 582));
 
     display: grid;
@@ -206,9 +206,29 @@
     height: var(--verdant-stage-h);
   }
 
+  .verdant-interactive__stage-photo {
+    max-width: 112%;
+    max-height: 112%;
+    transform: scale(1.06);
+    transform-origin: center center;
+  }
+
   .verdant-selector {
     position: relative;
     z-index: 0;
+  }
+}
+
+@media (min-width: 2560px) {
+  .hardware-slideshow.chapter-slide--verdant .chapter-slide__stage {
+    max-width: min(100cqw, var(--cs-stage-max));
+  }
+
+  @container verdant (min-width: 400px) {
+    .verdant-interactive {
+      --verdant-stage-h: clamp(280px, 52dvh, 560px);
+      --verdant-stage-w: min(100%, calc(var(--verdant-stage-h) * 350 / 582));
+    }
   }
 }
 

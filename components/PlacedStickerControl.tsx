@@ -195,10 +195,8 @@ export function PlacedStickerControl({ sticker }: Props) {
 
     const onUp = (ev: PointerEvent) => {
       if (ev.pointerId !== pointerId) return
-      if (
-        wasSelected &&
-        Math.hypot(ev.clientX - startX, ev.clientY - startY) < MOVE_THRESHOLD
-      ) {
+      const moved = Math.hypot(ev.clientX - startX, ev.clientY - startY)
+      if (wasSelected && moved < MOVE_THRESHOLD && !rotatingRef.current) {
         selectSticker(null)
       }
       window.removeEventListener('pointermove', onMove)
