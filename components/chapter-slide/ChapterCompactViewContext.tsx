@@ -5,10 +5,12 @@
  * Provider is a no-op outside compact mode — see ChapterSlideShell.
  */
 
+import { useChapterActive } from '@/lib/chapterActiveContext'
 import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
   type ReactNode,
@@ -30,7 +32,12 @@ export function ChapterCompactViewProvider({
   children: ReactNode
 }) {
   const [expanded, setExpanded] = useState(false)
+  const chapterActive = useChapterActive()
   const toggleExpanded = useCallback(() => setExpanded((v) => !v), [])
+
+  useEffect(() => {
+    if (!enabled || !chapterActive) setExpanded(false)
+  }, [enabled, chapterActive])
 
   const value = useMemo(
     () => (enabled ? { expanded, setExpanded, toggleExpanded } : null),
