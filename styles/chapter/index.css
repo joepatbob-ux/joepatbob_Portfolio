@@ -1,8 +1,8 @@
 /* Chapter slide layout system — import order matters (compact wins over base).
  *
  * Modes: styles/chapter/chapter-slide-mobile.css (≤767)
- *        styles/chapter/chapter-slide-compact.css (768–1199)
- *        styles/chapter/chapter-slide-hardware.css (≥768 slideshow row)
+ *        styles/chapter/chapter-slide-compact.css (768–1023)
+ *        styles/chapter/chapter-slide-hardware.css (≥1024 slideshow grid)
  * See DESIGN_SPEC.md § Chapter copy modes.
  */
 

@@ -245,16 +245,16 @@ hw-kelvin.jpg           ← Lord Kelvin illustration (color)
 |---|---|---|---|
 | Mobile | ≤767px | No sidebar; morphing top nav | 1 column — centered stack + **More** sheet |
 | Tablet | 768–1023px | Collapsed sidebar (52px) | **Compact band** — centered stack + **More/Less** expand |
-| Desktop | 1024–1199px | 280px sidebar | **Compact band** (same as tablet) |
-| Wide | ≥1200px | 280px sidebar | 2 columns — stage \| copy, vertically centered |
-| Cinema | ≥2560px | Max-width content column | — |
+| Desktop | 1024–2559px | 280px sidebar | Fixed slideshow — **1/3 stage · 2/3 copy**, scrollable copy |
+| Wide | ≥1200px | 280px sidebar | Same grid — copy vertically centered with stage |
+| Cinema | ≥2560px | Max-width content column | Wider stage–copy gap (160px) |
 
 ### Chapter copy modes
 | Mode | Width | Hook | UX |
 |---|---|---|---|
 | `mobile` | ≤767 | `useLayoutMobile()` / `useChapterLayoutMode()` | Headline + **More** → full-screen sheet |
-| `compact` | 768–1199 | `useLayoutCompactBand()` / `useChapterLayoutMode()` | Headline + **More/Less** in-place expand |
-| `desktop` | ≥1200 | `useChapterLayoutMode()` → `'desktop'` | Inline copy column beside stage |
+| `compact` | 768–1023 | `useLayoutCompactBand()` / `useChapterLayoutMode()` | Headline + **More/Less** in-place expand |
+| `desktop` | ≥1024 | `useChapterLayoutMode()` → `'desktop'` | Inline copy column beside stage |
 
 Shell: `components/chapter-slide/ChapterSlideShell.tsx`. CSS: `styles/chapter/` (compact, hardware, mobile, artifacts). Class: `chapter-slide__copy--compact-teaser`.
 
