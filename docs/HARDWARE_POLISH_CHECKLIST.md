@@ -84,6 +84,8 @@ Use this when auditing **Hardware** first, then copy pass/fail notes to Mobile, 
 
 ## Rollout to other sections (Phase 4)
 
+**Site-wide checklist:** `docs/SITE_QA_CHECKLIST.md` (2026-05-30 pass — shared shell verified; per-section interactives need manual pass).
+
 | Section | Layout CSS | Checklist focus |
 |---------|------------|-----------------|
 | Mobile | `flow-chapter-slide.css`, `mobile-chapter-viewport.css` | Overview, WR Connect, Sensi, Spotlight phone |
