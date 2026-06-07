@@ -48,7 +48,7 @@
 }
 
 .flow-chapter-slide .chapter-slide__stage .drag-scrubber {
-  width: var(--cs-stage-gallery-w, var(--cs-stage-artifact-w));
+  width: 100%;
   max-width: 100%;
   margin-inline: auto;
 }
@@ -65,7 +65,7 @@
 .flow-chapter-slide .chapter-slide__stage .touch2-carousel,
 .flow-chapter-slide .chapter-slide__stage .mobile-figure__img,
 .flow-chapter-slide .chapter-slide__stage .kelvin-scratch {
-  width: var(--cs-stage-gallery-w, var(--cs-stage-artifact-w));
+  width: 100%;
   max-width: 100%;
   margin-inline: auto;
 }

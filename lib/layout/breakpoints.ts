@@ -28,7 +28,7 @@ export const LAYOUT_MQ = {
   tablet: `(min-width: ${LAYOUT_BP.tabletMin}px) and (max-width: ${LAYOUT_BP.tabletMax}px)`,
   tabletUp: `(min-width: ${LAYOUT_BP.tabletMin}px)`,
   desktop: `(min-width: ${LAYOUT_BP.desktopMin}px)`,
-  /** Centered stack + More/Less expand — lib/hooks/useLayoutCompactBand (768–1199). */
+  /** Centered stack + More/Less expand — lib/hooks/useLayoutCompactBand (768–1023). */
   compactBand: `(min-width: ${LAYOUT_BP.tabletMin}px) and (max-width: ${CS_BP.tabletMax}px)`,
   /** Mobile + tablet top-bar nav (≤1023) — SidebarNav overlay drawer. */
   topBarNav: `(max-width: ${LAYOUT_BP.tabletMax}px)`,

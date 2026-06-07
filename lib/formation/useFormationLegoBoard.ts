@@ -168,7 +168,7 @@ export function useFormationLegoBoard(options?: {
     const updateBoardWidth = () => {
       const nextWidth = Math.max(
         FORMATION_BOARD_MIN_W,
-        Math.min(FORMATION_BOARD_DISPLAY_W, Math.floor(stageEl.clientWidth)),
+        Math.floor(stageEl.clientWidth),
       )
       setBoardW((prev) => (prev === nextWidth ? prev : nextWidth))
     }

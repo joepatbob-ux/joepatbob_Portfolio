@@ -9,7 +9,7 @@ import {
   CHAPTER_COMPACT_EXPAND_LABEL,
 } from '@/lib/chapter-slide/compactView'
 
-/** 768–1199 — headline + More/Less expands story in place (requires compact provider). */
+/** 768–1023 — headline + More/Less expands story in place (requires compact provider). */
 export function ChapterCompactReveal({
   headline,
   subhead,

@@ -1,4 +1,4 @@
-/* Section overview — 900px column centered in content area (all case studies) */
+/* Section overview — shared band width with stage | copy chapters */
 
 .case-study-flow-overview .case-study-section-header__headline,
 .case-study-flow-overview .mobile-section-header__headline,
@@ -70,7 +70,7 @@
 
 .case-study-flow-overview__inner {
   width: 100%;
-  max-width: min(var(--cs-overview-measure), 100%);
+  max-width: 100%;
   margin-inline: auto;
   box-sizing: border-box;
 }
@@ -114,42 +114,15 @@
   gap: 10px;
 }
 
-.case-study-overview-meta__tile,
-.case-study-overview-meta__band {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-  min-width: 0;
-  margin: 0;
-  padding: 13px 14px;
-  background: var(--cs-overview-meta-bg);
-  border: 1px solid var(--cs-overview-meta-border);
-  border-radius: 6px;
-}
-
 .case-study-overview-meta__bands {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.case-study-overview-meta__key {
-  margin: 0;
-  font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: 10px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--color-accent);
-  line-height: 1.35;
-}
-
 .case-study-overview-meta__value {
-  margin: 0;
-  font-family: var(--font-body);
   font-size: clamp(14px, 1.55vw, var(--cs-body-size));
   line-height: 1.5;
-  color: var(--cs-body-color);
   text-wrap: pretty;
 }
 
@@ -163,11 +136,6 @@
     .case-study-overview-meta__tile:last-child {
     grid-column: 1 / -1;
   }
-
-  .case-study-overview-meta__tile,
-  .case-study-overview-meta__band {
-    padding: 14px 16px;
-  }
 }
 
 @media (min-width: 1024px) {
@@ -180,12 +148,6 @@
     .case-study-overview-meta__tile:last-child {
     grid-column: auto;
   }
-
-  .case-study-overview-meta__tile,
-  .case-study-overview-meta__band {
-    padding: 15px 18px;
-    gap: 8px;
-  }
 }
 
 @media (min-width: 1200px) {
@@ -196,20 +158,11 @@
   .case-study-overview-meta__bands {
     gap: 12px;
   }
-
-  .case-study-overview-meta__band {
-    padding: 16px 20px;
-  }
 }
 
 @media (max-width: 767px) {
   .case-study-overview-meta {
     margin-top: clamp(20px, 3.5vh, 32px);
-  }
-
-  .case-study-overview-meta__tile,
-  .case-study-overview-meta__band {
-    padding: 12px 14px;
   }
 }
 

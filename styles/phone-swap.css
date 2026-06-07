@@ -860,8 +860,48 @@
   --cs-mobile-stage-max-h: none;
 }
 
+@media (min-width: 1024px) {
+  /* Phone scales to 1/3 stage column width (not viewport vw) */
+  .hardware-slideshow.mobile-chapter-slot--sensi {
+    --phone-viewbox-base-w: 100%;
+    --hw-stage-max-w: none;
+    --hw-stage-min-w: 0;
+  }
+
+  .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__stage:has(.phone-swap) {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    min-height: 0;
+  }
+
+  .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__stage:has(.phone-swap) > .phone-swap {
+    width: 100%;
+    max-width: 100%;
+    margin-inline: auto;
+    flex: 0 1 auto;
+  }
+
+  .hardware-slideshow.mobile-chapter-slot--sensi .phone-swap__viewbox {
+    width: min(
+      100%,
+      calc(var(--phone-viewbox-base-w) * var(--phone-swap-width, 1))
+    );
+    max-width: 100%;
+    aspect-ratio: 960 / 880;
+    height: auto;
+    max-height: min(
+      96dvh,
+      calc(100cqw * 880 / 960 * var(--phone-swap-height, 1))
+    );
+  }
+}
+
 @media (min-width: 768px) {
-  /* Phone centered in stage column; viewbox scales via --phone-swap-* / ResizeObserver */
+  /* Tablet compact — legacy gallery cap until 1024 slideshow grid */
   .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__stage:has(.phone-swap) {
     display: flex;
     justify-content: center;
@@ -874,7 +914,7 @@
   }
 
   .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__stage:has(.phone-swap) > .phone-swap {
-    width: var(--cs-stage-gallery-w, var(--cs-stage-artifact-w));
+    width: min(100%, var(--cs-stage-gallery-w, var(--cs-stage-artifact-w)));
     max-width: 100%;
     margin-inline: auto;
     flex: 0 1 auto;

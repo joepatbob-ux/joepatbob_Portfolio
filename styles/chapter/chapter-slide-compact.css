@@ -1,9 +1,9 @@
-/* Compact desktop band (768–1199) — More/Less in-place expand
+/* Compact desktop band (768–1023) — More/Less in-place expand
  *
  * Responsive chapter copy modes (see DESIGN_SPEC.md):
  *   ≤767    mobile  — chapter-slide-mobile.css
- *   768–1199 compact — this file
- *   ≥1200   desktop — chapter-slide-hardware.css
+ *   768–1023 compact — this file
+ *   ≥1024   desktop — chapter-slide-hardware.css
  *
  * Loaded last via styles/chapter/index.css so compact rules win specificity.
  */
@@ -141,9 +141,9 @@
   -webkit-overflow-scrolling: touch;
 }
 
-/* ── Hardware band layout (768–1199) ───────────────────────────────────── */
+/* ── Hardware band layout (768–1023) ───────────────────────────────────── */
 
-@media (min-width: 768px) and (max-width: 1199px) {
+@media (min-width: 768px) and (max-width: 1023px) {
   .portfolio-chapter-slot--fill.hardware-slideshow:has(.chapter-slide__inner--compact-expand)
     .portfolio-chapter-panel {
     display: flex;
@@ -164,7 +164,9 @@
   }
 
   .hardware-slideshow .chapter-slide__inner--compact-expand {
+    display: flex !important;
     flex-direction: column !important;
+    grid-template-columns: unset !important;
     align-items: center !important;
     width: 100%;
     max-width: min(var(--cs-inner-max, var(--cs-mobile-inner-max)), 100%) !important;
@@ -174,6 +176,13 @@
     flex: 1 1 auto;
     min-height: 0;
     box-sizing: border-box;
+  }
+
+  .hardware-slideshow .chapter-slide__inner--compact-expand .chapter-slide__stage,
+  .hardware-slideshow .chapter-slide__inner--compact-expand .chapter-slide__copy {
+    grid-column: auto !important;
+    grid-row: auto !important;
+    width: 100%;
   }
 
   .hardware-slideshow

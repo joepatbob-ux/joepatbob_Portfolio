@@ -25,6 +25,7 @@ import {
 import { sectionEntryChapterId } from '@/lib/sectionEntryChapter'
 import { flushScrollFrame, scheduleScrollFrame } from '@/lib/scrollFrame'
 import { bindTopBarScrollSpy } from '@/lib/topBarScrollSpy'
+import { LAYOUT_MQ } from '@/lib/layout/breakpoints'
 import { isTopBarNavViewport } from '@/lib/layout/isTopBarNavViewport'
 import {
   createContext,
@@ -93,12 +94,6 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
   useChapterCopyWheelTrap()
 
   useEffect(() => {
-    if (isTopBarNavViewport()) {
-      resetInFlowChapterPanels()
-    }
-  }, [])
-
-  useEffect(() => {
     const applyScrollState = (state: ReturnType<typeof measureSlideScrollState>) => {
       if (phaseRef.current === 'idle') {
         if (
@@ -151,17 +146,34 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
       applyScrollState(state)
     }
 
-    if (isTopBarNavViewport()) {
-      return bindTopBarScrollSpy(
-        () => phaseRef.current,
-        () => (busyRef.current ? targetIdRef.current : null),
-        applyScrollState,
-      )
+    let cleanup: (() => void) | undefined
+
+    const bindScrollOrchestration = () => {
+      cleanup?.()
+      cleanup = undefined
+
+      if (window.matchMedia(LAYOUT_MQ.topBarNav).matches) {
+        resetInFlowChapterPanels()
+        cleanup = bindTopBarScrollSpy(
+          () => phaseRef.current,
+          () => (busyRef.current ? targetIdRef.current : null),
+          applyScrollState,
+        )
+        return
+      }
+
+      measureAndApplySlides()
+      cleanup = scheduleScrollFrame(measureAndApplySlides)
     }
 
-    measureAndApplySlides()
+    bindScrollOrchestration()
+    const mq = window.matchMedia(LAYOUT_MQ.topBarNav)
+    mq.addEventListener('change', bindScrollOrchestration)
 
-    return scheduleScrollFrame(measureAndApplySlides)
+    return () => {
+      mq.removeEventListener('change', bindScrollOrchestration)
+      cleanup?.()
+    }
   }, [])
 
   const runNavigate = useCallback(

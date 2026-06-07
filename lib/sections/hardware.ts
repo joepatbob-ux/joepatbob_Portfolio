@@ -19,20 +19,13 @@ The through-line across all of them: the interface has to do the hard work so th
       wide: true,
     },
     {
-      label: 'US 12,608,066',
-      value: 'Low Power Detection · Awarded 2026',
-    },
-    {
-      label: 'Patent pending',
-      value: 'Segment display character set',
+      label: 'Patents',
+      value: 'US 12,608,066 · Segment display character set (pending)',
+      wide: true,
     },
   ],
-  lessonTitle: 'What hardware teaches you',
-  lessonBody: `Designing for hardware strips away the safety nets. You can't push an update to fix a confusing menu on a shipped thermostat. You can't add a tooltip to a 32-segment display. The decisions you make are the decisions users live with.
-
-That pressure is clarifying. It makes you more deliberate about every choice, more rigorous about validation, and more honest about the difference between what you prefer and what actually works.
-
-It also makes everything else feel a little more spacious.`,
+  lessonTitle: '',
+  lessonBody: '',
   chapters: [
     {
       id: 'touch-2',

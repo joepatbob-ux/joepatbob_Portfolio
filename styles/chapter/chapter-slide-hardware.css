@@ -2,7 +2,7 @@
 
 .hardware-slideshow {
   --hw-pad: var(--cs-hw-pad);
-  --hw-gap: var(--cs-split-gap, clamp(24px, 2.5vw, 48px));
+  --hw-gap: var(--cs-split-gap, clamp(48px, 5vw, 96px));
   --hw-copy-gap: 0.85rem;
   --hw-stage-min-w: clamp(200px, 24vw, var(--cs-stage-min));
   --hw-stage-max-w: var(--cs-stage-max);
@@ -45,14 +45,17 @@
   .hardware-slideshow .chapter-slide__viewport {
     flex: 1 1 auto;
     min-height: 0;
+    min-width: 0;
     width: 100%;
+    max-width: 100%;
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
     padding-block: var(--hw-pad);
     padding-inline: 0;
-    justify-content: flex-start;
+    justify-content: center;
     align-items: stretch;
+    overflow-x: clip;
   }
 
   .section-lessons.hardware-slideshow .portfolio-chapter-panel {
@@ -67,73 +70,58 @@
   }
 
   .hardware-slideshow .chapter-slide__inner {
-    display: flex !important;
-    grid-template-columns: unset !important;
-    grid-template-rows: unset !important;
-    grid-column: unset !important;
-    grid-row: unset !important;
-    flex: 1 1 auto;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+    grid-template-rows: auto;
+    column-gap: var(--hw-gap);
+    row-gap: 0;
+    flex: 0 1 auto;
     width: 100%;
     max-width: 100% !important;
     max-height: 100% !important;
     min-height: 0;
-    margin-inline: 0;
+    min-width: 0;
+    margin-inline: 0 !important;
     box-sizing: border-box;
     align-self: stretch;
     height: auto;
-    align-items: flex-start;
-    justify-content: flex-start;
-    gap: var(--hw-gap);
+    align-items: center;
+    justify-items: stretch;
   }
 
   .hardware-slideshow
     .chapter-slide__inner:has(.flow-chapter-slide__stage--empty) {
+    grid-template-columns: 1fr;
     gap: 0;
-  }
-
-  .hardware-slideshow
-    .chapter-slide__inner:has(.flow-chapter-slide__stage--empty)
-    .chapter-slide__copy {
-    flex: 1 1 auto;
-    width: 100%;
-    min-width: 0;
-    max-width: 100%;
   }
 
   .hardware-slideshow .chapter-slide__stage,
   .hardware-slideshow .chapter-slide__copy {
-    grid-column: unset !important;
-    grid-row: unset !important;
     position: relative;
-    align-self: stretch;
-  }
-
-  /* Compact band (768–1199) — styles/chapter/chapter-slide-compact.css */
-  .hardware-slideshow
-    .chapter-slide__inner--compact-expand
-    .chapter-slide__stage,
-  .hardware-slideshow
-    .chapter-slide__inner--compact-expand
-    .chapter-slide__copy {
     align-self: center;
+    min-width: 0;
   }
 
-  /* Stage column = flex shell; artifact floats centered with fluid min/max width */
+  /* Stage column — 1/3 pane; artifacts scale with column width (container queries) */
   .hardware-slideshow .chapter-slide__stage {
+    container-type: inline-size;
+    container-name: stage-col;
+    --hw-stage-gallery-w: min(100cqw, var(--cs-touch2-stage-outer-w));
     display: flex;
     align-items: center;
     justify-content: center;
-    flex: 1 1 auto;
-    min-width: var(--hw-stage-min-w);
-    max-width: var(--hw-stage-max-w);
+    grid-column: 1;
+    grid-row: 1;
+    width: 100%;
+    min-width: 0;
     min-height: 0;
     height: auto;
     box-sizing: border-box;
   }
 
-  /* All stage artifacts share Touch2 gallery width; content centers inside */
+  /* All stage artifacts — fill stage column; cap at design gallery width when roomy */
   .hardware-slideshow .chapter-slide__stage > * {
-    width: var(--hw-stage-gallery-w);
+    width: 100%;
     max-width: 100%;
     margin-inline: auto;
     flex: 0 1 auto;
@@ -144,7 +132,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: var(--hw-stage-gallery-w);
+    width: 100%;
     max-width: 100%;
   }
 
@@ -167,19 +155,12 @@
 
   .hardware-slideshow.chapter-slide--eim .chapter-slide__stage,
   .hardware-slideshow.chapter-slide--verdant .chapter-slide__stage,
-  .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__stage,
   .hardware-slideshow .chapter-slide__stage:has(.phone-swap) {
     overflow: visible;
   }
 
-  .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__stage:has(.phone-swap) {
-    flex: 1 1 auto;
-    width: var(--hw-stage-gallery-w);
-    max-width: min(100%, var(--hw-stage-gallery-w));
-  }
-
   .hardware-slideshow .chapter-slide__stage .touch2-carousel {
-    width: var(--hw-stage-gallery-w);
+    width: 100%;
     max-width: 100%;
   }
 
@@ -191,7 +172,7 @@
   .hardware-slideshow .chapter-slide__stage .quote-bowl,
   .hardware-slideshow .chapter-slide__stage .sticker-pile-wrap,
   .hardware-slideshow .chapter-slide__stage .formation-lego {
-    width: var(--hw-stage-gallery-w);
+    width: 100%;
     max-width: 100%;
     margin-inline: auto;
   }
@@ -215,14 +196,35 @@
   }
 
   .hardware-slideshow .chapter-slide__copy {
-    flex: 0 1 auto;
+    grid-column: 2;
+    grid-row: 1;
+    width: 100%;
     min-width: 0;
-    width: auto;
-    max-width: none;
+    max-width: 100%;
     max-height: min(78dvh, calc(100dvh - var(--hw-pad) * 2));
     display: flex;
     flex-direction: column;
     justify-content: center;
+    overflow: hidden;
+  }
+
+  .hardware-slideshow
+    .chapter-slide__inner:has(.flow-chapter-slide__stage--empty)
+    .chapter-slide__copy {
+    grid-column: 1;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  /* Compact band (768–1023) — styles/chapter/chapter-slide-compact.css */
+  .hardware-slideshow
+    .chapter-slide__inner--compact-expand
+    .chapter-slide__stage,
+  .hardware-slideshow
+    .chapter-slide__inner--compact-expand
+    .chapter-slide__copy {
+    align-self: center;
   }
 
   .hardware-slideshow .chapter-slide__copy .chapter-copy-scroller {
@@ -280,43 +282,15 @@
   }
 }
 
-/* Desktop (1024+): stage left, copy right — aligned with lib/layout/breakpoints.ts */
+/* Desktop (1024+): stage | copy grid columns — aligned with layout tokens */
 @media (min-width: 1024px) {
-  .hardware-slideshow .chapter-slide__inner {
-    flex-direction: row;
-    align-items: center;
-  }
-
   .hardware-slideshow .chapter-slide__inner .chapter-slide__stage,
   .hardware-slideshow .chapter-slide__inner .chapter-slide__copy {
     align-self: center;
   }
 
-  .hardware-slideshow .chapter-slide__stage {
-    order: 1;
-    flex: 1 1 auto;
-    min-width: var(--hw-stage-min-w);
-    max-width: min(
-      var(--hw-stage-max-w),
-      calc(100% - var(--hw-copy-min-w) - var(--hw-gap))
-    );
-    width: auto;
-  }
-
-  .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__stage:has(.phone-swap) {
-    flex: 1 1 auto;
-  }
-
-  .hardware-slideshow .chapter-slide__copy {
-    order: 2;
-    flex: 0 0 auto;
-    width: min(var(--hw-copy-max-w), 100%);
-    min-width: min(var(--hw-copy-min-w), 100%);
-    max-width: var(--hw-copy-max-w);
-    justify-content: center;
-  }
-
   .hardware-slideshow .chapter-slide__copy .chapter-copy-scroller {
+    width: 100%;
     flex: 0 1 auto;
   }
 }

@@ -153,7 +153,7 @@
   }
 }
 
-/* Desktop+: band capped and centered in content pane; shell supplies horizontal pad */
+/* Desktop+: slideshow fills content pane; non-slideshow band centered in pane */
 @media (min-width: 1024px) {
   .chapter-slide__viewport {
     padding-left: 0;
@@ -161,9 +161,20 @@
     padding-top: 24px;
     padding-bottom: 24px;
     justify-content: center;
+    min-width: 0;
+    max-width: 100%;
   }
 
-  .chapter-slide__inner {
+  .chapter-slide:not(.hardware-slideshow) .chapter-slide__viewport {
+    justify-content: center;
+  }
+
+  .hardware-slideshow .chapter-slide__viewport {
+    justify-content: center;
+    align-items: stretch;
+  }
+
+  .chapter-slide:not(.hardware-slideshow) .chapter-slide__inner {
     width: 100%;
     max-width: min(var(--cs-band-max), 100%);
     margin-inline: auto;

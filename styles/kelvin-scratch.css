@@ -55,7 +55,7 @@
   align-items: center;
   justify-content: flex-start;
   gap: clamp(14px, 2.5vh, 24px);
-  width: max-content;
+  width: 100%;
   max-width: 100%;
   margin-inline: auto;
   touch-action: pan-y;

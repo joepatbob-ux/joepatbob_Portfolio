@@ -24,28 +24,6 @@
   padding: 0;
 }
 
-.web-apps-product-grid__cell {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-  min-width: 0;
-  margin: 0;
-  padding: 13px 14px;
-  background: var(--cs-overview-meta-bg, var(--cs-grid-cell-bg));
-  border: 1px solid var(--cs-overview-meta-border);
-  border-radius: 6px;
-}
-
-.web-apps-product-grid__domain {
-  margin: 0;
-  font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: var(--cs-label-size);
-  letter-spacing: var(--cs-label-tracking);
-  text-transform: uppercase;
-  color: var(--color-accent);
-}
-
 .web-apps-product-grid__name {
   margin: 0;
   margin-inline-start: 0;
@@ -57,14 +35,9 @@
 }
 
 .web-apps-product-grid__desc {
-  margin: 0;
   margin-inline-start: 0;
-  font-size: 13px;
-  line-height: 1.55;
-  color: var(--cs-body-color);
 }
 
-/* Numbered pillars (01–04) */
 .web-apps-pillars-lead {
   margin: 0 0 12px;
   font-family: var(--font-body);
@@ -126,14 +99,9 @@
   color: var(--cs-body-color);
 }
 
-/* TempTrak / regulatory stakes */
+/* TempTrak / regulatory stakes — block chrome in case-study-content.css */
 .web-apps-compliance-callout {
   margin: 0 0 24px;
-  padding: 18px 20px;
-  border: 1px solid rgba(26, 26, 26, 0.14);
-  border-left: 3px solid var(--color-accent);
-  border-radius: 8px;
-  background: rgba(26, 26, 26, 0.04);
 }
 
 .web-apps-compliance-callout p {

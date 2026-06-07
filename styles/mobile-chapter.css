@@ -100,35 +100,8 @@
   padding: 0;
 }
 
-.mobile-label-grid__cell {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-  min-width: 0;
-  margin: 0;
-  padding: 13px 14px;
-  background: var(--cs-overview-meta-bg, var(--cs-grid-cell-bg));
-  border: 1px solid var(--cs-overview-meta-border);
-  border-radius: 6px;
-}
-
-.mobile-label-grid__label {
-  margin: 0;
-  font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: var(--cs-label-size);
-  letter-spacing: var(--cs-label-tracking);
-  text-transform: uppercase;
-  color: var(--color-accent);
-}
-
 .mobile-label-grid__text {
-  margin: 0;
   margin-inline-start: 0;
-  font-family: var(--font-body);
-  font-size: 13px;
-  line-height: 1.55;
-  color: var(--cs-body-color);
 }
 
 /* Drag scrubber */
@@ -242,12 +215,9 @@
   text-align: center;
 }
 
-/* Blockquote, figures, callouts */
+/* Blockquote, figures, callouts — block chrome in case-study-content.css */
 .mobile-blockquote {
   margin: 0 0 24px;
-  padding: 16px 20px;
-  border-left: 3px solid var(--color-accent);
-  background: var(--cs-quote-bg);
 }
 
 .mobile-blockquote p {
@@ -273,10 +243,6 @@
 
 .mobile-thesis-close {
   margin: 8px 0 0;
-  padding: 20px 22px;
-  border: 1px solid var(--cs-callout-border);
-  border-radius: 8px;
-  background: var(--cs-callout-bg);
 }
 
 .mobile-thesis-close p {
@@ -301,36 +267,16 @@
   }
 }
 
-.mobile-phase-panels__panel {
-  padding: 18px 20px;
-  border: 1px solid rgba(26, 26, 26, 0.12);
-  border-radius: 8px;
-  background: rgba(26, 26, 26, 0.03);
-}
-
 .mobile-phase-panels__label {
-  margin: 0 0 10px;
-  font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: 10px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--color-accent);
+  margin: 0 0 3px;
 }
 
 .mobile-phase-panels__text {
-  margin: 0;
-  font-family: var(--font-body);
-  font-size: 14px;
-  line-height: 1.55;
-  color: var(--color-ink);
+  font-size: var(--cs-block-body-size);
 }
 
 .mobile-award-callout {
   margin: 0;
-  padding: 18px 20px;
-  border-left: 3px solid var(--color-accent);
-  background: rgba(26, 26, 26, 0.04);
 }
 
 .mobile-award-callout p {

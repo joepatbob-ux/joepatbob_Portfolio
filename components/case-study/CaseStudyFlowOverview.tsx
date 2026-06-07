@@ -17,7 +17,7 @@ interface Props {
   className?: string
 }
 
-/** Section overview — 900px column centered in content area; full body on all breakpoints. */
+/** Section overview — same band as stage | copy chapters; full body on all breakpoints. */
 export function CaseStudyFlowOverview({
   chapterId,
   headline,

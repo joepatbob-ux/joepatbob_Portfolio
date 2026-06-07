@@ -3,7 +3,7 @@
 import { LAYOUT_MQ } from '@/lib/layout/breakpoints'
 import { useEffect, useState } from 'react'
 
-/** Tablet + narrow desktop (768–1199): centered stack + More/Less in-place expand. */
+/** Tablet (768–1023): centered stack + More/Less in-place expand. */
 export function useLayoutCompactBand(): boolean {
   const [compact, setCompact] = useState(() => {
     if (typeof window === 'undefined') return false
