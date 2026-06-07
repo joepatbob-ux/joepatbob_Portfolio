@@ -87,9 +87,10 @@
     right: 0;
     z-index: var(--z-mobile-chrome, 120);
     isolation: isolate;
-    height: calc(var(--mobile-nav-bar-height) + env(safe-area-inset-top, 0px));
+    min-height: calc(var(--mobile-nav-bar-height) + env(safe-area-inset-top, 0px));
+    height: auto;
     margin: 0;
-    padding: env(safe-area-inset-top, 0px) max(16px, env(safe-area-inset-right)) 0
+    padding: env(safe-area-inset-top, 0px) max(16px, env(safe-area-inset-right)) 8px
       max(16px, env(safe-area-inset-left));
     box-sizing: border-box;
     border: none;
@@ -121,10 +122,7 @@
   /* Frosted bar + safe-area inset — edge to edge, blur to physical top */
   .sidebar-mobile-rail__chrome {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: calc(env(safe-area-inset-top, 0px) + var(--mobile-nav-bar-height));
+    inset: 0;
     z-index: 0;
     pointer-events: none;
     backdrop-filter: blur(var(--mobile-nav-blur));
@@ -135,7 +133,7 @@
   /* Progressive fade — starts at the divider, extends into content below */
   .sidebar-mobile-rail__blur {
     position: absolute;
-    top: calc(env(safe-area-inset-top, 0px) + var(--mobile-nav-bar-height));
+    top: 100%;
     left: 0;
     right: 0;
     height: var(--mobile-rail-blur-height);
@@ -156,9 +154,9 @@
   .sidebar-mobile-rail::after {
     content: '';
     position: absolute;
-    top: calc(env(safe-area-inset-top, 0px) + var(--mobile-nav-bar-height) - 1px);
     left: max(16px, env(safe-area-inset-left));
     right: max(16px, env(safe-area-inset-right));
+    bottom: 0;
     height: 1px;
     background: var(--color-rule);
     z-index: 2;
@@ -174,26 +172,13 @@
     font-family: var(--font-ahg);
     font-weight: 700;
     font-size: clamp(12px, 3.4vw, 14px);
-    line-height: 1.2;
+    line-height: 1.25;
     letter-spacing: 0.02em;
     text-transform: uppercase;
     color: var(--color-ink);
     text-align: center;
-    white-space: nowrap;
-  }
-
-  .sidebar-mobile-rail__copy--short {
-    display: none;
-  }
-
-  @container mobile-rail (max-width: 380px) {
-    .sidebar-mobile-rail__copy--long {
-      display: none;
-    }
-
-    .sidebar-mobile-rail__copy--short {
-      display: inline;
-    }
+    text-wrap: balance;
+    white-space: normal;
   }
 
   .sidebar-mobile-rail__label-accent {

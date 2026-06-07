@@ -17,7 +17,7 @@ import {
   scrollDocumentToChapterSlot,
 } from '@/lib/chapterSnapScroll'
 import { requestChapterMount } from '@/lib/chapterMount'
-import { waitForChapterSlot } from '@/lib/chapterNav/waitForChapterSlot'
+import { waitForChapterSlotReady } from '@/lib/chapterNav/waitForChapterSlot'
 import {
   requestSectionMount,
   sectionIdFromChapterId,
@@ -184,14 +184,16 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
       if (sectionId) requestSectionMount(sectionId)
       requestChapterMount(chapterId)
 
-      let target =
-        document.querySelector<HTMLElement>(selector) ??
-        (await waitForChapterSlot(chapterId))
+      let target = await waitForChapterSlotReady(chapterId)
+
+      if (!target) {
+        target = document.querySelector<HTMLElement>(selector)
+      }
 
       if (!target && chapterId.endsWith('-overview')) {
-        const sectionId = chapterId.slice(0, -'-overview'.length)
+        const overviewSectionId = chapterId.slice(0, -'-overview'.length)
         target = document.querySelector<HTMLElement>(
-          `article[data-section-id="${CSS.escape(sectionId)}"]`,
+          `article[data-section-id="${CSS.escape(overviewSectionId)}"] .portfolio-chapter-slot[data-chapter-id="${CSS.escape(chapterId)}"]`,
         )
       }
 
@@ -214,6 +216,10 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
 
       scrollDocumentToChapterSlot(target)
       await waitForChapterScrollSettle(target)
+      if (Math.abs(window.scrollY - chapterSlotScrollTop(target)) > 8) {
+        scrollDocumentToChapterSlot(target)
+        await waitForChapterScrollSettle(target)
+      }
       resetChapterCopyScrollersAfterSnap()
       applySlideScrollFromMeasure('in', chapterId, null)
       flushScrollFrame()
@@ -221,15 +227,20 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
       setPhase('in')
       await sleep(CHAPTER_NAV_FADE_MS)
 
-      setPhase('idle')
-      setTargetId(null)
       navGuardRef.current = {
         chapterId,
         until: performance.now() + 720,
       }
       busyRef.current = false
-      applySlideScrollFromMeasure('idle', null, navGuardRef.current)
+      setPhase('idle')
+      setTargetId(null)
+      // Lock destination reveal before React clears transition inline styles.
+      applySlideScrollFromMeasure('idle', chapterId, navGuardRef.current)
       flushScrollFrame()
+      requestAnimationFrame(() => {
+        applySlideScrollFromMeasure('idle', null, navGuardRef.current)
+        flushScrollFrame()
+      })
     },
     [],
   )

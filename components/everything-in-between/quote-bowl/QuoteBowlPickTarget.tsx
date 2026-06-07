@@ -62,10 +62,22 @@ export function QuoteBowlPickTarget({
             }
           : undefined
       }
+      onPointerDown={
+        pickable
+          ? (e) => {
+              e.stopPropagation()
+              // Touch Safari: pointerdown is more reliable than click for 3D picks.
+              if (e.pointerType === 'touch' || e.pointerType === 'pen') {
+                onPick()
+              }
+            }
+          : undefined
+      }
       onClick={
         pickable
           ? (e) => {
               e.stopPropagation()
+              if (e.pointerType === 'touch' || e.pointerType === 'pen') return
               onPick()
             }
           : undefined

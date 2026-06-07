@@ -94,12 +94,11 @@
   }
 
   @media (prefers-color-scheme: dark) {
-    :root {
+    :root:not([data-theme='light']) {
       --color-ink:        #f0eeea;
       --color-hero-canvas: #040404;
       --color-paper:      #101010;
       --color-rule:       rgba(255, 255, 255, 0.12);
-      /* Stronger than 0.45 — readable cream on near-black */
       --color-muted:      rgba(240, 238, 234, 0.78);
       --color-accent-nav-hover:    #ff9a7a;
       --color-nav-faded-selection: rgba(222, 62, 24, 0.45);
@@ -108,6 +107,34 @@
       --color-chapter-dim: var(--color-nav-faded-selection);
       --tablet-backdrop-scrim: rgba(4, 4, 4, 0.58);
     }
+  }
+
+  html[data-theme='dark'] {
+    --color-ink:        #f0eeea;
+    --color-hero-canvas: #040404;
+    --color-paper:      #101010;
+    --color-rule:       rgba(255, 255, 255, 0.12);
+    --color-muted:      rgba(240, 238, 234, 0.78);
+    --color-accent-nav-hover:    #ff9a7a;
+    --color-nav-faded-selection: rgba(222, 62, 24, 0.45);
+    --color-nav-pill-muted-accent-1: rgba(222, 62, 24, 0.16);
+    --color-nav-pill-outline:        rgba(222, 62, 24, 0.48);
+    --color-chapter-dim: var(--color-nav-faded-selection);
+    --tablet-backdrop-scrim: rgba(4, 4, 4, 0.58);
+  }
+
+  html[data-theme='light'] {
+    --color-ink:        #0d0d0d;
+    --color-hero-canvas: #f4f4f4;
+    --color-paper:      #f0f0f0;
+    --color-rule:       rgba(0, 0, 0, 0.1);
+    --color-muted:      rgba(13, 13, 13, 0.72);
+    --color-accent-nav-hover:    #5a2410;
+    --color-nav-faded-selection: rgba(222, 62, 24, 0.4);
+    --color-nav-pill-muted-accent-1: rgba(222, 62, 24, 0.12);
+    --color-nav-pill-outline:        rgba(222, 62, 24, 0.42);
+    --color-chapter-dim: var(--color-nav-faded-selection);
+    --tablet-backdrop-scrim: rgba(240, 240, 240, 0.62);
   }
 
   html {
@@ -146,8 +173,10 @@
       );
       --mobile-content-bottom-inset: env(safe-area-inset-bottom, 0px);
       --gutter: 24px;
+      --content-pad-x: 16px;
+      --content-pad-left: 16px;
       --z-mobile-chrome: 120;
-      --z-stickers: 52;
+      --z-stickers: 96;
       --z-sticker-pile: 50;
       --z-sticker-drag: 130;
       --z-sticker-selected: 95;
@@ -192,6 +221,16 @@
 
     html {
       scroll-snap-type: none;
+    }
+
+    .chapter-copy-scroller,
+    .chapter-slide__copy,
+    .mobile-learn-more-sheet__body,
+    .phone-swap__tune-panel,
+    .formation-lego__stage,
+    .flow-chapter-slide--concepts .quote-bowl__stack {
+      touch-action: pan-y;
+      -webkit-overflow-scrolling: touch;
     }
   }
 
@@ -877,7 +916,7 @@
 }
 
 .sticker-pile-wrap--inline .sticker-pile {
-  touch-action: pan-y;
+  touch-action: none;
 }
 
 .sticker-pile-wrap--inline .sticker-pile__grab {
@@ -1347,13 +1386,13 @@ html {
 
 }
 
-/* Cinema (2560+): cap fixed panel to site frame — not full viewport width */
+/* Cinema (2560+): full content pane — sidebar to right pad (no left-only width cap) */
 @media (min-width: 2560px) {
   .portfolio-chapter-slot--fill.hardware-slideshow .portfolio-chapter-panel {
     left: calc(var(--sidebar-width) + var(--content-pad-left, 40px)) !important;
-    right: auto !important;
-    width: var(--cs-content-pane-max) !important;
-    max-width: var(--cs-content-pane-max) !important;
+    right: var(--content-pad-x, 40px) !important;
+    width: auto !important;
+    max-width: none !important;
   }
 }
 

@@ -2,7 +2,6 @@ import {
   applyChapterPanelScrollStyles,
   applyPlacedStickerScrollVisibility,
 } from '@/lib/applyChapterPanelScrollStyles'
-import { chapterSlotScrollTop } from '@/lib/chapterSnapScroll'
 import { isTopBarNavViewport } from '@/lib/layout/isTopBarNavViewport'
 import {
   measureSlideScrollState,
@@ -13,8 +12,6 @@ import {
 
 export type SlideNavGuard = { chapterId: string; until: number } | null
 
-const NAV_GUARD_SCROLL_TOLERANCE_PX = 24
-
 function applyNavGuard(
   state: SlideScrollState,
   lockedSlideId: string | null,
@@ -23,17 +20,7 @@ function applyNavGuard(
   if (lockedSlideId) return state
   if (!navGuard || performance.now() >= navGuard.until) return state
 
-  const slot = document.querySelector<HTMLElement>(
-    `.portfolio-chapter-slot[data-chapter-id="${CSS.escape(navGuard.chapterId)}"]`,
-  )
-  if (
-    !slot ||
-    Math.abs(window.scrollY - chapterSlotScrollTop(slot)) >
-      NAV_GUARD_SCROLL_TOLERANCE_PX
-  ) {
-    return state
-  }
-
+  // Keep destination visible after programmatic nav — snap may still be settling.
   return {
     ...state,
     activeSlideId: navGuard.chapterId,

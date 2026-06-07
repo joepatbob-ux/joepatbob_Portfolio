@@ -70,6 +70,7 @@ export function applyChapterPanelScrollStyles(
     panel.style.pointerEvents = pointerEvents
     panel.style.filter = 'none'
     panel.style.transition = 'none'
+    panel.style.visibility = opacity <= 0.02 ? 'hidden' : 'visible'
     panel.setAttribute('aria-hidden', opacity < 0.08 ? 'true' : 'false')
   })
 }

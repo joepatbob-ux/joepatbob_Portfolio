@@ -36,7 +36,10 @@ import {
   readCameraView,
   type PhoneCameraView,
 } from '@/lib/phone-swap/phoneSwapCamera'
-import { cameraViewZoomAllOut } from '@/lib/phone-swap/phoneSwapCameraFit'
+import {
+  cameraViewFittingPhones,
+  cameraViewZoomAllOut,
+} from '@/lib/phone-swap/phoneSwapCameraFit'
 import {
   applyFocusToPhoneRoot,
   focusForSnapshot,
@@ -447,14 +450,22 @@ export function PhoneSwapScene({
         camera instanceof THREE.PerspectiveCamera ? camera.aspect : 1
       const activeCamera = layoutMode
         ? cameraView
-        : cameraViewForSwap(
-            cameraView,
-            progressRef.current,
-            animating,
-            androidRef.current,
-            iphoneRef.current,
-            aspect,
-          )
+        : animating
+          ? cameraViewForSwap(
+              cameraView,
+              progressRef.current,
+              true,
+              androidRef.current,
+              iphoneRef.current,
+              aspect,
+            )
+          : cameraViewFittingPhones(
+              cameraView,
+              androidRef.current,
+              iphoneRef.current,
+              aspect,
+              1.08,
+            )
       applyCameraView(camera, controlsRef.current, activeCamera)
     }
   })

@@ -61,6 +61,16 @@
 
 .quote-bowl__stage--pick-target {
   cursor: pointer;
+  touch-action: manipulation;
+}
+
+.quote-bowl__stage--pick-target .quote-bowl__a11y-trigger {
+  pointer-events: auto;
+  touch-action: manipulation;
+}
+
+.quote-bowl__stage--pick-target .quote-bowl__canvas {
+  touch-action: manipulation;
 }
 
 .quote-bowl__tune-btn {
@@ -115,7 +125,7 @@
   height: 100%;
   min-height: 280px;
   display: block;
-  touch-action: pan-y;
+  touch-action: manipulation;
 }
 
 .quote-bowl__canvas canvas {
@@ -262,6 +272,7 @@
 }
 
 .quote-bowl__reset {
+  pointer-events: auto;
   font: inherit;
   font-family: var(--font-mono);
   font-size: 11px;

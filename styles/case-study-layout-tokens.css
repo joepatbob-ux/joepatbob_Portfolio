@@ -150,8 +150,8 @@
 
 @media (min-width: 1024px) {
   :root {
-    --cs-stage-min: 220px;
-    --cs-stage-max: 560px;
+    --cs-stage-min: 240px;
+    --cs-stage-max: 600px;
     --cs-stage-col: minmax(0, 1fr);
     --cs-copy-col: minmax(0, 2fr);
     --cs-band-max: var(--cs-content-pane-max);
@@ -164,14 +164,29 @@
 
 @media (min-width: 2560px) {
   :root {
-    --cs-stage-max: 640px;
-    --cs-touch2-frame-max-w: min(var(--cs-touch2-frame-w), var(--cs-stage-max));
-    --cs-band-viewport-cap: calc(
-      var(--site-frame-max, 1400px) - var(--sidebar-width, 280px) -
-        var(--content-pad-left, 40px) - var(--content-pad-x, 40px)
+    --cs-stage-min: 320px;
+    --cs-stage-max: 960px;
+    --cs-stage-artifact-w: min(
+      100%,
+      clamp(var(--cs-stage-min), 42vw, var(--cs-stage-max))
     );
-    --cs-content-pane-max: var(--cs-band-viewport-cap);
+    --cs-copy-measure-min: 32ch;
+    --cs-copy-column-max: min(
+      112ch,
+      calc(
+        var(--cs-content-pane-max) - var(--cs-stage-max) - var(--cs-split-gap) -
+          2rem
+      )
+    );
+    --cs-copy-measure-max: min(112ch, 100%);
+    --cs-mobile-headline-size: clamp(36px, 2.6vw, 52px);
+    --cs-touch2-frame-max-w: min(var(--cs-touch2-frame-w), var(--cs-stage-max));
     --cs-band-max: var(--cs-content-pane-max);
-    --cs-hw-pad-max: 56px;
+    --cs-hw-pad-max: 72px;
+    --cs-split-gap: 160px;
+    --cs-verdant-glyph-max-h: min(58dvh, 560px);
+    --cs-eim-stage-max-w: min(100%, var(--cs-stage-max));
+    --cs-sensi-lite-stage-max-w: min(100%, var(--cs-stage-max));
+    --cs-phone-viewbox-max-w: var(--cs-stage-max);
   }
 }

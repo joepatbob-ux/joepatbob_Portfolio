@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import {
   chapterSlotAtScrollY,
+  chapterSlotScrollTop,
   scrollDocumentToChapterSlot,
 } from '@/lib/chapterSnapScroll'
 import { LAYOUT_MQ } from '@/lib/layout/breakpoints'
@@ -10,7 +11,7 @@ const SCROLL_TRAP_SELECTOR = '.chapter-copy-scroller'
 
 /** Regions that keep native wheel behavior (sidebar, overlays, etc.). */
 const WHEEL_IGNORE_SELECTOR =
-  '.sidebar-shell, .sidebar-desktop-shell, .sidebar-desktop-subnav, .contact-dialog, .phone-swap__tune-panel, .phone-swap__devtools'
+  '.sidebar-shell, .sidebar-desktop-shell, .sidebar-desktop-subnav, .contact-dialog, .phone-swap__tune-panel, .phone-swap__devtools, .phone-swap__viewbox, .phone-swap__scene, .quote-bowl__stage, .quote-bowl__canvas, .fortune-teller, .formation-lego__stage'
 
 const HANDOFF_COOLDOWN_MS = 240
 const EDGE_EPSILON_PX = 4
@@ -21,7 +22,7 @@ let lastHandoffAt = 0
 function chapterSlotsOrdered(): HTMLElement[] {
   return Array.from(
     document.querySelectorAll<HTMLElement>(CHAPTER_SLOT_SELECTOR),
-  ).sort((a, b) => a.offsetTop - b.offsetTop)
+  ).sort((a, b) => chapterSlotScrollTop(a) - chapterSlotScrollTop(b))
 }
 
 function isVerticallyScrollable(el: HTMLElement): boolean {
@@ -32,7 +33,7 @@ function activeSlotIndex(slots: HTMLElement[], scrollY: number): number {
   const anchor = scrollY + window.innerHeight * 0.35
   let index = 0
   for (let i = 0; i < slots.length; i++) {
-    if (slots[i].offsetTop <= anchor) index = i
+    if (chapterSlotScrollTop(slots[i]) <= anchor) index = i
   }
   return index
 }

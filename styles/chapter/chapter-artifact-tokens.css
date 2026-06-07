@@ -222,6 +222,24 @@
   }
 }
 
+@media (min-width: 2560px) {
+  .hardware-slideshow.chapter-slide--sensi-lite
+    .chapter-slide__stage
+    > .chapter-slide__interactive-wrap {
+    min-height: min(calc(100cqw * 147 / 240), 72dvh);
+  }
+
+  .hardware-slideshow.chapter-slide--sensi-lite .sensi-lite-proto__stage {
+    width: 100%;
+    max-width: min(100cqw, var(--cs-stage-max));
+  }
+
+  .hardware-slideshow.chapter-slide--eim .chapter-slide__stage > .eim-path-art,
+  .hardware-slideshow.chapter-slide--eim .chapter-slide__stage .eim-path-art {
+    max-width: min(100cqw, var(--cs-stage-max));
+  }
+}
+
 /* ── Verdant ────────────────────────────────────────────────────────────── */
 
 @media (max-width: 767px) {

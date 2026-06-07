@@ -2,6 +2,7 @@
 
 import eibSource from '@/content/everything-in-between.md?raw'
 import { parseUxBeliefs } from '@/lib/everything-in-between/parseUxBeliefs'
+import { everythingElse } from '@/lib/sections/everything-else'
 
 function extractBowlQuotes(markdown: string): string {
   const match = markdown.match(/### Bowl quotes\s*\n([\s\S]*?)(?=^## |\z)/m)
@@ -20,11 +21,8 @@ export function eibChapterId(sectionId: EibSectionId): string {
   return `everything-else-${sectionId}`
 }
 
-export const EIB_CHAPTER_INTRO = `Good design work doesn't come from talent applied domain by domain. It comes from a way of working that travels — across hardware, software, and constraints it's never seen before.
-
-The work shows where that produced something. This chapter is about the methodology underneath — how it formed, what it holds, and where it shows up when there's no finished product to point to.
-
-Concepts. Formation. Practice.`
+/** @deprecated Use `everythingElse.overviewBody` from `lib/sections/everything-else`. */
+export const EIB_CHAPTER_INTRO = everythingElse.overviewBody
 
 /** UX belief slips — edit `content/everything-in-between.md` → Bowl quotes. */
 export const EIB_CONCEPT_QUOTES = parseUxBeliefs(extractBowlQuotes(eibSource))

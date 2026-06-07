@@ -23,7 +23,11 @@ export function Hero() {
     portrait?.style.removeProperty('filter')
     portrait?.style.removeProperty('transform')
     portrait?.style.removeProperty('object-position')
+    portrait?.style.removeProperty('visibility')
     pin?.style.removeProperty('transform')
+    pin?.style.removeProperty('opacity')
+    pin?.style.removeProperty('filter')
+    pin?.style.removeProperty('visibility')
 
     if (window.matchMedia(LAYOUT_MQ.topBarNav).matches) return
 
@@ -37,7 +41,7 @@ export function Hero() {
         topBarNav ? 0 : 10,
       )
     })
-  }, [])
+  }, [resolvedTheme])
 
   useEffect(() => {
     const hero = document.getElementById('hero')

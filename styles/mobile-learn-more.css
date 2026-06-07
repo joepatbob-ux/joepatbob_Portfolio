@@ -15,8 +15,8 @@
   background: rgba(18, 18, 18, 0.45);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
-  --sheet-edge-blur: 10px;
-  --sheet-edge-blur-h: 22px;
+  --sheet-edge-blur: 8px;
+  --sheet-edge-blur-h: 36px;
 }
 
 .mobile-learn-more-sheet__panel {
@@ -86,12 +86,13 @@
   margin-top: calc(-1 * var(--sheet-edge-blur-h));
   background: linear-gradient(
     0deg,
-    color-mix(in srgb, var(--color-paper) 92%, transparent) 0%,
-    color-mix(in srgb, var(--color-paper) 55%, transparent) 55%,
+    color-mix(in srgb, var(--color-paper) 94%, transparent) 0%,
+    color-mix(in srgb, var(--color-paper) 72%, transparent) 28%,
+    color-mix(in srgb, var(--color-paper) 38%, transparent) 58%,
     transparent 100%
   );
-  mask-image: linear-gradient(0deg, #000 0%, transparent 100%);
-  -webkit-mask-image: linear-gradient(0deg, #000 0%, transparent 100%);
+  mask-image: linear-gradient(0deg, #000 0%, #000 42%, transparent 100%);
+  -webkit-mask-image: linear-gradient(0deg, #000 0%, #000 42%, transparent 100%);
 }
 
 .mobile-learn-more-sheet__scroll {

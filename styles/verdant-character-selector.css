@@ -115,8 +115,24 @@
 
 @media (max-width: 767px) {
   .verdant-selector {
-    --verdant-key-gap: clamp(4px, 1.1vw, 7px);
-    --verdant-key-font: clamp(10px, 2.8cqi, 13px);
+    --verdant-key-gap: clamp(3px, 0.9vw, 6px);
+    --verdant-key-font: clamp(9px, 2.5cqi, 12px);
+    --verdant-key-size: clamp(26px, 7.8vw, 34px);
+  }
+
+  .verdant-selector__matrix {
+    display: grid;
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    justify-items: center;
+    gap: var(--verdant-key-gap);
+  }
+
+  .verdant-selector__key--char,
+  .verdant-selector__key--icon {
+    flex: none;
+    width: 100%;
+    max-width: var(--verdant-key-size);
+    height: var(--verdant-key-size);
   }
 
   .verdant-selector__views {

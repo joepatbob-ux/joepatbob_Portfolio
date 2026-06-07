@@ -5,19 +5,19 @@ import { EibConceptsSection } from '@/components/everything-in-between/EibConcep
 import { EibFormationSection } from '@/components/everything-in-between/EibFormationSection'
 import { EibPracticeSection } from '@/components/everything-in-between/EibPracticeSection'
 import { EibStagePreloads } from '@/components/everything-in-between/EibStagePreloads'
-import { EIB_CHAPTER_INTRO } from '@/lib/everything-in-between/content'
 import { everythingElse } from '@/lib/sections/everything-else'
 
 const EIB_OVERVIEW_ID = 'everything-else-overview'
 
 export function EverythingInBetweenChapter() {
   return (
-    <div className="eib-chapter mobile-chapter">
+    <div className="mobile-chapter">
       <EibStagePreloads />
       <CaseStudyFlowOverview
         chapterId={EIB_OVERVIEW_ID}
         headline={everythingElse.headline}
-        body={EIB_CHAPTER_INTRO}
+        body={everythingElse.overviewBody}
+        meta={everythingElse.overviewMeta}
         className="mobile-chapter-slot--overview"
       />
       <EibConceptsSection />

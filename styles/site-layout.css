@@ -45,7 +45,7 @@ html.sidebar-tablet-hero-active .sidebar-desktop-shell {
 
 /*
  * Cinema (2560+): 280px sidebar, 40px after rail, 1fr / 2fr, 160px column gap,
- * 40px copy to screen edge; sidebar inset 32px / 20px to divider.
+ * content fills sidebar → right edge (40px pad).
  */
 @media (min-width: 2560px) {
   :root {
@@ -58,13 +58,15 @@ html.sidebar-tablet-hero-active .sidebar-desktop-shell {
     --cs-copy-col: minmax(0, 2fr);
     --cs-split-gap: 160px;
     --cs-section-gap: 80px;
+    --cs-content-pane-max: calc(
+      100vw - var(--sidebar-width) - var(--content-pad-left) -
+        var(--content-pad-x)
+    );
   }
 
   .content-area {
-    max-width: calc(
-      var(--site-frame-max) - var(--sidebar-width) - var(--content-pad-left) -
-        var(--content-pad-x)
-    );
+    max-width: none;
+    width: calc(100vw - var(--sidebar-width));
   }
 }
 

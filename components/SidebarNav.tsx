@@ -144,7 +144,6 @@ export function SidebarNav() {
   const [dimActive,           setDimActive]           = useState(false)
   const [hoverSectionId, setHoverSectionId] = useState<string | null>(null)
   const [hoverChapterId, setHoverChapterId] = useState<string | null>(null)
-  const [compactRailLabel, setCompactRailLabel] = useState(false)
   const mobileRailRef = useRef<HTMLButtonElement>(null)
 
   /** Fade main keywords only when hovering a different section (subnav hover does not dim main). */
@@ -187,13 +186,26 @@ export function SidebarNav() {
 
   useEffect(() => {
     const el = mobileRailRef.current
-    if (!el) return
-    const sync = () => setCompactRailLabel(el.clientWidth <= 380)
-    sync()
-    const ro = new ResizeObserver(sync)
+    if (!el || !usesTopBarNav) return
+
+    const syncRailHeight = () => {
+      const padTop = parseFloat(getComputedStyle(el).paddingTop) || 0
+      const padBottom = parseFloat(getComputedStyle(el).paddingBottom) || 0
+      const barHeight = Math.max(52, el.offsetHeight - padTop - padBottom)
+      document.documentElement.style.setProperty(
+        '--mobile-nav-bar-height',
+        `${Math.ceil(barHeight)}px`,
+      )
+    }
+
+    syncRailHeight()
+    const ro = new ResizeObserver(syncRailHeight)
     ro.observe(el)
-    return () => ro.disconnect()
-  }, [usesTopBarNav, mobileInHero, mobileDrawerOpen])
+    return () => {
+      ro.disconnect()
+      document.documentElement.style.removeProperty('--mobile-nav-bar-height')
+    }
+  }, [usesTopBarNav, mobileInHero, mobileDrawerOpen, activeSection])
 
   useEffect(() => {
     if (usesTopBarNav && !mobileDrawerOpen) {
@@ -219,7 +231,9 @@ export function SidebarNav() {
     sec.chapters.forEach((_, i) => {
       const t = setTimeout(() => {
         setChapterItemsVisible((prev) => [...prev, i])
-        if (i === sec.chapters.length - 1) setDividerVisible(true)
+        if (i === sec.chapters.length - 1 && !isInHeroScrollZone()) {
+          setDividerVisible(true)
+        }
       }, i * STAGGER_MS)
       staggerTimers.current.push(t)
     })
@@ -267,7 +281,6 @@ export function SidebarNav() {
   const syncSidebarDivider = useCallback((inHero: boolean) => {
     if (overlayOpenRef.current) return
     const show = !inHero
-    if (dividerPastHeroRef.current === show) return
     dividerPastHeroRef.current = show
     setDividerVisible(show)
   }, [])
@@ -345,11 +358,12 @@ export function SidebarNav() {
         prevStuck.current = false
         setNavIsStuck(false)
         setSubNavVisible(false)
+        staggerTimers.current.forEach(clearTimeout)
+        staggerTimers.current = []
         syncSidebarDivider(isInHeroScrollZone())
         setDimActive(false)
         setChapterItemsVisible([])
         if (subNavTimer.current) clearTimeout(subNavTimer.current)
-        staggerTimers.current.forEach(clearTimeout)
       }
     },
     [staggerIn, syncSidebarDivider],
@@ -465,9 +479,13 @@ export function SidebarNav() {
         hideSidebarShell(mobileHeroRef.current)
       }
 
+      if (!mobileDrawerOpen) {
+        syncSidebarDivider(isTopBarInHeroScrollZone())
+      }
+
       if (!inHero && !overlayOpenRef.current) applyScrollSpy()
     })
-  }, [usesTopBarNav, mobileDrawerOpen, applyScrollSpy, applyMobileHeroScroll])
+  }, [usesTopBarNav, mobileDrawerOpen, applyScrollSpy, applyMobileHeroScroll, syncSidebarDivider])
 
   useEffect(() => {
     if (!usesTopBarNav || !mobileDrawerOpen) return
@@ -655,21 +673,10 @@ export function SidebarNav() {
           <span className="sidebar-mobile-rail__chrome" aria-hidden />
           <span className="sidebar-mobile-rail__blur" aria-hidden />
           <p className="sidebar-mobile-rail__label" aria-hidden="true">
-            {compactRailLabel ? (
-              <>
-                I simplify systems for{' '}
-                <span className="sidebar-mobile-rail__label-accent">
-                  {currentSection.label}
-                </span>
-              </>
-            ) : (
-              <>
-                I simplify complex systems for{' '}
-                <span className="sidebar-mobile-rail__label-accent">
-                  {currentSection.label}
-                </span>
-              </>
-            )}
+            I simplify complex systems for{' '}
+            <span className="sidebar-mobile-rail__label-accent">
+              {currentSection.label}
+            </span>
           </p>
         </button>
       </div>
