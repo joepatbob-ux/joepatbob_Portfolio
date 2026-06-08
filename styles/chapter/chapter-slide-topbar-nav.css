@@ -86,8 +86,8 @@
 
   .hardware-slideshow
     .chapter-slide__stage:not(:has(.flow-chapter-slide__stage--empty)) {
-    margin-top: calc(-1 * env(safe-area-inset-top, 0px));
-    padding-top: env(safe-area-inset-top, 0px);
+    margin-top: calc(-1 * var(--safe-area-top));
+    padding-top: var(--safe-area-top);
     box-sizing: border-box;
   }
 
@@ -127,7 +127,7 @@
     margin-top: var(--cs-section-scroll-gap);
   }
 
-  /* Hero: sticky pin — shorter scroll track so portrait releases sooner */
+  /* Hero: sticky pin — shorter scroll track; full bleed under status bar (no padding) */
   #hero {
     position: relative !important;
     width: 100vw !important;
@@ -136,12 +136,12 @@
       -1 * (var(--sidebar-width) + var(--content-pad-left, var(--content-pad-x)))
     ) !important;
     margin-right: calc(-1 * var(--content-pad-x)) !important;
-    margin-top: calc(-1 * env(safe-area-inset-top, 0px)) !important;
-    padding-top: env(safe-area-inset-top, 0px) !important;
-    min-height: 88svh !important;
-    min-height: 88dvh !important;
-    height: 88svh !important;
-    height: 88dvh !important;
+    margin-top: calc(-1 * var(--safe-area-top)) !important;
+    padding-top: 0 !important;
+    min-height: calc(88svh + var(--safe-area-top)) !important;
+    min-height: calc(88dvh + var(--safe-area-top)) !important;
+    height: calc(88svh + var(--safe-area-top)) !important;
+    height: calc(88dvh + var(--safe-area-top)) !important;
     max-height: none !important;
     overflow: visible !important;
     margin-bottom: var(--cs-hero-exit-gap, var(--cs-screen-gap));

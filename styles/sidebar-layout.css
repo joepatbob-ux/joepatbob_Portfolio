@@ -39,19 +39,21 @@
 
 .sidebar-shell--fixed .sidebar-hero-name {
   left: var(--sidebar-pad-inline);
+  top: var(--sidebar-hero-top);
   width: min(
     100%,
     calc(var(--sidebar-width) - var(--sidebar-pad-inline) - var(--sidebar-pad-right))
   );
 }
 
+.sidebar-shell--fixed .sidebar-contact {
+  left: var(--sidebar-pad-inline);
+  bottom: var(--sidebar-email-bottom);
+}
+
 .sidebar-shell--fixed [data-sidebar-main-nav] {
   left: var(--sidebar-pad-inline);
   right: calc(var(--sidebar-pad-inline) + var(--sidebar-pad-right));
-}
-
-.sidebar-shell--fixed .sidebar-contact {
-  left: var(--sidebar-pad-inline);
 }
 
 .sidebar-main-nav__sentence {
