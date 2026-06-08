@@ -845,32 +845,40 @@
   word-break: break-word;
 }
 
-/* Sensi — stage column matches gallery width; viewbox scales inside */
-.hardware-slideshow.mobile-chapter-slot--sensi {
-  --phone-viewbox-base-w: min(var(--cs-phone-viewbox-max-w), var(--cs-stage-gallery-w, 100%));
+/* Sensi — viewbox fills stage column; 3D camera reads --phone-viewport-* from here */
+.hardware-slideshow.mobile-chapter-slot--sensi,
+.flow-chapter-slide.mobile-chapter-slot--sensi {
+  --phone-viewport-fit-margin: 0.82;
+  --phone-viewport-distance-scale: 0.92;
+  /* Taller shell than 960×880 artboard — angled phones need vertical breathing room */
+  --phone-viewbox-aspect: 960 / 1060;
+  --phone-viewbox-base-w: min(var(--cs-phone-viewbox-max-w, 100%), 100%);
   --phone-viewbox-base-h: clamp(480px, 74dvh, 880px);
-  --phone-swap-height: var(--stage-tune-phone-height, 0.68);
-  --phone-swap-width: var(--stage-tune-phone-width, 0.68);
-  --hw-stage-max-w: var(--cs-stage-gallery-w, var(--cs-stage-artifact-w));
+  --phone-swap-height: 1;
+  --phone-swap-width: 1;
+  --hw-stage-max-w: none;
   --hw-stage-min-w: 0;
 }
 
-.hardware-slideshow.mobile-chapter-slot--sensi {
+.hardware-slideshow.mobile-chapter-slot--sensi,
+.flow-chapter-slide.mobile-chapter-slot--sensi {
   --cs-mobile-stage-min-h: 0;
   --cs-mobile-stage-max-h: none;
 }
 
 @media (min-width: 1024px) {
-  /* Phone fills stage column; 3D camera refits in PhoneSwapScene (not stage-tune shrink) */
-  .hardware-slideshow.mobile-chapter-slot--sensi {
+  /* Phone stage — scale via --phone-swap-*; 3D camera reads --phone-viewport-* on viewbox */
+  .hardware-slideshow.mobile-chapter-slot--sensi,
+  .flow-chapter-slide.mobile-chapter-slot--sensi {
+    --phone-swap-height: 0.84;
+    --phone-swap-width: 0.84;
     --phone-viewbox-base-w: 100%;
-    --phone-swap-height: 1;
-    --phone-swap-width: 1;
     --hw-stage-max-w: none;
     --hw-stage-min-w: 0;
   }
 
-  .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__stage:has(.phone-swap) {
+  .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__stage:has(.phone-swap),
+  .flow-chapter-slide.mobile-chapter-slot--sensi .chapter-slide__stage:has(.phone-swap) {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -878,27 +886,32 @@
     max-width: 100%;
     min-width: 0;
     min-height: 0;
+    overflow: visible;
   }
 
-  .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__stage:has(.phone-swap) > .phone-swap {
+  .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__stage:has(.phone-swap) > .phone-swap,
+  .flow-chapter-slide.mobile-chapter-slot--sensi .chapter-slide__stage:has(.phone-swap) > .phone-swap {
     width: 100%;
     max-width: 100%;
     margin-inline: auto;
     flex: 0 1 auto;
   }
 
-  .hardware-slideshow.mobile-chapter-slot--sensi .phone-swap__viewbox {
+  .hardware-slideshow.mobile-chapter-slot--sensi .phone-swap__viewbox,
+  .flow-chapter-slide.mobile-chapter-slot--sensi .phone-swap__viewbox {
+    --phone-viewport-fit-margin: 0.82;
+    --phone-viewport-distance-scale: 0.92;
     width: min(
       100%,
-      calc(var(--phone-viewbox-base-w) * var(--phone-swap-width, 1))
+      calc(
+        var(--cs-phone-viewbox-max-w, var(--cs-stage-max, 600px)) *
+          var(--phone-swap-width, 1)
+      )
     );
     max-width: 100%;
-    aspect-ratio: 960 / 880;
-    height: auto;
-    max-height: min(
-      96dvh,
-      calc(100cqw * 880 / 960 * var(--phone-swap-height, 1))
-    );
+    aspect-ratio: var(--phone-viewbox-aspect, 960 / 1060);
+    height: auto !important;
+    max-height: none !important;
   }
 }
 
@@ -1079,33 +1092,41 @@
 }
 
 @media (min-width: 2560px) {
-  .hardware-slideshow.mobile-chapter-slot--sensi {
-    --phone-viewbox-base-w: 100%;
-    --phone-viewbox-base-h: clamp(600px, 82dvh, 1040px);
+  .hardware-slideshow.mobile-chapter-slot--sensi,
+  .flow-chapter-slide.mobile-chapter-slot--sensi {
+    --phone-viewbox-aspect: 960 / 1100;
     --phone-swap-height: 1;
     --phone-swap-width: 1;
-    --cs-phone-viewbox-max-w: var(--cs-stage-max);
+    --phone-viewbox-base-w: 100%;
+    --cs-phone-viewbox-max-w: min(100%, var(--cs-stage-max));
   }
 
-  .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__stage:has(.phone-swap) {
+  .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__stage:has(.phone-swap),
+  .flow-chapter-slide.mobile-chapter-slot--sensi .chapter-slide__stage:has(.phone-swap) {
     align-items: center;
     justify-content: center;
-    min-height: min(86dvh, calc(100cqw * 880 / 960));
+    min-height: 0;
+    overflow: visible;
   }
 
-  .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__stage:has(.phone-swap) > .phone-swap {
+  .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__stage:has(.phone-swap) > .phone-swap,
+  .flow-chapter-slide.mobile-chapter-slot--sensi .chapter-slide__stage:has(.phone-swap) > .phone-swap {
     width: 100%;
-    max-width: min(100cqw, var(--cs-stage-max));
+    max-width: min(100%, var(--cs-stage-max));
+    flex: 0 1 auto;
   }
 
-  .hardware-slideshow.mobile-chapter-slot--sensi .phone-swap__viewbox {
-    width: min(100%, calc(100cqw * var(--phone-swap-width, 1)));
-    max-width: min(100cqw, var(--cs-stage-max));
-    aspect-ratio: 960 / 880;
-    height: auto;
-    max-height: min(
-      92dvh,
-      calc(100cqw * 880 / 960 * var(--phone-swap-height, 1))
+  .hardware-slideshow.mobile-chapter-slot--sensi .phone-swap__viewbox,
+  .flow-chapter-slide.mobile-chapter-slot--sensi .phone-swap__viewbox {
+    --phone-viewport-fit-margin: 0.76;
+    --phone-viewport-distance-scale: 0.9;
+    width: min(
+      100%,
+      calc(var(--cs-phone-viewbox-max-w, var(--cs-stage-max)) * var(--phone-swap-width, 1))
     );
+    max-width: min(100%, var(--cs-stage-max));
+    aspect-ratio: var(--phone-viewbox-aspect, 960 / 1100);
+    height: auto !important;
+    max-height: none !important;
   }
 }

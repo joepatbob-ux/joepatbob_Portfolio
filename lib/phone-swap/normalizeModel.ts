@@ -5,10 +5,13 @@ export type NormalizedModelInfo = {
   maxDim: number
 }
 
+/** Normalized scene units for phone swap (balanced for desktop + cinema stage columns). */
+export const PHONE_MODEL_TARGET_MAX = 2.33
+
 /** Scale to targetMax, then re-center so the bounding box sits on the origin. */
 export function normalizeModel(
   root: THREE.Object3D,
-  targetMax = 2.2,
+  targetMax = PHONE_MODEL_TARGET_MAX,
 ): NormalizedModelInfo {
   root.updateMatrixWorld(true)
 

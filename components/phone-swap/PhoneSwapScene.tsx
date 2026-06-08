@@ -39,6 +39,9 @@ import {
 import {
   cameraViewFittingPhones,
   cameraViewZoomAllOut,
+  PHONE_VIEWPORT_DISTANCE_SCALE,
+  PHONE_VIEWPORT_FIT_MARGIN,
+  PHONE_VIEWPORT_FOV_TRIM,
 } from '@/lib/phone-swap/phoneSwapCameraFit'
 import {
   applyFocusToPhoneRoot,
@@ -104,6 +107,11 @@ interface Props {
   /** iPhone is the front / focused phone (from PhoneSwap swap state). */
   iphoneFocused?: boolean
   onLiveScreenRect?: (rect: DisplayScreenRect | null) => void
+  /** Live CSS-driven viewport fit (read from .phone-swap__viewbox custom properties). */
+  viewportFitRef?: MutableRefObject<{
+    margin: number
+    distanceScale: number
+  }>
 }
 
 function usePixel8Scene() {
@@ -189,6 +197,7 @@ export function PhoneSwapScene({
   iphoneLiveScreen = false,
   iphoneFocused = false,
   onLiveScreenRect,
+  viewportFitRef,
 }: Props) {
   const { camera } = useThree()
   const androidScene = usePixel8Scene()
@@ -219,6 +228,7 @@ export function PhoneSwapScene({
   const [backDevice, setBackDevice] = useState<PhoneDevice>('iphone')
   const materialTunesRef = useRef(materialTunes)
   materialTunesRef.current = materialTunes
+  const fittedViewRef = useRef<PhoneCameraView | null>(null)
   const hasAndroidMaterialTunes = Object.keys(materialTunes.android).length > 0
   const hasIphoneMaterialTunes = Object.keys(materialTunes.iphone).length > 0
 
@@ -296,8 +306,9 @@ export function PhoneSwapScene({
   }, [camera, sceneApiRef, cameraView, androidRef, iphoneRef])
 
   useLayoutEffect(() => {
+    if (!layoutMode) return
     applyCameraView(camera, controlsRef.current, cameraView)
-  }, [camera, cameraView])
+  }, [camera, cameraView, layoutMode])
 
   useLayoutEffect(() => {
     targetProgress.current = swapProgress
@@ -452,21 +463,36 @@ export function PhoneSwapScene({
         ? cameraView
         : animating
           ? cameraViewForSwap(
-              cameraView,
+              fittedViewRef.current ?? cameraView,
               progressRef.current,
               true,
               androidRef.current,
               iphoneRef.current,
               aspect,
             )
-          : cameraViewFittingPhones(
-              cameraView,
-              androidRef.current,
-              iphoneRef.current,
-              aspect,
-              1.08,
-            )
-      applyCameraView(camera, controlsRef.current, activeCamera)
+          : (() => {
+              const frontRoot =
+                backDeviceRef.current === 'android'
+                  ? iphoneRef.current
+                  : androidRef.current
+              const fitted = cameraViewFittingPhones(
+                cameraView,
+                androidRef.current,
+                iphoneRef.current,
+                aspect,
+                viewportFitRef?.current.margin ?? PHONE_VIEWPORT_FIT_MARGIN,
+                'viewport',
+                viewportFitRef?.current.distanceScale ??
+                  PHONE_VIEWPORT_DISTANCE_SCALE,
+                PHONE_VIEWPORT_FOV_TRIM,
+                frontRoot,
+              )
+              if (fitted) fittedViewRef.current = fitted
+              return fittedViewRef.current
+            })()
+      if (activeCamera) {
+        applyCameraView(camera, controlsRef.current, activeCamera)
+      }
     }
   })
 

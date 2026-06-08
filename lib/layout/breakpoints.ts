@@ -32,4 +32,10 @@ export const LAYOUT_MQ = {
   compactBand: `(min-width: ${LAYOUT_BP.tabletMin}px) and (max-width: ${CS_BP.tabletMax}px)`,
   /** Mobile + tablet top-bar nav (≤1023) — SidebarNav overlay drawer. */
   topBarNav: `(max-width: ${LAYOUT_BP.tabletMax}px)`,
+  cinema: `(min-width: ${LAYOUT_BP.cinemaMin}px)`,
 } as const
+
+export function isCinemaViewport(): boolean {
+  if (typeof window === 'undefined') return false
+  return window.matchMedia(LAYOUT_MQ.cinema).matches
+}

@@ -35,6 +35,11 @@ import {
 } from '@/lib/phone-swap/phoneSwapAnimSettings'
 import { clampStageSize, clampStageWidth } from '@/lib/phone-swap/phoneSwapStageSize'
 import {
+  PHONE_VIEWPORT_DISTANCE_SCALE,
+  PHONE_VIEWPORT_FIT_MARGIN,
+} from '@/lib/phone-swap/phoneSwapCameraFit'
+import { PHONE_MODEL_TARGET_MAX } from '@/lib/phone-swap/normalizeModel'
+import {
   EMPTY_PHONE_MATERIAL_TUNES,
   type PhoneMaterialTunesByDevice,
 } from '@/lib/phone-swap/phoneMaterialTune'
@@ -77,6 +82,10 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
   const [showGuides, setShowGuides] = useState(false)
   const topBarNav = useLayoutTopBarNav()
   const chapterActive = useChapterActive()
+  const sceneLatchedRef = useRef(false)
+  if (chapterActive || layoutMode || devToolsEnabled) {
+    sceneLatchedRef.current = true
+  }
   const viewboxRef = useRef<HTMLDivElement>(null)
   const [locks, setLocks] = useState<LayoutLocks>(() => ({ ...DEFAULT_LAYOUT_LOCKS }))
   const [liveSnapshot, setLiveSnapshot] = useState<PhoneSwapSnapshot>(() =>
@@ -233,7 +242,9 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
   }, [])
 
   const inFlowChapter = topBarNav && !layoutMode
-  const shouldRenderScene = chapterActive || layoutMode || devToolsEnabled
+  const shouldRenderScene =
+    sceneLatchedRef.current || layoutMode || devToolsEnabled
+  const runSceneLoop = chapterActive || layoutMode || devToolsEnabled
   const useScrollPassthrough = inFlowChapter && !layoutMode
   /** Layout editor only — production uses CSS container size + camera fit, not stage tune shrink. */
   const viewBoxVars = layoutMode
@@ -243,6 +254,10 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
       } as CSSProperties)
     : undefined
   const invalidateCanvasRef = useRef<(() => void) | null>(null)
+  const viewportFitRef = useRef({
+    margin: PHONE_VIEWPORT_FIT_MARGIN,
+    distanceScale: PHONE_VIEWPORT_DISTANCE_SCALE,
+  })
 
   usePhoneSwapTouchScroll(viewboxRef, useScrollPassthrough)
 
@@ -250,11 +265,55 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
     if (!shouldRenderScene) return
     const el = viewboxRef.current
     if (!el) return
-    const ro = new ResizeObserver(() => {
+
+    const syncViewportFit = () => {
+      const styles = getComputedStyle(el)
+      let margin = parseFloat(styles.getPropertyValue('--phone-viewport-fit-margin'))
+      let distanceScale = parseFloat(
+        styles.getPropertyValue('--phone-viewport-distance-scale'),
+      )
+      if (!Number.isFinite(margin) || margin <= 0) {
+        const host = el.closest('.mobile-chapter-slot--sensi')
+        if (host) {
+          const hostStyles = getComputedStyle(host)
+          margin = parseFloat(hostStyles.getPropertyValue('--phone-viewport-fit-margin'))
+          distanceScale = parseFloat(
+            hostStyles.getPropertyValue('--phone-viewport-distance-scale'),
+          )
+        }
+      }
+      viewportFitRef.current = {
+        margin:
+          Number.isFinite(margin) && margin > 0
+            ? margin
+            : PHONE_VIEWPORT_FIT_MARGIN,
+        distanceScale:
+          Number.isFinite(distanceScale) && distanceScale > 0
+            ? distanceScale
+            : PHONE_VIEWPORT_DISTANCE_SCALE,
+      }
       invalidateCanvasRef.current?.()
+    }
+
+    let fitRaf = 0
+    const scheduleViewportFit = () => {
+      cancelAnimationFrame(fitRaf)
+      fitRaf = requestAnimationFrame(syncViewportFit)
+    }
+
+    const ro = new ResizeObserver((entries) => {
+      const entry = entries[0]
+      if (!entry) return
+      const { width, height } = entry.contentRect
+      if (width < 48 || height < 48) return
+      scheduleViewportFit()
     })
     ro.observe(el)
-    return () => ro.disconnect()
+    syncViewportFit()
+    return () => {
+      cancelAnimationFrame(fitRaf)
+      ro.disconnect()
+    }
   }, [shouldRenderScene])
 
   return (
@@ -378,6 +437,7 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
         {layoutMode && showGuides ? <PhoneLayoutGuides /> : null}
         {shouldRenderScene ? (
         <Canvas
+            key={`phone-swap-${PHONE_MODEL_TARGET_MAX}`}
             camera={{
               position: layout.camera.position,
               fov: layout.camera.fov,
@@ -392,7 +452,7 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
               logarithmicDepthBuffer: true,
             }}
             dpr={[1, 2]}
-            frameloop={animating ? 'always' : 'demand'}
+            frameloop={runSceneLoop ? 'always' : 'demand'}
             onCreated={({ gl, invalidate }) => {
               gl.setClearColor(0x000000, 0)
               invalidateCanvasRef.current = invalidate
@@ -430,6 +490,7 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
                 materialTunes={materialTunes}
                 iphoneLiveScreen={iphoneLiveScreen}
                 iphoneFocused={swapped}
+                viewportFitRef={viewportFitRef}
                 onLiveScreenRect={handleLiveScreenRect}
               />
             </Suspense>

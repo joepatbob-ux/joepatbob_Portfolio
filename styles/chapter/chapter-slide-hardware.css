@@ -159,6 +159,17 @@
     overflow: visible;
   }
 
+  .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__inner {
+    max-height: none !important;
+  }
+
+  .portfolio-chapter-slot--fill.hardware-slideshow.mobile-chapter-slot--sensi
+    .chapter-slide__viewport {
+    overflow: visible !important;
+    max-height: none !important;
+    padding-block: 0;
+  }
+
   .hardware-slideshow .chapter-slide__stage .touch2-carousel {
     width: 100%;
     max-width: 100%;
@@ -347,6 +358,11 @@
   .hardware-slideshow .chapter-slide__stage {
     justify-self: stretch;
     --hw-stage-gallery-w: min(100cqw, var(--cs-stage-max));
+  }
+
+  .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__stage > .phone-swap,
+  .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__stage > .phone-swap .phone-swap__viewbox {
+    max-width: 100% !important;
   }
 
   .hardware-slideshow .chapter-slide__stage > * {
