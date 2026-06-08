@@ -102,20 +102,13 @@
   }
 
   .portfolio-chapter-slot--fill {
-    margin-bottom: var(--cs-screen-gap);
+    margin-bottom: var(--cs-inter-chapter-gap, var(--cs-section-scroll-gap));
   }
 
-  /* Phone: extra pause between consecutive chapter “pages” */
-  @media (max-width: 767px) {
-    .portfolio-chapter-slot--fill {
-      margin-bottom: var(--cs-inter-chapter-gap, var(--cs-section-scroll-gap));
-    }
-
-    .portfolio-chapter-slot--fill + .portfolio-chapter-slot--fill,
-    .case-study-flow-overview.portfolio-chapter-slot--fill
-      + .portfolio-chapter-slot--fill {
-      margin-top: var(--cs-inter-chapter-gap, var(--cs-section-scroll-gap));
-    }
+  .portfolio-chapter-slot--fill + .portfolio-chapter-slot--fill,
+  .case-study-flow-overview.portfolio-chapter-slot--fill
+    + .portfolio-chapter-slot--fill {
+    margin-top: var(--cs-inter-chapter-gap, var(--cs-section-scroll-gap));
   }
 
   .portfolio-chapter-slot--fill.hardware-slideshow {
