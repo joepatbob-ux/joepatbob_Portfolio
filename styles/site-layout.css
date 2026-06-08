@@ -1,8 +1,14 @@
-/* Site shell — cinema frame, sidebar right padding, panel offsets */
+/* Site shell — cinema frame, sidebar right padding, panel offsets, iOS safe areas */
 
 :root {
   --sidebar-pad-right: clamp(12px, 1.5vw, 32px);
   --site-frame-max: 1400px;
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-left: env(safe-area-inset-left, 0px);
+  --safe-area-right: env(safe-area-inset-right, 0px);
+  --sidebar-hero-top: calc(40px + var(--safe-area-top));
+  --sidebar-email-bottom: calc(24px + var(--safe-area-bottom));
 }
 
 .site-frame {
@@ -10,6 +16,9 @@
   width: 100%;
   min-width: 0;
   min-height: 100dvh;
+  /* Home-indicator clearance — html background bleeds into the inset */
+  padding-bottom: var(--safe-area-bottom);
+  box-sizing: border-box;
 }
 
 /* Sidebar: always passthrough — no panel fill over hero or case studies */

@@ -169,9 +169,9 @@
       --sidebar-overlay-width: min(100%, 380px);
       --mobile-nav-bar-height: 52px;
       --mobile-content-top-inset: calc(
-        var(--mobile-nav-bar-height) + env(safe-area-inset-top, 0px)
+        var(--mobile-nav-bar-height) + var(--safe-area-top)
       );
-      --mobile-content-bottom-inset: env(safe-area-inset-bottom, 0px);
+      --mobile-content-bottom-inset: var(--safe-area-bottom);
       --gutter: 24px;
       --content-pad-x: 16px;
       --content-pad-left: 16px;
@@ -1325,11 +1325,11 @@ html {
 
   .portfolio-chapter-slot--fill.hardware-slideshow .portfolio-chapter-panel {
     position: fixed !important;
-    top: 0 !important;
+    top: calc(-1 * var(--safe-area-top)) !important;
     left: calc(var(--sidebar-width) + var(--content-pad-left, 0px)) !important;
     right: var(--content-pad-x) !important;
     width: auto !important;
-    height: 100dvh !important;
+    height: calc(100dvh + var(--safe-area-top) + var(--safe-area-bottom)) !important;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -1340,6 +1340,8 @@ html {
     min-width: 0;
     z-index: 1;
     will-change: opacity;
+    padding-top: var(--safe-area-top);
+    padding-bottom: var(--safe-area-bottom);
     /* Hidden until scroll orchestration sets reveal — prevents last slide (Practice) stacking on top */
     opacity: 0;
     pointer-events: none;
@@ -1682,8 +1684,8 @@ html {
 /* ── Skip link ───────────────────────────────────────────────────────────── */
 .skip-link {
   position: absolute;
-  left: 12px;
-  top: 12px;
+  left: calc(12px + var(--safe-area-left));
+  top: calc(12px + var(--safe-area-top));
   z-index: 9999;
   padding: 10px 16px;
   font-family: var(--font-mono);

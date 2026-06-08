@@ -97,9 +97,9 @@
     top: 0;
     left: 0;
     right: 0;
-    bottom: calc(-1 * env(safe-area-inset-bottom, 0px));
+    bottom: calc(-1 * var(--safe-area-bottom));
     width: 100%;
-    height: calc(100% + env(safe-area-inset-bottom, 0px));
+    height: calc(100% + var(--safe-area-bottom));
     max-width: none;
     max-height: none;
   }

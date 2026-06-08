@@ -171,11 +171,18 @@ export function SidebarNav() {
 
   const measureLayout = useCallback(() => {
     const vh = window.innerHeight
+    const safeBottom =
+      parseFloat(
+        getComputedStyle(document.documentElement).getPropertyValue(
+          '--safe-area-bottom',
+        ),
+      ) || 0
     let navRest = 0
     if (navWrapRef.current && contactRef.current) {
       navRest =
         vh -
         EMAIL_BOTTOM_PX -
+        safeBottom -
         contactRef.current.clientHeight -
         12 -
         navWrapRef.current.clientHeight
@@ -731,7 +738,6 @@ export function SidebarNav() {
           aria-hidden
           style={{
             position: 'absolute',
-            top: 40,
             opacity: 1,
             filter: 'blur(0px)',
             transition: 'none',
@@ -803,7 +809,6 @@ export function SidebarNav() {
             data-sidebar-nav-hit
             style={{
               position: 'absolute',
-              bottom: EMAIL_BOTTOM_PX,
               pointerEvents: 'auto',
             }}
           >
