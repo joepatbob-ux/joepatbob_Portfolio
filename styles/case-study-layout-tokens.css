@@ -100,6 +100,15 @@
   --cs-hw-pad: clamp(var(--cs-hw-pad-min), 3vw, var(--cs-hw-pad-max));
 }
 
+@media (max-width: 1023px) {
+  :root {
+    /* In-flow scroll (top-bar nav): longer pause between chapter screens */
+    --cs-screen-gap: clamp(56px, 14vh, 140px);
+    --cs-section-scroll-gap: clamp(120px, 28vh, 280px);
+    --cs-inter-chapter-gap: clamp(100px, 24vh, 240px);
+  }
+}
+
 @media (max-width: 767px) {
   :root {
     --cs-inner-max: min(var(--cs-mobile-inner-max), 100%);
@@ -110,10 +119,10 @@
       clamp(200px, 92vw, var(--cs-mobile-inner-max))
     );
     /* Generous scroll pauses on phone — in-flow chapters, margin-based gaps */
-    --cs-screen-gap: clamp(72px, 20vh, 168px);
-    --cs-section-scroll-gap: clamp(160px, 34vh, 320px);
-    --cs-hero-exit-gap: clamp(40px, 10vh, 80px);
-    --cs-inter-chapter-gap: clamp(120px, 28vh, 280px);
+    --cs-screen-gap: clamp(96px, 24vh, 200px);
+    --cs-section-scroll-gap: clamp(200px, 42vh, 400px);
+    --cs-hero-exit-gap: clamp(48px, 12vh, 96px);
+    --cs-inter-chapter-gap: clamp(168px, 38vh, 380px);
   }
 }
 
