@@ -138,17 +138,32 @@
   }
 
   html {
-    /* Page canvas; hero canvas on `.hero-pin` (full bleed + sidebar) fading with portrait. */
+    /* Page canvas; hero zone matches `.hero-pin` so nothing peeks above full bleed. */
     background-color: var(--color-paper);
     color: var(--color-ink);
+    margin: 0;
+    padding: 0;
+    min-height: 100dvh;
+    min-height: 100vh;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
-  body {
-    position: relative;
+  html:not(.past-hero-scroll) {
+    background-color: var(--color-hero-canvas);
+  }
+
+  body,
+  #root,
+  .vite-font-mono {
     margin: 0;
     padding: 0;
+    min-height: 100dvh;
+    min-height: 100vh;
+  }
+
+  body {
+    position: relative;
     font-family: var(--font-body), system-ui, sans-serif;
     background-color: transparent;
   }
@@ -198,6 +213,7 @@
 
     .content-area {
       margin-left: 0;
+      margin-top: 0;
       padding-top: 0;
     }
 

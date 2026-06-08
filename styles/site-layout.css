@@ -15,7 +15,10 @@
   position: relative;
   width: 100%;
   min-width: 0;
+  margin: 0;
+  padding-top: 0;
   min-height: 100dvh;
+  min-height: 100vh;
   /* Home-indicator clearance — html background bleeds into the inset */
   padding-bottom: var(--safe-area-bottom);
   box-sizing: border-box;
