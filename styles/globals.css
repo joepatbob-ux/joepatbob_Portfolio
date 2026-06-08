@@ -1364,6 +1364,25 @@ html {
     overflow: visible;
   }
 
+  /* Sensi PhoneSwap — tall 3D canvas; slideshow shell must not clip top/bottom */
+  .portfolio-chapter-slot--fill.hardware-slideshow.mobile-chapter-slot--sensi
+    .portfolio-chapter-panel {
+    overflow: visible !important;
+    overflow-x: clip;
+  }
+
+  .portfolio-chapter-slot--fill.hardware-slideshow.mobile-chapter-slot--sensi
+    .chapter-slide__viewport {
+    overflow: visible !important;
+    max-height: none !important;
+    padding-block: 0;
+  }
+
+  .portfolio-chapter-slot--fill.hardware-slideshow.mobile-chapter-slot--sensi
+    .chapter-slide__inner {
+    max-height: none !important;
+  }
+
   .portfolio-chapter-slot--fill.hardware-slideshow .chapter-slide__inner {
     max-height: min(86dvh, calc(100dvh - 3rem));
   }

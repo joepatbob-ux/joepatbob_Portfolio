@@ -53,6 +53,7 @@ export function cameraViewForSwap(
   if (arc < 0.001) return base
 
   const fitted = cameraViewFittingPhones(base, android, iphone, aspect, 1.22)
+  if (!fitted) return base
   const blend = arc * 0.55
   return lerpCameraView(base, fitted, blend)
 }
