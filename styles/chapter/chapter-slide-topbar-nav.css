@@ -127,7 +127,7 @@
     margin-top: var(--cs-section-scroll-gap);
   }
 
-  /* Hero: sticky pin — shorter scroll track; full bleed under status bar (no padding) */
+  /* Hero: scroll track only — canvas sizing lives in styles/hero.css (no safe-area on hero) */
   #hero {
     position: relative !important;
     width: 100vw !important;
@@ -136,29 +136,16 @@
       -1 * (var(--sidebar-width) + var(--content-pad-left, var(--content-pad-x)))
     ) !important;
     margin-right: calc(-1 * var(--content-pad-x)) !important;
-    margin-top: calc(-1 * var(--safe-area-top)) !important;
+    margin-top: 0 !important;
     padding-top: 0 !important;
-    min-height: calc(88svh + var(--safe-area-top)) !important;
-    min-height: calc(88dvh + var(--safe-area-top)) !important;
-    height: calc(88svh + var(--safe-area-top)) !important;
-    height: calc(88dvh + var(--safe-area-top)) !important;
+    min-height: 88svh !important;
+    min-height: 88dvh !important;
+    height: 88svh !important;
+    height: 88dvh !important;
     max-height: none !important;
     overflow: visible !important;
     margin-bottom: var(--cs-hero-exit-gap, var(--cs-screen-gap));
     box-sizing: border-box;
-  }
-
-  #hero .hero-pin {
-    position: sticky !important;
-    top: 0 !important;
-    width: 100% !important;
-    height: 100svh !important;
-    height: 100dvh !important;
-    min-height: 100svh !important;
-    min-height: 100dvh !important;
-    display: block !important;
-    overflow: hidden !important;
-    will-change: auto !important;
   }
 
   .sidebar-mobile-rail {
