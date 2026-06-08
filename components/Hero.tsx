@@ -2,6 +2,7 @@
 
 import { applyHeroPinFade } from '@/lib/heroScroll'
 import { LAYOUT_MQ } from '@/lib/layout/breakpoints'
+import { useMobileHeroViewport } from '@/lib/useMobileHeroViewport'
 import { scheduleScrollFrame } from '@/lib/scrollFrame'
 import { useEffect } from 'react'
 import { useTheme } from '@/components/ThemeProvider'
@@ -13,6 +14,8 @@ export function Hero() {
   const { resolvedTheme } = useTheme()
   const portraitSrc =
     resolvedTheme === 'dark' ? PORTRAIT_DARK : PORTRAIT_LIGHT
+
+  useMobileHeroViewport()
 
   useEffect(() => {
     const hero = document.getElementById('hero')
