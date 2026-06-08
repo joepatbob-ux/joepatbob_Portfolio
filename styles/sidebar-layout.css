@@ -29,6 +29,12 @@
     visibility: hidden;
     filter: blur(6px);
   }
+
+  html.past-hero-scroll .sidebar-shell__divider {
+    opacity: 1 !important;
+    visibility: visible !important;
+    filter: none !important;
+  }
 }
 
 .sidebar-shell--fixed .sidebar-hero-name {

@@ -1,7 +1,8 @@
-import { easeChapterReveal } from '@/lib/chapterSlideshow'
+function easeSmoothstep(t: number): number {
+  const x = Math.max(0, Math.min(1, t))
+  return x * x * (3 - 2 * x)
+}
 
-/** Pinned hero layer bottom must pass this far above the viewport top before we leave. */
-const HERO_LEAVE_BOTTOM_PX = -56
 /** Re-enter only near the top — wide gap vs leaveScrollY stops rail toggling mid-handoff. */
 const HERO_REENTER_SCROLL_TOP_PX = 96
 /** Min visible hero height (px) to re-enter — avoids 8px peek re-triggering the rail. */
@@ -10,10 +11,10 @@ const HERO_REENTER_BOTTOM_MIN_PX = 120
 const HERO_PIN_FADE_START_PX = 24
 /** Fade completes by this fraction of viewport height (before first chapter crossfade). */
 const HERO_PIN_FADE_END_VH = 0.38
-/** Chapter panels stay hidden until pin reveal drops below this. */
-const HERO_PIN_CHAPTER_REVEAL_THRESHOLD = 0.06
-/** Sidebar passthrough while pin reveal is above this. */
-const HERO_PIN_SIDEBAR_PASSTHROUGH_THRESHOLD = 0.05
+/** Portrait considered gone below this — sidebar divider + chapter handoff. */
+export const HERO_PIN_CHAPTER_REVEAL_THRESHOLD = 0.02
+/** Scroll past hero fade before the first hardware panel ramps in (vh). */
+export const HERO_CHAPTER_SCROLL_GATE_VH = 0.58
 
 let heroZoneCommitted: boolean | null = null
 let lastResizeInnerH = 0
@@ -103,25 +104,53 @@ export function getHeroPinFadeOut(scrollY: number, viewportH: number): number {
     1,
     Math.max(0, (scrollY - HERO_PIN_FADE_START_PX) / span),
   )
-  return easeChapterReveal(linear)
+  return easeSmoothstep(linear)
 }
 
 export function getHeroPinReveal(scrollY: number, viewportH: number): number {
   return 1 - getHeroPinFadeOut(scrollY, viewportH)
 }
 
-/** Block chapter crossfade until the hero portrait has mostly faded out. */
+/** 0–1 ramp for the first snap slide after hero (portrait + scroll gate). */
+export function heroChapterHandoffProgress(
+  scrollY: number,
+  viewportH: number,
+  firstSlotCenterY: number,
+): number {
+  if (viewportH <= 0) return 0
+
+  const reveal = getHeroPinReveal(scrollY, viewportH)
+  if (reveal > HERO_PIN_CHAPTER_REVEAL_THRESHOLD) return 0
+
+  const scrollStart = viewportH * HERO_CHAPTER_SCROLL_GATE_VH
+  const scrollEnd = firstSlotCenterY - viewportH / 2
+  if (scrollY <= scrollStart) return 0
+  if (scrollEnd <= scrollStart) return 1
+
+  const t = (scrollY - scrollStart) / (scrollEnd - scrollStart)
+  return easeSmoothstep(Math.min(1, Math.max(0, t)))
+}
+
+/** Block chapter crossfade until the hero portrait has fully faded and scroll clears the gate. */
 export function shouldSuppressChapterReveal(): boolean {
   if (typeof window === 'undefined') return false
-  return (
-    getHeroPinReveal(window.scrollY, window.innerHeight) >
-    HERO_PIN_CHAPTER_REVEAL_THRESHOLD
-  )
+
+  const scrollY = window.scrollY
+  const viewportH = window.innerHeight
+  if (viewportH <= 0) return false
+
+  if (
+    getHeroPinReveal(scrollY, viewportH) > HERO_PIN_CHAPTER_REVEAL_THRESHOLD
+  ) {
+    return true
+  }
+
+  return scrollY < viewportH * HERO_CHAPTER_SCROLL_GATE_VH
 }
 
 /**
  * True while the hero portrait is still visible (sidebar passthrough / rail state).
- * Uses scroll fade + pin bottom so an opaque sidebar never covers a sharp portrait.
+ * Pin fade drives leave — fixed `.hero-pin` never crosses HERO_LEAVE_BOTTOM_PX.
  */
 export function isInHeroScrollZone(): boolean {
   if (typeof window === 'undefined') return false
@@ -130,7 +159,10 @@ export function isInHeroScrollZone(): boolean {
   const viewportH = window.innerHeight
   const reveal = getHeroPinReveal(scrollY, viewportH)
 
-  if (reveal > HERO_PIN_SIDEBAR_PASSTHROUGH_THRESHOLD) return true
+  if (reveal > HERO_PIN_CHAPTER_REVEAL_THRESHOLD) {
+    heroZoneCommitted = true
+    return true
+  }
 
   const hero = document.getElementById('hero')
   if (!hero) {
@@ -144,20 +176,16 @@ export function isInHeroScrollZone(): boolean {
     HERO_REENTER_BOTTOM_MIN_PX,
     viewportH * 0.18,
   )
-
-  const shouldLeave = pinBottom < HERO_LEAVE_BOTTOM_PX
   const shouldEnter =
     pinBottom > reenterBottomPx && scrollY < HERO_REENTER_SCROLL_TOP_PX
 
-  if (heroZoneCommitted === null) {
-    heroZoneCommitted = !shouldLeave
-  } else if (heroZoneCommitted) {
-    if (shouldLeave) heroZoneCommitted = false
-  } else if (shouldEnter) {
+  if (shouldEnter) {
     heroZoneCommitted = true
+    return true
   }
 
-  return heroZoneCommitted
+  heroZoneCommitted = false
+  return false
 }
 
 /** Scroll-linked fade on `.hero-pin` (`.hero-media` canvas + portrait together). */
@@ -208,7 +236,7 @@ function sidebarNameFadeProgress(scrollY: number, viewportH: number): number {
     1,
     Math.max(0, (scrollY - 20) / (viewportH * HERO_NAME_FADE_VH)),
   )
-  return easeChapterReveal(linear)
+  return easeSmoothstep(linear)
 }
 
 export function getSidebarHeroFadeProgress(

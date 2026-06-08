@@ -1,5 +1,6 @@
 import { chapterSlotScrollCenter } from '@/lib/chapterSnapScroll'
 import { VIEWPORT_SNAP_SLOT_SELECTOR } from '@/lib/chapterFlow'
+import { heroChapterHandoffProgress } from '@/lib/heroScroll'
 import { isLayoutMobileViewport } from '@/lib/layout/isLayoutMobileViewport'
 
 /** Real snap slides only — excludes placed stickers (they use data-sticker-chapter-id). */
@@ -104,10 +105,16 @@ export function computeChapterRevealMap(): Record<string, number> {
     map[s.id] = 0
   })
 
-  const centerY = window.scrollY + window.innerHeight / 2
+  const scrollY = window.scrollY
+  const viewportH = window.innerHeight
+  const centerY = scrollY + viewportH / 2
 
   if (centerY <= slots[0].centerY) {
-    map[slots[0].id] = 1
+    map[slots[0].id] = heroChapterHandoffProgress(
+      scrollY,
+      viewportH,
+      slots[0].centerY,
+    )
     return map
   }
 
