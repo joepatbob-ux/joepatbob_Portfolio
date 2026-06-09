@@ -121,12 +121,9 @@ html:not(.past-hero-scroll) #hero .hero-pin {
 
   .hero-media {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: calc(-1 * max(env(safe-area-inset-bottom, 0px), 0px));
+    inset: 0;
     width: 100%;
-    height: calc(100% + max(env(safe-area-inset-bottom, 0px), 0px));
+    height: 100%;
     min-height: 100%;
     max-width: none;
     max-height: none;

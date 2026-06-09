@@ -1,4 +1,4 @@
-/* Mobile — full viewport slides; content scrolls under nav + home indicator
+/* Mobile — full viewport slides; frosted nav floats over content (no bottom safe-area pad)
  * See styles/chapter/index.css for load order.
  */
 
@@ -38,7 +38,7 @@
     display: flex !important;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     gap: var(--cs-mobile-section-gap);
     width: 100%;
     max-width: var(--cs-inner-max);
@@ -48,14 +48,16 @@
     flex: 1 1 auto;
     min-height: 0;
     box-sizing: border-box;
-    /* Stage bleeds under status bar; copy clears frosted nav */
+    /* Full viewport — stage bleeds under frosted nav; no bottom safe-area pad */
     padding-top: 0;
-    padding-bottom: var(--mobile-content-bottom-inset);
+    padding-bottom: 0;
+    min-height: 100dvh;
+    min-height: 100svh;
   }
 
   .hardware-slideshow.case-study-flow-overview .chapter-slide__inner,
   .hardware-slideshow .chapter-slide__inner--copy-only {
-    padding-top: var(--mobile-content-top-inset);
+    padding-top: var(--mobile-nav-overlay-height);
   }
 
   .hardware-slideshow.case-study-flow-overview .chapter-slide__copy,
@@ -81,8 +83,8 @@
     width: 100%;
     max-width: 100%;
     margin-inline: 0;
-    margin-top: calc(-1 * var(--safe-area-top));
-    padding-top: var(--safe-area-top);
+    margin-top: 0;
+    padding-top: 0;
     flex: 1 1 auto;
     min-height: var(--cs-mobile-stage-min-h);
     max-height: var(--cs-mobile-stage-max-h);

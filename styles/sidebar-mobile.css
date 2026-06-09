@@ -11,7 +11,8 @@
     --mobile-backdrop-duration: 0.36s;
     --mobile-rail-duration: 0.38s;
     --mobile-nav-blur: 18px;
-    --mobile-rail-blur-height: 48px;
+    /* Also defined in globals.css for overlay-height fallback */
+    --mobile-rail-chrome-below: 4px;
     --sidebar-overlay-width: 100%;
   }
 
@@ -119,36 +120,18 @@
     pointer-events: auto;
   }
 
-  /* Frosted bar + safe-area inset — edge to edge, blur to physical top */
+  /* Frosted bar — physical top edge through status bar; 4px lip below divider */
   .sidebar-mobile-rail__chrome {
     position: absolute;
-    inset: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: calc(-1 * var(--mobile-rail-chrome-below));
     z-index: 0;
     pointer-events: none;
     backdrop-filter: blur(var(--mobile-nav-blur));
     -webkit-backdrop-filter: blur(var(--mobile-nav-blur));
     background: color-mix(in srgb, var(--color-paper) 88%, transparent);
-  }
-
-  /* Progressive fade — starts at the divider, extends into content below */
-  .sidebar-mobile-rail__blur {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    height: var(--mobile-rail-blur-height);
-    z-index: 0;
-    pointer-events: none;
-    backdrop-filter: blur(var(--mobile-nav-blur));
-    -webkit-backdrop-filter: blur(var(--mobile-nav-blur));
-    background: linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--color-paper) 82%, transparent) 0%,
-      color-mix(in srgb, var(--color-paper) 48%, transparent) 45%,
-      transparent 100%
-    );
-    mask-image: linear-gradient(180deg, #000 0%, #000 18%, transparent 100%);
-    -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 18%, transparent 100%);
   }
 
   .sidebar-mobile-rail::after {
