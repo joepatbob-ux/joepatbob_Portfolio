@@ -202,12 +202,20 @@ export function SidebarNav() {
     if (!el || !usesTopBarNav) return
 
     const syncRailHeight = () => {
+      const rootStyles = getComputedStyle(document.documentElement)
+      const chromeBelow =
+        parseFloat(rootStyles.getPropertyValue('--mobile-rail-chrome-below')) || 4
       const padTop = parseFloat(getComputedStyle(el).paddingTop) || 0
       const padBottom = parseFloat(getComputedStyle(el).paddingBottom) || 0
       const barHeight = Math.max(52, el.offsetHeight - padTop - padBottom)
+      const overlayHeight = Math.ceil(el.offsetHeight + chromeBelow)
       document.documentElement.style.setProperty(
         '--mobile-nav-bar-height',
         `${Math.ceil(barHeight)}px`,
+      )
+      document.documentElement.style.setProperty(
+        '--mobile-nav-overlay-height',
+        `${overlayHeight}px`,
       )
     }
 
@@ -217,6 +225,7 @@ export function SidebarNav() {
     return () => {
       ro.disconnect()
       document.documentElement.style.removeProperty('--mobile-nav-bar-height')
+      document.documentElement.style.removeProperty('--mobile-nav-overlay-height')
     }
   }, [usesTopBarNav, mobileInHero, mobileDrawerOpen, activeSection])
 
@@ -688,7 +697,6 @@ export function SidebarNav() {
           onClick={() => setMobileDrawerOpen(true)}
         >
           <span className="sidebar-mobile-rail__chrome" aria-hidden />
-          <span className="sidebar-mobile-rail__blur" aria-hidden />
           <p className="sidebar-mobile-rail__label" aria-hidden="true">
             I simplify complex systems for{' '}
             <span className="sidebar-mobile-rail__label-accent">

@@ -196,7 +196,7 @@
 
   .hardware-slideshow.chapter-slide--verdant .portfolio-chapter-panel {
     justify-content: flex-start;
-    padding-top: var(--mobile-content-top-inset);
+    padding-top: var(--mobile-nav-overlay-height);
   }
 
   .verdant-interactive__glyph-stage {
