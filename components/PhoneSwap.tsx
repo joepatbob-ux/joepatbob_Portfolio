@@ -5,6 +5,7 @@ import { PhoneDevToolsMenu, type PhoneDevToolsAction } from '@/components/phone-
 import { PhoneLayoutPanel } from '@/components/phone-swap/PhoneLayoutPanel'
 import { PhoneMaterialTunePanel } from '@/components/phone-swap/PhoneMaterialTunePanel'
 import { PhoneLayoutGuides } from '@/components/phone-swap/PhoneLayoutGuides'
+import { PhoneScreenshotControls } from '@/components/phone-swap/PhoneScreenshotControls'
 import { PhoneSwapScene } from '@/components/phone-swap/PhoneSwapScene'
 import { StageSpinner } from '@/components/stage/StageSpinner'
 import { SmaPhoneScreenOverlay } from '@/components/sma-ios26/SmaPhoneScreenOverlay'
@@ -45,6 +46,7 @@ import {
 } from '@/lib/phone-swap/phoneMaterialTune'
 import { readPhoneLayoutMode } from '@/lib/phone-swap/usePhoneLayoutMode'
 import { useChapterActive } from '@/lib/chapterActiveContext'
+import { usePhoneScreenshotControls } from '@/lib/phone-swap/usePhoneScreenshotControls'
 import { usePhoneSwapTouchScroll } from '@/lib/phone-swap/usePhoneSwapTouchScroll'
 import { useLayoutTopBarNav } from '@/lib/hooks/useLayoutTopBarNav'
 import type { PhoneSwapSceneApi } from '@/components/phone-swap/PhoneSwapScene'
@@ -82,6 +84,7 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
   const [showGuides, setShowGuides] = useState(false)
   const topBarNav = useLayoutTopBarNav()
   const chapterActive = useChapterActive()
+  const screenshot = usePhoneScreenshotControls()
   const sceneLatchedRef = useRef(false)
   if (chapterActive || layoutMode || devToolsEnabled) {
     sceneLatchedRef.current = true
@@ -492,6 +495,8 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
                 iphoneFocused={swapped}
                 viewportFitRef={viewportFitRef}
                 onLiveScreenRect={handleLiveScreenRect}
+                androidScreenUrl={screenshot.androidScreenUrl}
+                iphoneScreenUrl={screenshot.iphoneScreenUrl}
               />
             </Suspense>
         </Canvas>
@@ -501,6 +506,17 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
           </div>
         )}
       </div>
+
+      {!layoutMode && !animTuneOpen && !materialTuneOpen ? (
+        <PhoneScreenshotControls
+          slideIndex={screenshot.slideIndex}
+          slideCount={screenshot.slideCount}
+          slideKeys={screenshot.slideKeys}
+          screenTheme={screenshot.screenTheme}
+          onSelectSlide={screenshot.selectSlide}
+          onScreenThemeChange={screenshot.setScreenTheme}
+        />
+      ) : null}
 
       {devMenu ? (
         <PhoneDevToolsMenu

@@ -13,8 +13,9 @@ import { ClosingQuote } from './ClosingQuote'
 import { SectionLessons } from './SectionLessons'
 
 interface Props {
-  section: Section
   sectionId: string
+  /** Required for hardware (eager). Deferred custom sections load their own copy. */
+  section?: Section
 }
 
 /** Paper fills the viewport; padding matches `.content-area` (sidebar + content-pad-*). */
@@ -56,7 +57,7 @@ export function CaseStudy({ section, sectionId }: Props) {
         <div className="section-mount-placeholder" aria-hidden="true" />
       ) : (
         <>
-          {useCustomChapter ? null : (
+          {useCustomChapter || !section ? null : (
             <CaseStudyFlowOverview
               chapterId={`${sectionId}-overview`}
               headline={section.headline}
@@ -71,7 +72,7 @@ export function CaseStudy({ section, sectionId }: Props) {
             <LazySectionChapter sectionId="web-apps" />
           ) : isEibSection ? (
             <LazySectionChapter sectionId="everything-else" />
-          ) : (
+          ) : section ? (
             section.chapters.map((chapter, i) => (
               <Fragment key={chapter.id}>
                 <DeferredChapter
@@ -88,9 +89,9 @@ export function CaseStudy({ section, sectionId }: Props) {
                 ))}
               </Fragment>
             ))
-          )}
+          ) : null}
 
-          {section.lessonTitle?.trim() &&
+          {section?.lessonTitle?.trim() &&
           (isMobileSection || !useCustomChapter) ? (
             <SectionLessons
               sectionId={sectionId}
@@ -100,7 +101,7 @@ export function CaseStudy({ section, sectionId }: Props) {
             />
           ) : null}
 
-          {section.closingQuote ? (
+          {section?.closingQuote ? (
             <ChapterViewport
               chapterId={`${sectionId}-closing`}
               isLast

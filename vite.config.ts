@@ -7,7 +7,6 @@ function vendorChunk(id: string): string | undefined {
   if (id.includes('three') || id.includes('@react-three')) {
     if (id.includes('@react-three/drei')) return 'vendor-drei'
     if (id.includes('@react-three/fiber')) return 'vendor-r3f'
-    if (id.includes('@react-three/rapier')) return 'vendor-rapier'
     return 'vendor-three'
   }
   if (id.includes('react-dom') || id.includes('/react/')) return 'vendor-react'

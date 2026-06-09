@@ -1,51 +1,20 @@
-// lib/nav.ts — built from section content so labels/ids stay in sync
+// lib/nav.ts — slim metadata only (full section copy loads with CaseStudy / lazy chapters).
 import { navInsertsAfterChapter } from './chapterInserts'
-import { hardware } from './sections/hardware'
-import { mobile } from './sections/mobile'
-import { webApps } from './sections/webapps'
-import { everythingElse } from './sections/everything-else'
-import type { NavSection, Section } from './types'
+import { SECTION_NAV_META } from './sectionNavMeta'
+import type { NavSection } from './types'
 
-const LESSONS_CHAPTER = { id: 'lessons', label: 'Lessons' } as const
-
-function sectionToNav(section: Section): NavSection {
+function withNavInserts(section: NavSection): NavSection {
   const chapters: NavSection['chapters'] = []
-  if (
-    section.id === 'hardware' ||
-    section.id === 'everything-else' ||
-    section.id === 'mobile' ||
-    section.id === 'web-apps'
-  ) {
-    chapters.push({ id: 'overview', label: 'Overview' })
-  }
   for (const ch of section.chapters) {
-    chapters.push({ id: ch.id, label: ch.title })
+    chapters.push(ch)
     for (const insert of navInsertsAfterChapter(section.id, ch.id)) {
       chapters.push({ id: insert.insertId, label: insert.navLabel })
     }
   }
-  if (
-    section.id !== 'mobile' &&
-    section.id !== 'web-apps' &&
-    section.id !== 'hardware' &&
-    section.id !== 'everything-else'
-  ) {
-    chapters.push({ ...LESSONS_CHAPTER })
-  }
-
-  return {
-    id: section.id,
-    label: section.label,
-    chapters,
-  }
+  return { ...section, chapters }
 }
 
-export const NAV_SECTIONS: NavSection[] = [
-  sectionToNav(hardware),
-  sectionToNav(mobile),
-  sectionToNav(webApps),
-  sectionToNav(everythingElse),
-]
+export const NAV_SECTIONS: NavSection[] = SECTION_NAV_META.map(withNavInserts)
 
 /** Punctuation after each nav keyword: Hardware, Mobile, Web Apps, and Everything In Between. */
 export function navSectionConnector(index: number, total: number): string {

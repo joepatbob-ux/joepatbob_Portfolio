@@ -63,6 +63,7 @@ import {
 import { PHONE_SWAP_URLS } from '@/lib/phone-swap/phoneSwapUrls'
 import { prepareIPhone16Scene } from '@/lib/phone-swap/prepareIPhone16Scene'
 import { PhoneLayoutSceneGuides } from '@/components/phone-swap/PhoneLayoutSceneGuides'
+import { PhoneScreenshotTextureBinder } from '@/components/phone-swap/PhoneScreenshotTextureBinder'
 import { SmaIPhoneLiveScreen } from '@/components/sma-ios26/SmaIPhoneLiveScreen'
 import type { DisplayScreenRect } from '@/lib/sma-ios26/displayScreenRect'
 import { usePixel8SceneGraph } from '@/lib/phone-swap/usePixel8SceneGraph'
@@ -112,6 +113,8 @@ interface Props {
     margin: number
     distanceScale: number
   }>
+  androidScreenUrl?: string
+  iphoneScreenUrl?: string
 }
 
 function usePixel8Scene() {
@@ -198,6 +201,8 @@ export function PhoneSwapScene({
   iphoneFocused = false,
   onLiveScreenRect,
   viewportFitRef,
+  androidScreenUrl,
+  iphoneScreenUrl,
 }: Props) {
   const { camera } = useThree()
   const androidScene = usePixel8Scene()
@@ -538,6 +543,14 @@ export function PhoneSwapScene({
       >
         <primitive object={iphoneScene} frustumCulled={false} />
       </group>
+      {androidScreenUrl && iphoneScreenUrl ? (
+        <PhoneScreenshotTextureBinder
+          androidScreenUrl={androidScreenUrl}
+          iphoneScreenUrl={iphoneScreenUrl}
+          androidRef={androidRef}
+          iphoneRef={iphoneRef}
+        />
+      ) : null}
       {iphoneLiveScreen ? (
         <SmaIPhoneLiveScreen
           scene={iphoneScene}
