@@ -51,8 +51,7 @@
     /* Full viewport — stage bleeds under frosted nav; no bottom safe-area pad */
     padding-top: 0;
     padding-bottom: 0;
-    min-height: 100dvh;
-    min-height: 100svh;
+    min-height: var(--mobile-viewport-min-h);
   }
 
   .hardware-slideshow.case-study-flow-overview .chapter-slide__inner,

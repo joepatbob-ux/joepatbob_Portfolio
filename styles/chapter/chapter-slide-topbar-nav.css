@@ -28,7 +28,7 @@
     right: auto !important;
     width: 100% !important;
     height: auto !important;
-    min-height: 0 !important;
+    min-height: var(--mobile-viewport-min-h) !important;
     overflow: visible !important;
     opacity: 1 !important;
     visibility: visible !important;
@@ -61,8 +61,7 @@
     height: auto !important;
     max-height: none !important;
     flex: 1 1 auto;
-    min-height: 100dvh;
-    min-height: 100svh;
+    min-height: var(--mobile-viewport-min-h);
     box-sizing: border-box;
     padding-top: 0;
     padding-bottom: 0;
@@ -114,9 +113,10 @@
     margin-top: var(--cs-inter-chapter-gap, var(--cs-section-scroll-gap));
   }
 
-  .portfolio-chapter-slot--fill.hardware-slideshow {
-    min-height: 100svh;
-    min-height: 100dvh;
+  .portfolio-chapter-slot--fill.hardware-slideshow,
+  .case-study-flow-overview.portfolio-chapter-slot--fill {
+    min-height: -webkit-fill-available;
+    min-height: var(--mobile-viewport-min-h);
   }
 
   article[data-section-id] + article[data-section-id] {
@@ -155,7 +155,7 @@
   }
 
   .portfolio-chapter-slot--fill.hardware-slideshow.mobile-chapter-slot--sensi {
-    min-height: min(100dvh, 100svh);
+    min-height: var(--mobile-viewport-min-h);
     overflow-x: visible;
   }
 
