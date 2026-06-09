@@ -134,10 +134,8 @@
     margin-right: calc(-1 * var(--content-pad-x)) !important;
     margin-top: 0 !important;
     padding-top: 0 !important;
-    min-height: 88svh !important;
-    min-height: 88dvh !important;
-    height: 88svh !important;
-    height: 88dvh !important;
+    min-height: var(--mobile-viewport-min-h) !important;
+    height: var(--mobile-viewport-min-h) !important;
     max-height: none !important;
     overflow: visible !important;
     margin-bottom: var(--cs-hero-exit-gap, var(--cs-screen-gap));

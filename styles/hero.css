@@ -101,18 +101,23 @@ html:not(.past-hero-scroll) #hero .hero-pin {
     padding-top: 0;
   }
 
-  /* Track visual viewport on iOS Safari (100vh / inset:0 alone leave a bottom gap). */
+  /* Full layout viewport — bleed under status bar + home indicator (viewport-fit=cover) */
   html:not(.past-hero-scroll) #hero .hero-pin {
     position: fixed !important;
-    top: var(--hero-vv-offset-top, 0px) !important;
+    top: 0 !important;
     left: 0 !important;
     right: 0 !important;
     bottom: auto !important;
     width: 100% !important;
     max-width: none !important;
-    height: var(--hero-vv-height, 100dvh) !important;
-    min-height: var(--hero-vv-height, 100dvh) !important;
+    height: var(--mobile-viewport-min-h, 100lvh) !important;
+    min-height: var(--mobile-viewport-min-h, 100lvh) !important;
     margin: 0 !important;
+  }
+
+  #hero,
+  .hero {
+    min-height: var(--mobile-viewport-min-h, 100lvh);
   }
 
   .hero-pin {
@@ -136,19 +141,31 @@ html:not(.past-hero-scroll) #hero .hero-pin {
     max-width: none;
     max-height: none;
     object-fit: cover;
-    object-position: center bottom;
+    /* Show face under status bar — avoid black letterbox band at top */
+    object-position: center 18%;
   }
 
   .hero-mobile-scrim {
     display: block;
   }
 
+  /* Bottom-only scrim for intro text legibility — no top vignette */
   .hero-mobile-scrim--light {
-    background: rgba(255, 255, 255, 0.22);
+    background: linear-gradient(
+      180deg,
+      transparent 0%,
+      transparent 45%,
+      rgba(255, 255, 255, 0.28) 100%
+    );
   }
 
   .hero-mobile-scrim--dark {
-    background: rgba(0, 0, 0, 0.2);
+    background: linear-gradient(
+      180deg,
+      transparent 0%,
+      transparent 45%,
+      rgba(0, 0, 0, 0.42) 100%
+    );
   }
 }
 
