@@ -314,7 +314,6 @@
   --contact-ease: cubic-bezier(0.34, 1.12, 0.64, 1);
   --contact-collapsed: 108px;
   --contact-expanded: 216px;
-  --contact-expanded-3: 312px;
   position: relative;
   height: var(--contact-h);
   display: inline-flex;
@@ -342,11 +341,6 @@
   border-radius: 22px;
   background: var(--color-nav-pill-muted-accent-1);
   box-shadow: none;
-}
-
-.contact-liquid--with-message:hover .contact-liquid__surface,
-.contact-liquid--with-message:focus-within .contact-liquid__surface {
-  width: var(--contact-expanded-3);
 }
 
 .contact-liquid__label {

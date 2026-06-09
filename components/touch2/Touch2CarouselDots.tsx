@@ -7,6 +7,9 @@ interface Props {
   /** 0 = full pill, 1 = elapsed (countdown). Defaults to full. */
   activeProgress?: number
   onSelect: (index: number) => void
+  className?: string
+  ariaLabel?: string
+  itemAriaLabel?: (index: number, count: number) => string
 }
 
 export function Touch2CarouselDots({
@@ -15,9 +18,16 @@ export function Touch2CarouselDots({
   slideKeys,
   activeProgress = 0,
   onSelect,
+  className,
+  ariaLabel = 'Choose photo',
+  itemAriaLabel = (i, total) => `Photo ${i + 1} of ${total}`,
 }: Props) {
   return (
-    <div className="touch2-carousel__dots" role="tablist" aria-label="Choose photo">
+    <div
+      className={['touch2-carousel__dots', className].filter(Boolean).join(' ')}
+      role="tablist"
+      aria-label={ariaLabel}
+    >
       {slideKeys.map((key, i) => {
         const active = i === activeIndex
         return (
@@ -26,7 +36,7 @@ export function Touch2CarouselDots({
             type="button"
             role="tab"
             aria-selected={active}
-            aria-label={`Photo ${i + 1} of ${count}`}
+            aria-label={itemAriaLabel(i, count)}
             className={[
               'touch2-carousel__dot',
               active ? 'touch2-carousel__dot--active' : '',
