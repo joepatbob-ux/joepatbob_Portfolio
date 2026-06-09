@@ -3,6 +3,11 @@ function easeSmoothstep(t: number): number {
   return x * x * (3 - 2 * x)
 }
 
+function prefersReducedMotion(): boolean {
+  if (typeof window === 'undefined') return false
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches
+}
+
 /** Re-enter only near the top — wide gap vs leaveScrollY stops rail toggling mid-handoff. */
 const HERO_REENTER_SCROLL_TOP_PX = 96
 /** Min visible hero height (px) to re-enter — avoids 8px peek re-triggering the rail. */
@@ -204,7 +209,8 @@ export function applyHeroPinFade(
 
   const fadeOut = getHeroPinFadeOut(scrollY, viewportH)
   const reveal = 1 - fadeOut
-  const blur = fadeOut < 0.02 ? 0 : fadeOut * blurPx
+  const reduced = prefersReducedMotion()
+  const blur = reduced || fadeOut < 0.02 ? 0 : fadeOut * blurPx
   const opacityStr = String(reveal)
   const filterStr = blur > 0 ? `blur(${blur}px)` : 'none'
   const pointerEvents = reveal < 0.02 ? 'none' : ''
@@ -269,7 +275,8 @@ export function applySidebarShellFade(
   if (!el) return
   const fadeOut = sidebarNameFadeProgress(scrollY, viewportH)
   const reveal = 1 - fadeOut
-  const blur = fadeOut < 0.02 ? 0 : fadeOut * blurPx
+  const reduced = prefersReducedMotion()
+  const blur = reduced || fadeOut < 0.02 ? 0 : fadeOut * blurPx
   const opacityStr = String(reveal)
   const filterStr = blur > 0 ? `blur(${blur}px)` : 'none'
 
@@ -298,7 +305,8 @@ function applySidebarRevealFade(
   blurPx: number,
 ): void {
   const reveal = 1 - fadeOut
-  const blur = fadeOut < 0.02 ? 0 : fadeOut * blurPx
+  const reduced = prefersReducedMotion()
+  const blur = reduced || fadeOut < 0.02 ? 0 : fadeOut * blurPx
 
   el.style.opacity = String(reveal)
   el.style.filter = blur > 0 ? `blur(${blur}px)` : 'none'

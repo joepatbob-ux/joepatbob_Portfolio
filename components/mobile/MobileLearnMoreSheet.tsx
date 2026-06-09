@@ -1,5 +1,6 @@
 'use client'
 
+import { useBodyScrollLock } from '@/lib/hooks/useBodyScrollLock'
 import { useDialogFocusTrap } from '@/lib/hooks/useDialogFocusTrap'
 import { OverlayActionPill } from '@/components/ui/OverlayActionPill'
 import { useEffect, useId, useRef } from 'react'
@@ -17,6 +18,7 @@ export function MobileLearnMoreSheet({ open, onClose, title, children }: Props) 
   const panelRef = useRef<HTMLDivElement>(null)
 
   useDialogFocusTrap(panelRef, open)
+  useBodyScrollLock(open)
 
   useEffect(() => {
     if (!open) return
@@ -26,15 +28,6 @@ export function MobileLearnMoreSheet({ open, onClose, title, children }: Props) 
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [open, onClose])
-
-  useEffect(() => {
-    if (!open) return
-    const prev = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    return () => {
-      document.body.style.overflow = prev
-    }
-  }, [open])
 
   if (!open || typeof document === 'undefined') return null
 

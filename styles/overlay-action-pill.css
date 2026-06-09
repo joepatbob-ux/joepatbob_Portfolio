@@ -18,9 +18,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 32px;
+  min-height: 44px;
   margin: 0;
-  padding: 8px 18px;
+  padding: 10px 20px;
   border: none;
   border-radius: 9999px;
   font-family: var(--font-mono);

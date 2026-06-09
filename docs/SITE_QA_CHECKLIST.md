@@ -24,8 +24,12 @@ Audit **all sections** (Hardware · Mobile · Web Apps · Everything In Between)
 - [x] Skip link present (`#main-content`)
 - [x] Sidebar section keywords navigate (Hardware · Mobile · Web Apps · EIB)
 - [x] Contact Message button opens dialog
-- [ ] Hero blur on scroll (manual scroll pass)
-- [ ] Mobile drawer open/close; backdrop
+- [x] Nav drawer focus trap (shell + subnav) — `useDialogFocusTrap`
+- [x] iOS body scroll lock on drawer + learn-more sheet — `useBodyScrollLock`
+- [x] Touch targets ≥44pt — More/Close pills, subnav chips, contact pill
+- [x] Reduced motion — scroll blur disabled; subnav stagger instant
+- [ ] Hero blur on scroll (manual scroll pass on device)
+- [ ] Mobile drawer open/close; backdrop (manual on iPhone)
 - [ ] Dark mode full pass (paper/ink/accent)
 
 ---
@@ -58,7 +62,7 @@ See `HARDWARE_POLISH_CHECKLIST.md` for per-chapter interactives.
 
 ---
 
-## Mobile
+## Mobile (Apple-level audit)
 
 | Chapter | Stage | Status |
 |---------|-------|--------|
@@ -67,8 +71,11 @@ See `HARDWARE_POLISH_CHECKLIST.md` for per-chapter interactives.
 | WR Connect | Copy-only | Empty stage collapsed at desktop |
 
 - [x] PhoneSwap reflows on viewport resize (CSS; no overflow)
-- [ ] Sub-stories / Spotlight manual content pass
 - [x] More/Less at 768–1023; sheet at ≤767
+- [x] SMA live overlay z-index — interactive layer at `z-mobile-chrome - 1` on ≤767
+- [ ] **P0:** PhoneSwap tap-to-swap on ≤1023 (in-flow canvas `pointer-events: none`; needs swap button)
+- [ ] Sub-stories / Spotlight manual content pass
+- [ ] Physical iPhone Safari pass (hero visualViewport, drawer, sheet scroll lock)
 
 ---
 
@@ -119,7 +126,8 @@ See `HARDWARE_POLISH_CHECKLIST.md` for per-chapter interactives.
 | 2026-05-30 | 390 | Mobile | Sensi More → sheet with Close | Pass |
 | 2026-05-30 | 1440→1024 | Mobile | PhoneSwap viewbox scales down correctly | Pass |
 | 2026-05-30 | Shell | Contact | Message opens dialog | Pass |
+| 2026-06-07 | Code | Mobile audit | Drawer focus trap + body lock + 44pt targets + reduced motion + SMA z-index | Fixed |
 
 ---
 
-_Last updated: site-wide QA pass (automated browser + build)._
+_Last updated: mobile Apple-level audit fixes (items 2–6)._
