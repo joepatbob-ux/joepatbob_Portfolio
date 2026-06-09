@@ -9,6 +9,7 @@ const FOCUSABLE =
 export function useDialogFocusTrap(
   containerRef: RefObject<HTMLElement | null>,
   active: boolean,
+  extraRef?: RefObject<HTMLElement | null>,
 ) {
   useEffect(() => {
     if (!active) return
@@ -17,9 +18,13 @@ export function useDialogFocusTrap(
 
     const previouslyFocused = document.activeElement as HTMLElement | null
 
+    const roots = [root, extraRef?.current].filter(Boolean) as HTMLElement[]
+
     const focusables = () =>
-      Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(
-        (el) => !el.hasAttribute('disabled') && el.tabIndex !== -1,
+      roots.flatMap((el) =>
+        Array.from(el.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(
+          (node) => !node.hasAttribute('disabled') && node.tabIndex !== -1,
+        ),
       )
 
     const focusFirst = () => {
@@ -43,7 +48,10 @@ export function useDialogFocusTrap(
       const current = document.activeElement as HTMLElement | null
 
       if (event.shiftKey) {
-        if (current === first || !root.contains(current)) {
+        if (
+          current === first ||
+          !roots.some((el) => current && el.contains(current))
+        ) {
           event.preventDefault()
           last.focus()
         }
@@ -56,12 +64,12 @@ export function useDialogFocusTrap(
       }
     }
 
-    root.addEventListener('keydown', onKeyDown)
+    document.addEventListener('keydown', onKeyDown)
 
     return () => {
       cancelAnimationFrame(raf)
-      root.removeEventListener('keydown', onKeyDown)
+      document.removeEventListener('keydown', onKeyDown)
       previouslyFocused?.focus?.()
     }
-  }, [active, containerRef])
+  }, [active, containerRef, extraRef])
 }

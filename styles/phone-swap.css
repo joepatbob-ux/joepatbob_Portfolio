@@ -937,9 +937,13 @@
 }
 
 @media (max-width: 767px) {
-  /* Live phone hit layer must stay under the fixed top rail (100) */
+  /* Default: under mobile chrome; interactive: just below rail so stage taps register */
   .sma-phone-overlay {
-    z-index: var(--z-stickers, 90);
+    z-index: var(--z-stickers, 96);
+  }
+
+  .sma-phone-overlay--interactive {
+    z-index: calc(var(--z-mobile-chrome, 120) - 1);
   }
 
   .hardware-slideshow.mobile-chapter-slot--sensi {

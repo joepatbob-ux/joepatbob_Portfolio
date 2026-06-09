@@ -14,6 +14,9 @@
 'use client'
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useBodyScrollLock } from '@/lib/hooks/useBodyScrollLock'
+import { useDialogFocusTrap } from '@/lib/hooks/useDialogFocusTrap'
+import { usePrefersReducedMotion } from '@/lib/hooks/usePrefersReducedMotion'
 import { activeSlideIdPublished } from '@/lib/chapterSlideshow'
 import { applySidebarHeroNameFade, applySidebarShellFade, hideSidebarShell, isInHeroScrollZone, isTopBarInHeroScrollZone, resetSidebarShellFade } from '@/lib/heroScroll'
 import { NAV_SECTIONS, sectionIdForChapter } from '@/lib/nav'
@@ -118,6 +121,7 @@ function getScrollTop(): number {
 // ── COMPONENT ─────────────────────────────────────────────────────────────────
 export function SidebarNav() {
   const usesTopBarNav = useTopBarNav()
+  const reducedMotion = usePrefersReducedMotion()
   const { navigateToChapter, navigateToSection, phase: chapterNavPhase } =
     useChapterNav()
   const C = {
@@ -166,6 +170,8 @@ export function SidebarNav() {
   const navWrapRef    = useRef<HTMLDivElement>(null)
   const contactRef    = useRef<HTMLDivElement>(null)
   const mobileHeroRef = useRef<HTMLDivElement>(null)
+  const mobileDrawerPanelRef = useRef<HTMLDivElement>(null)
+  const subnavRef = useRef<HTMLDivElement>(null)
   const layoutRef     = useRef({ viewportH: 900, navRestTop: 0, threshold: 648 })
   const stickThresholdRef = useRef(648)
 
@@ -235,6 +241,11 @@ export function SidebarNav() {
     setChapterItemsVisible([])
     const sec = NAV_SECTIONS.find((s) => s.id === sectionId)
     if (!sec) return
+    if (reducedMotion) {
+      setChapterItemsVisible(sec.chapters.map((_, i) => i))
+      if (!isInHeroScrollZone()) setDividerVisible(true)
+      return
+    }
     sec.chapters.forEach((_, i) => {
       const t = setTimeout(() => {
         setChapterItemsVisible((prev) => [...prev, i])
@@ -244,14 +255,18 @@ export function SidebarNav() {
       }, i * STAGGER_MS)
       staggerTimers.current.push(t)
     })
-  }, [])
+  }, [reducedMotion])
 
   const staggerOut = useCallback((cb: () => void) => {
     staggerTimers.current.forEach(clearTimeout)
     staggerTimers.current = []
     setChapterItemsVisible([])
+    if (reducedMotion) {
+      cb()
+      return
+    }
     setTimeout(cb, TRANSITION_MS * 0.55)
-  }, [])
+  }, [reducedMotion])
 
   const switchSection = useCallback(
     (id: string, options?: { animate?: boolean }) => {
@@ -389,14 +404,9 @@ export function SidebarNav() {
     }
   }, [usesTopBarNav, mobileDrawerOpen])
 
-  useEffect(() => {
-    if (!usesTopBarNav || !mobileDrawerOpen) return
-    const prev = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    return () => {
-      document.body.style.overflow = prev
-    }
-  }, [usesTopBarNav, mobileDrawerOpen])
+  const drawerOpen = usesTopBarNav && mobileDrawerOpen
+  useBodyScrollLock(drawerOpen)
+  useDialogFocusTrap(mobileDrawerPanelRef, drawerOpen, subnavRef)
 
   const closeOverlays = useCallback(() => {
     setMobileDrawerOpen(false)
@@ -690,6 +700,7 @@ export function SidebarNav() {
 
       {/* Sidebar shell — desktop; phone/tablet expand as overlay */}
       <div
+        ref={mobileDrawerPanelRef}
         id="sidebar-tablet-panel"
         className={shellClass}
         role={usesTopBarNav && mobileDrawerOpen ? 'dialog' : undefined}
@@ -725,8 +736,11 @@ export function SidebarNav() {
             className="sidebar-shell__divider"
             style={{
               opacity: dividerVisible ? 1 : 0,
-              filter: dividerVisible ? 'blur(0)' : `blur(${BLUR_PX}px)`,
-              transition: 'opacity 600ms ease, filter 600ms ease',
+              filter:
+                reducedMotion || dividerVisible ? 'blur(0)' : `blur(${BLUR_PX}px)`,
+              transition: reducedMotion
+                ? 'opacity 600ms ease'
+                : 'opacity 600ms ease, filter 600ms ease',
             }}
           />
         ) : null}
@@ -821,6 +835,7 @@ export function SidebarNav() {
       {/* Sub nav — viewport center (desktop only) */}
       <div className={subnavClass}>
       <div
+        ref={subnavRef}
         className="sidebar-subnav--fixed"
         aria-label="Chapter navigation"
         data-sidebar-nav-hit
@@ -858,12 +873,16 @@ export function SidebarNav() {
                 cursor: 'pointer',
                 userSelect: 'none',
                 opacity: isVisible ? 1 : 0,
-                filter: isVisible ? 'blur(0)' : `blur(${BLUR_PX}px)`,
-                transform: isVisible ? 'translateY(0)' : 'translateY(4px)',
-                transition: `opacity ${TRANSITION_MS}ms ease ${i * 20}ms, filter ${TRANSITION_MS}ms ease ${i * 20}ms, transform ${TRANSITION_MS}ms ease ${i * 20}ms, background 180ms ease, box-shadow 180ms ease`,
+                filter:
+                  reducedMotion || isVisible ? 'blur(0)' : `blur(${BLUR_PX}px)`,
+                transform: reducedMotion || isVisible ? 'translateY(0)' : 'translateY(4px)',
+                transition: reducedMotion
+                  ? 'background 180ms ease, box-shadow 180ms ease'
+                  : `opacity ${TRANSITION_MS}ms ease ${i * 20}ms, filter ${TRANSITION_MS}ms ease ${i * 20}ms, transform ${TRANSITION_MS}ms ease ${i * 20}ms, background 180ms ease, box-shadow 180ms ease`,
                 pointerEvents: isVisible ? 'auto' : 'none',
                 borderRadius: 9999,
-                padding: '5px 14px',
+                minHeight: 44,
+                padding: '10px 16px',
                 background: chapterFill,
                 boxShadow: chapterRing,
                 border: 'none',
