@@ -13,6 +13,18 @@
     box-sizing: border-box;
   }
 
+  .portfolio-chapter-slot--fill.hardware-slideshow.mobile-chapter-slot--sensi {
+    width: calc(100% + 2 * var(--content-pad-x, 16px));
+    max-width: 100vw;
+    margin-inline: calc(-1 * var(--content-pad-x, 16px));
+    overflow-x: visible;
+  }
+
+  .portfolio-chapter-slot--fill.hardware-slideshow.mobile-chapter-slot--sensi
+    .portfolio-chapter-panel {
+    padding-inline: 0;
+  }
+
   .portfolio-chapter-slot--fill.hardware-slideshow .portfolio-chapter-panel {
     display: flex;
     flex-direction: column;

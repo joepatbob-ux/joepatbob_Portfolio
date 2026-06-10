@@ -64,7 +64,7 @@ export function useSectionMount(
       ([entry]) => {
         if (entry?.isIntersecting) setMounted(true)
       },
-      { rootMargin: '120% 0px 120% 0px', threshold: 0 },
+      { rootMargin: '40% 0px 40% 0px', threshold: 0 },
     )
     observer.observe(root)
     return () => observer.disconnect()

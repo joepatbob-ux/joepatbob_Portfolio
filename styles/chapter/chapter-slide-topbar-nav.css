@@ -159,15 +159,19 @@
     transition: none !important;
   }
 
-  /* Sensi PhoneSwap — full-bleed stage; panel pad clips 3D phones at the gutters */
-  .portfolio-chapter-slot--fill.hardware-slideshow.mobile-chapter-slot--sensi
-    .portfolio-chapter-panel {
-    padding-inline: 0 !important;
-  }
-
+  /* Sensi PhoneSwap — cancel article gutter so stage is edge-to-edge */
   .portfolio-chapter-slot--fill.hardware-slideshow.mobile-chapter-slot--sensi {
     min-height: var(--mobile-viewport-min-h);
     overflow-x: visible;
+    box-sizing: border-box;
+    width: calc(100% + 2 * var(--content-pad-x, 16px));
+    max-width: 100vw;
+    margin-inline: calc(-1 * var(--content-pad-x, 16px));
+  }
+
+  .portfolio-chapter-slot--fill.hardware-slideshow.mobile-chapter-slot--sensi
+    .portfolio-chapter-panel {
+    padding-inline: 0 !important;
   }
 
   .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__inner {

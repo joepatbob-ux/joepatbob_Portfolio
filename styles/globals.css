@@ -217,6 +217,10 @@
       overflow-x: clip;
     }
 
+    article[data-section-id='mobile'] {
+      overflow-x: visible;
+    }
+
     .content-area {
       margin-left: 0;
       margin-top: 0;

@@ -169,23 +169,30 @@
 @media (max-width: 767px) {
   .chapter-slide--verdant .chapter-slide__stage,
   .hardware-slideshow.chapter-slide--verdant .chapter-slide__stage {
-    align-items: stretch;
-    justify-content: center;
+    align-items: flex-start;
+    justify-content: flex-start;
     min-height: 0;
   }
 
   .chapter-slide--verdant .verdant-interactive,
   .hardware-slideshow.chapter-slide--verdant .verdant-interactive {
-    --verdant-gap: var(--cs-verdant-mobile-gap);
+    --verdant-key-size: clamp(26px, 7.8vw, 34px);
     --verdant-key-gap: clamp(3px, 0.9vw, 6px);
+    --verdant-gap: var(--verdant-key-size);
     --verdant-key-font: clamp(9px, 2.5cqi, 12px);
-    --verdant-stage-h: clamp(148px, 28dvh, 280px);
-    --verdant-stage-w: min(100%, calc(var(--verdant-stage-h) * 350 / 582));
+    --verdant-fit-w: min(
+      calc(100vw - 2 * var(--content-pad-x, 16px)),
+      calc(var(--cs-verdant-mobile-max-h) * 350 / 582)
+    );
+    --verdant-stage-w: var(--verdant-fit-w);
+    --verdant-stage-h: calc(var(--verdant-fit-w) * 582 / 350);
 
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto auto;
     grid-template-areas: 'glyph' 'keys';
+    align-content: start;
+    justify-items: center;
     width: 100%;
     max-width: 100%;
     max-height: none;
@@ -204,6 +211,7 @@
     justify-self: center;
     width: var(--verdant-stage-w);
     height: var(--verdant-stage-h);
+    aspect-ratio: auto;
   }
 
   .verdant-interactive__stage-photo {
@@ -216,6 +224,33 @@
   .verdant-selector {
     position: relative;
     z-index: 0;
+  }
+
+  /* Full-width mobile stage — don't shrink via narrow container queries */
+  @container verdant (max-width: 399px) {
+    .verdant-interactive {
+      --verdant-key-size: 32px;
+      --verdant-gap: var(--verdant-key-size);
+      --verdant-fit-w: min(
+        calc(100vw - 2 * var(--content-pad-x, 16px)),
+        calc(var(--cs-verdant-mobile-max-h) * 350 / 582)
+      );
+      --verdant-stage-w: var(--verdant-fit-w);
+      --verdant-stage-h: calc(var(--verdant-fit-w) * 582 / 350);
+    }
+  }
+
+  @container verdant (max-width: 340px) {
+    .verdant-interactive {
+      --verdant-key-size: var(--cs-verdant-mobile-key-min);
+      --verdant-gap: var(--verdant-key-size);
+      --verdant-fit-w: min(
+        calc(100vw - 2 * var(--content-pad-x, 16px)),
+        calc(var(--cs-verdant-mobile-max-h) * 350 / 582)
+      );
+      --verdant-stage-w: var(--verdant-fit-w);
+      --verdant-stage-h: calc(var(--verdant-fit-w) * 582 / 350);
+    }
   }
 }
 

@@ -2,10 +2,13 @@
 
 import { useEffect, type RefObject } from 'react'
 
-const MOVE_THRESHOLD_PX = 3
-const VERTICAL_RATIO = 1.1
+const MOVE_THRESHOLD_PX = 8
+const VERTICAL_RATIO = 1.15
 
-/** On in-flow chapters, vertical drags over the canvas should scroll the page. */
+/**
+ * In-flow chapters: distinguish vertical scroll from tap-to-swap on the 3D canvas.
+ * Canvas keeps pointer events; during a vertical drag we temporarily pass scroll through.
+ */
 export function usePhoneSwapTouchScroll(
   ref: RefObject<HTMLElement | null>,
   enabled: boolean,
@@ -18,25 +21,15 @@ export function usePhoneSwapTouchScroll(
     let startY = 0
     let startX = 0
     let scrollMode = false
-    const blocked: HTMLElement[] = []
 
     const clearPassthrough = () => {
       root.classList.remove('phone-swap__viewbox--scroll-passthrough')
-      for (const el of blocked) {
-        el.style.pointerEvents = ''
-      }
-      blocked.length = 0
     }
 
     const enablePassthrough = () => {
       if (scrollMode) return
       scrollMode = true
       root.classList.add('phone-swap__viewbox--scroll-passthrough')
-      root.querySelectorAll('canvas').forEach((node) => {
-        const canvas = node as HTMLElement
-        blocked.push(canvas)
-        canvas.style.pointerEvents = 'none'
-      })
     }
 
     const onTouchStart = (e: TouchEvent) => {

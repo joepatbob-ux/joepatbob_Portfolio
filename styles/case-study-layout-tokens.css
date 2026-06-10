@@ -84,8 +84,7 @@
   --cs-verdant-key-gap: 6px;
   --cs-verdant-key-size: 36px;
   --cs-verdant-key-font: clamp(11px, 2.4cqi, 14px);
-  --cs-verdant-mobile-max-h: min(52dvh, 460px);
-  --cs-verdant-mobile-gap: clamp(8px, 1.25vh, 12px);
+  --cs-verdant-mobile-max-h: min(50dvh, 440px);
   --cs-verdant-mobile-key-max: 42px;
   --cs-verdant-mobile-key-min: 34px;
 
