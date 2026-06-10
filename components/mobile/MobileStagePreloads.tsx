@@ -1,11 +1,16 @@
 'use client'
 
 import { useStagePreload } from '@/lib/hooks/useStagePreload'
+import { CHAPTER_INTERACTIVE_VISIBILITY } from '@/lib/chapterVisibility'
 import { mobileChapterId } from '@/lib/mobile/content'
 import { preloadPhoneSwapStage } from '@/lib/stagePreload/phoneSwap'
 
-/** Background warm-up for mobile stage assets as chapters enter the scroll viewport. */
+/** Warm PhoneSwap geometry once the Sensi stage is near the viewport. */
 export function MobileStagePreloads() {
-  useStagePreload(mobileChapterId('sensi'), preloadPhoneSwapStage)
+  useStagePreload(
+    mobileChapterId('sensi'),
+    preloadPhoneSwapStage,
+    CHAPTER_INTERACTIVE_VISIBILITY,
+  )
   return null
 }

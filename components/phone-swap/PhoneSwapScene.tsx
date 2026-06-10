@@ -261,6 +261,17 @@ export function PhoneSwapScene({
     [interactionEnabled],
   )
 
+  const handlePhonePointerDown = useCallback(
+    (device: PhoneDevice) => (e: ThreeEvent<PointerEvent>) => {
+      if (!interactionEnabled) return
+      if (e.pointerType !== 'touch' && e.pointerType !== 'pen') return
+      e.stopPropagation()
+      if (backDeviceRef.current !== device) return
+      onSwapRef.current?.()
+    },
+    [interactionEnabled],
+  )
+
   const handlePhoneOver = useCallback(
     (device: PhoneDevice) => (e: ThreeEvent<PointerEvent>) => {
       if (!interactionEnabled) return
@@ -530,6 +541,7 @@ export function PhoneSwapScene({
       <group
         ref={androidRef as Ref<THREE.Group>}
         onClick={handlePhoneClick('android')}
+        onPointerDown={handlePhonePointerDown('android')}
         onPointerOver={handlePhoneOver('android')}
         onPointerOut={handlePhoneOut('android')}
       >
@@ -538,6 +550,7 @@ export function PhoneSwapScene({
       <group
         ref={iphoneRef as Ref<THREE.Group>}
         onClick={handlePhoneClick('iphone')}
+        onPointerDown={handlePhonePointerDown('iphone')}
         onPointerOver={handlePhoneOver('iphone')}
         onPointerOut={handlePhoneOut('iphone')}
       >

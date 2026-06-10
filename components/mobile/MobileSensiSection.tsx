@@ -11,6 +11,7 @@ import {
   MobileSubStoryHeading,
   splitParagraphs,
 } from '@/components/mobile/MobileSectionParts'
+import { useChapterStageMount } from '@/lib/hooks/useChapterStageMount'
 import { MOBILE_SENSI, mobileChapterId } from '@/lib/mobile/content'
 
 const PhoneSwap = dynamic(
@@ -22,6 +23,26 @@ const PhoneSwap = dynamic(
   },
 )
 
+/** Renders inside ChapterViewport — gates the heavy 3D chunk until the slide is near. */
+function MobileSensiStage() {
+  const chapterId = mobileChapterId('sensi')
+  const { mount } = useChapterStageMount(chapterId)
+
+  if (!mount) {
+    return (
+      <p className="phone-swap__fallback" aria-hidden="true">
+        Loading 3D preview…
+      </p>
+    )
+  }
+
+  return (
+    <PhoneSwapBoundary key="phone-swap-3d">
+      <PhoneSwap />
+    </PhoneSwapBoundary>
+  )
+}
+
 export function MobileSensiSection() {
   const chapterId = mobileChapterId('sensi')
   const [color, install, spotlight] = MOBILE_SENSI.subStories
@@ -32,11 +53,7 @@ export function MobileSensiSection() {
       chapterId={chapterId}
       fillViewport
       className="mobile-chapter-slot mobile-chapter-slot--sensi"
-      stage={
-        <PhoneSwapBoundary key="phone-swap-3d">
-          <PhoneSwap />
-        </PhoneSwapBoundary>
-      }
+      stage={<MobileSensiStage />}
       copy={
         <ChapterCopyReveal headline={MOBILE_SENSI.headline}>
           <MobileProse paragraphs={intro} />
