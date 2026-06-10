@@ -191,12 +191,8 @@
       );
       --mobile-content-top-inset: var(--mobile-nav-overlay-height);
       --mobile-content-bottom-inset: 0px;
-      /* Full layout viewport — lvh fills behind Safari chrome; + bottom safe area */
-      --mobile-viewport-min-h: 100vh;
-      --mobile-viewport-min-h: 100lvh;
-      --mobile-viewport-min-h: calc(
-        100lvh + env(safe-area-inset-bottom, 0px)
-      );
+      /* JS syncs from visualViewport; svh is the pre-hydrate fallback */
+      --mobile-viewport-min-h: 100svh;
       --gutter: 24px;
       --content-pad-x: 16px;
       --content-pad-left: 16px;

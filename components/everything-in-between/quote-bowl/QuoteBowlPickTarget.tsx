@@ -77,7 +77,13 @@ export function QuoteBowlPickTarget({
         pickable
           ? (e) => {
               e.stopPropagation()
-              if (e.pointerType === 'touch' || e.pointerType === 'pen') return
+              const native = e.nativeEvent
+              if (
+                native instanceof PointerEvent &&
+                (native.pointerType === 'touch' || native.pointerType === 'pen')
+              ) {
+                return
+              }
               onPick()
             }
           : undefined
