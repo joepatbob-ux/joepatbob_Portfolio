@@ -73,7 +73,7 @@ See `HARDWARE_POLISH_CHECKLIST.md` for per-chapter interactives.
 - [x] PhoneSwap reflows on viewport resize (CSS; no overflow)
 - [x] More/Less at 768–1023; sheet at ≤767
 - [x] SMA live overlay z-index — interactive layer at `z-mobile-chrome - 1` on ≤767
-- [ ] **P0:** PhoneSwap tap-to-swap on ≤1023 (in-flow canvas `pointer-events: none`; needs swap button)
+- [x] **P0:** PhoneSwap tap-to-swap on ≤1023 — in-flow swap pill below stage (canvas stays scroll-passthrough)
 - [ ] Sub-stories / Spotlight manual content pass
 - [ ] Physical iPhone Safari pass (hero visualViewport, drawer, sheet scroll lock)
 

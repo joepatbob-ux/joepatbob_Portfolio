@@ -21,7 +21,9 @@ export function useBodyScrollLock(active: boolean): void {
       body.style.right = '0'
       body.style.width = '100%'
       body.style.overflow = 'hidden'
+      body.style.touchAction = 'none'
       html.style.overflow = 'hidden'
+      html.style.overscrollBehavior = 'none'
     }
 
     return () => {
@@ -36,7 +38,9 @@ export function useBodyScrollLock(active: boolean): void {
       body.style.right = ''
       body.style.width = ''
       body.style.overflow = ''
+      body.style.touchAction = ''
       html.style.overflow = ''
+      html.style.overscrollBehavior = ''
       window.scrollTo(0, savedScrollY)
     }
   }, [active])

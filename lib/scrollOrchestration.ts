@@ -9,6 +9,7 @@ import {
 import { FLOW_CHAPTER_SLOT_SELECTOR } from '@/lib/chapterFlow'
 import { isTopBarInHeroScrollZone, shouldSuppressChapterReveal } from '@/lib/heroScroll'
 import { isTopBarNavViewport } from '@/lib/layout/isTopBarNavViewport'
+import { getLayoutViewportHeight } from '@/lib/mobileViewport'
 
 export type SlideNavPhase = 'idle' | 'out' | 'in'
 
@@ -38,7 +39,7 @@ function computeFlowChapterRevealMap(): Record<string, number> {
 /** Phone + tablet top-bar nav: visible viewport fraction per chapter (0–1). */
 function computeInFlowRevealMap(): Record<string, number> {
   const map: Record<string, number> = {}
-  const vh = window.innerHeight
+  const vh = getLayoutViewportHeight() || window.innerHeight
   if (vh <= 0) return map
 
   document.querySelectorAll<HTMLElement>(CHAPTER_SLOT_SELECTOR).forEach((el) => {

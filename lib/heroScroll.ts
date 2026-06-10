@@ -3,9 +3,16 @@ function easeSmoothstep(t: number): number {
   return x * x * (3 - 2 * x)
 }
 
+import { getLayoutViewportHeight } from '@/lib/mobileViewport'
+
 function prefersReducedMotion(): boolean {
   if (typeof window === 'undefined') return false
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches
+}
+
+function layoutViewportH(): number {
+  const h = getLayoutViewportHeight()
+  return h > 0 ? h : window.innerHeight
 }
 
 /** Re-enter only near the top — wide gap vs leaveScrollY stops rail toggling mid-handoff. */
@@ -27,6 +34,11 @@ let lastResizeInnerH = 0
 /** Phone + tablet top-bar nav: scroll-Y hysteresis for hero intro vs frosted rail. */
 let topBarHeroScrollCommitted: boolean | null = null
 
+/** Leave hero intro → show top rail once hero bottom crosses this (vh). */
+const TOP_BAR_HERO_LEAVE_VH = 0.5
+/** Re-enter hero intro when hero bottom rises above this (vh). */
+const TOP_BAR_HERO_ENTER_VH = 0.76
+
 export function resetTopBarHeroScrollHysteresis(): void {
   topBarHeroScrollCommitted = null
 }
@@ -36,7 +48,7 @@ export function isTopBarInHeroScrollZone(): boolean {
   if (typeof window === 'undefined') return true
 
   const hero = document.getElementById('hero')
-  const vh = window.innerHeight
+  const vh = layoutViewportH()
 
   if (!hero) {
     const y = window.scrollY
@@ -58,9 +70,8 @@ export function isTopBarInHeroScrollZone(): boolean {
   }
 
   const bottom = hero.getBoundingClientRect().bottom
-  /** Switch intro → rail once ~35% of the hero has scrolled off (not at the very end). */
-  const leaveAt = vh * 0.62
-  const enterAt = vh * 0.88
+  const leaveAt = vh * TOP_BAR_HERO_LEAVE_VH
+  const enterAt = vh * TOP_BAR_HERO_ENTER_VH
 
   if (topBarHeroScrollCommitted === null) {
     topBarHeroScrollCommitted = bottom > leaveAt
@@ -83,17 +94,20 @@ export function resetHeroScrollZoneHysteresis(): void {
 
 function onViewportResize(): void {
   if (typeof window === 'undefined') return
-  const innerH = window.innerHeight
+  const innerH = layoutViewportH()
   const prevInnerH = lastResizeInnerH
   const delta = Math.abs(innerH - prevInnerH)
   lastResizeInnerH = innerH
-  if (prevInnerH > 0 && delta < 80) return
+  if (prevInnerH > 0 && delta < 24) return
   resetHeroScrollZoneHysteresis()
 }
 
 if (typeof window !== 'undefined') {
-  lastResizeInnerH = window.innerHeight
+  lastResizeInnerH = layoutViewportH()
   window.addEventListener('resize', onViewportResize, { passive: true })
+  window.visualViewport?.addEventListener('resize', onViewportResize, {
+    passive: true,
+  })
 }
 
 function heroPinBottom(hero: HTMLElement): number {

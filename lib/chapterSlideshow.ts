@@ -2,6 +2,7 @@ import { chapterSlotScrollCenter } from '@/lib/chapterSnapScroll'
 import { VIEWPORT_SNAP_SLOT_SELECTOR } from '@/lib/chapterFlow'
 import { heroChapterHandoffProgress } from '@/lib/heroScroll'
 import { isLayoutMobileViewport } from '@/lib/layout/isLayoutMobileViewport'
+import { getLayoutViewportHeight } from '@/lib/mobileViewport'
 
 /** Real snap slides only — excludes placed stickers (they use data-sticker-chapter-id). */
 export const CHAPTER_SLOT_SELECTOR = '.portfolio-chapter-slot[data-chapter-id]'
@@ -176,10 +177,12 @@ function pickActiveSlideIdByVisibility(): string | null {
   return bestId
 }
 
-/** Top-bar nav: stick to current chapter until challenger leads by ~12% viewport. */
+/** Top-bar nav: stick to current chapter until challenger leads by a viewport fraction. */
 export function pickActiveSlideIdForTopBarNav(): string | null {
-  const vh = window.innerHeight
-  const minLeadPx = Math.max(72, Math.round(vh * 0.12))
+  const vh = getLayoutViewportHeight() || window.innerHeight
+  const mobile = isLayoutMobileViewport()
+  const leadRatio = mobile ? 0.05 : 0.08
+  const minLeadPx = Math.max(mobile ? 40 : 56, Math.round(vh * leadRatio))
   const slots = chapterSlots()
 
   let bestId: string | null = null

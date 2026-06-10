@@ -508,14 +508,33 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
       </div>
 
       {!layoutMode && !animTuneOpen && !materialTuneOpen ? (
-        <PhoneScreenshotControls
-          slideIndex={screenshot.slideIndex}
-          slideCount={screenshot.slideCount}
-          slideKeys={screenshot.slideKeys}
-          screenTheme={screenshot.screenTheme}
-          onSelectSlide={screenshot.selectSlide}
-          onScreenThemeChange={screenshot.setScreenTheme}
-        />
+        <>
+          {inFlowChapter ? (
+            <div className="phone-swap__in-flow-actions">
+              <button
+                type="button"
+                className="phone-swap__in-flow-swap"
+                onClick={doSwap}
+                disabled={animating}
+                aria-label={
+                  swapped
+                    ? 'Switch to Android in front'
+                    : 'Switch to iPhone in front'
+                }
+              >
+                {swapped ? 'Switch to Android' : 'Switch to iPhone'}
+              </button>
+            </div>
+          ) : null}
+          <PhoneScreenshotControls
+            slideIndex={screenshot.slideIndex}
+            slideCount={screenshot.slideCount}
+            slideKeys={screenshot.slideKeys}
+            screenTheme={screenshot.screenTheme}
+            onSelectSlide={screenshot.selectSlide}
+            onScreenThemeChange={screenshot.setScreenTheme}
+          />
+        </>
       ) : null}
 
       {devMenu ? (
