@@ -2,6 +2,7 @@
 
 import { applyHeroPinFade } from '@/lib/heroScroll'
 import { LAYOUT_MQ } from '@/lib/layout/breakpoints'
+import { getLayoutViewportHeight } from '@/lib/mobileViewport'
 import { useMobileHeroViewport } from '@/lib/useMobileHeroViewport'
 import { scheduleScrollFrame } from '@/lib/scrollFrame'
 import { useEffect } from 'react'
@@ -32,15 +33,14 @@ export function Hero() {
     pin?.style.removeProperty('filter')
     pin?.style.removeProperty('visibility')
 
-    if (window.matchMedia(LAYOUT_MQ.topBarNav).matches) return
-
     return scheduleScrollFrame(() => {
       const pinEl = document.querySelector<HTMLElement>('#hero .hero-pin')
       const topBarNav = window.matchMedia(LAYOUT_MQ.topBarNav).matches
+      const viewportH = getLayoutViewportHeight() || window.innerHeight
       applyHeroPinFade(
         pinEl,
         window.scrollY,
-        window.innerHeight,
+        viewportH,
         topBarNav ? 0 : 10,
       )
     })

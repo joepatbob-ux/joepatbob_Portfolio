@@ -136,7 +136,7 @@
     margin-top: var(--cs-section-scroll-gap);
   }
 
-  /* Hero: scroll track only — canvas sizing lives in styles/hero.css (no safe-area on hero) */
+  /* Hero: scroll track — height matches safe-area-bound pin in styles/hero.css */
   #hero {
     position: relative !important;
     width: 100vw !important;
@@ -147,8 +147,8 @@
     margin-right: calc(-1 * var(--content-pad-x)) !important;
     margin-top: 0 !important;
     padding-top: 0 !important;
-    min-height: var(--mobile-viewport-min-h) !important;
-    height: var(--mobile-viewport-min-h) !important;
+    min-height: var(--mobile-hero-safe-h, var(--mobile-viewport-min-h)) !important;
+    height: var(--mobile-hero-safe-h, var(--mobile-viewport-min-h)) !important;
     max-height: none !important;
     overflow: visible !important;
     margin-bottom: var(--cs-hero-exit-gap, var(--cs-screen-gap));
