@@ -4,16 +4,24 @@
   min-width: 0;
 }
 
-/* Portal root (document.body) — scrim + panel are viewport-fixed */
+/* Portal root (document.body) — height synced to visualViewport in JS */
 .mobile-learn-more-sheet {
+  --mobile-sheet-pad-left: max(clamp(16px, 4vw, 24px), env(safe-area-inset-left, 0px));
+  --mobile-sheet-pad-right: max(clamp(16px, 4vw, 24px), env(safe-area-inset-right, 0px));
+
   position: fixed;
-  inset: 0;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 100svh;
+  max-height: 100dvh;
   z-index: var(--z-mobile-learn-more, 130);
   pointer-events: none;
+  box-sizing: border-box;
 }
 
 .mobile-learn-more-sheet__scrim {
-  position: fixed;
+  position: absolute;
   inset: 0;
   z-index: 0;
   margin: 0;
@@ -26,31 +34,25 @@
 }
 
 .mobile-learn-more-sheet__panel {
-  position: fixed;
+  position: absolute;
   inset: 0;
   z-index: 1;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
-  overflow-x: hidden;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
+  overflow: hidden;
   border-radius: 0;
   background: var(--color-paper);
   color: var(--color-ink);
   box-shadow: none;
   pointer-events: auto;
-  touch-action: pan-y;
 }
 
 .mobile-learn-more-sheet__header {
-  position: sticky;
-  top: 0;
   flex-shrink: 0;
   z-index: 2;
-  padding: max(clamp(16px, 2.5vh, 20px), env(safe-area-inset-top, 0px))
-    clamp(16px, 4vw, 24px) clamp(6px, 1vh, 10px);
+  padding: max(clamp(20px, 3vh, 28px), env(safe-area-inset-top, 0px))
+    var(--mobile-sheet-pad-right) clamp(6px, 1vh, 10px) var(--mobile-sheet-pad-left);
   background: var(--color-paper);
 }
 
@@ -67,19 +69,31 @@
 }
 
 .mobile-learn-more-sheet__footer {
-  position: sticky;
-  bottom: 0;
   flex-shrink: 0;
   z-index: 2;
-  padding: clamp(16px, 2.5vh, 24px) clamp(16px, 4vw, 24px)
-    max(16px, env(safe-area-inset-bottom));
+  padding: clamp(12px, 2vh, 20px) var(--mobile-sheet-pad-right)
+    max(clamp(16px, 2.5vh, 24px), env(safe-area-inset-bottom, 0px))
+    var(--mobile-sheet-pad-left);
   background: var(--color-paper);
 }
 
 .mobile-learn-more-sheet__body {
   flex: 1 1 auto;
-  min-height: min-content;
-  padding: clamp(10px, 1.5vh, 14px) clamp(16px, 4vw, 24px) clamp(12px, 2vh, 16px);
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: clamp(10px, 1.5vh, 14px) var(--mobile-sheet-pad-right) clamp(12px, 2vh, 16px)
+    var(--mobile-sheet-pad-left);
+}
+
+.mobile-learn-more-sheet__body .chapter-copy__body,
+.mobile-learn-more-sheet__body .mobile-prose,
+.mobile-learn-more-sheet__body .mobile-prose__p {
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 @media (min-width: 1200px) {
