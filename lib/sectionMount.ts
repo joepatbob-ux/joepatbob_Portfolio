@@ -1,3 +1,4 @@
+import { CHAPTER_PRELOAD_ROOT_MARGIN } from '@/lib/layout/intersectionPreload'
 import { useEffect, useState, type RefObject } from 'react'
 
 const DEFERRED_SECTIONS = new Set(['mobile', 'web-apps', 'everything-else'])
@@ -64,7 +65,7 @@ export function useSectionMount(
       ([entry]) => {
         if (entry?.isIntersecting) setMounted(true)
       },
-      { rootMargin: '40% 0px 40% 0px', threshold: 0 },
+      { rootMargin: CHAPTER_PRELOAD_ROOT_MARGIN, threshold: 0 },
     )
     observer.observe(root)
     return () => observer.disconnect()

@@ -1,7 +1,6 @@
 'use client'
 
 import { useChapterReveal } from '@/lib/hooks/useChapterReveal'
-import { CHAPTER_A11Y_VISIBILITY } from '@/lib/chapterVisibility'
 import { useEffect, useRef } from 'react'
 
 /**
@@ -11,7 +10,7 @@ import { useEffect, useRef } from 'react'
 export function useStagePreload(
   chapterId: string,
   preload: () => void | Promise<void>,
-  threshold = CHAPTER_A11Y_VISIBILITY,
+  threshold = 0.01,
 ): void {
   const reveal = useChapterReveal(chapterId)
   const firedRef = useRef(false)

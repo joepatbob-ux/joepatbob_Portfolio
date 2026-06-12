@@ -72,9 +72,6 @@ export function ConceptQuoteBowl({ answers, chapterId }: Props) {
   const handleSceneReady = useCallback(() => {
     setSceneReady(true)
   }, [])
-  useEffect(() => {
-    if (!stageMount) setSceneReady(false)
-  }, [stageMount])
   const { camera } = QUOTE_BOWL
   const showLoading = stageMount && !sceneReady
 

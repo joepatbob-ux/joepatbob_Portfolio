@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useChapterPanelOpacity } from '@/lib/useChapterPanelOpacity'
 import { useLayoutTopBarNav } from '@/lib/hooks/useLayoutTopBarNav'
@@ -52,8 +52,18 @@ export function FormationLegoBoard() {
   const topBarNav = useLayoutTopBarNav()
   const panel = useChapterPanelOpacity('everything-else-formation')
   const [mounted, setMounted] = useState(false)
-  const showBoard = mounted && !panel.ariaHidden
-  const showBricks = showBoard && (panel.opacity ?? 0) > 0.12
+  const boardLatchedRef = useRef(false)
+  const bricksLatchedRef = useRef(false)
+  if (mounted && !panel.ariaHidden) {
+    boardLatchedRef.current = true
+  }
+  if (mounted && !panel.ariaHidden && (panel.opacity ?? 0) > 0.12) {
+    bricksLatchedRef.current = true
+  }
+  const showBoard = mounted && (boardLatchedRef.current || !panel.ariaHidden)
+  const showBricks =
+    showBoard &&
+    (bricksLatchedRef.current || (panel.opacity ?? 0) > 0.12)
   /** Desktop slideshow: portal base + bricks above crossfading chapter panels. */
   const useBoardPortal = showBoard && !topBarNav
 
