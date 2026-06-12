@@ -100,10 +100,8 @@ html:not(.past-hero-scroll) #hero .hero-pin {
     max-height: none;
     margin-top: 0;
     padding-top: 0;
-    min-height: 100svh;
-    min-height: 100dvh;
-    height: 100svh;
-    height: 100dvh;
+    min-height: var(--mobile-layout-h, 100dvh);
+    height: var(--mobile-layout-h, 100dvh);
     /* Break out of .content-area padding without 100vw (iOS scrollbar gap) */
     width: calc(
       100% + var(--sidebar-width) + var(--content-pad-left, var(--content-pad-x)) +
@@ -115,22 +113,13 @@ html:not(.past-hero-scroll) #hero .hero-pin {
   /* Edge-to-edge under iOS toolbar (viewport-fit=cover); html hero-canvas fills any gap */
   html:not(.past-hero-scroll) #hero .hero-pin {
     position: fixed !important;
-    inset: 0 !important;
-    width: 100% !important;
-    max-width: none !important;
-    height: 100svh !important;
-    height: 100dvh !important;
-    min-height: 100svh !important;
-    min-height: 100dvh !important;
     margin: 0 !important;
   }
 
   .hero-pin {
     display: block;
-    height: 100svh;
-    height: 100dvh;
-    min-height: 100svh;
-    min-height: 100dvh;
+    height: var(--mobile-layout-h, 100dvh);
+    min-height: var(--mobile-layout-h, 100dvh);
   }
 
   .hero-media {
