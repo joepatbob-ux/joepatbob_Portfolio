@@ -175,6 +175,13 @@ html:not(.past-hero-scroll) #hero .hero-pin {
   will-change: opacity, filter;
 }
 
+@media (max-width: 767px) {
+  .hero-portrait,
+  .hero-mobile-scrim {
+    display: none !important;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .hero-pin,
   .sidebar-hero-name {
