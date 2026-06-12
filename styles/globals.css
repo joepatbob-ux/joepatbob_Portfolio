@@ -18,6 +18,7 @@
 @import './phone-swap.css';
 @import './chapter/index.css';
 @import './site-layout.css';
+@import './mobile-shell.css';
 @import './verdant-interactive.css';
 @import './verdant-character-selector.css';
 @import './sidebar-layout.css';
@@ -191,8 +192,7 @@
       );
       --mobile-content-top-inset: var(--mobile-nav-overlay-height);
       --mobile-content-bottom-inset: 0px;
-      /* JS syncs from visualViewport for chapters; hero uses 100dvh in CSS */
-      --mobile-viewport-min-h: 100dvh;
+      /* Full-bleed heights: styles/mobile-shell.css (--mobile-layout-h) */
       --gutter: 24px;
       --content-pad-x: 16px;
       --content-pad-left: 16px;

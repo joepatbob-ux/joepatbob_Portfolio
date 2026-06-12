@@ -1,0 +1,44 @@
+/* Mobile shell (≤1023) — full-bleed under browser chrome; desktop/cinema use other sheets.
+ *
+ * --mobile-layout-h  Full layout viewport (lvh/dvh) for hero + chapter stages.
+ * --mobile-scroll-h  Smaller visible band (svh) — reserved for scroll UX if needed.
+ * --mobile-viewport-min-h  Alias for chapters (do not set from JS).
+ */
+
+@media (max-width: 1023px) {
+  :root {
+    /* lvh last — fills layout viewport under browser chrome (viewport-fit=cover) */
+    --mobile-layout-h: 100vh;
+    --mobile-layout-h: -webkit-fill-available;
+    --mobile-layout-h: 100lvh;
+
+    /* Visible band when toolbars are shown — scroll UX only */
+    --mobile-scroll-h: 100vh;
+    --mobile-scroll-h: 100svh;
+
+    --mobile-viewport-min-h: var(--mobile-layout-h);
+  }
+
+  html,
+  body,
+  #root,
+  .vite-font-mono,
+  .site-frame {
+    min-height: var(--mobile-layout-h);
+  }
+
+  /* Fixed full-bleed layers (hero pin, overlays) */
+  html:not(.past-hero-scroll) #hero .hero-pin,
+  .mobile-learn-more-sheet,
+  .mobile-learn-more-sheet__scrim,
+  .mobile-learn-more-sheet__panel {
+    height: var(--mobile-layout-h);
+    min-height: var(--mobile-layout-h);
+  }
+
+  html:not(.past-hero-scroll) #hero .hero-pin {
+    inset: 0;
+    width: 100%;
+    max-width: none;
+  }
+}

@@ -8,10 +8,10 @@ import { useLayoutEffect } from 'react'
 const HYSTERESIS_RESET_PX = 24
 let lastSyncedHeight = 0
 
-function syncMobileViewportHeight(): void {
+/** Reset hero/rail hysteresis when iOS Safari resizes the visual viewport (URL bar). */
+function onMobileViewportResize(): void {
   if (typeof window === 'undefined') return
   if (!window.matchMedia(LAYOUT_MQ.topBarNav).matches) {
-    document.documentElement.style.removeProperty('--mobile-viewport-min-h')
     lastSyncedHeight = 0
     return
   }
@@ -25,14 +25,13 @@ function syncMobileViewportHeight(): void {
   }
 
   lastSyncedHeight = h
-  document.documentElement.style.setProperty('--mobile-viewport-min-h', `${h}px`)
 }
 
-/** Sync `--mobile-viewport-min-h` from visualViewport on phone + tablet nav. */
+/** Phone + tablet: listen for visualViewport changes (scroll math only — heights are CSS). */
 export function useMobileHeroViewport(): void {
   useLayoutEffect(() => {
     const mq = window.matchMedia(LAYOUT_MQ.topBarNav)
-    const run = () => syncMobileViewportHeight()
+    const run = () => onMobileViewportResize()
 
     run()
     mq.addEventListener('change', run)
@@ -47,7 +46,6 @@ export function useMobileHeroViewport(): void {
       window.removeEventListener('resize', run)
       vv?.removeEventListener('resize', run)
       vv?.removeEventListener('scroll', run)
-      document.documentElement.style.removeProperty('--mobile-viewport-min-h')
       lastSyncedHeight = 0
     }
   }, [])
