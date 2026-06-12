@@ -210,6 +210,13 @@
     html {
       scroll-padding-top: var(--mobile-nav-overlay-height);
       scroll-padding-bottom: 0;
+      overflow-x: clip;
+    }
+
+    body,
+    #root,
+    .vite-font-mono {
+      overflow-x: clip;
     }
 
     .site-frame,
@@ -217,8 +224,8 @@
       overflow-x: clip;
     }
 
-    article[data-section-id='mobile'] {
-      overflow-x: visible;
+    article[data-section-id] {
+      overflow-x: clip;
     }
 
     .content-area {
