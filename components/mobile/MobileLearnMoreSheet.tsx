@@ -2,6 +2,7 @@
 
 import { useBodyScrollLock } from '@/lib/hooks/useBodyScrollLock'
 import { useDialogFocusTrap } from '@/lib/hooks/useDialogFocusTrap'
+import { useVisualViewportOverlay } from '@/lib/hooks/useVisualViewportOverlay'
 import { OverlayActionPill } from '@/components/ui/OverlayActionPill'
 import { useEffect, useId, useRef } from 'react'
 import { createPortal } from 'react-dom'
@@ -15,8 +16,10 @@ interface Props {
 
 export function MobileLearnMoreSheet({ open, onClose, title, children }: Props) {
   const titleId = useId()
+  const rootRef = useRef<HTMLDivElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
 
+  useVisualViewportOverlay(rootRef, open)
   useDialogFocusTrap(panelRef, open)
   useBodyScrollLock(open)
 
@@ -32,7 +35,7 @@ export function MobileLearnMoreSheet({ open, onClose, title, children }: Props) 
   if (!open || typeof document === 'undefined') return null
 
   return createPortal(
-    <div className="mobile-learn-more-sheet" data-state="open">
+    <div ref={rootRef} className="mobile-learn-more-sheet" data-state="open">
       <button
         type="button"
         className="mobile-learn-more-sheet__scrim"
