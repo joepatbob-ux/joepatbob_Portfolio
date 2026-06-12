@@ -3,6 +3,7 @@
 import { applyHeroPinFade } from '@/lib/heroScroll'
 import { LAYOUT_MQ } from '@/lib/layout/breakpoints'
 import { getLayoutViewportHeight } from '@/lib/mobileViewport'
+import { useLayoutMobile } from '@/lib/hooks/useLayoutMobile'
 import { useMobileHeroViewport } from '@/lib/useMobileHeroViewport'
 import { scheduleScrollFrame } from '@/lib/scrollFrame'
 import { useEffect } from 'react'
@@ -13,6 +14,7 @@ const PORTRAIT_DARK = '/images/PortraitDark_MG_3490.jpg'
 
 export function Hero() {
   const { resolvedTheme } = useTheme()
+  const isMobile = useLayoutMobile()
   const portraitSrc =
     resolvedTheme === 'dark' ? PORTRAIT_DARK : PORTRAIT_LIGHT
 
@@ -60,19 +62,23 @@ export function Hero() {
     <section id="hero" className="hero">
       <div className="hero-pin">
         <div className="hero-media">
-          <img
-            className="hero-portrait"
-            src={portraitSrc}
-            alt="Joseph Patrick Roberts"
-            sizes="100vw"
-            decoding="async"
-            fetchPriority="high"
-            draggable={false}
-          />
-          <div
-            className={`hero-mobile-scrim hero-mobile-scrim--${resolvedTheme}`}
-            aria-hidden
-          />
+          {!isMobile ? (
+            <>
+              <img
+                className="hero-portrait"
+                src={portraitSrc}
+                alt="Joseph Patrick Roberts"
+                sizes="100vw"
+                decoding="async"
+                fetchPriority="high"
+                draggable={false}
+              />
+              <div
+                className={`hero-mobile-scrim hero-mobile-scrim--${resolvedTheme}`}
+                aria-hidden
+              />
+            </>
+          ) : null}
         </div>
       </div>
     </section>
