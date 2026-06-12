@@ -422,11 +422,8 @@ export function SidebarNav() {
   }, [])
 
   const applyMobileHeroScroll = useCallback((y: number) => {
-    if (window.matchMedia(LAYOUT_MQ.mobile).matches) {
-      resetSidebarShellFade(mobileHeroRef.current)
-      return
-    }
-    applySidebarShellFade(mobileHeroRef.current, y, window.innerHeight, BLUR_PX)
+    const viewportH = window.visualViewport?.height ?? window.innerHeight
+    applySidebarShellFade(mobileHeroRef.current, y, viewportH, BLUR_PX)
   }, [])
 
   const applyDesktopNavScroll = useCallback((y: number) => {

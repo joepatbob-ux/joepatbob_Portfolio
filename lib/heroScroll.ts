@@ -34,8 +34,6 @@ let lastResizeInnerH = 0
 /** Phone + tablet top-bar nav: scroll-Y hysteresis for hero intro vs frosted rail. */
 let topBarHeroScrollCommitted: boolean | null = null
 
-/** Leave hero intro → show top rail once hero bottom crosses this (vh). */
-const TOP_BAR_HERO_LEAVE_VH = 0.5
 /** Re-enter hero intro when hero bottom rises above this (vh). */
 const TOP_BAR_HERO_ENTER_VH = 0.76
 
@@ -43,26 +41,31 @@ export function resetTopBarHeroScrollHysteresis(): void {
   topBarHeroScrollCommitted = null
 }
 
-/** Phone + tablet top-bar nav: stick until hero section has mostly scrolled away. */
+/** Phone + tablet top-bar nav: hero intro until pin fade completes (matches applyHeroPinFade). */
 export function isTopBarInHeroScrollZone(): boolean {
   if (typeof window === 'undefined') return true
 
-  const hero = document.getElementById('hero')
+  const scrollY = window.scrollY
   const vh = layoutViewportH()
+  const reveal = getHeroPinReveal(scrollY, vh)
 
+  if (reveal > HERO_PIN_CHAPTER_REVEAL_THRESHOLD) {
+    topBarHeroScrollCommitted = true
+    return true
+  }
+
+  const hero = document.getElementById('hero')
   if (!hero) {
-    const y = window.scrollY
-    const leaveAt = vh * 0.65
-    const enterAt = vh * 0.45
-
     if (topBarHeroScrollCommitted === null) {
-      topBarHeroScrollCommitted = y < leaveAt
+      topBarHeroScrollCommitted = scrollY < vh * HERO_PIN_FADE_END_VH
       return topBarHeroScrollCommitted
     }
 
     if (topBarHeroScrollCommitted) {
-      if (y >= leaveAt) topBarHeroScrollCommitted = false
-    } else if (y <= enterAt) {
+      if (reveal <= HERO_PIN_CHAPTER_REVEAL_THRESHOLD) {
+        topBarHeroScrollCommitted = false
+      }
+    } else if (scrollY < HERO_REENTER_SCROLL_TOP_PX) {
       topBarHeroScrollCommitted = true
     }
 
@@ -70,21 +73,17 @@ export function isTopBarInHeroScrollZone(): boolean {
   }
 
   const bottom = hero.getBoundingClientRect().bottom
-  const leaveAt = vh * TOP_BAR_HERO_LEAVE_VH
   const enterAt = vh * TOP_BAR_HERO_ENTER_VH
+  const shouldReenter =
+    bottom >= enterAt && scrollY < HERO_REENTER_SCROLL_TOP_PX
 
-  if (topBarHeroScrollCommitted === null) {
-    topBarHeroScrollCommitted = bottom > leaveAt
-    return topBarHeroScrollCommitted
-  }
-
-  if (topBarHeroScrollCommitted) {
-    if (bottom <= leaveAt) topBarHeroScrollCommitted = false
-  } else if (bottom >= enterAt) {
+  if (shouldReenter) {
     topBarHeroScrollCommitted = true
+    return true
   }
 
-  return topBarHeroScrollCommitted
+  topBarHeroScrollCommitted = false
+  return false
 }
 
 export function resetHeroScrollZoneHysteresis(): void {
