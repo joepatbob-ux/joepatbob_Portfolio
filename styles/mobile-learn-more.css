@@ -4,42 +4,54 @@
   min-width: 0;
 }
 
+/* Portal root (document.body) — scrim + panel are viewport-fixed */
 .mobile-learn-more-sheet {
   position: fixed;
   inset: 0;
-  z-index: var(--z-mobile-learn-more, 112);
-  display: flex;
-  align-items: stretch;
-  justify-content: center;
+  z-index: var(--z-mobile-learn-more, 130);
+  pointer-events: none;
+}
+
+.mobile-learn-more-sheet__scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  margin: 0;
   padding: 0;
-  background: rgba(18, 18, 18, 0.45);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  border: none;
+  background: rgba(0, 0, 0, 0.8);
+  cursor: pointer;
+  pointer-events: auto;
   touch-action: none;
-  --sheet-edge-blur: 8px;
-  --sheet-edge-blur-h: 36px;
 }
 
 .mobile-learn-more-sheet__panel {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
   display: flex;
   flex-direction: column;
-  width: 100%;
-  height: var(--mobile-viewport-min-h, 100svh);
-  min-height: var(--mobile-viewport-min-h, 100svh);
-  max-height: var(--mobile-viewport-min-h, 100svh);
+  box-sizing: border-box;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   border-radius: 0;
   background: var(--color-paper);
   color: var(--color-ink);
   box-shadow: none;
-  overflow: hidden;
+  pointer-events: auto;
+  touch-action: pan-y;
 }
 
 .mobile-learn-more-sheet__header {
-  position: relative;
+  position: sticky;
+  top: 0;
   flex-shrink: 0;
   z-index: 2;
   padding: max(clamp(16px, 2.5vh, 20px), env(safe-area-inset-top, 0px))
     clamp(16px, 4vw, 24px) clamp(6px, 1vh, 10px);
+  background: var(--color-paper);
 }
 
 .mobile-learn-more-sheet__title {
@@ -54,62 +66,9 @@
   white-space: pre-line;
 }
 
-/* Progressive blur — short sticky edges on scroll */
-.mobile-learn-more-sheet__edge-blur {
-  position: sticky;
-  left: 0;
-  right: 0;
-  flex-shrink: 0;
-  height: var(--sheet-edge-blur-h);
-  margin-bottom: calc(-1 * var(--sheet-edge-blur-h));
-  pointer-events: none;
-  z-index: 2;
-  backdrop-filter: blur(var(--sheet-edge-blur));
-  -webkit-backdrop-filter: blur(var(--sheet-edge-blur));
-}
-
-.mobile-learn-more-sheet__edge-blur--top {
-  top: 0;
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--color-paper) 92%, transparent) 0%,
-    color-mix(in srgb, var(--color-paper) 55%, transparent) 55%,
-    transparent 100%
-  );
-  mask-image: linear-gradient(180deg, #000 0%, transparent 100%);
-  -webkit-mask-image: linear-gradient(180deg, #000 0%, transparent 100%);
-}
-
-.mobile-learn-more-sheet__edge-blur--bottom {
-  top: auto;
-  bottom: 0;
-  margin-bottom: 0;
-  margin-top: calc(-1 * var(--sheet-edge-blur-h));
-  background: linear-gradient(
-    0deg,
-    color-mix(in srgb, var(--color-paper) 94%, transparent) 0%,
-    color-mix(in srgb, var(--color-paper) 72%, transparent) 28%,
-    color-mix(in srgb, var(--color-paper) 38%, transparent) 58%,
-    transparent 100%
-  );
-  mask-image: linear-gradient(0deg, #000 0%, #000 42%, transparent 100%);
-  -webkit-mask-image: linear-gradient(0deg, #000 0%, #000 42%, transparent 100%);
-}
-
-.mobile-learn-more-sheet__scroll {
-  position: relative;
-  flex: 1 1 auto;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  overflow-x: hidden;
-  overflow-y: auto;
-  overscroll-behavior-y: contain;
-  -webkit-overflow-scrolling: touch;
-}
-
 .mobile-learn-more-sheet__footer {
-  position: relative;
+  position: sticky;
+  bottom: 0;
   flex-shrink: 0;
   z-index: 2;
   padding: clamp(16px, 2.5vh, 24px) clamp(16px, 4vw, 24px)
@@ -149,5 +108,16 @@
     height: auto;
     min-height: 0;
     max-height: none;
+  }
+
+  /* Fixed overlays + hit targets break inside transformed chapter panels */
+  .hardware-slideshow .mobile-learn-more,
+  .hardware-slideshow .mobile-learn-more__teaser,
+  .hardware-slideshow .overlay-action-slot,
+  .hardware-slideshow .overlay-action-pill {
+    transform: none !important;
+    filter: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
   }
 }

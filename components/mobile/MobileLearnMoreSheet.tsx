@@ -32,13 +32,13 @@ export function MobileLearnMoreSheet({ open, onClose, title, children }: Props) 
   if (!open || typeof document === 'undefined') return null
 
   return createPortal(
-    <div
-      className="mobile-learn-more-sheet"
-      role="presentation"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose()
-      }}
-    >
+    <div className="mobile-learn-more-sheet" data-state="open">
+      <button
+        type="button"
+        className="mobile-learn-more-sheet__scrim"
+        aria-label="Close panel"
+        onClick={onClose}
+      />
       <div
         ref={panelRef}
         className="mobile-learn-more-sheet__panel"
@@ -55,17 +55,7 @@ export function MobileLearnMoreSheet({ open, onClose, title, children }: Props) 
             aria-hidden
           />
         </div>
-        <div className="mobile-learn-more-sheet__scroll">
-          <span
-            className="mobile-learn-more-sheet__edge-blur mobile-learn-more-sheet__edge-blur--top"
-            aria-hidden
-          />
-          <div className="mobile-learn-more-sheet__body">{children}</div>
-          <span
-            className="mobile-learn-more-sheet__edge-blur mobile-learn-more-sheet__edge-blur--bottom"
-            aria-hidden
-          />
-        </div>
+        <div className="mobile-learn-more-sheet__body">{children}</div>
         <div className="mobile-learn-more-sheet__footer overlay-action-footer">
           <OverlayActionPill variant="primary" onClick={onClose}>
             Close

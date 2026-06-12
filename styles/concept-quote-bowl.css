@@ -37,28 +37,6 @@
   justify-content: center;
 }
 
-@media (prefers-color-scheme: dark) {
-  .quote-bowl__stage::before {
-    content: '';
-    position: absolute;
-    inset: 8% 4% 2%;
-    border-radius: 50%;
-    background: radial-gradient(
-      ellipse 72% 58% at 50% 62%,
-      color-mix(in srgb, #eef4ff 9%, transparent) 0%,
-      color-mix(in srgb, #eef4ff 3%, transparent) 42%,
-      transparent 72%
-    );
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  .quote-bowl__canvas {
-    position: relative;
-    z-index: 1;
-  }
-}
-
 .quote-bowl__stage--pick-target {
   cursor: pointer;
   touch-action: manipulation;
