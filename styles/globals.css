@@ -191,13 +191,8 @@
       );
       --mobile-content-top-inset: var(--mobile-nav-overlay-height);
       --mobile-content-bottom-inset: 0px;
-      /* JS syncs from visualViewport; svh is the pre-hydrate fallback */
-      --mobile-viewport-min-h: 100svh;
-      /* Portrait + pin stay inside notch / home-indicator insets */
-      --mobile-hero-safe-h: calc(
-        var(--mobile-viewport-min-h, 100svh) - var(--safe-area-top) -
-          var(--safe-area-bottom)
-      );
+      /* JS syncs from visualViewport for chapters; hero uses 100dvh in CSS */
+      --mobile-viewport-min-h: 100dvh;
       --gutter: 24px;
       --content-pad-x: 16px;
       --content-pad-left: 16px;
