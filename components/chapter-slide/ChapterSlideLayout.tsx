@@ -9,6 +9,7 @@ import { ChapterCopyReveal } from '@/components/chapter-slide/ChapterCopyReveal'
 import { formatChapterInline } from '@/lib/chapter-slide/formatChapterInline'
 import { parseChapterBody } from '@/lib/chapter-slide/parseChapterBody'
 import { getChapterCopyColumnClasses } from '@/lib/chapter-slide/layoutMode'
+import { useChapterStageReady } from '@/lib/chapterStageMountContext'
 import { useChapterLayoutMode } from '@/lib/hooks/useChapterLayoutMode'
 import { useCopyScrollActive } from '@/lib/useCopyScrollActive'
 import type { Chapter } from '@/lib/types'
@@ -38,6 +39,7 @@ export function ChapterSlideLayout({
   interactiveCursor = false,
 }: Props) {
   const mode = useChapterLayoutMode()
+  const stageReady = useChapterStageReady()
   const copyScrollActive = useCopyScrollActive(chapterId)
   const bodyParagraphs = parseChapterBody(chapter.body)
 
@@ -60,11 +62,13 @@ export function ChapterSlideLayout({
         .join(' ')}
       aria-label={stageAriaLabel}
     >
-      {mode === 'compact' ? (
-        <ChapterCompactStageFill>{stageInner}</ChapterCompactStageFill>
-      ) : (
-        stageInner
-      )}
+      {stageReady ? (
+        mode === 'compact' ? (
+          <ChapterCompactStageFill>{stageInner}</ChapterCompactStageFill>
+        ) : (
+          stageInner
+        )
+      ) : null}
     </div>
   )
 
@@ -76,9 +80,7 @@ export function ChapterSlideLayout({
         body={chapter.body}
       />
     ) : (
-      <div
-        className={getChapterCopyColumnClasses({ mode })}
-      >
+      <div className={getChapterCopyColumnClasses({ mode })}>
         <ChapterCopyReveal headline={chapter.subtitle} headerVariant="chapter">
           <div className="chapter-slide__body">
             {bodyParagraphs.map((paragraph, index) => (

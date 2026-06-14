@@ -135,3 +135,10 @@
     -webkit-backdrop-filter: none !important;
   }
 }
+
+.mobile-learn-more-sheet[data-state='closed'] {
+  visibility: hidden;
+  pointer-events: none;
+  z-index: -1;
+  overflow: hidden;
+}

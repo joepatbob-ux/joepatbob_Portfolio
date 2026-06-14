@@ -1,30 +1,8 @@
 'use client'
 
-import dynamic from 'next/dynamic'
-
-const MobileChapter = dynamic(
-  () =>
-    import('@/components/mobile/MobileChapter').then((m) => ({
-      default: m.MobileChapter,
-    })),
-  { loading: () => null },
-)
-
-const WebAppsChapter = dynamic(
-  () =>
-    import('@/components/web-apps/WebAppsChapter').then((m) => ({
-      default: m.WebAppsChapter,
-    })),
-  { loading: () => null },
-)
-
-const EverythingInBetweenChapter = dynamic(
-  () =>
-    import('@/components/everything-in-between/EverythingInBetweenChapter').then(
-      (m) => ({ default: m.EverythingInBetweenChapter }),
-    ),
-  { loading: () => null },
-)
+import { MobileChapter } from '@/components/mobile/MobileChapter'
+import { WebAppsChapter } from '@/components/web-apps/WebAppsChapter'
+import { EverythingInBetweenChapter } from '@/components/everything-in-between/EverythingInBetweenChapter'
 
 export function LazySectionChapter({ sectionId }: { sectionId: string }) {
   switch (sectionId) {

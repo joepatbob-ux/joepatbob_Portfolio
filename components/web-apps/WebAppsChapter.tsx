@@ -1,16 +1,8 @@
 'use client'
 
-import dynamic from 'next/dynamic'
 import { CaseStudyFlowOverview } from '@/components/case-study/CaseStudyFlowOverview'
+import { WebAppsKelvinChapter } from '@/components/web-apps/WebAppsKelvinChapter'
 import { webApps } from '@/lib/sections/webapps'
-
-const WebAppsKelvinChapter = dynamic(
-  () =>
-    import('@/components/web-apps/WebAppsKelvinChapter').then((m) => ({
-      default: m.WebAppsKelvinChapter,
-    })),
-  { loading: () => null },
-)
 
 export function WebAppsChapter() {
   return (

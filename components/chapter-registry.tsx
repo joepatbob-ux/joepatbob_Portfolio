@@ -1,36 +1,15 @@
 'use client'
 
-import dynamic from 'next/dynamic'
 import { ChapterViewport } from '@/components/ChapterViewport'
 import { StudyChapter } from '@/components/StudyChapter'
+import { SensiLiteChapter } from '@/components/SensiLiteChapter'
+import { Touch2Chapter } from '@/components/Touch2Chapter'
+import { EimChapter } from '@/components/EimChapter'
+import { VerdantChapter } from '@/components/VerdantChapter'
 import type { ChapterInsertDef } from '@/lib/chapterInserts'
 import { fullInsertChapterId } from '@/lib/chapterInserts'
 import type { Chapter } from '@/lib/types'
 import type { ReactNode } from 'react'
-
-const SensiLiteChapter = dynamic(() =>
-  import('@/components/SensiLiteChapter').then((m) => ({
-    default: m.SensiLiteChapter,
-  })),
-)
-
-const Touch2Chapter = dynamic(() =>
-  import('@/components/Touch2Chapter').then((m) => ({
-    default: m.Touch2Chapter,
-  })),
-)
-
-const EimChapter = dynamic(() =>
-  import('@/components/EimChapter').then((m) => ({
-    default: m.EimChapter,
-  })),
-)
-
-const VerdantChapter = dynamic(() =>
-  import('@/components/VerdantChapter').then((m) => ({
-    default: m.VerdantChapter,
-  })),
-)
 
 export interface ChapterRenderContext {
   chapter: Chapter

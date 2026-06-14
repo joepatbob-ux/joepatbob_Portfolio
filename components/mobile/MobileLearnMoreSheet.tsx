@@ -32,21 +32,27 @@ export function MobileLearnMoreSheet({ open, onClose, title, children }: Props) 
     return () => window.removeEventListener('keydown', onKey)
   }, [open, onClose])
 
-  if (!open || typeof document === 'undefined') return null
+  if (typeof document === 'undefined') return null
 
   return createPortal(
-    <div ref={rootRef} className="mobile-learn-more-sheet" data-state="open">
+    <div
+      ref={rootRef}
+      className="mobile-learn-more-sheet"
+      data-state={open ? 'open' : 'closed'}
+    >
       <button
         type="button"
         className="mobile-learn-more-sheet__scrim"
         aria-label="Close panel"
         onClick={onClose}
+        tabIndex={open ? 0 : -1}
       />
       <div
         ref={panelRef}
         className="mobile-learn-more-sheet__panel"
         role="dialog"
-        aria-modal="true"
+        aria-modal={open ? true : undefined}
+        aria-hidden={open ? undefined : true}
         aria-labelledby={titleId}
       >
         <div className="mobile-learn-more-sheet__header">
