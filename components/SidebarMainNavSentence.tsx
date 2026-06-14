@@ -138,7 +138,7 @@ export function SidebarMainNavSentence(props: Props) {
           width: 'min(100%, 380px)',
         }}
       >
-        <span aria-hidden="true">I simplify complex systems across </span>
+        <span>I simplify complex systems across </span>
         {NAV_SECTIONS.map((sec, i) => {
           const isLast = i === NAV_SECTIONS.length - 1
           const keywordButton = (
@@ -198,7 +198,7 @@ export function SidebarMainNavSentence(props: Props) {
       aria-label={ariaLabel}
       style={{ color: inkColor }}
     >
-      <span aria-hidden="true">I simplify complex systems across </span>
+      <span>I simplify complex systems across </span>
       {NAV_SECTIONS.map((sec, i) => {
         const isActive = activeSection === sec.id
         const isLast = i === NAV_SECTIONS.length - 1

@@ -1,9 +1,8 @@
 'use client'
 
 import type { Section } from '@/lib/types'
-import { Fragment, useRef } from 'react'
+import { Fragment } from 'react'
 import { insertsAfterChapter } from '@/lib/chapterInserts'
-import { isDeferredSection, useSectionMount } from '@/lib/sectionMount'
 import { DeferredChapter } from './case-study/DeferredChapter'
 import { LazySectionChapter } from './case-study/LazySectionChapter'
 import { CaseStudyFlowOverview } from '@/components/case-study/CaseStudyFlowOverview'
@@ -32,10 +31,6 @@ const articleFullBleed: React.CSSProperties = {
 }
 
 export function CaseStudy({ section, sectionId }: Props) {
-  const articleRef = useRef<HTMLElement>(null)
-  const immediate = !isDeferredSection(sectionId)
-  const mounted = useSectionMount(sectionId, articleRef, immediate)
-
   const isMobileSection = sectionId === 'mobile'
   const isWebAppsSection = sectionId === 'web-apps'
   const isEibSection = sectionId === 'everything-else'
@@ -44,78 +39,70 @@ export function CaseStudy({ section, sectionId }: Props) {
 
   return (
     <article
-      ref={articleRef}
       data-section-id={sectionId}
       style={{
         ...articleFullBleed,
         backgroundColor: 'var(--color-paper)',
         minWidth: 0,
-        ...(mounted ? {} : { minHeight: '100vh' }),
       }}
     >
-      {!mounted ? (
-        <div className="section-mount-placeholder" aria-hidden="true" />
-      ) : (
-        <>
-          {useCustomChapter || !section ? null : (
-            <CaseStudyFlowOverview
-              chapterId={`${sectionId}-overview`}
-              headline={section.headline}
-              body={section.overviewBody}
-              meta={section.overviewMeta}
-            />
-          )}
-
-          {isMobileSection ? (
-            <LazySectionChapter sectionId="mobile" />
-          ) : isWebAppsSection ? (
-            <LazySectionChapter sectionId="web-apps" />
-          ) : isEibSection ? (
-            <LazySectionChapter sectionId="everything-else" />
-          ) : section ? (
-            section.chapters.map((chapter, i) => (
-              <Fragment key={chapter.id}>
-                <DeferredChapter
-                  chapter={chapter}
-                  sectionId={sectionId}
-                  isLast={i === section.chapters.length - 1}
-                />
-                {insertsAfterChapter(sectionId, chapter.id).map((insert) => (
-                  <ChapterInsertSlide
-                    key={insert.insertId}
-                    sectionId={sectionId}
-                    insert={insert}
-                  />
-                ))}
-              </Fragment>
-            ))
-          ) : null}
-
-          {section?.lessonTitle?.trim() &&
-          (isMobileSection || !useCustomChapter) ? (
-            <SectionLessons
-              sectionId={sectionId}
-              lessonTitle={section.lessonTitle}
-              lessonBody={section.lessonBody}
-              isLast={!section.closingQuote}
-            />
-          ) : null}
-
-          {section?.closingQuote ? (
-            <ChapterViewport
-              chapterId={`${sectionId}-closing`}
-              isLast
-              fillViewport
-              className="portfolio-chapter-slot--closing"
-            >
-              <ClosingQuote
-                quote={section.closingQuote.quote}
-                attribution={section.closingQuote.attribution}
-              />
-            </ChapterViewport>
-          ) : null}
-        </>
+      {useCustomChapter || !section ? null : (
+        <CaseStudyFlowOverview
+          chapterId={`${sectionId}-overview`}
+          headline={section.headline}
+          body={section.overviewBody}
+          meta={section.overviewMeta}
+        />
       )}
+
+      {isMobileSection ? (
+        <LazySectionChapter sectionId="mobile" />
+      ) : isWebAppsSection ? (
+        <LazySectionChapter sectionId="web-apps" />
+      ) : isEibSection ? (
+        <LazySectionChapter sectionId="everything-else" />
+      ) : section ? (
+        section.chapters.map((chapter, i) => (
+          <Fragment key={chapter.id}>
+            <DeferredChapter
+              chapter={chapter}
+              sectionId={sectionId}
+              isLast={i === section.chapters.length - 1}
+            />
+            {insertsAfterChapter(sectionId, chapter.id).map((insert) => (
+              <ChapterInsertSlide
+                key={insert.insertId}
+                sectionId={sectionId}
+                insert={insert}
+              />
+            ))}
+          </Fragment>
+        ))
+      ) : null}
+
+      {section?.lessonTitle?.trim() &&
+      (isMobileSection || !useCustomChapter) ? (
+        <SectionLessons
+          sectionId={sectionId}
+          lessonTitle={section.lessonTitle}
+          lessonBody={section.lessonBody}
+          isLast={!section.closingQuote}
+        />
+      ) : null}
+
+      {section?.closingQuote ? (
+        <ChapterViewport
+          chapterId={`${sectionId}-closing`}
+          isLast
+          fillViewport
+          className="portfolio-chapter-slot--closing"
+        >
+          <ClosingQuote
+            quote={section.closingQuote.quote}
+            attribution={section.closingQuote.attribution}
+          />
+        </ChapterViewport>
+      ) : null}
     </article>
   )
 }

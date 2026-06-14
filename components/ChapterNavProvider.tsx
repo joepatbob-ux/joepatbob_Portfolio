@@ -18,10 +18,6 @@ import {
 } from '@/lib/chapterSnapScroll'
 import { requestChapterMount } from '@/lib/chapterMount'
 import { waitForChapterSlotReady } from '@/lib/chapterNav/waitForChapterSlot'
-import {
-  requestSectionMount,
-  sectionIdFromChapterId,
-} from '@/lib/sectionMount'
 import { sectionEntryChapterId } from '@/lib/sectionEntryChapter'
 import { flushScrollFrame, scheduleScrollFrame } from '@/lib/scrollFrame'
 import { bindTopBarScrollSpy } from '@/lib/topBarScrollSpy'
@@ -180,8 +176,6 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
     async (selector: string, chapterId: string) => {
       if (busyRef.current) return
 
-      const sectionId = sectionIdFromChapterId(chapterId)
-      if (sectionId) requestSectionMount(sectionId)
       requestChapterMount(chapterId)
 
       let target = await waitForChapterSlotReady(chapterId)

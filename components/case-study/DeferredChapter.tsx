@@ -2,7 +2,8 @@
 
 import { useRef } from 'react'
 import { Chapter } from '@/components/Chapter'
-import { isDeferredChapter, useChapterMount } from '@/lib/chapterMount'
+import { isDeferredChapter } from '@/lib/chapterMount'
+import { ChapterStageMountProvider } from '@/lib/chapterStageMountContext'
 import type { Chapter as ChapterType } from '@/lib/types'
 
 interface Props {
@@ -14,19 +15,18 @@ interface Props {
 export function DeferredChapter({ chapter, sectionId, isLast }: Props) {
   const chapterId = `${sectionId}-${chapter.id}`
   const rootRef = useRef<HTMLDivElement>(null)
-  const immediate = !isDeferredChapter(chapterId)
-  const mounted = useChapterMount(chapterId, rootRef, immediate)
+  const deferred = isDeferredChapter(chapterId)
 
   return (
     <div
       ref={rootRef}
       className="chapter-mount-slot"
       data-chapter-mount={chapterId}
-      style={mounted ? undefined : { minHeight: '100vh' }}
+      style={deferred ? { minHeight: '100vh' } : undefined}
     >
-      {mounted ? (
+      <ChapterStageMountProvider chapterId={chapterId} rootRef={rootRef}>
         <Chapter chapter={chapter} sectionId={sectionId} isLast={isLast} />
-      ) : null}
+      </ChapterStageMountProvider>
     </div>
   )
 }
