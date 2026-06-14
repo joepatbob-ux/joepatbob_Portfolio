@@ -124,8 +124,9 @@ export function useFormationLegoBoard(options?: {
 }) {
   const syncBoardRectOnScroll = options?.syncBoardRectOnScroll ?? true
   const visible = options?.visible ?? true
-  const stageRef = useRef<HTMLDivElement>(null)
+  const stageObserverRef = useRef<ResizeObserver | null>(null)
   const [boardW, setBoardW] = useState(FORMATION_BOARD_DISPLAY_W)
+  const [hasMeasured, setHasMeasured] = useState(false)
   const [pieces, setPieces] = useState<FormationPiece[]>(() => {
     const initial: FormationPiece[] = [
       { id: 'cyan', color: 'cyan', gx: 2, gy: 2, pivot: 'left', level: 0 },
@@ -161,24 +162,34 @@ export function useFormationLegoBoard(options?: {
   const layerLift = useMemo(() => brickLayerLift(boardW), [boardW])
   const plate = useMemo(() => plateDisplayLayout(boardW), [boardW])
 
-  useEffect(() => {
-    const stageEl = stageRef.current
-    if (!stageEl || typeof ResizeObserver === 'undefined') return
+  const stageRef = useCallback((node: HTMLDivElement | null) => {
+    stageObserverRef.current?.disconnect()
+    stageObserverRef.current = null
+
+    if (!node || typeof ResizeObserver === 'undefined') return
 
     const updateBoardWidth = () => {
       const nextWidth = Math.max(
         FORMATION_BOARD_MIN_W,
-        Math.floor(stageEl.clientWidth),
+        Math.floor(node.clientWidth),
       )
       setBoardW((prev) => (prev === nextWidth ? prev : nextWidth))
+      setHasMeasured(true)
     }
 
     updateBoardWidth()
     const observer = new ResizeObserver(updateBoardWidth)
-    observer.observe(stageEl)
-
-    return () => observer.disconnect()
+    observer.observe(node)
+    stageObserverRef.current = observer
   }, [])
+
+  useEffect(
+    () => () => {
+      stageObserverRef.current?.disconnect()
+      stageObserverRef.current = null
+    },
+    [],
+  )
 
   const activePiece = useMemo(
     () =>
@@ -718,6 +729,7 @@ export function useFormationLegoBoard(options?: {
     boardRef,
     boardRect,
     boardW,
+    hasMeasured,
     plate,
     isPiecePickedUp,
     isDragging,
