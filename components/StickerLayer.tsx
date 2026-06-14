@@ -1,10 +1,11 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { PlacedStickerControl } from '@/components/PlacedStickerControl'
 import { Sticker } from '@/components/Sticker'
 import { useStickers } from '@/components/StickerProvider'
+import { useHydrated } from '@/lib/hooks/useHydrated'
 import { useStickerActiveChapterSync } from '@/lib/hooks/useStickerActiveChapterSync'
 import { isPrerenderSnapshot } from '@/lib/isPrerenderSnapshot'
 import { flushScrollFrame } from '@/lib/scrollFrame'
@@ -12,16 +13,12 @@ import { flushScrollFrame } from '@/lib/scrollFrame'
 export function StickerLayer() {
   const { placed, activeDrag, selectSticker, zIndices } = useStickers()
   useStickerActiveChapterSync()
-  const [mounted, setMounted] = useState(false)
+  const hydrated = useHydrated()
 
   useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  useEffect(() => {
-    if (!mounted) return
+    if (!hydrated) return
     flushScrollFrame()
-  }, [mounted, placed.length])
+  }, [hydrated, placed.length])
 
   useEffect(() => {
     const onPointerDown = (e: PointerEvent) => {
@@ -40,7 +37,7 @@ export function StickerLayer() {
     return () => window.removeEventListener('pointerdown', onPointerDown, true)
   }, [selectSticker, activeDrag])
 
-  if (!mounted || isPrerenderSnapshot()) return null
+  if (!hydrated || isPrerenderSnapshot()) return null
   if (placed.length === 0 && !activeDrag) return null
 
   return (

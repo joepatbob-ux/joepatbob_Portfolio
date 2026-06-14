@@ -49,6 +49,7 @@ import { useChapterActive } from '@/lib/chapterActiveContext'
 import { usePhoneScreenshotControls } from '@/lib/phone-swap/usePhoneScreenshotControls'
 import { usePhoneSwapTouchScroll } from '@/lib/phone-swap/usePhoneSwapTouchScroll'
 import { useLayoutTopBarNav } from '@/lib/hooks/useLayoutTopBarNav'
+import { useHydrated } from '@/lib/hooks/useHydrated'
 import { isPrerenderSnapshot } from '@/lib/isPrerenderSnapshot'
 import type { PhoneSwapSceneApi } from '@/components/phone-swap/PhoneSwapScene'
 import {
@@ -65,6 +66,7 @@ import type * as THREE from 'three'
 
 /** 3D Pixel / iPhone swap — tap back phone to swap; right-click for design debug tools. */
 export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
+  const hydrated = useHydrated()
   const [devToolsEnabled, setDevToolsEnabled] = useState(() => readPhoneLayoutMode())
   const [devMenu, setDevMenu] = useState<{ x: number; y: number } | null>(null)
   const [layoutMode, setLayoutMode] = useState(false)
@@ -320,7 +322,7 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
     }
   }, [shouldRenderScene])
 
-  if (isPrerenderSnapshot()) {
+  if (isPrerenderSnapshot() || !hydrated) {
     return null
   }
 

@@ -1,5 +1,10 @@
 /* Kelvin scratch-off — fills stage width; ticket height from aspect + viewport caps */
 
+/* Reserve stage height while Kelvin defers to post-hydration mount (null → full tree). */
+.web-apps-chapter-slot .chapter-slide__stage {
+  min-height: min(480px, 52dvh);
+}
+
 .kelvin-scratch.web-apps-scratch {
   padding-block: clamp(8px, 1.5vh, 20px) 0;
 }

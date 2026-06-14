@@ -10,6 +10,7 @@ import { useQuoteBowlDebugOutlines } from '@/lib/everything-in-between/quoteBowl
 import { useQuoteBowlFlow } from '@/lib/everything-in-between/quoteBowl/useQuoteBowlFlow'
 import { useQuoteBowlGlassTune } from '@/lib/everything-in-between/quoteBowl/useQuoteBowlGlassTune'
 import { useCanvasDpr } from '@/lib/hooks/useCanvasDpr'
+import { useHydrated } from '@/lib/hooks/useHydrated'
 import { useChapterStageMount } from '@/lib/hooks/useChapterStageMount'
 import { usePrefersReducedMotion } from '@/lib/hooks/usePrefersReducedMotion'
 import { useStagePreload } from '@/lib/hooks/useStagePreload'
@@ -38,6 +39,7 @@ function bowlActionLabel(step: ReturnType<typeof useQuoteBowlFlow>['step']) {
 }
 
 export function ConceptQuoteBowl({ answers, chapterId }: Props) {
+  const hydrated = useHydrated()
   const { mount: stageMount, active: chapterActive } =
     useChapterStageMount(chapterId)
   const [sceneReady, setSceneReady] = useState(false)
@@ -74,7 +76,8 @@ export function ConceptQuoteBowl({ answers, chapterId }: Props) {
     setSceneReady(true)
   }, [])
   const { camera } = QUOTE_BOWL
-  const showLoading = stageMount && !isPrerenderSnapshot() && !sceneReady
+  const showCanvas = stageMount && hydrated && !isPrerenderSnapshot()
+  const showLoading = showCanvas && !sceneReady
 
   return (
     <div className={['quote-bowl', debugOutlines ? 'quote-bowl--debug' : ''].filter(Boolean).join(' ')}>
@@ -117,7 +120,7 @@ export function ConceptQuoteBowl({ answers, chapterId }: Props) {
           <StageLoadingOverlay label="Loading bowl…" />
         ) : null}
 
-        {stageMount && !isPrerenderSnapshot() ? (
+        {showCanvas ? (
           <Canvas
             className="quote-bowl__canvas"
             data-debug="canvas"
