@@ -23,7 +23,8 @@ async function launchBrowser() {
 
   if (isServerlessBuild) {
     console.log('[prerender] Launching @sparticuz/chromium (Vercel/CI)…')
-    chromium.setGraphicsMode = false
+    // Keep Sparticuz default graphics (SwiftShader). setGraphicsMode = false adds
+    // --disable-webgl, which prevents R3F stages from mounting and stalls anchors.
     return puppeteer.launch({
       args: await puppeteer.defaultArgs({
         args: chromium.args,
