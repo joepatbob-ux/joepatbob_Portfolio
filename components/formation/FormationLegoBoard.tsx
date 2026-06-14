@@ -7,7 +7,7 @@ import { useChapterStageMount } from '@/lib/hooks/useChapterStageMount'
 import { isPrerenderSnapshot } from '@/lib/isPrerenderSnapshot'
 import { useTheme } from '@/components/ThemeProvider'
 import { BOARD_VIEWBOX } from '@/lib/formation/legoGrid'
-import { useFormationLegoBoard, FORMATION_BOARD_DISPLAY_W } from '@/lib/formation/useFormationLegoBoard'
+import { useFormationLegoBoard } from '@/lib/formation/useFormationLegoBoard'
 import { FormationLegoBrickPiece } from '@/components/formation/FormationLegoBrickPiece'
 import { BRICK_Z_INDEX_SELECT_BOOST, legoBoardSrc } from '@/lib/formation/legoBricks'
 import '@/styles/formation-lego-board.css'
@@ -64,8 +64,7 @@ export function FormationLegoBoard({ chapterId }: Props) {
     syncBoardRectOnScroll: false,
     visible: showBoard && !panel.ariaHidden,
   })
-  const { plate } = board
-  const boardMeasured = board.boardW < FORMATION_BOARD_DISPLAY_W
+  const { plate, hasMeasured } = board
 
   useEffect(() => {
     if (!showBricks || board.activeId == null) return
@@ -120,7 +119,7 @@ export function FormationLegoBoard({ chapterId }: Props) {
               transform: `translate(${plate.panX}px, ${plate.panY}px)`,
             }}
           >
-            {boardMeasured ? (
+            {hasMeasured ? (
               <>
                 <img
                   src={legoBoardSrc(resolvedTheme)}

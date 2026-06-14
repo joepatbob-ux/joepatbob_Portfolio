@@ -1207,10 +1207,6 @@
   z-index: 4;
 }
 
-.sticker-placed--selected .sticker-placed__scrubber-mount {
-  pointer-events: auto;
-}
-
 .sticker-placed--selected {
   z-index: var(--z-sticker-selected) !important;
 }
@@ -1247,7 +1243,7 @@
 .sticker-placed__scrubber-hit {
   fill: transparent;
   stroke: none;
-  pointer-events: all;
+  pointer-events: auto;
   cursor: grab;
 }
 
