@@ -6,7 +6,7 @@ import { useChapterStageMount } from '@/lib/hooks/useChapterStageMount'
 import { isPrerenderSnapshot } from '@/lib/isPrerenderSnapshot'
 import { useTheme } from '@/components/ThemeProvider'
 import { BOARD_VIEWBOX } from '@/lib/formation/legoGrid'
-import { useFormationLegoBoard } from '@/lib/formation/useFormationLegoBoard'
+import { useFormationLegoBoard, FORMATION_BOARD_DISPLAY_W } from '@/lib/formation/useFormationLegoBoard'
 import { FormationLegoBrickPiece } from '@/components/formation/FormationLegoBrickPiece'
 import { BRICK_Z_INDEX_SELECT_BOOST, legoBoardSrc } from '@/lib/formation/legoBricks'
 import '@/styles/formation-lego-board.css'
@@ -63,6 +63,7 @@ export function FormationLegoBoard({ chapterId }: Props) {
     visible: showBoard && !panel.ariaHidden,
   })
   const { plate } = board
+  const boardMeasured = board.boardW < FORMATION_BOARD_DISPLAY_W
 
   useEffect(() => {
     if (!showBricks || board.activeId == null) return
@@ -107,7 +108,6 @@ export function FormationLegoBoard({ chapterId }: Props) {
         <div
           ref={board.boardRef}
           className="formation-lego__board formation-lego__board--clip"
-          style={{ width: plate.width, height: plate.height }}
           onPointerDown={board.onBoardPointerDown}
         >
           <div
@@ -118,18 +118,22 @@ export function FormationLegoBoard({ chapterId }: Props) {
               transform: `translate(${plate.panX}px, ${plate.panY}px)`,
             }}
           >
-            <img
-              src={legoBoardSrc(resolvedTheme)}
-              alt=""
-              width={BOARD_VIEWBOX.width}
-              height={BOARD_VIEWBOX.height}
-              className="formation-lego__baseplate"
-              draggable={false}
-            />
-            {showBricks ? (
-              <div className="formation-lego__bricks-layer" aria-hidden={false}>
-                <FormationBrickStack board={board} resolvedTheme={resolvedTheme} />
-              </div>
+            {boardMeasured ? (
+              <>
+                <img
+                  src={legoBoardSrc(resolvedTheme)}
+                  alt=""
+                  width={BOARD_VIEWBOX.width}
+                  height={BOARD_VIEWBOX.height}
+                  className="formation-lego__baseplate"
+                  draggable={false}
+                />
+                {showBricks ? (
+                  <div className="formation-lego__bricks-layer" aria-hidden={false}>
+                    <FormationBrickStack board={board} resolvedTheme={resolvedTheme} />
+                  </div>
+                ) : null}
+              </>
             ) : null}
           </div>
         </div>
