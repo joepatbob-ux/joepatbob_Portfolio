@@ -4,6 +4,7 @@
   max-width: 100%;
   box-sizing: border-box;
   overflow: visible;
+  container-type: inline-size;
 }
 
 .formation-lego--single .formation-lego__block {
@@ -17,11 +18,18 @@
 .formation-lego__stage {
   display: flex;
   justify-content: center;
+  width: 100%;
+  max-width: min(420px, 100%);
+  margin-inline: auto;
   overflow: visible;
 }
 
 .formation-lego__board {
   position: relative;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  aspect-ratio: 1376.98 / 805;
   margin: 0 auto;
   touch-action: none;
   user-select: none;

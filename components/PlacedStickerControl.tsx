@@ -183,9 +183,6 @@ export function PlacedStickerControl({ sticker }: Props) {
     e.currentTarget.setPointerCapture(e.pointerId)
 
     const wasSelected = selected
-    if (!wasSelected) {
-      selectSticker(sticker.instanceId)
-    }
 
     const startX = e.clientX
     const startY = e.clientY
@@ -196,6 +193,9 @@ export function PlacedStickerControl({ sticker }: Props) {
       const dx = ev.clientX - startX
       const dy = ev.clientY - startY
       if (Math.hypot(dx, dy) >= MOVE_THRESHOLD) {
+        if (!wasSelected) {
+          selectSticker(sticker.instanceId)
+        }
         beginDragPlaced(sticker.instanceId, ev.clientX, ev.clientY)
         window.removeEventListener('pointermove', onMove)
         window.removeEventListener('pointerup', onUp)
@@ -206,8 +206,8 @@ export function PlacedStickerControl({ sticker }: Props) {
     const onUp = (ev: PointerEvent) => {
       if (ev.pointerId !== pointerId) return
       const moved = Math.hypot(ev.clientX - startX, ev.clientY - startY)
-      if (wasSelected && moved < MOVE_THRESHOLD && !rotatingRef.current) {
-        selectSticker(null)
+      if (moved < MOVE_THRESHOLD && !rotatingRef.current) {
+        selectSticker(wasSelected ? null : sticker.instanceId)
       }
       window.removeEventListener('pointermove', onMove)
       window.removeEventListener('pointerup', onUp)
