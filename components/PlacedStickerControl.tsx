@@ -12,6 +12,8 @@ import {
   type StickerArtMetrics,
 } from '@/lib/stickerPickBounds'
 import { activeSlideIdPublished } from '@/lib/chapterSlideshow'
+import { CHAPTER_STICKER_SCROLL_VISIBILITY } from '@/lib/chapterVisibility'
+import { useChapterReveal } from '@/lib/hooks/useChapterReveal'
 import { useLayoutTopBarNav } from '@/lib/hooks/useLayoutTopBarNav'
 import {
   pointerAngleDeg,
@@ -64,6 +66,14 @@ export function PlacedStickerControl({ sticker }: Props) {
   const effectiveActiveSlideId = topBarNav
     ? (activeSlideId ?? activeSlideIdPublished())
     : activeSlideId
+
+  const reveal = useChapterReveal(sticker.chapterId ?? '')
+  const chapterInView = Boolean(
+    sticker.chapterId &&
+      (topBarNav
+        ? effectiveActiveSlideId === sticker.chapterId
+        : reveal > CHAPTER_STICKER_SCROLL_VISIBILITY),
+  )
 
   const selected = selectedInstanceId === sticker.instanceId
   const isDragging = draggingInstanceId === sticker.instanceId
@@ -209,9 +219,7 @@ export function PlacedStickerControl({ sticker }: Props) {
     window.addEventListener('pointercancel', onUp)
   }
 
-  const stickerVisible =
-    selected ||
-    (sticker.chapterId ? effectiveActiveSlideId === sticker.chapterId : true)
+  const stickerVisible = selected || chapterInView
 
   const ring = artLayout
   const scrubberX = ring ? ring.cx : 0
@@ -250,10 +258,8 @@ export function PlacedStickerControl({ sticker }: Props) {
         zIndex: sticker.zIndex,
         left: sticker.x,
         top: sticker.y,
-        opacity:
-          isDragging ? 0 : selected || !sticker.chapterId ? 1 : undefined,
-        visibility:
-          isDragging ? 'hidden' : selected || !sticker.chapterId ? 'visible' : undefined,
+        opacity: isDragging ? 0 : stickerVisible ? 1 : 0,
+        visibility: isDragging ? 'hidden' : stickerVisible ? 'visible' : 'hidden',
       }}
     >
       <div

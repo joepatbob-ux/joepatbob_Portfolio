@@ -6,6 +6,7 @@ import { KelvinScratchTicketStack } from '@/components/web-apps/kelvin-scratch/K
 import { kelvinScratchRootStyle } from '@/lib/kelvin-scratch/ticket'
 import { useKelvinCoin } from '@/lib/kelvin-scratch/useKelvinCoin'
 import { useKelvinScratchAssets } from '@/lib/kelvin-scratch/useKelvinScratchAssets'
+import { isPrerenderSnapshot } from '@/lib/isPrerenderSnapshot'
 import { memo, useRef } from 'react'
 import '@/styles/web-apps-scratch-reveal.css'
 import '@/styles/kelvin-scratch.css'
@@ -23,6 +24,10 @@ function KelvinScratchInner() {
   ]
     .filter(Boolean)
     .join(' ')
+
+  if (isPrerenderSnapshot()) {
+    return null
+  }
 
   return (
     <div

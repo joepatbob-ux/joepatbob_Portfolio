@@ -6,6 +6,7 @@ import { PlacedStickerControl } from '@/components/PlacedStickerControl'
 import { Sticker } from '@/components/Sticker'
 import { useStickers } from '@/components/StickerProvider'
 import { useStickerActiveChapterSync } from '@/lib/hooks/useStickerActiveChapterSync'
+import { isPrerenderSnapshot } from '@/lib/isPrerenderSnapshot'
 import { flushScrollFrame } from '@/lib/scrollFrame'
 
 export function StickerLayer() {
@@ -39,7 +40,8 @@ export function StickerLayer() {
     return () => window.removeEventListener('pointerdown', onPointerDown, true)
   }, [selectSticker, activeDrag])
 
-  if (!mounted) return null
+  if (!mounted || isPrerenderSnapshot()) return null
+  if (placed.length === 0 && !activeDrag) return null
 
   return (
     <>
