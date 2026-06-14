@@ -109,21 +109,9 @@
   filter: none;
 }
 
-/* Desktop slideshow — base + bricks escape crossfading chapter panel opacity */
-.formation-lego__board-portal {
-  position: fixed;
-  margin: 0;
-  padding: 0;
-  pointer-events: none;
-  touch-action: none;
-  overflow: visible;
-}
-
-.formation-lego__board-portal .formation-lego__board {
-  pointer-events: auto;
-}
-
-.formation-lego__board--anchor {
+.formation-lego__board--placeholder {
+  width: 100%;
+  min-height: 12rem;
   visibility: hidden;
   pointer-events: none;
 }
@@ -140,9 +128,5 @@
 
   .formation-lego__block.formation-lego__piece--drag {
     touch-action: none;
-  }
-
-  .formation-lego__board-portal {
-    touch-action: auto;
   }
 }

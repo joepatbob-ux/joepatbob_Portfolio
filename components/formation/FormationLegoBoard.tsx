@@ -1,9 +1,8 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
-import { createPortal } from 'react-dom'
+import { useEffect } from 'react'
 import { useChapterPanelOpacity } from '@/lib/useChapterPanelOpacity'
-import { useLayoutTopBarNav } from '@/lib/hooks/useLayoutTopBarNav'
+import { useChapterStageMount } from '@/lib/hooks/useChapterStageMount'
 import { useTheme } from '@/components/ThemeProvider'
 import { BOARD_VIEWBOX } from '@/lib/formation/legoGrid'
 import { useFormationLegoBoard } from '@/lib/formation/useFormationLegoBoard'
@@ -47,35 +46,22 @@ function FormationBrickStack({
   )
 }
 
-export function FormationLegoBoard() {
+interface Props {
+  chapterId: string
+}
+
+export function FormationLegoBoard({ chapterId }: Props) {
   const { resolvedTheme } = useTheme()
-  const topBarNav = useLayoutTopBarNav()
-  const panel = useChapterPanelOpacity('everything-else-formation')
-  const [mounted, setMounted] = useState(false)
-  const boardLatchedRef = useRef(false)
-  const bricksLatchedRef = useRef(false)
-  if (mounted && !panel.ariaHidden) {
-    boardLatchedRef.current = true
-  }
-  if (mounted && !panel.ariaHidden && (panel.opacity ?? 0) > 0.12) {
-    bricksLatchedRef.current = true
-  }
-  const showBoard = mounted && (boardLatchedRef.current || !panel.ariaHidden)
-  const showBricks =
-    showBoard &&
-    (bricksLatchedRef.current || (panel.opacity ?? 0) > 0.12)
-  /** Desktop slideshow: portal base + bricks above crossfading chapter panels. */
-  const useBoardPortal = showBoard && !topBarNav
+  const { mount: stageMount } = useChapterStageMount(chapterId)
+  const panel = useChapterPanelOpacity(chapterId)
+  const showBoard = stageMount
+  const showBricks = stageMount && (panel.opacity ?? 0) > 0.12
 
   const board = useFormationLegoBoard({
-    syncBoardRectOnScroll: !topBarNav,
-    visible: showBoard,
+    syncBoardRectOnScroll: false,
+    visible: showBoard && !panel.ariaHidden,
   })
-  const { plate, boardRect } = board
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+  const { plate } = board
 
   useEffect(() => {
     if (!showBricks || board.activeId == null) return
@@ -95,83 +81,58 @@ export function FormationLegoBoard() {
     return () => window.removeEventListener('keydown', onKey)
   }, [board.activeId, board.toggleActivePivot, showBricks])
 
-  const boardPan = (
-    <div
-      className="formation-lego__board-pan"
-      style={{
-        width: plate.fullWidth,
-        height: plate.fullHeight,
-        transform: `translate(${plate.panX}px, ${plate.panY}px)`,
-      }}
-    >
-      <img
-        src={legoBoardSrc(resolvedTheme)}
-        alt=""
-        width={BOARD_VIEWBOX.width}
-        height={BOARD_VIEWBOX.height}
-        className="formation-lego__baseplate"
-        draggable={false}
-      />
-      {showBricks ? (
-        <div className="formation-lego__bricks-layer" aria-hidden={false}>
-          <FormationBrickStack board={board} resolvedTheme={resolvedTheme} />
-        </div>
-      ) : null}
-    </div>
-  )
+  const rootClass = [
+    'formation-lego',
+    'formation-lego--single',
+    `formation-lego--theme-${resolvedTheme}`,
+  ].join(' ')
 
-  const interactiveBoard = (
-    <div
-      className="formation-lego__board formation-lego__board--clip"
-      style={{ width: plate.width, height: plate.height }}
-      onPointerDown={board.onBoardPointerDown}
-    >
-      {boardPan}
-    </div>
-  )
+  if (!stageMount) {
+    return (
+      <div className={rootClass}>
+        <div className="formation-lego__stage">
+          <div
+            className="formation-lego__board formation-lego__board--clip formation-lego__board--placeholder"
+            aria-hidden="true"
+          />
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <div
-      className={[
-        'formation-lego',
-        'formation-lego--single',
-        `formation-lego--theme-${resolvedTheme}`,
-      ].join(' ')}
-    >
+    <div className={rootClass}>
       <div ref={board.stageRef} className="formation-lego__stage">
         <div
           ref={board.boardRef}
-          className={[
-            'formation-lego__board',
-            'formation-lego__board--clip',
-            useBoardPortal ? 'formation-lego__board--anchor' : '',
-          ]
-            .filter(Boolean)
-            .join(' ')}
+          className="formation-lego__board formation-lego__board--clip"
           style={{ width: plate.width, height: plate.height }}
-          onPointerDown={useBoardPortal ? undefined : board.onBoardPointerDown}
-          aria-hidden={useBoardPortal}
+          onPointerDown={board.onBoardPointerDown}
         >
-          {useBoardPortal ? null : boardPan}
-        </div>
-      </div>
-
-      {useBoardPortal &&
-        createPortal(
           <div
-            className="formation-lego__board-portal"
+            className="formation-lego__board-pan"
             style={{
-              left: boardRect.left,
-              top: boardRect.top,
-              width: plate.width,
-              height: plate.height,
-              zIndex: 'var(--formation-z-bricks)',
+              width: plate.fullWidth,
+              height: plate.fullHeight,
+              transform: `translate(${plate.panX}px, ${plate.panY}px)`,
             }}
           >
-            {interactiveBoard}
-          </div>,
-          document.body,
-        )}
+            <img
+              src={legoBoardSrc(resolvedTheme)}
+              alt=""
+              width={BOARD_VIEWBOX.width}
+              height={BOARD_VIEWBOX.height}
+              className="formation-lego__baseplate"
+              draggable={false}
+            />
+            {showBricks ? (
+              <div className="formation-lego__bricks-layer" aria-hidden={false}>
+                <FormationBrickStack board={board} resolvedTheme={resolvedTheme} />
+              </div>
+            ) : null}
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
