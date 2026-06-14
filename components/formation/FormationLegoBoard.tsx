@@ -3,6 +3,7 @@
 import { useEffect } from 'react'
 import { useChapterPanelOpacity } from '@/lib/useChapterPanelOpacity'
 import { useChapterStageMount } from '@/lib/hooks/useChapterStageMount'
+import { isPrerenderSnapshot } from '@/lib/isPrerenderSnapshot'
 import { useTheme } from '@/components/ThemeProvider'
 import { BOARD_VIEWBOX } from '@/lib/formation/legoGrid'
 import { useFormationLegoBoard } from '@/lib/formation/useFormationLegoBoard'
@@ -87,7 +88,7 @@ export function FormationLegoBoard({ chapterId }: Props) {
     `formation-lego--theme-${resolvedTheme}`,
   ].join(' ')
 
-  if (!stageMount) {
+  if (!stageMount || isPrerenderSnapshot()) {
     return (
       <div className={rootClass}>
         <div className="formation-lego__stage">

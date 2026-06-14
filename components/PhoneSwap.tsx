@@ -49,6 +49,7 @@ import { useChapterActive } from '@/lib/chapterActiveContext'
 import { usePhoneScreenshotControls } from '@/lib/phone-swap/usePhoneScreenshotControls'
 import { usePhoneSwapTouchScroll } from '@/lib/phone-swap/usePhoneSwapTouchScroll'
 import { useLayoutTopBarNav } from '@/lib/hooks/useLayoutTopBarNav'
+import { isPrerenderSnapshot } from '@/lib/isPrerenderSnapshot'
 import type { PhoneSwapSceneApi } from '@/components/phone-swap/PhoneSwapScene'
 import {
   Suspense,
@@ -318,6 +319,10 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
       ro.disconnect()
     }
   }, [shouldRenderScene])
+
+  if (isPrerenderSnapshot()) {
+    return null
+  }
 
   return (
     <div

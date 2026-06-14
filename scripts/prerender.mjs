@@ -14,6 +14,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const root = path.join(__dirname, '..')
 const port = Number(process.env.PRERENDER_PORT ?? 3456)
 const url = `http://127.0.0.1:${port}/`
+const snapshotUrl = `${url}?prerender=1`
 const VIEWPORT = { width: 1440, height: 900, deviceScaleFactor: 1 }
 
 const ANCHORS = ['complex systems', '12,608,066', 'thermostat', 'Kelvin']
@@ -79,7 +80,11 @@ function spawnPreview() {
   const child = spawn(
     process.platform === 'win32' ? 'npx.cmd' : 'npx',
     ['vite', 'preview', '--port', String(port), '--host', '127.0.0.1', '--strictPort'],
-    { cwd: root, stdio: ['ignore', 'pipe', 'pipe'] },
+    {
+      cwd: root,
+      stdio: ['ignore', 'pipe', 'pipe'],
+      env: { ...process.env, PRERENDER: '1' },
+    },
   )
 
   const rlOut = createInterface({ input: child.stdout })
@@ -149,8 +154,12 @@ async function main() {
         console.error(`[prerender:pageerror] ${err.message}`)
       })
 
+      await page.evaluateOnNewDocument(() => {
+        window.__PRERENDER = true
+      })
+
       console.log('[prerender] Navigating…')
-      await page.goto(url, { waitUntil: 'networkidle0', timeout: 120_000 })
+      await page.goto(snapshotUrl, { waitUntil: 'networkidle0', timeout: 120_000 })
 
       console.log('[prerender] Scrolling to load deferred content…')
       await scrollToBottom(page)

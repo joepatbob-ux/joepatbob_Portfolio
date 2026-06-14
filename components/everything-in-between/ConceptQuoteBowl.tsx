@@ -13,6 +13,7 @@ import { useCanvasDpr } from '@/lib/hooks/useCanvasDpr'
 import { useChapterStageMount } from '@/lib/hooks/useChapterStageMount'
 import { usePrefersReducedMotion } from '@/lib/hooks/usePrefersReducedMotion'
 import { useStagePreload } from '@/lib/hooks/useStagePreload'
+import { isPrerenderSnapshot } from '@/lib/isPrerenderSnapshot'
 import { preloadQuoteBowlStage } from '@/lib/stagePreload/quoteBowl'
 import { Canvas } from '@react-three/fiber'
 import dynamic from 'next/dynamic'
@@ -73,7 +74,7 @@ export function ConceptQuoteBowl({ answers, chapterId }: Props) {
     setSceneReady(true)
   }, [])
   const { camera } = QUOTE_BOWL
-  const showLoading = stageMount && !sceneReady
+  const showLoading = stageMount && !isPrerenderSnapshot() && !sceneReady
 
   return (
     <div className={['quote-bowl', debugOutlines ? 'quote-bowl--debug' : ''].filter(Boolean).join(' ')}>
@@ -116,7 +117,7 @@ export function ConceptQuoteBowl({ answers, chapterId }: Props) {
           <StageLoadingOverlay label="Loading bowl…" />
         ) : null}
 
-        {stageMount ? (
+        {stageMount && !isPrerenderSnapshot() ? (
           <Canvas
             className="quote-bowl__canvas"
             data-debug="canvas"
