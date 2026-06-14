@@ -95,29 +95,6 @@ function spawnPreview() {
   return child
 }
 
-async function scrollToBottom(page) {
-  await page.evaluate(async () => {
-    await new Promise((resolve) => {
-      let y = 0
-      const step = () => {
-        const max = Math.max(
-          document.body.scrollHeight,
-          document.documentElement.scrollHeight,
-        )
-        if (y >= max) {
-          window.scrollTo(0, 0)
-          resolve(undefined)
-          return
-        }
-        y += Math.max(window.innerHeight * 0.75, 400)
-        window.scrollTo(0, y)
-        window.setTimeout(step, 200)
-      }
-      step()
-    })
-  })
-}
-
 async function main() {
   console.log('[prerender] Starting vite preview…')
   const preview = spawnPreview()
@@ -160,11 +137,6 @@ async function main() {
 
       console.log('[prerender] Navigating…')
       await page.goto(snapshotUrl, { waitUntil: 'networkidle0', timeout: 120_000 })
-
-      console.log('[prerender] Scrolling to load deferred content…')
-      await scrollToBottom(page)
-      await new Promise((r) => setTimeout(r, 500))
-      await scrollToBottom(page)
 
       console.log('[prerender] Waiting for anchor text…')
       await page.waitForFunction(

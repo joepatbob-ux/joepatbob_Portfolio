@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react'
 import { useChapterPanelOpacity } from '@/lib/useChapterPanelOpacity'
+import { useHydrated } from '@/lib/hooks/useHydrated'
 import { useChapterStageMount } from '@/lib/hooks/useChapterStageMount'
 import { isPrerenderSnapshot } from '@/lib/isPrerenderSnapshot'
 import { useTheme } from '@/components/ThemeProvider'
@@ -52,6 +53,7 @@ interface Props {
 }
 
 export function FormationLegoBoard({ chapterId }: Props) {
+  const hydrated = useHydrated()
   const { resolvedTheme } = useTheme()
   const { mount: stageMount } = useChapterStageMount(chapterId)
   const panel = useChapterPanelOpacity(chapterId)
@@ -89,7 +91,7 @@ export function FormationLegoBoard({ chapterId }: Props) {
     `formation-lego--theme-${resolvedTheme}`,
   ].join(' ')
 
-  if (!stageMount || isPrerenderSnapshot()) {
+  if (!hydrated || !stageMount || isPrerenderSnapshot()) {
     return (
       <div className={rootClass}>
         <div className="formation-lego__stage">

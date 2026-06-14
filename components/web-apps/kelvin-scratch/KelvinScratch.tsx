@@ -6,12 +6,14 @@ import { KelvinScratchTicketStack } from '@/components/web-apps/kelvin-scratch/K
 import { kelvinScratchRootStyle } from '@/lib/kelvin-scratch/ticket'
 import { useKelvinCoin } from '@/lib/kelvin-scratch/useKelvinCoin'
 import { useKelvinScratchAssets } from '@/lib/kelvin-scratch/useKelvinScratchAssets'
+import { useHydrated } from '@/lib/hooks/useHydrated'
 import { isPrerenderSnapshot } from '@/lib/isPrerenderSnapshot'
 import { memo, useRef } from 'react'
 import '@/styles/web-apps-scratch-reveal.css'
 import '@/styles/kelvin-scratch.css'
 
 function KelvinScratchInner() {
+  const hydrated = useHydrated()
   const { resolvedTheme } = useTheme()
   const stageRef = useRef<HTMLDivElement>(null)
   const assets = useKelvinScratchAssets()
@@ -25,7 +27,7 @@ function KelvinScratchInner() {
     .filter(Boolean)
     .join(' ')
 
-  if (isPrerenderSnapshot()) {
+  if (isPrerenderSnapshot() || !hydrated) {
     return null
   }
 
