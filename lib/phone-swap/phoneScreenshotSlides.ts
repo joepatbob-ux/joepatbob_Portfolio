@@ -18,15 +18,51 @@ export type PhoneScreenshotSlide = {
  */
 export const PHONE_SCREENSHOT_SLIDES: readonly PhoneScreenshotSlide[] = [
   {
-    id: 'overview',
-    label: 'Overview',
+    id: 'dashboard',
+    label: 'Dashboard',
     android: {
       light: '/models/Android.png',
       dark: '/models/Android.png',
     },
     iphone: {
-      light: '/models/Iphone.png',
-      dark: '/models/Iphone.png',
+      light: '/Screens/iOS/Dashboard_light.png',
+      dark: '/Screens/iOS/Dashboard_dark.png',
+    },
+  },
+  {
+    id: 'usage',
+    label: 'Usage',
+    android: {
+      light: '/models/Android.png',
+      dark: '/models/Android.png',
+    },
+    iphone: {
+      light: '/Screens/iOS/Usage_light.png',
+      dark: '/Screens/iOS/Usage_dark.png',
+    },
+  },
+  {
+    id: 'ec',
+    label: 'Equipment',
+    android: {
+      light: '/models/Android.png',
+      dark: '/models/Android.png',
+    },
+    iphone: {
+      light: '/Screens/iOS/EC_light.png',
+      dark: '/Screens/iOS/EC_dark.png',
+    },
+  },
+  {
+    id: 'offline',
+    label: 'Offline',
+    android: {
+      light: '/models/Android.png',
+      dark: '/models/Android.png',
+    },
+    iphone: {
+      light: '/Screens/iOS/Offline_light.png',
+      dark: '/Screens/iOS/Offline_dark.png',
     },
   },
 ]
