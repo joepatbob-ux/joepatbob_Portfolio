@@ -12,6 +12,14 @@
   border: 0;
 }
 
+/* Dot rail tokens without carousel grid layout (PhoneSwap screenshot cycler). */
+.touch2-carousel__dot-vars {
+  --touch2-dot-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --touch2-dot-duration: 560ms;
+  --touch2-dot-size: var(--cs-touch2-dot-size);
+  --touch2-dot-gap: var(--cs-touch2-dot-gap);
+}
+
 .touch2-carousel {
   position: relative;
   --touch2-frame-max-w: var(--cs-touch2-frame-max-w);
@@ -172,9 +180,11 @@
   box-shadow: 0 0 0 1px var(--color-nav-pill-outline);
 }
 
-/* Layer 3: accent indicator — pill shape snaps, height counts down only */
+/* Layer 3: accent indicator — pill morphs to dot (countdown from full). */
 .touch2-carousel__dot-indicator {
-  position: relative;
+  position: absolute;
+  left: 50%;
+  top: 50%;
   z-index: 1;
   display: block;
   width: var(--touch2-dot-size);
@@ -182,14 +192,59 @@
   border-radius: 999px;
   background-color: var(--color-accent);
   pointer-events: none;
+  transform: translate(-50%, -50%);
 }
 
 .touch2-carousel__dot--active .touch2-carousel__dot-indicator {
+  width: var(--touch2-dot-size);
   height: calc(
     var(--touch2-dot-size) +
       (var(--touch2-dot-active-h) - var(--touch2-dot-size)) *
       (1 - var(--touch2-dot-progress, 0))
   );
+  transform: translate(-50%, -50%);
+}
+
+/* Horizontal dot rail — Touch2 ≤767px layout; reused by PhoneSwap screenshot cycler. */
+.touch2-carousel__dots--horizontal {
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
+  width: auto;
+  height: auto;
+  min-height: var(--touch2-dot-slot-w);
+  gap: clamp(6px, 2vw, 10px);
+}
+
+.touch2-carousel__dots--horizontal .touch2-carousel__dot {
+  width: var(--touch2-dot-slot-w);
+  height: var(--touch2-dot-ring-size);
+  min-height: 0;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.touch2-carousel__dots--horizontal .touch2-carousel__dot--active {
+  width: var(--touch2-dot-slot-w);
+  height: var(--touch2-dot-ring-size);
+}
+
+.touch2-carousel__dots--horizontal .touch2-carousel__dot-indicator {
+  width: var(--touch2-dot-size);
+  height: var(--touch2-dot-size);
+}
+
+.touch2-carousel__dots--horizontal
+  .touch2-carousel__dot--active
+  .touch2-carousel__dot-indicator {
+  width: calc(
+    var(--touch2-dot-size) +
+      (var(--touch2-dot-active-w) - var(--touch2-dot-size)) *
+      (1 - var(--touch2-dot-progress, 0))
+  );
+  height: var(--touch2-dot-size);
+  transform: translate(-50%, -50%);
 }
 
 @media (max-width: 767px) {
@@ -221,7 +276,7 @@
   }
 
   .touch2-carousel__dot {
-    width: var(--touch2-dot-ring-size);
+    width: var(--touch2-dot-slot-w);
     height: var(--touch2-dot-ring-size);
     min-height: 0;
     padding: 0;
@@ -238,7 +293,7 @@
     height: var(--touch2-dot-size);
   }
 
-  /* Auto-advance: accent pill grows horizontally (desktop grows vertically). */
+  /* Auto-advance: accent pill shrinks horizontally to dot (desktop: vertically). */
   .touch2-carousel__dot--active .touch2-carousel__dot-indicator {
     width: calc(
       var(--touch2-dot-size) +
@@ -246,6 +301,7 @@
         (1 - var(--touch2-dot-progress, 0))
     );
     height: var(--touch2-dot-size);
+    transform: translate(-50%, -50%);
   }
 }
 
