@@ -6,6 +6,8 @@ export const TOUCH2_DOT_SLOT_H = 80
 export const TOUCH2_DOT_GAP = 8
 export const TOUCH2_DOT_RING = 40
 
+export const TOUCH2_DOT_ACTIVE = 56
+
 export type Touch2RailMetrics = {
   railH: number
   slideW: number
@@ -46,4 +48,27 @@ export function touch2RailMetricsForWidth(
     slideW: Math.max(1, Math.round(natural.slideW * scale)),
     scale,
   }
+}
+
+/** CSS custom properties for dot ring / slot / active pill (sync Touch2Carousel.tsx). */
+export function touch2DotCssMetrics(scale: number): Record<string, string> {
+  return {
+    '--touch2-dot-slot-h': `${Math.max(48, Math.round(TOUCH2_DOT_SLOT_H * scale))}px`,
+    '--touch2-dot-slot-w': `${Math.max(48, Math.round(TOUCH2_DOT_SLOT_H * scale))}px`,
+    '--touch2-dot-active-h': `${Math.max(36, Math.round(TOUCH2_DOT_ACTIVE * scale))}px`,
+    '--touch2-dot-active-w': `${Math.max(36, Math.round(TOUCH2_DOT_ACTIVE * scale))}px`,
+    '--touch2-dot-ring-size': `${Math.max(28, Math.round(TOUCH2_DOT_RING * scale))}px`,
+  }
+}
+
+/** Scale horizontal dot rail to fit container (PhoneSwap screenshot cycler). */
+export function touch2HorizontalDotsScale(
+  containerWidth: number,
+  slideCount: number,
+  gapPx = TOUCH2_DOT_GAP,
+): number {
+  const natural =
+    slideCount * TOUCH2_DOT_SLOT_H + Math.max(0, slideCount - 1) * gapPx
+  if (containerWidth <= 0 || natural <= 0) return 1
+  return Math.min(1, containerWidth / natural)
 }

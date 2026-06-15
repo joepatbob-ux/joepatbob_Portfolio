@@ -520,6 +520,8 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
           slideCount={screenshot.slideCount}
           slideKeys={screenshot.slideKeys}
           screenTheme={screenshot.screenTheme}
+          indicatorProgress={screenshot.indicatorProgress}
+          pauseHandlers={screenshot.pauseHandlers}
           onSelectSlide={screenshot.selectSlide}
           onScreenThemeChange={screenshot.setScreenTheme}
         />
