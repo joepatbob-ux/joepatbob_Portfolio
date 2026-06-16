@@ -1326,12 +1326,16 @@ html {
 /* Viewport snap slideshow — desktop only (≥1024); top-bar ≤1023 uses in-flow scroll */
 @media (min-width: 1024px) {
   html {
-    scroll-snap-type: y mandatory;
+    scroll-snap-type: y proximity;
     scroll-behavior: auto;
   }
 
-  /* Snap: hero + every full-viewport chapter slot */
-  #hero,
+  /* Hero scrolls freely — chapters keep snap pinning */
+  #hero {
+    scroll-snap-align: none;
+    scroll-snap-stop: normal;
+  }
+
   .portfolio-chapter-slot--fill[data-chapter-id],
   .case-study-flow-overview.portfolio-chapter-slot--fill {
     scroll-snap-align: start;

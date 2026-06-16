@@ -3,6 +3,12 @@ function easeSmoothstep(t: number): number {
   return x * x * (3 - 2 * x)
 }
 
+/** Decelerates into fully faded — avoids a hard cut at the end of the band. */
+function easeOutCubic(t: number): number {
+  const x = Math.max(0, Math.min(1, t))
+  return 1 - Math.pow(1 - x, 3)
+}
+
 import { getLayoutViewportHeight } from '@/lib/mobileViewport'
 
 function prefersReducedMotion(): boolean {
@@ -22,7 +28,7 @@ const HERO_REENTER_BOTTOM_MIN_PX = 120
 /** Scroll (px) before hero portrait begins to fade. */
 const HERO_PIN_FADE_START_PX = 24
 /** Fade completes by this fraction of viewport height (before first chapter crossfade). */
-const HERO_PIN_FADE_END_VH = 0.38
+const HERO_PIN_FADE_END_VH = 0.58
 /** Portrait considered gone below this — sidebar divider + chapter handoff. */
 export const HERO_PIN_CHAPTER_REVEAL_THRESHOLD = 0.02
 /** Scroll past hero fade before the first hardware panel ramps in (vh). */
@@ -122,7 +128,7 @@ export function getHeroPinFadeOut(scrollY: number, viewportH: number): number {
     1,
     Math.max(0, (scrollY - HERO_PIN_FADE_START_PX) / span),
   )
-  return easeSmoothstep(linear)
+  return easeOutCubic(linear)
 }
 
 export function getHeroPinReveal(scrollY: number, viewportH: number): number {
@@ -262,7 +268,7 @@ export function getSidebarHeroFadeProgress(
   scrollY: number,
   viewportH: number,
 ): number {
-  return sidebarNameFadeProgress(scrollY, viewportH)
+  return getHeroPinFadeOut(scrollY, viewportH)
 }
 
 /** Sidebar “Hello, I am” block — fade/blur on scroll. */
@@ -274,7 +280,8 @@ export function applySidebarHeroNameFade(
 ): void {
   if (!el) return
 
-  const fadeOut = sidebarNameFadeProgress(scrollY, viewportH)
+  // Keep sidebar headline on the same fade curve as the hero portrait.
+  const fadeOut = getHeroPinFadeOut(scrollY, viewportH)
   applySidebarRevealFade(el, fadeOut, blurPx)
 }
 
