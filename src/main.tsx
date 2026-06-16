@@ -1,6 +1,9 @@
+import { initContinuousChaptersClass } from '@/lib/continuousChapters'
 import { StrictMode } from 'react'
 import { createRoot, hydrateRoot } from 'react-dom/client'
 import App from './App'
+
+initContinuousChaptersClass()
 
 const root = document.getElementById('root')
 if (!root) {

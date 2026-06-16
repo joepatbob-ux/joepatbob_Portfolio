@@ -2,6 +2,7 @@ import {
   applyChapterPanelScrollStyles,
   applyPlacedStickerScrollVisibility,
 } from '@/lib/applyChapterPanelScrollStyles'
+import { isContinuousChapters } from '@/lib/continuousChapters'
 import { isTopBarNavViewport } from '@/lib/layout/isTopBarNavViewport'
 import {
   measureSlideScrollState,
@@ -42,6 +43,7 @@ export function applySlideScrollFromMeasure(
 
   if (
     !isTopBarNavViewport() &&
+    !isContinuousChapters() &&
     (phase === 'idle' || lockedSlideId != null)
   ) {
     applyChapterPanelScrollStyles(state.revealMap, state.activeSlideId)

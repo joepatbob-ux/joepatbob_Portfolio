@@ -12,6 +12,7 @@ import {
   type StickerArtMetrics,
 } from '@/lib/stickerPickBounds'
 import { activeSlideIdPublished } from '@/lib/chapterSlideshow'
+import { isContinuousChapters } from '@/lib/continuousChapters'
 import { CHAPTER_STICKER_SCROLL_VISIBILITY } from '@/lib/chapterVisibility'
 import { useChapterReveal } from '@/lib/hooks/useChapterReveal'
 import { useLayoutTopBarNav } from '@/lib/hooks/useLayoutTopBarNav'
@@ -63,14 +64,15 @@ export function PlacedStickerControl({ sticker }: Props) {
   } = useStickers()
   const { activeSlideId } = useChapterNav()
   const topBarNav = useLayoutTopBarNav()
-  const effectiveActiveSlideId = topBarNav
+  const inFlowScroll = topBarNav || isContinuousChapters()
+  const effectiveActiveSlideId = inFlowScroll
     ? (activeSlideId ?? activeSlideIdPublished())
     : activeSlideId
 
   const reveal = useChapterReveal(sticker.chapterId ?? '')
   const chapterInView = Boolean(
     sticker.chapterId &&
-      (topBarNav
+      (inFlowScroll
         ? effectiveActiveSlideId === sticker.chapterId
         : reveal > CHAPTER_STICKER_SCROLL_VISIBILITY),
   )

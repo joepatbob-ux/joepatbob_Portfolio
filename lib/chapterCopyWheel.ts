@@ -4,6 +4,7 @@ import {
   chapterSlotScrollTop,
   scrollDocumentToChapterSlot,
 } from '@/lib/chapterSnapScroll'
+import { isContinuousChapters } from '@/lib/continuousChapters'
 import { LAYOUT_MQ } from '@/lib/layout/breakpoints'
 
 const CHAPTER_SLOT_SELECTOR = '.portfolio-chapter-slot[data-chapter-id]'
@@ -144,7 +145,9 @@ export function useChapterCopyWheelTrap(): void {
     const sync = () => {
       cleanup?.()
       cleanup = undefined
-      if (window.matchMedia(LAYOUT_MQ.topBarNav).matches) return
+      if (window.matchMedia(LAYOUT_MQ.topBarNav).matches || isContinuousChapters()) {
+        return
+      }
       cleanup = bindChapterCopyWheelHandlers()
     }
 
