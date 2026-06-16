@@ -7,6 +7,7 @@ import {
   publishChapterRevealMap,
 } from '@/lib/chapterSlideshow'
 import { FLOW_CHAPTER_SLOT_SELECTOR } from '@/lib/chapterFlow'
+import { isContinuousChapters } from '@/lib/continuousChapters'
 import { isTopBarInHeroScrollZone, shouldSuppressChapterReveal } from '@/lib/heroScroll'
 import { isTopBarNavViewport } from '@/lib/layout/isTopBarNavViewport'
 import { getLayoutViewportHeight } from '@/lib/mobileViewport'
@@ -74,8 +75,10 @@ export function measureSlideScrollState(
     return { revealMap: {}, activeSlideId: null, inHero: false }
   }
 
-  if (isTopBarNavViewport()) {
-    const inHero = isTopBarInHeroScrollZone()
+  if (isTopBarNavViewport() || isContinuousChapters()) {
+    const inHero = isTopBarNavViewport()
+      ? isTopBarInHeroScrollZone()
+      : shouldSuppressChapterReveal()
     const revealMap = computeInFlowRevealMap()
     return {
       revealMap,

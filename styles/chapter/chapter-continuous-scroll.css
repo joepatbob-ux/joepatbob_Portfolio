@@ -1,0 +1,115 @@
+/* Continuous chapter scroll — desktop only (≥1024). Scoped to html.continuous-chapters.
+ * Mobile/tablet (≤1023) unchanged; uses existing top-bar in-flow rules.
+ * Phases 0–3: in-flow panels, no snap, no nested copy scroll. Phase 4 adds sticky stage. */
+
+@media (min-width: 1024px) {
+  html.continuous-chapters {
+    scroll-snap-type: none !important;
+    scroll-behavior: auto;
+  }
+
+  html.continuous-chapters #hero,
+  html.continuous-chapters .portfolio-chapter-slot--fill[data-chapter-id],
+  html.continuous-chapters .case-study-flow-overview.portfolio-chapter-slot--fill {
+    scroll-snap-align: none !important;
+    scroll-snap-stop: normal !important;
+    height: auto !important;
+    min-height: 0 !important;
+    position: relative;
+  }
+
+  html.continuous-chapters
+    .hardware-slideshow.portfolio-chapter-slot--fill,
+  html.continuous-chapters
+    [data-section-id='hardware']
+    .portfolio-chapter-slot--fill.hardware-slideshow {
+    height: auto !important;
+    min-height: 0 !important;
+  }
+
+  html.continuous-chapters
+    .portfolio-chapter-slot--fill.hardware-slideshow
+    .portfolio-chapter-panel {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    z-index: auto !important;
+    will-change: auto !important;
+    transform: none !important;
+    filter: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    pointer-events: auto !important;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  html.continuous-chapters
+    .portfolio-chapter-slot--fill.hardware-slideshow
+    .chapter-slide__viewport {
+    flex: none;
+    min-height: 0;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  html.continuous-chapters
+    .portfolio-chapter-slot--fill.hardware-slideshow
+    .chapter-slide__inner {
+    max-height: none !important;
+    height: auto;
+  }
+
+  html.continuous-chapters
+    .portfolio-chapter-slot--fill.hardware-slideshow
+    .chapter-slide__copy {
+    min-height: 0;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  html.continuous-chapters
+    .portfolio-chapter-slot--fill.hardware-slideshow
+    .chapter-slide__copy
+    .chapter-copy-scroller,
+  html.continuous-chapters
+    .portfolio-chapter-slot--fill.hardware-slideshow
+    .chapter-copy-scroller {
+    flex: none;
+    min-height: 0;
+    max-height: none !important;
+    overflow: visible !important;
+    overflow-x: visible !important;
+    overflow-y: visible !important;
+    overscroll-behavior-y: auto !important;
+  }
+
+  html.continuous-chapters .portfolio-chapter-slot--fill {
+    margin-bottom: var(--cs-inter-chapter-gap, var(--cs-section-scroll-gap));
+  }
+
+  html.continuous-chapters .portfolio-chapter-slot--fill + .portfolio-chapter-slot--fill,
+  html.continuous-chapters
+    .case-study-flow-overview.portfolio-chapter-slot--fill
+    + .portfolio-chapter-slot--fill {
+    margin-top: var(--cs-inter-chapter-gap, var(--cs-section-scroll-gap));
+  }
+}
+
+@media (min-width: 2560px) {
+  html.continuous-chapters
+    .portfolio-chapter-slot--fill.hardware-slideshow
+    .portfolio-chapter-panel {
+    left: auto !important;
+    right: auto !important;
+    width: 100% !important;
+    max-width: none !important;
+  }
+}

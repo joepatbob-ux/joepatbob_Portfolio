@@ -1,12 +1,14 @@
-const SCROLL_TRAP_SELECTOR = '.chapter-copy-scroller'
-
 import { chapterSlotScrollTop } from '@/lib/chapterSnapScroll'
+import { isContinuousChapters } from '@/lib/continuousChapters'
+
+const SCROLL_TRAP_SELECTOR = '.chapter-copy-scroller'
 
 const SCROLL_SETTLE_TOLERANCE_PX = 8
 const SCROLL_SETTLE_MAX_MS = 900
 
 /** Reset inner copy scroll positions — document scroll must not inherit nested trap position. */
 export function resetChapterCopyScrollers(root: ParentNode): void {
+  if (isContinuousChapters()) return
   root.querySelectorAll<HTMLElement>(SCROLL_TRAP_SELECTOR).forEach((el) => {
     el.scrollTop = 0
   })
@@ -14,6 +16,7 @@ export function resetChapterCopyScrollers(root: ParentNode): void {
 
 /** Reset every chapter copy trap — prevents a prior slide's scroll position from bleeding through. */
 export function resetAllChapterCopyScrollers(): void {
+  if (isContinuousChapters()) return
   document.querySelectorAll<HTMLElement>(SCROLL_TRAP_SELECTOR).forEach((el) => {
     el.scrollTop = 0
   })
@@ -28,6 +31,7 @@ export function resetChapterCopyScrollersForChapter(chapterId: string): void {
 
 /** After document snap — reset immediately and on subsequent frames (layout/snap can run late). */
 export function resetChapterCopyScrollersAfterSnap(_root?: ParentNode): void {
+  if (isContinuousChapters()) return
   resetAllChapterCopyScrollers()
   requestAnimationFrame(() => {
     resetAllChapterCopyScrollers()
