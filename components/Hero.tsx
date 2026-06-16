@@ -68,6 +68,8 @@ export function Hero() {
                 className="hero-portrait"
                 src={portraitSrc}
                 alt="Joseph Patrick Roberts"
+                width={3200}
+                height={2560}
                 sizes="100vw"
                 decoding="async"
                 fetchPriority="high"

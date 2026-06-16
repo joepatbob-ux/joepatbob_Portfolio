@@ -150,6 +150,7 @@ function Touch2CarouselInner({
               alt={i === index ? slide.alt : ''}
               className="touch2-carousel__img"
               decoding="async"
+              loading={i === index ? undefined : 'lazy'}
               draggable={false}
             />
           </figure>

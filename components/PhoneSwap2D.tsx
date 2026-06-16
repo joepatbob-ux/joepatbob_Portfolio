@@ -148,12 +148,14 @@ export function PhoneSwap2D() {
               className="phone-swap__face phone-swap__face--back"
               src={PIXEL_BACK}
               alt=""
+              loading="lazy"
               draggable={false}
             />
             <img
               className="phone-swap__face phone-swap__face--front"
               src={PIXEL_FRONT}
               alt="Android phone"
+              loading="lazy"
               draggable={false}
             />
           </div>
@@ -164,12 +166,14 @@ export function PhoneSwap2D() {
               className="phone-swap__face phone-swap__face--back"
               src={IPHONE_BACK}
               alt=""
+              loading="lazy"
               draggable={false}
             />
             <img
               className="phone-swap__face phone-swap__face--front"
               src={IPHONE_FRONT}
               alt="iPhone"
+              loading="lazy"
               draggable={false}
             />
           </div>

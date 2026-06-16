@@ -1,3 +1,4 @@
+import { inject } from '@vercel/analytics'
 import { StrictMode } from 'react'
 import { createRoot, hydrateRoot } from 'react-dom/client'
 import Root from './Root'
@@ -18,3 +19,5 @@ if (root.hasChildNodes()) {
 } else {
   createRoot(root).render(app)
 }
+
+inject()

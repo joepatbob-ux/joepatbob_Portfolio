@@ -39,6 +39,12 @@ export default function App() {
                   <CaseStudy sectionId="web-apps" />
                   <CaseStudy sectionId="everything-else" />
                 </main>
+                <footer className="site-footer" aria-label="Site footer">
+                  <p className="site-footer__copy">
+                    &copy; {new Date().getFullYear()} Joseph Patrick Roberts. All
+                    rights reserved.
+                  </p>
+                </footer>
               </div>
               <StickerLayer />
             </ChapterNavProvider>
