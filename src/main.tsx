@@ -1,6 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot, hydrateRoot } from 'react-dom/client'
-import App from './App'
+import Root from './Root'
 
 const root = document.getElementById('root')
 if (!root) {
@@ -9,7 +9,7 @@ if (!root) {
 
 const app = (
   <StrictMode>
-    <App />
+    <Root />
   </StrictMode>
 )
 

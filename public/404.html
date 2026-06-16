@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <title>404 — Page not found</title>
+    <link rel="icon" href="/favicon/favicon.ico" sizes="any" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700&family=Lato:wght@400&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      @font-face {
+        font-family: 'Alte Haas Grotesk Bold';
+        src: url('/fonts/AlteHaasGroteskBold.woff2') format('woff2');
+        font-weight: 700;
+        font-style: normal;
+        font-display: swap;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px;
+        background: #de3e18;
+        color: #fff;
+        text-align: center;
+        font-family: Lato, system-ui, sans-serif;
+      }
+
+      .not-found-page {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        max-width: 32rem;
+      }
+
+      .not-found-page__code {
+        margin: 0;
+        font-family: 'JetBrains Mono', ui-monospace, monospace;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        opacity: 0.85;
+      }
+
+      .not-found-page__title {
+        margin: 0;
+        font-family: 'Alte Haas Grotesk Bold', system-ui, sans-serif;
+        font-weight: 700;
+        font-size: clamp(40px, 6vw, 80px);
+        line-height: 1;
+        letter-spacing: -0.02em;
+        text-transform: uppercase;
+      }
+
+      .not-found-page__body {
+        margin: 0 0 8px;
+        max-width: 22em;
+        font-size: clamp(15px, 1.6vw, 18px);
+        line-height: 1.5;
+        opacity: 0.92;
+      }
+
+      .not-found-page__link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 8px;
+        padding: 0 20px;
+        height: 40px;
+        border-radius: 24px;
+        border: 2px solid #fff;
+        font-family: 'JetBrains Mono', ui-monospace, monospace;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: #fff;
+        text-decoration: none;
+        transition: background 0.2s ease, color 0.2s ease;
+      }
+
+      .not-found-page__link:hover {
+        background: #fff;
+        color: #c43514;
+      }
+
+      .not-found-page__link:focus-visible {
+        outline: 2px solid #fff;
+        outline-offset: 3px;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="not-found-page">
+      <p class="not-found-page__code">404</p>
+      <h1 class="not-found-page__title">Page not found</h1>
+      <p class="not-found-page__body">That URL doesn&apos;t exist — or it moved.</p>
+      <a href="/" class="not-found-page__link">Back home</a>
+    </main>
+  </body>
+</html>
