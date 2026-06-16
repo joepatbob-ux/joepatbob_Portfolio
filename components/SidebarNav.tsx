@@ -171,7 +171,7 @@ export function SidebarNav() {
   const contactRef    = useRef<HTMLDivElement>(null)
   const mobileHeroRef = useRef<HTMLDivElement>(null)
   const mobileDrawerPanelRef = useRef<HTMLDivElement>(null)
-  const subnavRef = useRef<HTMLDivElement>(null)
+  const subnavRef = useRef<HTMLElement>(null)
   const layoutRef     = useRef({ viewportH: 900, navRestTop: 0, threshold: 648 })
   const stickThresholdRef = useRef(648)
 
@@ -650,6 +650,7 @@ export function SidebarNav() {
               >
                 Hello, I am
               </div>
+              <h1 className="visually-hidden">Joseph Patrick Roberts</h1>
               <div
                 style={{
                   fontFamily: FONT_AHG,
@@ -839,7 +840,7 @@ export function SidebarNav() {
 
       {/* Sub nav — viewport center (desktop only) */}
       <div className={subnavClass}>
-      <div
+      <nav
         ref={subnavRef}
         className="sidebar-subnav--fixed"
         aria-label="Chapter navigation"
@@ -917,7 +918,7 @@ export function SidebarNav() {
             </button>
           )
         })}
-      </div>
+      </nav>
       </div>
     </>
   )

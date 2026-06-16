@@ -62,6 +62,7 @@ export function DragScrubber({
           className="drag-scrubber__img drag-scrubber__img--after"
           src={afterSrc}
           alt={afterAlt}
+          loading="lazy"
           draggable={false}
         />
         <div
@@ -72,6 +73,7 @@ export function DragScrubber({
             className="drag-scrubber__img drag-scrubber__img--before"
             src={beforeSrc}
             alt={beforeAlt}
+            loading="lazy"
             draggable={false}
           />
         </div>

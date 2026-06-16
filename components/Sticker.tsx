@@ -73,7 +73,9 @@ export function Sticker({
         <img
           src={src}
           alt={alt}
+          width={height}
           height={height}
+          loading="lazy"
           draggable={false}
           className="sticker__art"
         />

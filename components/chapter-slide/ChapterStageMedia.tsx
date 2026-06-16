@@ -39,6 +39,7 @@ export function ChapterStageMedia({ chapter }: Props) {
             src={chapter.imageSrc}
             alt={chapter.imageAlt}
             decoding="async"
+            loading="lazy"
             style={{ objectPosition: photoPos }}
           />
         </div>
@@ -53,6 +54,7 @@ export function ChapterStageMedia({ chapter }: Props) {
           src={chapter.imageSrc}
           alt={chapter.imageAlt}
           decoding="async"
+          loading="lazy"
           style={{
             aspectRatio: `${w} / ${h}`,
             objectPosition: photoPos,

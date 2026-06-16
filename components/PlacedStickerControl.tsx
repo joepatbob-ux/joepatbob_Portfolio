@@ -266,16 +266,16 @@ export function PlacedStickerControl({ sticker }: Props) {
         ref={bodyRef}
         className="sticker-placed__body"
         style={bodyStyle}
-        aria-label={
-          selected
-            ? `${sticker.alt}, selected. Drag to move, drag orange dot to rotate, tap again to set down.`
-            : `${sticker.alt}. Drag to pick up and place.`
-        }
       >
         <button
           type="button"
           className="sticker-placed__hit"
           aria-pressed={selected}
+          aria-label={
+            selected
+              ? `${sticker.alt}, selected. Drag to move, drag orange dot to rotate, tap again to set down.`
+              : `${sticker.alt}. Drag to pick up and place.`
+          }
           onPointerDown={onHitPointerDown}
           onClick={(e) => e.preventDefault()}
         />
