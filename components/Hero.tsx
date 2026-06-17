@@ -9,8 +9,8 @@ import { scheduleScrollFrame } from '@/lib/scrollFrame'
 import { useEffect } from 'react'
 import { useTheme } from '@/components/ThemeProvider'
 
-const PORTRAIT_LIGHT = '/images/PortraitLight_MG_3496.jpg'
-const PORTRAIT_DARK = '/images/PortraitDark_MG_3490.jpg'
+const PORTRAIT_LIGHT = '/images/PortraitLight_MG_3496-optimized.jpg'
+const PORTRAIT_DARK = '/images/PortraitDark_MG_3490-optimized.jpg'
 
 export function Hero() {
   const { resolvedTheme } = useTheme()
