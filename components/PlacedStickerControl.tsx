@@ -278,6 +278,7 @@ export function PlacedStickerControl({ sticker }: Props) {
           type="button"
           className="sticker-placed__hit"
           aria-pressed={selected}
+          tabIndex={stickerVisible ? 0 : -1}
           onPointerDown={onHitPointerDown}
           onClick={(e) => e.preventDefault()}
         />

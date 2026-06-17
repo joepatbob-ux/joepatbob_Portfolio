@@ -673,6 +673,7 @@ export function SidebarNav() {
               <SidebarMainNavSentence
                 variant="mobile-hero"
                 onSelect={scrollToSection}
+                keywordTabIndex={showMobileHero ? 0 : -1}
               />
           </div>
         </nav>
@@ -871,6 +872,8 @@ export function SidebarNav() {
               className="sidebar-subnav__chapter"
               onClick={() => scrollToChapter(chId)}
               aria-current={isActive ? 'true' : undefined}
+              tabIndex={isVisible ? 0 : -1}
+              aria-hidden={!isVisible ? true : undefined}
               style={{
                 display: 'inline-flex',
                 alignSelf: 'flex-start',
