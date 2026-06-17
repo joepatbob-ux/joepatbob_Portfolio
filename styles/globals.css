@@ -443,32 +443,6 @@
   color: var(--color-accent);
 }
 
-/* Contact pill on accent backgrounds (mobile drawer) */
-.contact-liquid--on-accent .contact-liquid__surface {
-  background: rgba(255, 255, 255, 0.16);
-  border: none;
-  box-shadow: none;
-}
-
-.contact-liquid--on-accent:hover .contact-liquid__surface,
-.contact-liquid--on-accent:focus-within .contact-liquid__surface {
-  background: rgba(255, 255, 255, 0.14);
-}
-
-.contact-liquid--on-accent .contact-liquid__label {
-  color: #fff;
-}
-
-.contact-liquid--on-accent:hover .contact-liquid__btn,
-.contact-liquid--on-accent:focus-within .contact-liquid__btn {
-  color: rgba(255, 255, 255, 0.78);
-}
-
-.contact-liquid--on-accent .contact-liquid__btn:hover,
-.contact-liquid--on-accent .contact-liquid__btn:focus-visible {
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.55);
-}
-
 @media (prefers-reduced-motion: reduce) {
   .contact-liquid__surface,
   .contact-liquid__label,

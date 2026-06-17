@@ -91,8 +91,6 @@ interface StickerContextValue {
     instanceId: string,
     patch: Partial<Pick<PlacedSticker, 'x' | 'y' | 'rotation' | 'chapterId'>>,
   ) => void
-  removePlaced: (instanceId: string) => void
-  returnAssetToDeck: (assetId: string) => void
 }
 
 const StickerContext = createContext<StickerContextValue | null>(null)
@@ -167,17 +165,6 @@ export function StickerProvider({ children }: { children: ReactNode }) {
     writeStoredDeckIds(deckNext.map((s) => s.id))
   }, [])
 
-  const returnAssetToDeck = useCallback(
-    (assetId: string) => {
-      const asset = STICKER_ASSETS.find((a) => a.id === assetId)
-      if (!asset) return
-      const ids = new Set(deckRef.current.map((s) => s.id))
-      if (ids.has(assetId)) return
-      commitDeck([asset, ...deckRef.current])
-    },
-    [commitDeck],
-  )
-
   useEffect(() => {
     for (const key of LEGACY_STORAGE_KEYS) {
       try {
@@ -230,16 +217,6 @@ export function StickerProvider({ children }: { children: ReactNode }) {
       )
     },
     [],
-  )
-
-  const removePlaced = useCallback(
-    (instanceId: string) => {
-      const removed = placedRef.current.find((s) => s.instanceId === instanceId)
-      setPlaced((prev) => prev.filter((s) => s.instanceId !== instanceId))
-      setSelectedInstanceId((prev) => (prev === instanceId ? null : prev))
-      if (removed) returnAssetToDeck(removed.assetId)
-    },
-    [returnAssetToDeck],
   )
 
   const placeSticker = useCallback(
@@ -400,8 +377,6 @@ export function StickerProvider({ children }: { children: ReactNode }) {
       beginDragPlaced,
       selectSticker,
       updatePlaced,
-      removePlaced,
-      returnAssetToDeck,
     }),
     [
       zIndices,
@@ -416,8 +391,6 @@ export function StickerProvider({ children }: { children: ReactNode }) {
       beginDragPlaced,
       selectSticker,
       updatePlaced,
-      removePlaced,
-      returnAssetToDeck,
     ],
   )
 
