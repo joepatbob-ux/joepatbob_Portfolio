@@ -10,10 +10,10 @@ import {
   type CSSProperties,
 } from 'react'
 
-const PIXEL_FRONT = '/Phones/cropped/pixelFront.png'
-const PIXEL_BACK = '/Phones/cropped/pixelBack.png'
-const IPHONE_FRONT = '/Phones/cropped/iphoneFront.png'
-const IPHONE_BACK = '/Phones/cropped/iphoneBack.png'
+const PIXEL_FRONT = '/Phones/cropped/pixelFront-optimized.webp'
+const PIXEL_BACK = '/Phones/cropped/pixelBack-optimized.webp'
+const IPHONE_FRONT = '/Phones/cropped/iphoneFront-optimized.webp'
+const IPHONE_BACK = '/Phones/cropped/iphoneBack-optimized.webp'
 
 const labelBase: CSSProperties = {
   fontSize: 12,

@@ -25,8 +25,8 @@ export const PHONE_SCREENSHOT_SLIDES: readonly PhoneScreenshotSlide[] = [
       dark: '/models/Android.png',
     },
     iphone: {
-      light: '/Screens/iOS/Dashboard_light.png',
-      dark: '/Screens/iOS/Dashboard_dark.png',
+      light: '/Screens/iOS/Dashboard_light-optimized.webp',
+      dark: '/Screens/iOS/Dashboard_dark-optimized.webp',
     },
   },
   {
@@ -37,8 +37,8 @@ export const PHONE_SCREENSHOT_SLIDES: readonly PhoneScreenshotSlide[] = [
       dark: '/models/Android.png',
     },
     iphone: {
-      light: '/Screens/iOS/Usage_light.png',
-      dark: '/Screens/iOS/Usage_dark.png',
+      light: '/Screens/iOS/Usage_light-optimized.webp',
+      dark: '/Screens/iOS/Usage_dark-optimized.webp',
     },
   },
   {
@@ -49,8 +49,8 @@ export const PHONE_SCREENSHOT_SLIDES: readonly PhoneScreenshotSlide[] = [
       dark: '/models/Android.png',
     },
     iphone: {
-      light: '/Screens/iOS/EC_light.png',
-      dark: '/Screens/iOS/EC_dark.png',
+      light: '/Screens/iOS/EC_light-optimized.webp',
+      dark: '/Screens/iOS/EC_dark-optimized.webp',
     },
   },
   {
@@ -61,8 +61,8 @@ export const PHONE_SCREENSHOT_SLIDES: readonly PhoneScreenshotSlide[] = [
       dark: '/models/Android.png',
     },
     iphone: {
-      light: '/Screens/iOS/Offline_light.png',
-      dark: '/Screens/iOS/Offline_dark.png',
+      light: '/Screens/iOS/Offline_light-optimized.webp',
+      dark: '/Screens/iOS/Offline_dark-optimized.webp',
     },
   },
 ]
