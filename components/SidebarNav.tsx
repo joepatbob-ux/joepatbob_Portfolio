@@ -18,6 +18,7 @@ import { useBodyScrollLock } from '@/lib/hooks/useBodyScrollLock'
 import { useDialogFocusTrap } from '@/lib/hooks/useDialogFocusTrap'
 import { usePrefersReducedMotion } from '@/lib/hooks/usePrefersReducedMotion'
 import { activeSlideIdPublished } from '@/lib/chapterSlideshow'
+import { getDocumentScrollY } from '@/lib/documentScrollY'
 import { applySidebarHeroNameFade, applySidebarShellFade, isInHeroScrollZone, isTopBarInHeroScrollZone, resetSidebarShellFade } from '@/lib/heroScroll'
 import { getLayoutViewportHeight } from '@/lib/mobileViewport'
 import { NAV_SECTIONS, sectionIdForChapter } from '@/lib/nav'
@@ -116,7 +117,7 @@ function toChapterId(sectionId: string, chapterId: string): string {
 }
 
 function getScrollTop(): number {
-  return document.scrollingElement?.scrollTop ?? window.scrollY
+  return getDocumentScrollY()
 }
 
 // ── COMPONENT ─────────────────────────────────────────────────────────────────
@@ -137,7 +138,7 @@ export function SidebarNav() {
     if (!window.matchMedia(LAYOUT_MQ.topBarNav).matches) {
       return isInHeroScrollZone()
     }
-    return window.scrollY <= 24 || isTopBarInHeroScrollZone()
+    return getDocumentScrollY() <= 24 || isTopBarInHeroScrollZone()
   })
   const mobileInHeroRef = useRef(mobileInHero)
   const lastHtmlHeroClassRef = useRef<boolean | null>(null)
@@ -493,7 +494,7 @@ export function SidebarNav() {
       const y = getScrollTop()
       const inHero = isTopBarInHeroScrollZone()
 
-      if (inHero !== mobileInHeroRef.current) {
+      if (!mobileDrawerOpen && inHero !== mobileInHeroRef.current) {
         mobileInHeroRef.current = inHero
         setMobileInHero(inHero)
       }

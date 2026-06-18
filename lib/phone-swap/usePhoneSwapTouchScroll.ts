@@ -2,16 +2,16 @@
 
 import { useEffect, type RefObject } from 'react'
 
-const MOVE_THRESHOLD_PX = 8
-const VERTICAL_RATIO = 1.15
+const TAP_THRESHOLD_PX = 12
 
 /**
- * In-flow chapters: distinguish vertical scroll from tap-to-swap on the 3D canvas.
- * Canvas keeps pointer events; during a vertical drag we temporarily pass scroll through.
+ * In-flow chapters: canvas does not capture touch (CSS); page scroll uses the full stage box.
+ * Short tap on the viewbox triggers swap — vertical drags scroll the document.
  */
 export function usePhoneSwapTouchScroll(
   ref: RefObject<HTMLElement | null>,
   enabled: boolean,
+  onTapSwap?: () => void,
 ) {
   useEffect(() => {
     if (!enabled) return
@@ -20,55 +20,41 @@ export function usePhoneSwapTouchScroll(
 
     let startY = 0
     let startX = 0
-    let scrollMode = false
-
-    const clearPassthrough = () => {
-      root.classList.remove('phone-swap__viewbox--scroll-passthrough')
-    }
-
-    const enablePassthrough = () => {
-      if (scrollMode) return
-      scrollMode = true
-      root.classList.add('phone-swap__viewbox--scroll-passthrough')
-    }
+    let moved = false
 
     const onTouchStart = (e: TouchEvent) => {
       if (e.touches.length !== 1) return
-      scrollMode = false
-      clearPassthrough()
+      moved = false
       startY = e.touches[0].clientY
       startX = e.touches[0].clientX
     }
 
     const onTouchMove = (e: TouchEvent) => {
-      if (e.touches.length !== 1 || scrollMode) return
-      const dy = e.touches[0].clientY - startY
-      const dx = e.touches[0].clientX - startX
-      const ady = Math.abs(dy)
-      const adx = Math.abs(dx)
-      if (ady > MOVE_THRESHOLD_PX && ady > adx * VERTICAL_RATIO) {
-        enablePassthrough()
+      if (e.touches.length !== 1) return
+      const dy = Math.abs(e.touches[0].clientY - startY)
+      const dx = Math.abs(e.touches[0].clientX - startX)
+      if (dy > TAP_THRESHOLD_PX || dx > TAP_THRESHOLD_PX) {
+        moved = true
       }
     }
 
     const onTouchEnd = () => {
-      if (scrollMode) {
-        requestAnimationFrame(clearPassthrough)
+      if (!moved && onTapSwap) {
+        onTapSwap()
       }
-      scrollMode = false
+      moved = false
     }
 
-    root.addEventListener('touchstart', onTouchStart, { passive: true, capture: true })
-    root.addEventListener('touchmove', onTouchMove, { passive: true, capture: true })
-    root.addEventListener('touchend', onTouchEnd, { passive: true, capture: true })
-    root.addEventListener('touchcancel', onTouchEnd, { passive: true, capture: true })
+    root.addEventListener('touchstart', onTouchStart, { passive: true })
+    root.addEventListener('touchmove', onTouchMove, { passive: true })
+    root.addEventListener('touchend', onTouchEnd, { passive: true })
+    root.addEventListener('touchcancel', onTouchEnd, { passive: true })
 
     return () => {
-      root.removeEventListener('touchstart', onTouchStart, { capture: true })
-      root.removeEventListener('touchmove', onTouchMove, { capture: true })
-      root.removeEventListener('touchend', onTouchEnd, { capture: true })
-      root.removeEventListener('touchcancel', onTouchEnd, { capture: true })
-      clearPassthrough()
+      root.removeEventListener('touchstart', onTouchStart)
+      root.removeEventListener('touchmove', onTouchMove)
+      root.removeEventListener('touchend', onTouchEnd)
+      root.removeEventListener('touchcancel', onTouchEnd)
     }
-  }, [enabled, ref])
+  }, [enabled, onTapSwap, ref])
 }
