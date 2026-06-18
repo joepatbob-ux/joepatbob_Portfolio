@@ -18,7 +18,8 @@ import { useBodyScrollLock } from '@/lib/hooks/useBodyScrollLock'
 import { useDialogFocusTrap } from '@/lib/hooks/useDialogFocusTrap'
 import { usePrefersReducedMotion } from '@/lib/hooks/usePrefersReducedMotion'
 import { activeSlideIdPublished } from '@/lib/chapterSlideshow'
-import { applySidebarHeroNameFade, applySidebarShellFade, hideSidebarShell, isInHeroScrollZone, isTopBarInHeroScrollZone, resetSidebarShellFade } from '@/lib/heroScroll'
+import { applySidebarHeroNameFade, applySidebarShellFade, isInHeroScrollZone, isTopBarInHeroScrollZone, resetSidebarShellFade } from '@/lib/heroScroll'
+import { getLayoutViewportHeight } from '@/lib/mobileViewport'
 import { NAV_SECTIONS, sectionIdForChapter } from '@/lib/nav'
 import { SidebarMainNavSentence } from '@/components/SidebarMainNavSentence'
 import { sectionEntryChapterId } from '@/lib/sectionEntryChapter'
@@ -130,11 +131,13 @@ export function SidebarNav() {
   }
 
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false)
+  const [mobileNavReady, setMobileNavReady] = useState(false)
   const [mobileInHero, setMobileInHero] = useState(() => {
     if (typeof window === 'undefined') return true
-    return window.matchMedia(LAYOUT_MQ.topBarNav).matches
-      ? isTopBarInHeroScrollZone()
-      : isInHeroScrollZone()
+    if (!window.matchMedia(LAYOUT_MQ.topBarNav).matches) {
+      return isInHeroScrollZone()
+    }
+    return window.scrollY <= 24 || isTopBarInHeroScrollZone()
   })
   const mobileInHeroRef = useRef(mobileInHero)
   const lastHtmlHeroClassRef = useRef<boolean | null>(null)
@@ -422,7 +425,7 @@ export function SidebarNav() {
   }, [])
 
   const applyMobileHeroScroll = useCallback((y: number) => {
-    const viewportH = window.visualViewport?.height ?? window.innerHeight
+    const viewportH = getLayoutViewportHeight() || window.innerHeight
     applySidebarShellFade(mobileHeroRef.current, y, viewportH, BLUR_PX)
   }, [])
 
@@ -450,23 +453,28 @@ export function SidebarNav() {
         resetSidebarShellFade(sidebarShellRef.current)
         applyDesktopNavScroll(getScrollTop())
         setDesktopNavReady(true)
+        setMobileNavReady(true)
       } else {
         setDesktopNavReady(false)
         const y = getScrollTop()
         const inHero = isTopBarInHeroScrollZone()
         mobileInHeroRef.current = inHero
+        setMobileInHero(inHero)
         lastHtmlHeroClassRef.current = inHero
         document.documentElement.classList.toggle('in-hero-scroll', inHero)
         document.documentElement.classList.toggle('past-hero-scroll', !inHero)
         if (inHero) {
+          resetSidebarShellFade(mobileHeroRef.current)
           applyMobileHeroScroll(y)
         } else {
-          hideSidebarShell(mobileHeroRef.current)
+          resetSidebarShellFade(mobileHeroRef.current)
         }
+        setMobileNavReady(true)
       }
       return
     }
 
+    setMobileNavReady(true)
     measureLayout()
     applyDesktopNavScroll(getScrollTop())
     const inHero = isInHeroScrollZone()
@@ -475,7 +483,7 @@ export function SidebarNav() {
     document.documentElement.classList.toggle('past-hero-scroll', !inHero)
     syncSidebarDivider(inHero)
     setDesktopNavReady(true)
-  }, [usesTopBarNav, mobileInHero, mobileDrawerOpen, measureLayout, applyDesktopNavScroll, applyMobileHeroScroll, syncSidebarDivider])
+  }, [usesTopBarNav, mobileDrawerOpen, measureLayout, applyDesktopNavScroll, applyMobileHeroScroll, syncSidebarDivider])
 
   /** Top-bar nav: hero intro fades on scroll; rail + drawer overlay after hero. */
   useEffect(() => {
@@ -498,8 +506,8 @@ export function SidebarNav() {
 
       if (inHero && !mobileDrawerOpen) {
         applyMobileHeroScroll(y)
-      } else {
-        hideSidebarShell(mobileHeroRef.current)
+      } else if (!inHero) {
+        resetSidebarShellFade(mobileHeroRef.current)
       }
 
       if (!mobileDrawerOpen) {
@@ -621,7 +629,14 @@ export function SidebarNav() {
   return (
     <>
       {/* Phone + tablet: hero intro → top rail → expand panel + scrim */}
-      <div className="sidebar-mobile-nav">
+      <div
+        className={[
+          'sidebar-mobile-nav',
+          mobileNavReady ? 'sidebar-mobile-nav--ready' : '',
+        ]
+          .filter(Boolean)
+          .join(' ')}
+      >
         <div
           className={`sidebar-mobile-backdrop${mobileDrawerOpen ? ' sidebar-mobile-backdrop--visible' : ''}`}
           role="presentation"

@@ -18,6 +18,13 @@
 
   .sidebar-mobile-nav {
     display: block;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .sidebar-mobile-nav--ready {
+    visibility: visible;
+    pointer-events: auto;
   }
 
   /* ── Scrim ─────────────────────────────────────────────────────────────── */

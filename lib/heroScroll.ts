@@ -53,6 +53,13 @@ export function isTopBarInHeroScrollZone(): boolean {
 
   const scrollY = window.scrollY
   const vh = layoutViewportH()
+
+  // Top of page — always hero intro (avoids rail flash before layout / scroll restore settles).
+  if (scrollY <= HERO_PIN_FADE_START_PX) {
+    topBarHeroScrollCommitted = true
+    return true
+  }
+
   const reveal = getHeroPinReveal(scrollY, vh)
 
   if (reveal > HERO_PIN_CHAPTER_REVEAL_THRESHOLD) {
@@ -97,8 +104,16 @@ export function resetHeroScrollZoneHysteresis(): void {
   resetTopBarHeroScrollHysteresis()
 }
 
+const HYSTERESIS_RESET_GRACE_MS = 500
+let hysteresisResetGraceUntil = 0
+
+if (typeof window !== 'undefined') {
+  hysteresisResetGraceUntil = performance.now() + HYSTERESIS_RESET_GRACE_MS
+}
+
 function onViewportResize(): void {
   if (typeof window === 'undefined') return
+  if (performance.now() < hysteresisResetGraceUntil) return
   const innerH = layoutViewportH()
   const prevInnerH = lastResizeInnerH
   const delta = Math.abs(innerH - prevInnerH)

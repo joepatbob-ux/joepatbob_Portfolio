@@ -6,11 +6,14 @@ import { getLayoutViewportHeight } from '@/lib/mobileViewport'
 import { useLayoutEffect } from 'react'
 
 const HYSTERESIS_RESET_PX = 24
+const HYSTERESIS_RESET_GRACE_MS = 500
 let lastSyncedHeight = 0
+let hysteresisResetGraceUntil = 0
 
 /** Reset hero/rail hysteresis when iOS Safari resizes the visual viewport (URL bar). */
 function onMobileViewportResize(): void {
   if (typeof window === 'undefined') return
+  if (performance.now() < hysteresisResetGraceUntil) return
   if (!window.matchMedia(LAYOUT_MQ.topBarNav).matches) {
     lastSyncedHeight = 0
     return
@@ -30,6 +33,7 @@ function onMobileViewportResize(): void {
 /** Phone + tablet: listen for visualViewport changes (scroll math only — heights are CSS). */
 export function useMobileHeroViewport(): void {
   useLayoutEffect(() => {
+    hysteresisResetGraceUntil = performance.now() + HYSTERESIS_RESET_GRACE_MS
     const mq = window.matchMedia(LAYOUT_MQ.topBarNav)
     const run = () => onMobileViewportResize()
 
