@@ -21,8 +21,8 @@ export const PHONE_SCREENSHOT_SLIDES: readonly PhoneScreenshotSlide[] = [
     id: 'dashboard',
     label: 'Dashboard',
     android: {
-      light: '/models/Android.png',
-      dark: '/models/Android.png',
+      light: '/Screens/Android/Dashboard_light-optimized.webp',
+      dark: '/Screens/Android/Dashboard_dark-optimized.webp',
     },
     iphone: {
       light: '/Screens/iOS/Dashboard_light-optimized.webp',
@@ -33,8 +33,8 @@ export const PHONE_SCREENSHOT_SLIDES: readonly PhoneScreenshotSlide[] = [
     id: 'usage',
     label: 'Usage',
     android: {
-      light: '/models/Android.png',
-      dark: '/models/Android.png',
+      light: '/Screens/Android/Usage_light-optimized.webp',
+      dark: '/Screens/Android/Usage_dark-optimized.webp',
     },
     iphone: {
       light: '/Screens/iOS/Usage_light-optimized.webp',
@@ -45,24 +45,12 @@ export const PHONE_SCREENSHOT_SLIDES: readonly PhoneScreenshotSlide[] = [
     id: 'ec',
     label: 'Equipment',
     android: {
-      light: '/models/Android.png',
-      dark: '/models/Android.png',
+      light: '/Screens/Android/EC_light-optimized.webp',
+      dark: '/Screens/Android/EC_dark-optimized.webp',
     },
     iphone: {
       light: '/Screens/iOS/EC_light-optimized.webp',
       dark: '/Screens/iOS/EC_dark-optimized.webp',
-    },
-  },
-  {
-    id: 'offline',
-    label: 'Offline',
-    android: {
-      light: '/models/Android.png',
-      dark: '/models/Android.png',
-    },
-    iphone: {
-      light: '/Screens/iOS/Offline_light-optimized.webp',
-      dark: '/Screens/iOS/Offline_dark-optimized.webp',
     },
   },
 ]

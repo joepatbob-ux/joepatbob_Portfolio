@@ -28,6 +28,7 @@ export function useTouch2CarouselPlayback(
   const [progress, setProgress] = useState(0)
   const [paused, setPaused] = useState(false)
   const [reducedMotion, setReducedMotion] = useState(false)
+  const [playbackEpoch, setPlaybackEpoch] = useState(0)
   const rafRef = useRef(0)
   const elapsedRef = useRef(0)
 
@@ -55,6 +56,12 @@ export function useTouch2CarouselPlayback(
     setProgress(0)
   }, [])
 
+  const resetTimer = useCallback(() => {
+    elapsedRef.current = 0
+    setProgress(0)
+    setPlaybackEpoch((epoch) => epoch + 1)
+  }, [])
+
   const shouldAutoPlay =
     autoPlay && isActive && !paused && !reducedMotion && count > 1
 
@@ -79,7 +86,7 @@ export function useTouch2CarouselPlayback(
 
     rafRef.current = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(rafRef.current)
-  }, [shouldAutoPlay, index, count, autoPlayInterval])
+  }, [shouldAutoPlay, index, count, autoPlayInterval, playbackEpoch])
 
   useEffect(() => {
     if (!isActive || count <= 1) return
@@ -115,6 +122,7 @@ export function useTouch2CarouselPlayback(
   return {
     index,
     selectIndex,
+    resetTimer,
     go,
     reducedMotion,
     indicatorProgress,
