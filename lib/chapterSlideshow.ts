@@ -10,6 +10,23 @@ export const CHAPTER_SLOT_SELECTOR = '.portfolio-chapter-slot[data-chapter-id]'
 let publishedRevealMap: Record<string, number> = {}
 let publishedActiveSlideId: string | null = null
 
+type ChapterScrollListener = () => void
+const chapterScrollListeners = new Set<ChapterScrollListener>()
+
+/** Subscribe to scroll-published reveal / active-slide updates (useSyncExternalStore). */
+export function subscribeChapterScrollState(listener: ChapterScrollListener): () => void {
+  chapterScrollListeners.add(listener)
+  return () => {
+    chapterScrollListeners.delete(listener)
+  }
+}
+
+function notifyChapterScrollState(): void {
+  chapterScrollListeners.forEach((listener) => {
+    listener()
+  })
+}
+
 function chapterSlots(): HTMLElement[] {
   return Array.from(
     document.querySelectorAll<HTMLElement>(CHAPTER_SLOT_SELECTOR),
@@ -19,11 +36,13 @@ function chapterSlots(): HTMLElement[] {
 /** Latest scroll reveal map (one compute per frame from scroll orchestration). */
 export function publishChapterRevealMap(map: Record<string, number>): void {
   publishedRevealMap = map
+  notifyChapterScrollState()
 }
 
 /** Viewport-centered slide index — used by stickers when reveal map is empty or lagging. */
 export function publishActiveSlideId(id: string | null): void {
   publishedActiveSlideId = id
+  notifyChapterScrollState()
 }
 
 export function activeSlideIdPublished(): string | null {
@@ -177,22 +196,30 @@ function pickActiveSlideIdByVisibility(): string | null {
   return bestId
 }
 
-/** Top-bar nav: stick to current chapter until challenger leads by a viewport fraction. */
-export function pickActiveSlideIdForTopBarNav(): string | null {
+/** One layout pass for top-bar in-flow scroll (reveal weights + active chapter). */
+export function measureTopBarInFlowScroll(): {
+  revealMap: Record<string, number>
+  activeSlideId: string | null
+} {
   const vh = getLayoutViewportHeight() || window.innerHeight
+  const revealMap: Record<string, number> = {}
+  if (vh <= 0) {
+    return { revealMap, activeSlideId: null }
+  }
+
   const mobile = isLayoutMobileViewport()
   const leadRatio = mobile ? 0.05 : 0.08
   const minLeadPx = Math.max(mobile ? 40 : 56, Math.round(vh * leadRatio))
-  const slots = chapterSlots()
 
   let bestId: string | null = null
   let bestVisible = 0
   const visibleById = new Map<string, number>()
 
-  slots.forEach((el) => {
+  chapterSlots().forEach((el) => {
     const id = el.dataset.chapterId
     if (!id) return
     const visible = visibleHeightInViewport(el.getBoundingClientRect(), vh)
+    revealMap[id] = visible / vh
     visibleById.set(id, visible)
     if (visible > bestVisible) {
       bestVisible = visible
@@ -200,15 +227,21 @@ export function pickActiveSlideIdForTopBarNav(): string | null {
     }
   })
 
+  let activeSlideId = bestId
   const current = publishedActiveSlideId
   if (current && bestId && current !== bestId) {
     const currentVisible = visibleById.get(current) ?? 0
     if (bestVisible - currentVisible < minLeadPx) {
-      return current
+      activeSlideId = current
     }
   }
 
-  return bestId
+  return { revealMap, activeSlideId }
+}
+
+/** Top-bar nav: stick to current chapter until challenger leads by a viewport fraction. */
+export function pickActiveSlideIdForTopBarNav(): string | null {
+  return measureTopBarInFlowScroll().activeSlideId
 }
 
 /**

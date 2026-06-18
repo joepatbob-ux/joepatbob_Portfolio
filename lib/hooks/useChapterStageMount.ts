@@ -2,7 +2,7 @@
 
 import { useChapterNav } from '@/components/ChapterNavProvider'
 import { useChapterActive } from '@/lib/chapterActiveContext'
-import { useChapterReveal } from '@/lib/hooks/useChapterReveal'
+import { useChapterReveal, usePublishedActiveSlideId } from '@/lib/hooks/useChapterReveal'
 import { chapterIsInteractive } from '@/lib/chapterVisibility'
 
 /** Mount canvas before full interactivity so assets can load off-screen. */
@@ -19,9 +19,12 @@ export function useChapterStageMount(chapterId: string) {
   const active = useChapterActive()
   const reveal = useChapterReveal(chapterId)
   const nav = useChapterNav()
+  const publishedActiveSlideId = usePublishedActiveSlideId()
+  const activeSlideId =
+    nav?.phase === 'idle' ? publishedActiveSlideId : (nav?.activeSlideId ?? null)
   const interactive = chapterIsInteractive(
     reveal,
-    nav?.activeSlideId ?? null,
+    activeSlideId,
     chapterId,
   )
   const premount = reveal >= STAGE_PREMOUNT_REVEAL

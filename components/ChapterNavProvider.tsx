@@ -91,11 +91,32 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const applyScrollState = (state: ReturnType<typeof measureSlideScrollState>) => {
+      if (phaseRef.current === 'idle' && isTopBarNavViewport()) {
+        revealsRef.current = state.revealMap
+        if (!busyRef.current) {
+          let best = state.activeSlideId
+          const guard = navGuardRef.current
+          if (guard && performance.now() < guard.until) {
+            const slot = document.querySelector<HTMLElement>(
+              `.portfolio-chapter-slot[data-chapter-id="${CSS.escape(guard.chapterId)}"]`,
+            )
+            if (
+              slot &&
+              Math.abs(window.scrollY - chapterSlotScrollTop(slot)) <= 24
+            ) {
+              best = guard.chapterId
+            }
+          }
+
+          if (best !== activeRef.current) {
+            activeRef.current = best
+          }
+        }
+        return
+      }
+
       if (phaseRef.current === 'idle') {
-        if (
-          isTopBarNavViewport() &&
-          chapterRevealsChanged(revealsRef.current, state.revealMap)
-        ) {
+        if (chapterRevealsChanged(revealsRef.current, state.revealMap)) {
           revealsRef.current = state.revealMap
           setReveals(state.revealMap)
         } else {

@@ -1,15 +1,13 @@
 import {
-  CHAPTER_SLOT_SELECTOR,
   computeChapterRevealMap,
+  measureTopBarInFlowScroll,
   pickActiveSlideId,
-  pickActiveSlideIdForTopBarNav,
   publishActiveSlideId,
   publishChapterRevealMap,
 } from '@/lib/chapterSlideshow'
 import { FLOW_CHAPTER_SLOT_SELECTOR } from '@/lib/chapterFlow'
 import { isTopBarInHeroScrollZone, shouldSuppressChapterReveal } from '@/lib/heroScroll'
 import { isTopBarNavViewport } from '@/lib/layout/isTopBarNavViewport'
-import { getLayoutViewportHeight } from '@/lib/mobileViewport'
 
 export type SlideNavPhase = 'idle' | 'out' | 'in'
 
@@ -31,23 +29,6 @@ function computeFlowChapterRevealMap(): Record<string, number> {
     const rect = el.getBoundingClientRect()
     const onScreen = rect.bottom > 0 && rect.top < vh
     map[id] = onScreen ? 1 : 0
-  })
-
-  return map
-}
-
-/** Phone + tablet top-bar nav: visible viewport fraction per chapter (0–1). */
-function computeInFlowRevealMap(): Record<string, number> {
-  const map: Record<string, number> = {}
-  const vh = getLayoutViewportHeight() || window.innerHeight
-  if (vh <= 0) return map
-
-  document.querySelectorAll<HTMLElement>(CHAPTER_SLOT_SELECTOR).forEach((el) => {
-    const id = el.dataset.chapterId
-    if (!id) return
-    const rect = el.getBoundingClientRect()
-    const visible = Math.max(0, Math.min(rect.bottom, vh) - Math.max(rect.top, 0))
-    map[id] = visible / vh
   })
 
   return map
@@ -76,12 +57,11 @@ export function measureSlideScrollState(
 
   if (isTopBarNavViewport()) {
     const inHero = isTopBarInHeroScrollZone()
-    const revealMap = computeInFlowRevealMap()
-    return {
-      revealMap,
-      activeSlideId: inHero ? null : pickActiveSlideIdForTopBarNav(),
-      inHero,
+    if (inHero) {
+      return { revealMap: {}, activeSlideId: null, inHero: true }
     }
+    const { revealMap, activeSlideId } = measureTopBarInFlowScroll()
+    return { revealMap, activeSlideId, inHero: false }
   }
 
   if (shouldSuppressChapterReveal()) {
