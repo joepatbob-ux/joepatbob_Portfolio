@@ -46,7 +46,13 @@ const SOURCE_GROUPS = {
   d: {
     label: 'Group D — iOS screenshots (quality 85, no resize)',
     inputDir: 'public/Screens/iOS',
-    inputPattern: /\.png$/i,
+    inputPattern: /\.(png|jpe?g)$/i,
+    outputSuffix: '-optimized.webp',
+  },
+  e: {
+    label: 'Group E — Android screenshots (quality 85, no resize)',
+    inputDir: 'public/Screens/Android',
+    inputPattern: /\.jpe?g$/i,
     outputSuffix: '-optimized.webp',
   },
 }
@@ -126,17 +132,17 @@ async function processPhone(inputRel, outputRel) {
   return writeOutput(inputPath, outputPath, pipeline)
 }
 
-async function processScreenshots(inputDirRel) {
+async function processScreenshots(inputDirRel, inputPattern) {
   const inputDir = path.join(root, inputDirRel)
   if (!(await pathExists(inputDir))) return 0
 
   const entries = await fs.readdir(inputDir)
-  const files = entries.filter((name) => /\.png$/i.test(name)).sort()
+  const files = entries.filter((name) => inputPattern.test(name)).sort()
   let processed = 0
 
   for (const name of files) {
     const inputPath = path.join(inputDir, name)
-    const base = name.replace(/\.png$/i, '')
+    const base = name.replace(/\.(png|jpe?g)$/i, '')
     const outputPath = path.join(inputDir, `${base}-optimized.webp`)
     const pipeline = sharp(inputPath).webp({ quality: 85 })
     if (await writeOutput(inputPath, outputPath, pipeline)) processed += 1
@@ -168,11 +174,12 @@ async function countGroupCInputs() {
   return count
 }
 
-async function countGroupDInputs() {
-  const inputDir = path.join(root, SOURCE_GROUPS.d.inputDir)
-  if (!(await pathExists(inputDir))) return 0
-  const entries = await fs.readdir(inputDir)
-  return entries.filter((name) => SOURCE_GROUPS.d.inputPattern.test(name)).length
+async function countScreenshotInputs(groupKey) {
+  const { inputDir, inputPattern } = SOURCE_GROUPS[groupKey]
+  const dir = path.join(root, inputDir)
+  if (!(await pathExists(dir))) return 0
+  const entries = await fs.readdir(dir)
+  return entries.filter((name) => inputPattern.test(name)).length
 }
 
 async function runGroupA() {
@@ -190,17 +197,18 @@ async function runGroupA() {
 async function main() {
   const group = process.argv[2]?.replace(/^--group=/, '') ?? 'all'
   const groups =
-    group === 'all' ? ['a', 'b', 'c', 'd'] : [group]
+    group === 'all' ? ['a', 'b', 'c', 'd', 'e'] : [group]
 
   const inputCounts = {
     a: groups.includes('a') ? await countGroupAInputs() : 0,
     b: groups.includes('b') ? await countGroupBInputs() : 0,
     c: groups.includes('c') ? await countGroupCInputs() : 0,
-    d: groups.includes('d') ? await countGroupDInputs() : 0,
+    d: groups.includes('d') ? await countScreenshotInputs('d') : 0,
+    e: groups.includes('e') ? await countScreenshotInputs('e') : 0,
   }
 
   const totalInputs =
-    inputCounts.a + inputCounts.b + inputCounts.c + inputCounts.d
+    inputCounts.a + inputCounts.b + inputCounts.c + inputCounts.d + inputCounts.e
 
   if (totalInputs === 0) {
     console.log('Assets already optimized — nothing to do')
@@ -232,7 +240,18 @@ async function main() {
 
   if (groups.includes('d') && inputCounts.d > 0) {
     console.log(`\n${SOURCE_GROUPS.d.label}`)
-    processed += await processScreenshots(SOURCE_GROUPS.d.inputDir)
+    processed += await processScreenshots(
+      SOURCE_GROUPS.d.inputDir,
+      SOURCE_GROUPS.d.inputPattern,
+    )
+  }
+
+  if (groups.includes('e') && inputCounts.e > 0) {
+    console.log(`\n${SOURCE_GROUPS.e.label}`)
+    processed += await processScreenshots(
+      SOURCE_GROUPS.e.inputDir,
+      SOURCE_GROUPS.e.inputPattern,
+    )
   }
 
   if (processed === 0) {
