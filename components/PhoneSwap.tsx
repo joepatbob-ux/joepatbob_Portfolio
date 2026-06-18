@@ -265,7 +265,7 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
     distanceScale: PHONE_VIEWPORT_DISTANCE_SCALE,
   })
 
-  usePhoneSwapTouchScroll(viewboxRef, useScrollPassthrough)
+  usePhoneSwapTouchScroll(viewboxRef, useScrollPassthrough, doSwap)
 
   useEffect(() => {
     if (!shouldRenderScene) return

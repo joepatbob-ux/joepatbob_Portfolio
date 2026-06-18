@@ -88,6 +88,20 @@
   pointer-events: auto;
 }
 
+.phone-swap--in-flow .phone-swap__viewbox {
+  touch-action: pan-y;
+  cursor: default;
+}
+
+.phone-swap--in-flow .phone-swap__viewbox canvas {
+  pointer-events: none !important;
+  touch-action: pan-y;
+}
+
+.phone-swap--in-flow .phone-swap__viewbox--live-interactive canvas {
+  pointer-events: auto !important;
+}
+
 .phone-swap__viewbox--scroll-passthrough,
 .phone-swap__viewbox--scroll-passthrough canvas {
   pointer-events: none !important;

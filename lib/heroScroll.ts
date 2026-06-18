@@ -10,6 +10,7 @@ function easeOutCubic(t: number): number {
 }
 
 import { getLayoutViewportHeight } from '@/lib/mobileViewport'
+import { getDocumentScrollY } from '@/lib/documentScrollY'
 
 function prefersReducedMotion(): boolean {
   if (typeof window === 'undefined') return false
@@ -51,7 +52,7 @@ export function resetTopBarHeroScrollHysteresis(): void {
 export function isTopBarInHeroScrollZone(): boolean {
   if (typeof window === 'undefined') return true
 
-  const scrollY = window.scrollY
+  const scrollY = getDocumentScrollY()
   const vh = layoutViewportH()
 
   // Top of page — always hero intro (avoids rail flash before layout / scroll restore settles).
@@ -174,7 +175,7 @@ export function heroChapterHandoffProgress(
 export function shouldSuppressChapterReveal(): boolean {
   if (typeof window === 'undefined') return false
 
-  const scrollY = window.scrollY
+  const scrollY = getDocumentScrollY()
   const viewportH = window.innerHeight
   if (viewportH <= 0) return false
 
@@ -194,7 +195,7 @@ export function shouldSuppressChapterReveal(): boolean {
 export function isInHeroScrollZone(): boolean {
   if (typeof window === 'undefined') return false
 
-  const scrollY = window.scrollY
+  const scrollY = getDocumentScrollY()
   const viewportH = window.innerHeight
   const reveal = getHeroPinReveal(scrollY, viewportH)
 

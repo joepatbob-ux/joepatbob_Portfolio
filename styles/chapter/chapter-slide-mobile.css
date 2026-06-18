@@ -243,7 +243,87 @@
     justify-content: center;
   }
 
-  .hardware-slideshow.section-lessons .chapter-slide__viewport {
+  .portfolio-chapter-slot--fill.hardware-slideshow.section-lessons .chapter-slide__viewport {
     padding: 0;
+  }
+}
+
+/* Phone landscape — stage beside headline + More */
+@media (max-width: 767px) and (orientation: landscape) {
+  .hardware-slideshow .chapter-slide__inner:not(.chapter-slide__inner--copy-only) {
+    flex-direction: row !important;
+    align-items: flex-start;
+    justify-content: center;
+    gap: clamp(12px, 3vw, 20px);
+    min-height: auto;
+    padding-top: var(--mobile-nav-overlay-height);
+    padding-inline: var(--content-pad-x, 16px);
+    box-sizing: border-box;
+  }
+
+  .hardware-slideshow .chapter-slide__stage {
+    flex: 0 0 min(42%, 200px);
+    width: min(42%, 200px);
+    max-width: min(42%, 200px);
+    min-height: 0;
+    max-height: min(48dvh, 240px);
+    align-self: flex-start;
+    margin-top: 0;
+  }
+
+  .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__stage:has(.phone-swap) {
+    flex: 0 0 min(40%, 180px);
+    width: min(40%, 180px);
+    max-width: min(40%, 180px);
+    max-height: min(44dvh, 220px);
+  }
+
+  .hardware-slideshow .chapter-slide__copy--mobile-teaser,
+  .hardware-slideshow .flow-chapter-slide__copy.mobile-learn-more-copy {
+    flex: 1 1 auto;
+    min-width: 0;
+    width: auto;
+    max-width: none;
+    align-self: flex-start;
+    text-align: left;
+    padding-top: 0;
+  }
+
+  .hardware-slideshow
+    .chapter-slide__copy--mobile-teaser
+    .chapter-copy__headline,
+  .hardware-slideshow
+    .chapter-slide__copy--mobile-teaser
+    .case-study-section-header__headline,
+  .hardware-slideshow
+    .chapter-slide__copy--mobile-teaser
+    .mobile-section-header__headline {
+    text-align: left;
+  }
+
+  .hardware-slideshow
+    .chapter-slide__copy--mobile-teaser
+    .chapter-copy__rule,
+  .hardware-slideshow
+    .chapter-slide__copy--mobile-teaser
+    .case-study-section-header__rule,
+  .hardware-slideshow
+    .chapter-slide__copy--mobile-teaser
+    .mobile-section-header__rule {
+    margin-inline: 0;
+  }
+
+  .hardware-slideshow .chapter-slide__copy--mobile-teaser .mobile-learn-more,
+  .hardware-slideshow .chapter-slide__copy--mobile-teaser .overlay-action-slot {
+    justify-content: flex-start;
+  }
+
+  .hardware-slideshow.mobile-chapter-slot--sensi .phone-swap--in-flow .phone-swap__viewbox {
+    height: min(44dvh, 220px);
+    width: 100%;
+  }
+
+  .hardware-slideshow.mobile-chapter-slot--sensi .phone-swap__screenshot-controls {
+    margin-top: 8px;
   }
 }

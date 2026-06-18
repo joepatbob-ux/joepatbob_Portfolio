@@ -3,6 +3,7 @@
 import { applyHeroPinFade } from '@/lib/heroScroll'
 import { LAYOUT_MQ } from '@/lib/layout/breakpoints'
 import { getLayoutViewportHeight } from '@/lib/mobileViewport'
+import { getDocumentScrollY } from '@/lib/documentScrollY'
 import { useLayoutMobile } from '@/lib/hooks/useLayoutMobile'
 import { useMobileHeroViewport } from '@/lib/useMobileHeroViewport'
 import { scheduleScrollFrame } from '@/lib/scrollFrame'
@@ -41,7 +42,7 @@ export function Hero() {
       const viewportH = getLayoutViewportHeight() || window.innerHeight
       applyHeroPinFade(
         pinEl,
-        window.scrollY,
+        getDocumentScrollY(),
         viewportH,
         topBarNav ? 0 : 10,
       )
