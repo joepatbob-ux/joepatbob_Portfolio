@@ -6,7 +6,7 @@ import {
   chapterIsAccessible,
   chapterIsInteractive,
 } from '@/lib/chapterVisibility'
-import { chapterRevealForId } from '@/lib/chapterSlideshow'
+import { useChapterReveal, usePublishedActiveSlideId } from '@/lib/hooks/useChapterReveal'
 import { useLayoutMobile } from '@/lib/hooks/useLayoutMobile'
 import { useLayoutTopBarNav } from '@/lib/hooks/useLayoutTopBarNav'
 import {
@@ -21,13 +21,13 @@ export function useChapterPanelOpacity(chapterId: string) {
   const { phase, targetId, activeSlideId, reveals } = useChapterNav()
   const layoutMobile = useLayoutMobile()
   const topBarNav = useLayoutTopBarNav()
+  const publishedReveal = useChapterReveal(chapterId)
+  const publishedActiveSlideId = usePublishedActiveSlideId()
 
   const scrollReveal =
-    phase === 'idle'
-      ? topBarNav
-        ? (reveals[chapterId] ?? 0)
-        : chapterRevealForId(chapterId)
-      : (reveals[chapterId] ?? 0)
+    phase === 'idle' ? publishedReveal : (reveals[chapterId] ?? 0)
+  const resolvedActiveSlideId =
+    phase === 'idle' && topBarNav ? publishedActiveSlideId : activeSlideId
   const flowChapter = isFlowChapterId(chapterId)
   const fixedSlideshowStacking =
     isFixedSlideshowFlowChapter(chapterId) && !layoutMobile
@@ -36,7 +36,7 @@ export function useChapterPanelOpacity(chapterId: string) {
     const visibility = scrollReveal
     const isActive = chapterIsInteractive(
       visibility,
-      activeSlideId,
+      resolvedActiveSlideId,
       chapterId,
     )
     return {

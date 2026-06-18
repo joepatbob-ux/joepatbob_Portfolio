@@ -426,7 +426,7 @@ export function SidebarNav() {
 
   const applyMobileHeroScroll = useCallback((y: number) => {
     const viewportH = getLayoutViewportHeight() || window.innerHeight
-    applySidebarShellFade(mobileHeroRef.current, y, viewportH, BLUR_PX)
+    applySidebarShellFade(mobileHeroRef.current, y, viewportH, 0)
   }, [])
 
   const applyDesktopNavScroll = useCallback((y: number) => {

@@ -19,6 +19,7 @@ export function bindTopBarScrollSpy(
   let rafId = 0
   let lastInHero: boolean | null = null
   let lastActiveId: string | null = null
+  let heroPaused = isTopBarInHeroScrollZone()
 
   const publish = () => {
     const state = measureSlideScrollState(getPhase(), getLockId())
@@ -42,7 +43,10 @@ export function bindTopBarScrollSpy(
 
   const io =
     typeof IntersectionObserver !== 'undefined'
-      ? new IntersectionObserver(() => schedulePublish(), {
+      ? new IntersectionObserver(() => {
+          if (heroPaused) return
+          schedulePublish()
+        }, {
           root: null,
           threshold: [0, 0.12, 0.35, 0.55, 0.75, 1],
         })
@@ -53,7 +57,10 @@ export function bindTopBarScrollSpy(
   const onScroll = () => {
     if (getPhase() !== 'idle') return
     const inHero = isTopBarInHeroScrollZone()
-    if (inHero !== lastInHero) schedulePublish()
+    if (inHero !== lastInHero || inHero !== heroPaused) {
+      heroPaused = inHero
+      schedulePublish()
+    }
   }
 
   window.addEventListener('scroll', onScroll, { passive: true })
