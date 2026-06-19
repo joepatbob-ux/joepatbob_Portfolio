@@ -35,6 +35,8 @@ interface DesktopProps {
 interface MobileHeroProps {
   variant: 'mobile-hero'
   onSelect: (sectionId: string) => void
+  /** Mirrors mobile hero visibility — keeps keywords out of tab order when hero is hidden. */
+  keywordTabIndex?: number
 }
 
 type Props = DesktopProps | MobileHeroProps
@@ -146,6 +148,7 @@ export function SidebarMainNavSentence(props: Props) {
               type="button"
               className="sidebar-main-nav__keyword"
               aria-label={sec.label}
+              tabIndex={props.keywordTabIndex ?? 0}
               onClick={() => props.onSelect(sec.id)}
               style={{
                 display: 'inline',

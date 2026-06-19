@@ -3,13 +3,19 @@
 import { Touch2CarouselDots } from '@/components/touch2/Touch2CarouselDots'
 import { useChapterActive } from '@/lib/chapterActiveContext'
 import { TOUCH2_CAROUSEL_IMAGES } from '@/lib/touch2CarouselImages'
+import { LAYOUT_MQ } from '@/lib/layout/breakpoints'
 import {
   touch2RailMetrics,
   touch2RailMetricsForWidth,
   touch2DotCssMetrics,
+  type Touch2RailMetrics,
 } from '@/lib/touch2/touch2StageMetrics'
 import { useTouch2CarouselPlayback } from '@/lib/touch2/useTouch2CarouselPlayback'
 import { memo, useEffect, useRef, useState } from 'react'
+
+function railMetricsEqual(a: Touch2RailMetrics, b: Touch2RailMetrics): boolean {
+  return a.railH === b.railH && a.slideW === b.slideW && a.scale === b.scale
+}
 
 export {
   TOUCH2_FRAME_HEIGHT,
@@ -76,33 +82,67 @@ function Touch2CarouselInner({
 
   const rootRef = useRef<HTMLDivElement>(null)
   const [railMetrics, setRailMetrics] = useState(() => touch2RailMetrics(count))
+  const [isMobileLayout, setIsMobileLayout] = useState(false)
 
   useEffect(() => {
-    const el = rootRef.current
-    if (!el || typeof ResizeObserver === 'undefined') {
-      setRailMetrics(touch2RailMetrics(count))
+    const mq = window.matchMedia(LAYOUT_MQ.mobile)
+    const sync = () => setIsMobileLayout(mq.matches)
+    sync()
+    mq.addEventListener('change', sync)
+    return () => mq.removeEventListener('change', sync)
+  }, [])
+
+  useEffect(() => {
+    const root = rootRef.current
+    if (!root || typeof ResizeObserver === 'undefined') {
+      setRailMetrics((prev) => {
+        const next = touch2RailMetrics(count)
+        return railMetricsEqual(prev, next) ? prev : next
+      })
       return
     }
 
+    // Observe stage parent — stable width; avoids RO loop when rail metrics resize children.
+    const observeTarget = root.parentElement ?? root
+    let rafId = 0
+
     const update = () => {
-      const style = getComputedStyle(el)
-      const gap =
-        parseFloat(style.columnGap) ||
-        parseFloat(style.gap) ||
-        parseFloat(style.getPropertyValue('--cs-touch2-gap')) ||
-        32
-      setRailMetrics(
-        touch2RailMetricsForWidth(count, el.clientWidth, gap),
-      )
+      cancelAnimationFrame(rafId)
+      rafId = requestAnimationFrame(() => {
+        const gapSource = root
+        const style = getComputedStyle(gapSource)
+        const gap =
+          parseFloat(style.columnGap) ||
+          parseFloat(style.gap) ||
+          parseFloat(style.getPropertyValue('--cs-touch2-gap')) ||
+          parseFloat(style.getPropertyValue('--cs-touch2-mobile-gap')) ||
+          32
+        const next = touch2RailMetricsForWidth(
+          count,
+          observeTarget.clientWidth,
+          gap,
+        )
+        setRailMetrics((prev) => (railMetricsEqual(prev, next) ? prev : next))
+      })
     }
 
     update()
     const observer = new ResizeObserver(update)
-    observer.observe(el)
-    return () => observer.disconnect()
-  }, [count])
+    observer.observe(observeTarget)
+    return () => {
+      cancelAnimationFrame(rafId)
+      observer.disconnect()
+    }
+  }, [count, isMobileLayout])
 
   const { railH, slideW, scale } = railMetrics
+
+  const railSizeStyle = isMobileLayout
+    ? {}
+    : {
+        '--touch2-rail-h': `${railH}px`,
+        '--touch2-slide-w': `${slideW}px`,
+      }
 
   return (
     <div
@@ -110,8 +150,7 @@ function Touch2CarouselInner({
       className={['touch2-carousel', className].filter(Boolean).join(' ')}
       style={
         {
-          '--touch2-rail-h': `${railH}px`,
-          '--touch2-slide-w': `${slideW}px`,
+          ...railSizeStyle,
           ...touch2DotCssMetrics(scale),
         } as React.CSSProperties
       }

@@ -2,6 +2,7 @@
 
 import { ChapterCopyScroller } from '@/components/ChapterCopyScroller'
 import { ChapterCompactStageFill } from '@/components/chapter-slide/ChapterCompactStageFill'
+import { isContinuousChapters } from '@/lib/continuousChapters'
 import {
   ChapterCompactViewInner,
   ChapterCompactViewProvider,
@@ -76,7 +77,7 @@ export function ChapterSlideShell({
           extraClasses: copyClassName,
         })}
       >
-        {usesCompactCopyMode(mode) ? (
+        {usesCompactCopyMode(mode) || isContinuousChapters() ? (
           copy
         ) : (
           <ChapterCopyScroller active={copyScrollActive}>{copy}</ChapterCopyScroller>

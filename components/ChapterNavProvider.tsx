@@ -3,6 +3,7 @@
 import { chapterRevealsChanged } from '@/lib/chapterReveals'
 import { applySlideScrollFromMeasure } from '@/lib/applySlideScrollFromMeasure'
 import { resetInFlowChapterPanels } from '@/lib/applyChapterPanelScrollStyles'
+import { isContinuousChapters } from '@/lib/continuousChapters'
 import {
   measureSlideScrollState,
   type SlideNavPhase,
@@ -169,7 +170,10 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
       cleanup?.()
       cleanup = undefined
 
-      if (window.matchMedia(LAYOUT_MQ.topBarNav).matches) {
+      if (
+        window.matchMedia(LAYOUT_MQ.topBarNav).matches ||
+        isContinuousChapters()
+      ) {
         resetInFlowChapterPanels()
         cleanup = bindTopBarScrollSpy(
           () => phaseRef.current,

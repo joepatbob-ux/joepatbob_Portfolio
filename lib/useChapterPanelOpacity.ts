@@ -2,6 +2,7 @@
 
 import { CHAPTER_NAV_FADE_MS, useChapterNav } from '@/components/ChapterNavProvider'
 import { isFixedSlideshowFlowChapter, isFlowChapterId } from '@/lib/chapterFlow'
+import { isContinuousChapters } from '@/lib/continuousChapters'
 import {
   chapterIsAccessible,
   chapterIsInteractive,
@@ -30,9 +31,9 @@ export function useChapterPanelOpacity(chapterId: string) {
     phase === 'idle' && topBarNav ? publishedActiveSlideId : activeSlideId
   const flowChapter = isFlowChapterId(chapterId)
   const fixedSlideshowStacking =
-    isFixedSlideshowFlowChapter(chapterId) && !layoutMobile
+    isFixedSlideshowFlowChapter(chapterId) && !layoutMobile && !isContinuousChapters()
 
-  if (phase === 'idle' && topBarNav) {
+  if (phase === 'idle' && (topBarNav || isContinuousChapters())) {
     const visibility = scrollReveal
     const isActive = chapterIsInteractive(
       visibility,

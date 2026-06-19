@@ -8,9 +8,16 @@ import {
   type PhoneScreenTheme,
 } from '@/lib/phone-swap/phoneScreenshotSlides'
 import { useTouch2CarouselPlayback } from '@/lib/touch2/useTouch2CarouselPlayback'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
-export function usePhoneScreenshotControls() {
+type UsePhoneScreenshotControlsOptions = {
+  animating?: boolean
+}
+
+export function usePhoneScreenshotControls(
+  options: UsePhoneScreenshotControlsOptions = {},
+) {
+  const { animating = false } = options
   const { resolvedTheme } = useTheme()
   const isActive = useChapterActive()
   const [screenTheme, setScreenThemeState] =
@@ -25,20 +32,20 @@ export function usePhoneScreenshotControls() {
   const {
     index: slideIndex,
     selectIndex: selectSlide,
+    resetTimer,
     indicatorProgress,
     pauseHandlers,
-  } = useTouch2CarouselPlayback(slideCount, { isActive })
+  } = useTouch2CarouselPlayback(slideCount, {
+    isActive: isActive && !animating,
+  })
 
   useEffect(() => {
     setScreenThemeState(resolvedTheme)
   }, [resolvedTheme])
 
-  const slideIndexRef = useRef(slideIndex)
-  slideIndexRef.current = slideIndex
-
   useEffect(() => {
-    selectSlide(slideIndexRef.current)
-  }, [screenTheme, selectSlide])
+    resetTimer()
+  }, [screenTheme, resetTimer])
 
   const urls = useMemo(
     () => phoneScreenshotUrls(slideIndex, screenTheme),
@@ -88,5 +95,6 @@ export function usePhoneScreenshotControls() {
     selectSlide,
     toggleScreenTheme,
     setScreenTheme: setScreenThemeExplicit,
+    resetTimer,
   }
 }

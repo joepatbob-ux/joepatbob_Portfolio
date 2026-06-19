@@ -80,6 +80,7 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
     clampAnimSettings(DEFAULT_PHONE_SWAP_ANIM),
   )
   const [swapped, setSwapped] = useState(false)
+  const [animating, setAnimating] = useState(false)
   const [layout, setLayout] = useState<PhoneSwapLayout>(() => cloneLayout(PHONE_SWAP_LAYOUT))
   const [editFocus, setEditFocus] = useState<PhoneSwapEditFocus>('androidFocus')
   const [selectedDevice, setSelectedDevice] = useState<PhoneDevice>('android')
@@ -87,7 +88,9 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
   const [showGuides, setShowGuides] = useState(false)
   const topBarNav = useLayoutTopBarNav()
   const chapterActive = useChapterActive()
-  const screenshot = usePhoneScreenshotControls()
+  const screenshot = usePhoneScreenshotControls({ animating })
+  const resetTimerRef = useRef(screenshot.resetTimer)
+  resetTimerRef.current = screenshot.resetTimer
   const sceneLatchedRef = useRef(false)
   if (chapterActive || layoutMode || devToolsEnabled) {
     sceneLatchedRef.current = true
@@ -97,7 +100,6 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
   const [liveSnapshot, setLiveSnapshot] = useState<PhoneSwapSnapshot>(() =>
     cloneSnapshot(PHONE_SWAP_LAYOUT.androidFocus),
   )
-  const [animating, setAnimating] = useState(false)
   const [animSession, setAnimSession] = useState(0)
   const [backPhoneHover, setBackPhoneHover] = useState(false)
   const [liveScreenRect, setLiveScreenRect] = useState<DisplayScreenRect | null>(
@@ -144,6 +146,7 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
   const handleAnimationComplete = useCallback(() => {
     busy.current = false
     setAnimating(false)
+    resetTimerRef.current()
   }, [])
 
   const triggerSwap = useCallback(() => {

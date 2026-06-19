@@ -1,4 +1,5 @@
 import { isFixedSlideshowFlowChapter, isFlowChapterId } from '@/lib/chapterFlow'
+import { isContinuousChapters } from '@/lib/continuousChapters'
 import { CHAPTER_STICKER_SCROLL_VISIBILITY } from '@/lib/chapterVisibility'
 import { CHAPTER_SLOT_SELECTOR } from '@/lib/chapterSlideshow'
 import { isLayoutMobileViewport } from '@/lib/layout/isLayoutMobileViewport'
@@ -25,7 +26,7 @@ export function applyChapterPanelScrollStyles(
   revealMap: Record<string, number>,
   _activeSlideId: string | null,
 ): void {
-  if (isTopBarNavViewport()) return
+  if (isTopBarNavViewport() || isContinuousChapters()) return
 
   const layoutMobile = isLayoutMobileViewport()
 
@@ -80,7 +81,7 @@ export function applyPlacedStickerScrollVisibility(
   revealMap: Record<string, number>,
   activeSlideId: string | null,
 ): void {
-  const topBarNav = isTopBarNavViewport()
+  const topBarNav = isTopBarNavViewport() || isContinuousChapters()
 
   document.querySelectorAll<HTMLElement>('.sticker-placed').forEach((root) => {
     if (root.classList.contains('sticker-placed--selected')) return

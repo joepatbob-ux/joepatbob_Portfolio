@@ -227,7 +227,7 @@ export function measureTopBarInFlowScroll(): {
     }
   })
 
-  let activeSlideId = bestId
+  let activeSlideId: string | null = bestId
   const current = publishedActiveSlideId
   if (current && bestId && current !== bestId) {
     const currentVisible = visibleById.get(current) ?? 0

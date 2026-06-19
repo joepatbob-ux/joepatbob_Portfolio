@@ -1,13 +1,16 @@
 import {
+  CHAPTER_SLOT_SELECTOR,
   computeChapterRevealMap,
-  measureTopBarInFlowScroll,
   pickActiveSlideId,
+  pickActiveSlideIdForTopBarNav,
   publishActiveSlideId,
   publishChapterRevealMap,
 } from '@/lib/chapterSlideshow'
 import { FLOW_CHAPTER_SLOT_SELECTOR } from '@/lib/chapterFlow'
+import { isContinuousChapters } from '@/lib/continuousChapters'
 import { isTopBarInHeroScrollZone, shouldSuppressChapterReveal } from '@/lib/heroScroll'
 import { isTopBarNavViewport } from '@/lib/layout/isTopBarNavViewport'
+import { getLayoutViewportHeight } from '@/lib/mobileViewport'
 
 export type SlideNavPhase = 'idle' | 'out' | 'in'
 
@@ -34,6 +37,23 @@ function computeFlowChapterRevealMap(): Record<string, number> {
   return map
 }
 
+/** Phone + tablet top-bar nav: visible viewport fraction per chapter (0–1). */
+function computeInFlowRevealMap(): Record<string, number> {
+  const map: Record<string, number> = {}
+  const vh = getLayoutViewportHeight() || window.innerHeight
+  if (vh <= 0) return map
+
+  document.querySelectorAll<HTMLElement>(CHAPTER_SLOT_SELECTOR).forEach((el) => {
+    const id = el.dataset.chapterId
+    if (!id) return
+    const rect = el.getBoundingClientRect()
+    const visible = Math.max(0, Math.min(rect.bottom, vh) - Math.max(rect.top, 0))
+    map[id] = visible / vh
+  })
+
+  return map
+}
+
 /** Single scroll measurement for panels, nav, and stickers. */
 export function measureSlideScrollState(
   phase: SlideNavPhase,
@@ -55,13 +75,16 @@ export function measureSlideScrollState(
     return { revealMap: {}, activeSlideId: null, inHero: false }
   }
 
-  if (isTopBarNavViewport()) {
-    const inHero = isTopBarInHeroScrollZone()
-    if (inHero) {
-      return { revealMap: {}, activeSlideId: null, inHero: true }
+  if (isTopBarNavViewport() || isContinuousChapters()) {
+    const inHero = isTopBarNavViewport()
+      ? isTopBarInHeroScrollZone()
+      : shouldSuppressChapterReveal()
+    const revealMap = computeInFlowRevealMap()
+    return {
+      revealMap,
+      activeSlideId: inHero ? null : pickActiveSlideIdForTopBarNav(),
+      inHero,
     }
-    const { revealMap, activeSlideId } = measureTopBarInFlowScroll()
-    return { revealMap, activeSlideId, inHero: false }
   }
 
   if (shouldSuppressChapterReveal()) {
