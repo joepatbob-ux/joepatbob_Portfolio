@@ -9,6 +9,7 @@ import { useLayoutMobile } from '@/lib/hooks/useLayoutMobile'
 import { useLayoutTopBarNav } from '@/lib/hooks/useLayoutTopBarNav'
 import { eibChapterId } from '@/lib/everything-in-between/content'
 import { activeSlideIdPublished } from '@/lib/chapterSlideshow'
+import { isContinuousChapters } from '@/lib/continuousChapters'
 import { pileStackOffset, randomPileRotation } from '@/lib/stickers'
 import { scheduleScrollFrame } from '@/lib/scrollFrame'
 import { useAnchorPortalFollow } from '@/lib/useAnchorPortalFollow'
@@ -20,6 +21,7 @@ export function StickerPile() {
     useStickers()
   const layoutMobile = useLayoutMobile()
   const topBarNav = useLayoutTopBarNav()
+  const inFlowScroll = topBarNav || isContinuousChapters()
   const { activeSlideId } = useChapterNav()
   const rotationsRef = useRef<Map<string, number>>(new Map())
   const anchorRef = useRef<HTMLDivElement>(null)
@@ -37,7 +39,7 @@ export function StickerPile() {
 
   useEffect(() => {
     const sync = () => {
-      const active = topBarNav
+      const active = inFlowScroll
         ? activeSlideIdPublished()
         : activeSlideId
       const vis = active === PRACTICE_CHAPTER_ID
@@ -48,9 +50,9 @@ export function StickerPile() {
     }
 
     sync()
-    if (!topBarNav) return
+    if (!inFlowScroll) return
     return scheduleScrollFrame(sync)
-  }, [topBarNav, activeSlideId])
+  }, [inFlowScroll, activeSlideId])
 
   const rotationFor = useCallback(
     (id: string) => {

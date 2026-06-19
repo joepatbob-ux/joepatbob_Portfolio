@@ -36,6 +36,12 @@
   background: transparent;
 }
 
+.phone-swap__viewbox:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
 .phone-swap__viewbox--swap-target {
   cursor: pointer;
 }

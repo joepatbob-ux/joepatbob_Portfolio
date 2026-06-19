@@ -16,7 +16,7 @@
       property="og:description"
       content="Principal Product Designer — hardware, mobile, and web apps. Case studies across thermostats, design systems, and everything in between."
     />
-    <meta property="og:image" content="https://joepatbob.com/images/PortraitLight_MG_3496.jpg" />
+    <meta property="og:image" content="https://joepatbob.com/images/PortraitLight_MG_3496-optimized.jpg" />
     <meta property="og:site_name" content="Joseph Patrick Roberts" />
     <meta property="og:locale" content="en_US" />
     <meta name="author" content="Joseph Patrick Roberts" />
@@ -27,7 +27,7 @@
       name="twitter:description"
       content="Principal Product Designer — hardware, mobile, and web apps."
     />
-    <meta name="twitter:image" content="https://joepatbob.com/images/PortraitLight_MG_3496.jpg" />
+    <meta name="twitter:image" content="https://joepatbob.com/images/PortraitLight_MG_3496-optimized.jpg" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -39,7 +39,7 @@
           "https://www.linkedin.com/in/joepatbob/",
           "https://patents.google.com/patent/US12608066"
         ],
-        "image": "https://joepatbob.com/images/PortraitLight_MG_3496.jpg"
+        "image": "https://joepatbob.com/images/PortraitLight_MG_3496-optimized.jpg"
       }
     </script>
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f4f4f4" />
@@ -52,7 +52,8 @@
     <link
       rel="preload"
       as="image"
-      href="/images/PortraitLight_MG_3496.jpg"
+      type="image/jpeg"
+      href="/images/PortraitLight_MG_3496-optimized.jpg"
       fetchpriority="high"
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -65,6 +66,15 @@
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      (function () {
+        try {
+          if (new URLSearchParams(location.search).get('continuous') === '1') {
+            document.documentElement.classList.add('continuous-chapters');
+          }
+        } catch (e) {}
+      })();
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

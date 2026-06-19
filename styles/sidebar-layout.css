@@ -151,17 +151,6 @@
   outline-offset: 3px;
 }
 
-.sidebar-action--secondary-on-accent {
-  color: rgba(255, 255, 255, 0.92);
-  box-shadow: none;
-}
-
-.sidebar-action--secondary-on-accent:hover {
-  color: rgba(255, 255, 255, 0.78);
-  background: rgba(255, 255, 255, 0.14);
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.55);
-}
-
 .sidebar-hero-name .sidebar-hero-name__display {
   font-size: clamp(32px, min(6.5vw, calc((50dvh - 56px) / 2.46)), 160px) !important;
 }

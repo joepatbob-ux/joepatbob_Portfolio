@@ -1,6 +1,7 @@
 'use client'
 
 import { ChapterCopyScroller } from '@/components/ChapterCopyScroller'
+import { isContinuousChapters } from '@/lib/continuousChapters'
 import { formatChapterInline } from '@/lib/chapter-slide/formatChapterInline'
 import { parseChapterBody } from '@/lib/chapter-slide/parseChapterBody'
 
@@ -24,6 +25,23 @@ export function ChapterSlideCopy({
 }: Props) {
   const paragraphs = parseChapterBody(body)
   const showHeader = headline.trim().length > 0
+  const copyBody = (
+    <>
+      {showHeader ? (
+        <>
+          <h3 className="chapter-copy__headline">{headline}</h3>
+          <div className="chapter-copy__rule" aria-hidden />
+        </>
+      ) : null}
+      <div className="chapter-slide__body">
+        {paragraphs.map((paragraph, index) => (
+          <p key={index} className="chapter-copy__body">
+            {formatChapterInline(paragraph)}
+          </p>
+        ))}
+      </div>
+    </>
+  )
 
   return (
     <div
@@ -36,21 +54,11 @@ export function ChapterSlideCopy({
         .filter(Boolean)
         .join(' ')}
     >
-      <ChapterCopyScroller active={active}>
-        {showHeader ? (
-          <>
-            <h3 className="chapter-copy__headline">{headline}</h3>
-            <div className="chapter-copy__rule" aria-hidden />
-          </>
-        ) : null}
-        <div className="chapter-slide__body">
-          {paragraphs.map((paragraph, index) => (
-            <p key={index} className="chapter-copy__body">
-              {formatChapterInline(paragraph)}
-            </p>
-          ))}
-        </div>
-      </ChapterCopyScroller>
+      {isContinuousChapters() ? (
+        copyBody
+      ) : (
+        <ChapterCopyScroller active={active}>{copyBody}</ChapterCopyScroller>
+      )}
     </div>
   )
 }

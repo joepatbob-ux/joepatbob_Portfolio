@@ -1,7 +1,10 @@
 import { inject } from '@vercel/analytics'
+import { initContinuousChaptersClass } from '@/lib/continuousChapters'
 import { StrictMode } from 'react'
 import { createRoot, hydrateRoot } from 'react-dom/client'
 import Root from './Root'
+
+initContinuousChaptersClass()
 
 const root = document.getElementById('root')
 if (!root) {

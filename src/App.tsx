@@ -27,7 +27,15 @@ export default function App() {
         <ProtoDebugGate>
           <StickerProvider>
             <ChapterNavProvider>
-              <a href="#main-content" className="skip-link">
+              <a
+                href="#main-content"
+                className="skip-link"
+                onClick={(e) => {
+                  e.preventDefault()
+                  const main = document.getElementById('main-content')
+                  if (main) main.focus()
+                }}
+              >
                 Skip to content
               </a>
               <div className="site-frame">
