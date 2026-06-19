@@ -37,6 +37,14 @@ cover non-obvious caveats.
 - The `ContactDialog` / `ContactFormProvider` components exist but are not wired into the
   homepage in the current code — the persistent "Contact" button only exposes
   `mailto:` and LinkedIn links. Do not assume an in-page contact form dialog is reachable.
+- `vercel dev` requires interactive Vercel auth (device login), so it cannot run unattended
+  here. To exercise the handler without Vercel, bundle `api/contact.ts` with the
+  esbuild that ships inside Vite (`node_modules/.bin/esbuild`, platform `node`) and drive it
+  from a tiny `http` server that adds Vercel-style `res.status().json()` helpers and a parsed
+  `req.body`. Note the handler enforces an allowed `Origin`/`Referer` (`http://localhost:3000`
+  is allowed), a 5-requests/minute/IP limiter, honeypot + timing checks, and returns `503`
+  ("not configured") until `RESEND_API_KEY` + `CONTACT_TO_EMAIL` are set; a real `200`
+  needs valid Resend credentials.
 
 ### Fonts / images
 - Required fonts and images are already committed under `public/fonts/` and `public/images/`.
