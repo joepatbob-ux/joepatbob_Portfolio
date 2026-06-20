@@ -84,6 +84,8 @@ export function Hero() {
           ) : null}
         </div>
       </div>
+      {/* Mount point for the mobile hero nav portal (SidebarNav renders into here) */}
+      <div id="hero-mobile-nav-slot" />
     </section>
   )
 }

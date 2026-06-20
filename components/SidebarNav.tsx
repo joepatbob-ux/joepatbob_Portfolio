@@ -14,6 +14,7 @@
 'use client'
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useBodyScrollLock } from '@/lib/hooks/useBodyScrollLock'
 import { useDialogFocusTrap } from '@/lib/hooks/useDialogFocusTrap'
 import { usePrefersReducedMotion } from '@/lib/hooks/usePrefersReducedMotion'
@@ -176,6 +177,11 @@ export function SidebarNav() {
   const mobileHeroRef = useRef<HTMLDivElement>(null)
   const mobileDrawerPanelRef = useRef<HTMLDivElement>(null)
   const subnavRef = useRef<HTMLElement>(null)
+  const [heroNavSlot, setHeroNavSlot] = useState<Element | null>(null)
+
+  useEffect(() => {
+    setHeroNavSlot(document.getElementById('hero-mobile-nav-slot'))
+  }, [])
   const layoutRef     = useRef({ viewportH: 900, navRestTop: 0, threshold: 648 })
   const stickThresholdRef = useRef(648)
 
@@ -645,56 +651,6 @@ export function SidebarNav() {
           onClick={closeOverlays}
         />
 
-        <nav
-          ref={mobileHeroRef}
-          aria-label="Site navigation"
-          className={`sidebar-mobile-hero${showMobileHero ? ' sidebar-mobile-hero--active' : ''}`}
-          aria-hidden={showMobileHero ? undefined : true}
-        >
-          <div className="sidebar-mobile-hero__inner">
-              <div
-                style={{
-                  fontFamily: FONT_AHG,
-                  fontWeight: 700,
-                  fontSize: 'clamp(12px, 4.2vw, 28px)',
-                  lineHeight: 1.1,
-                  textTransform: 'uppercase',
-                  color: ACCENT,
-                  marginBottom: 8,
-                  width: 'min(100%, 380px)',
-                }}
-              >
-                Hello, I am
-              </div>
-              <h1 className="visually-hidden">Joseph Patrick Roberts</h1>
-              <div
-                style={{
-                  fontFamily: FONT_AHG,
-                  fontWeight: 700,
-                  fontSize:
-                    'clamp(36px, min(13vw, calc((42dvh - 100px) / 2.46)), 132px)',
-                  lineHeight: 0.82,
-                  letterSpacing: '-0.02em',
-                  textTransform: 'uppercase',
-                  color: C.ink,
-                  marginBottom: 16,
-                  width: 'min(100%, 380px)',
-                }}
-              >
-                <div>JOSEPH</div>
-                <div>PATRICK</div>
-                <div>
-                  ROBERTS<span style={{ color: ACCENT }}>.</span>
-                </div>
-              </div>
-              <SidebarMainNavSentence
-                variant="mobile-hero"
-                onSelect={scrollToSection}
-                keywordTabIndex={showMobileHero ? 0 : -1}
-              />
-          </div>
-        </nav>
-
         <button
           ref={mobileRailRef}
           type="button"
@@ -939,6 +895,59 @@ export function SidebarNav() {
         })}
       </nav>
       </div>
+
+      {heroNavSlot && createPortal(
+        <nav
+          ref={mobileHeroRef}
+          aria-label="Site navigation"
+          className={`sidebar-mobile-hero${showMobileHero ? ' sidebar-mobile-hero--active' : ''}`}
+          aria-hidden={showMobileHero ? undefined : true}
+        >
+          <div className="sidebar-mobile-hero__inner">
+            <div
+              style={{
+                fontFamily: FONT_AHG,
+                fontWeight: 700,
+                fontSize: 'clamp(12px, 4.2vw, 28px)',
+                lineHeight: 1.1,
+                textTransform: 'uppercase',
+                color: ACCENT,
+                marginBottom: 8,
+                width: 'min(100%, 380px)',
+              }}
+            >
+              Hello, I am
+            </div>
+            <h1 className="visually-hidden">Joseph Patrick Roberts</h1>
+            <div
+              style={{
+                fontFamily: FONT_AHG,
+                fontWeight: 700,
+                fontSize:
+                  'clamp(36px, min(13vw, calc((42dvh - 100px) / 2.46)), 132px)',
+                lineHeight: 0.82,
+                letterSpacing: '-0.02em',
+                textTransform: 'uppercase',
+                color: C.ink,
+                marginBottom: 16,
+                width: 'min(100%, 380px)',
+              }}
+            >
+              <div>JOSEPH</div>
+              <div>PATRICK</div>
+              <div>
+                ROBERTS<span style={{ color: ACCENT }}>.</span>
+              </div>
+            </div>
+            <SidebarMainNavSentence
+              variant="mobile-hero"
+              onSelect={scrollToSection}
+              keywordTabIndex={showMobileHero ? 0 : -1}
+            />
+          </div>
+        </nav>,
+        heroNavSlot,
+      )}
     </>
   )
 }
