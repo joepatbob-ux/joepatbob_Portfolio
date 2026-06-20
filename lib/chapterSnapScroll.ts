@@ -47,17 +47,14 @@ export function queryChapterSlot(chapterId: string): HTMLElement | null {
 export function scrollDocumentToChapterSlot(slot: HTMLElement): void {
   resetAllChapterCopyScrollers()
 
-  const apply = () => {
-    window.scrollTo({
-      top: chapterSlotScrollTop(slot),
-      left: 0,
-      behavior: 'auto',
-    })
-  }
-
-  apply()
+  // Capture once so both scroll calls aim at the same Y — prevents a visible
+  // second jump if layout shifts between the synchronous and rAF calls.
+  const top = chapterSlotScrollTop(slot)
+  window.scrollTo({ top, left: 0, behavior: 'auto' })
   resetChapterCopyScrollersAfterSnap(slot)
-  requestAnimationFrame(apply)
+  requestAnimationFrame(() => {
+    window.scrollTo({ top, left: 0, behavior: 'auto' })
+  })
 }
 
 export function scrollDocumentToChapterId(chapterId: string): boolean {
