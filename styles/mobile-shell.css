@@ -27,15 +27,4 @@
     min-height: var(--mobile-layout-h);
   }
 
-  /* Fixed full-bleed layers (hero pin) — modals use svh/visualViewport in mobile-learn-more.css */
-  html:not(.past-hero-scroll) #hero .hero-pin {
-    height: var(--mobile-layout-h);
-    min-height: var(--mobile-layout-h);
-  }
-
-  html:not(.past-hero-scroll) #hero .hero-pin {
-    inset: 0;
-    width: 100%;
-    max-width: none;
-  }
 }
