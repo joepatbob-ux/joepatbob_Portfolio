@@ -110,6 +110,13 @@ html:not(.past-hero-scroll) #hero .hero-pin {
     max-width: none;
   }
 
+  /* Override desktop fixed-pin rule — hero scrolls naturally on mobile */
+  html:not(.past-hero-scroll) #hero .hero-pin {
+    position: sticky;
+    width: 100%;
+    max-width: none;
+  }
+
   .hero-pin {
     display: block;
     height: var(--mobile-layout-h, 100dvh);
