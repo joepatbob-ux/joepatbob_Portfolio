@@ -896,7 +896,7 @@ export function SidebarNav() {
       </nav>
       </div>
 
-      {heroNavSlot && createPortal(
+      {usesTopBarNav && heroNavSlot && createPortal(
         <nav
           ref={mobileHeroRef}
           aria-label="Site navigation"
