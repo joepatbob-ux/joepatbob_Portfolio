@@ -26,7 +26,7 @@ import { SidebarMainNavSentence } from '@/components/SidebarMainNavSentence'
 import { sectionEntryChapterId } from '@/lib/sectionEntryChapter'
 import { OverlayActionPill } from '@/components/ui/OverlayActionPill'
 import { LAYOUT_MQ } from '@/lib/layout/breakpoints'
-import { scheduleScrollFrame } from '@/lib/scrollFrame'
+import { scheduleScrollFrame, scheduleScrollFrameSync } from '@/lib/scrollFrame'
 import { ContactButton } from '@/components/ContactButton'
 import { useChapterNav } from '@/components/ChapterNavProvider'
 
@@ -428,10 +428,6 @@ export function SidebarNav() {
   const applyMobileHeroScroll = useCallback((y: number) => {
     const viewportH = getLayoutViewportHeight() || window.innerHeight
     applySidebarShellFade(mobileHeroRef.current, y, viewportH, 0)
-    if (mobileHeroRef.current) {
-      mobileHeroRef.current.style.transform =
-        y > 4 ? `translateY(${-Math.min(y, viewportH)}px)` : ''
-    }
   }, [])
 
   const applyDesktopNavScroll = useCallback((y: number) => {
@@ -522,6 +518,19 @@ export function SidebarNav() {
       if (!inHero && !overlayOpenRef.current) applyScrollSpy()
     })
   }, [usesTopBarNav, mobileDrawerOpen, applyScrollSpy, applyMobileHeroScroll, syncSidebarDivider])
+
+  // Sync mobile hero text position to scroll without a rAF lag so position: fixed
+  // elements don't jitter on iOS Safari during the hero scroll-out animation.
+  useEffect(() => {
+    if (!usesTopBarNav) return
+    return scheduleScrollFrameSync(() => {
+      if (!mobileInHeroRef.current || !mobileHeroRef.current) return
+      const y = getScrollTop()
+      const viewportH = getLayoutViewportHeight() || window.innerHeight
+      mobileHeroRef.current.style.transform =
+        y > 4 ? `translateY(${-Math.min(y, viewportH)}px)` : ''
+    })
+  }, [usesTopBarNav])
 
   useEffect(() => {
     if (!usesTopBarNav || !mobileDrawerOpen) return
