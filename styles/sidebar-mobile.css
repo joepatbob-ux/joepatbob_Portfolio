@@ -60,7 +60,7 @@
 
   /* ── Hero intro (pre-rail) ─────────────────────────────────────────────── */
   .sidebar-mobile-hero {
-    position: fixed;
+    position: absolute;
     left: 0;
     right: 0;
     bottom: 0;
@@ -71,7 +71,7 @@
     box-sizing: border-box;
     visibility: hidden;
     pointer-events: none;
-    will-change: transform, opacity;
+    will-change: opacity;
   }
 
   .sidebar-mobile-hero--active {
