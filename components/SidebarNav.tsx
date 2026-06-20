@@ -583,7 +583,7 @@ export function SidebarNav() {
   )
 
   const scrollToChapter = (chapterId: string) => {
-    const closeAfter = mobileDrawerOpen
+    const wasDrawerOpen = mobileDrawerOpen
     const sectionId = sectionIdForChapter(chapterId)
     if (sectionId) {
       activeSectionRef.current = sectionId
@@ -592,11 +592,23 @@ export function SidebarNav() {
     }
     activeChapterRef.current = chapterId
     setActiveChapter(chapterId)
-    void navigateToChapter(chapterId).then(() => finishNavigate(closeAfter))
+    if (wasDrawerOpen) {
+      // Close first so useBodyScrollLock releases before navigation scrolls.
+      // Two rAFs: rAF1 fires before paint, useEffect cleanup runs after paint,
+      // then rAF2 fires with the body unlocked and scrollTo working.
+      closeOverlays()
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          void navigateToChapter(chapterId).then(syncScrollAfterNavigate)
+        })
+      })
+    } else {
+      void navigateToChapter(chapterId).then(syncScrollAfterNavigate)
+    }
   }
 
   const scrollToSection = (id: string) => {
-    const closeAfter = mobileDrawerOpen
+    const wasDrawerOpen = mobileDrawerOpen
     const sec = NAV_SECTIONS.find((s) => s.id === id)
     activeSectionRef.current = id
     setActiveSection(id)
@@ -606,7 +618,16 @@ export function SidebarNav() {
       activeChapterRef.current = entryChapterId
       setActiveChapter(entryChapterId)
     }
-    void navigateToSection(id).then(() => finishNavigate(closeAfter))
+    if (wasDrawerOpen) {
+      closeOverlays()
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          void navigateToSection(id).then(syncScrollAfterNavigate)
+        })
+      })
+    } else {
+      void navigateToSection(id).then(syncScrollAfterNavigate)
+    }
   }
 
   const currentSection = NAV_SECTIONS.find((s) => s.id === activeSection) || NAV_SECTIONS[0]
