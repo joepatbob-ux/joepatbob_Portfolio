@@ -71,6 +71,7 @@
     box-sizing: border-box;
     visibility: hidden;
     pointer-events: none;
+    will-change: transform, opacity;
   }
 
   .sidebar-mobile-hero--active {

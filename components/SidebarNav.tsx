@@ -428,6 +428,10 @@ export function SidebarNav() {
   const applyMobileHeroScroll = useCallback((y: number) => {
     const viewportH = getLayoutViewportHeight() || window.innerHeight
     applySidebarShellFade(mobileHeroRef.current, y, viewportH, 0)
+    if (mobileHeroRef.current) {
+      mobileHeroRef.current.style.transform =
+        y > 4 ? `translateY(${-Math.min(y, viewportH)}px)` : ''
+    }
   }, [])
 
   const applyDesktopNavScroll = useCallback((y: number) => {
