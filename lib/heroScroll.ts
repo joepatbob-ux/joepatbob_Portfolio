@@ -51,53 +51,10 @@ export function resetTopBarHeroScrollHysteresis(): void {
 /** Phone + tablet top-bar nav: hero intro until pin fade completes (matches applyHeroPinFade). */
 export function isTopBarInHeroScrollZone(): boolean {
   if (typeof window === 'undefined') return true
-
   const scrollY = getDocumentScrollY()
+  if (scrollY <= HERO_PIN_FADE_START_PX) return true
   const vh = layoutViewportH()
-
-  // Top of page — always hero intro (avoids rail flash before layout / scroll restore settles).
-  if (scrollY <= HERO_PIN_FADE_START_PX) {
-    topBarHeroScrollCommitted = true
-    return true
-  }
-
-  const reveal = getHeroPinReveal(scrollY, vh)
-
-  if (reveal > HERO_PIN_CHAPTER_REVEAL_THRESHOLD) {
-    topBarHeroScrollCommitted = true
-    return true
-  }
-
-  const hero = document.getElementById('hero')
-  if (!hero) {
-    if (topBarHeroScrollCommitted === null) {
-      topBarHeroScrollCommitted = scrollY < vh * HERO_PIN_FADE_END_VH
-      return topBarHeroScrollCommitted
-    }
-
-    if (topBarHeroScrollCommitted) {
-      if (reveal <= HERO_PIN_CHAPTER_REVEAL_THRESHOLD) {
-        topBarHeroScrollCommitted = false
-      }
-    } else if (scrollY < HERO_REENTER_SCROLL_TOP_PX) {
-      topBarHeroScrollCommitted = true
-    }
-
-    return topBarHeroScrollCommitted
-  }
-
-  const bottom = hero.getBoundingClientRect().bottom
-  const enterAt = vh * TOP_BAR_HERO_ENTER_VH
-  const shouldReenter =
-    bottom >= enterAt && scrollY < HERO_REENTER_SCROLL_TOP_PX
-
-  if (shouldReenter) {
-    topBarHeroScrollCommitted = true
-    return true
-  }
-
-  topBarHeroScrollCommitted = false
-  return false
+  return getHeroPinReveal(scrollY, vh) > HERO_PIN_CHAPTER_REVEAL_THRESHOLD
 }
 
 export function resetHeroScrollZoneHysteresis(): void {

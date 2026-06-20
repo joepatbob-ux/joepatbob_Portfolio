@@ -110,12 +110,6 @@ html:not(.past-hero-scroll) #hero .hero-pin {
     max-width: none;
   }
 
-  /* Edge-to-edge under iOS toolbar (viewport-fit=cover); html hero-canvas fills any gap */
-  html:not(.past-hero-scroll) #hero .hero-pin {
-    position: fixed !important;
-    margin: 0 !important;
-  }
-
   .hero-pin {
     display: block;
     height: var(--mobile-layout-h, 100dvh);
