@@ -243,6 +243,18 @@
     #hero {
       scroll-margin-top: 0;
     }
+
+    /* Nested scroll containers: restrict to vertical panning so momentum
+       doesn't escape to the outer document on tablet as well as phone. */
+    .chapter-copy-scroller,
+    .chapter-slide__copy,
+    .mobile-learn-more-sheet__body,
+    .phone-swap__tune-panel,
+    .formation-lego__stage,
+    .flow-chapter-slide--concepts .quote-bowl__stack {
+      touch-action: pan-y;
+      -webkit-overflow-scrolling: touch;
+    }
   }
 
   /* Phone (≤767): tighter gutters + scroll snap */
@@ -254,16 +266,6 @@
 
     html {
       scroll-snap-type: none;
-    }
-
-    .chapter-copy-scroller,
-    .chapter-slide__copy,
-    .mobile-learn-more-sheet__body,
-    .phone-swap__tune-panel,
-    .formation-lego__stage,
-    .flow-chapter-slide--concepts .quote-bowl__stack {
-      touch-action: pan-y;
-      -webkit-overflow-scrolling: touch;
     }
   }
 

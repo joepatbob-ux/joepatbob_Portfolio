@@ -122,12 +122,14 @@ function usePixel8Scene() {
 }
 
 function useIPhoneScene() {
+  const { invalidate } = useThree()
   const urls = PHONE_SWAP_URLS.iphone16
   const raw = useObjMtl(urls.obj, urls.mtl)
-  const textures = useLoader(TextureLoader, [
+
+  // Excludes the two brush normal maps (~5 MB combined as WebP) so the scene
+  // can suspend and appear without waiting for surface-detail textures.
+  const criticalTextures = useLoader(TextureLoader, [
     urls.screen,
-    urls.brushNormalRough,
-    urls.brushNormalSatin,
     urls.flash,
     urls.screwGrooves,
     urls.frontCamera,
@@ -136,35 +138,28 @@ function useIPhoneScene() {
   ])
 
   useLayoutEffect(() => {
-    const [screen, brushRough, brushSatin, ...colorMaps] = textures
+    const [screen, ...colorMaps] = criticalTextures
     screen.colorSpace = SRGBColorSpace
-    brushRough.colorSpace = NoColorSpace
-    brushSatin.colorSpace = NoColorSpace
-    colorMaps.forEach((tex) => {
+    screen.needsUpdate = true
+    colorMaps.forEach((tex: THREE.Texture) => {
       tex.colorSpace = SRGBColorSpace
       tex.needsUpdate = true
     })
-    screen.needsUpdate = true
-    brushRough.needsUpdate = true
-    brushSatin.needsUpdate = true
-  }, [textures])
+  }, [criticalTextures])
 
-  return useMemo(() => {
-    const [
-      screenTexture,
-      brushNormalRough,
-      brushNormalSatin,
-      flash,
-      screwGrooves,
-      frontCamera,
-      speakerAlpha,
-      speakerBump,
-    ] = textures
+  const scene = useMemo(() => {
+    const [screenTexture, flash, screwGrooves, frontCamera, speakerAlpha, speakerBump] =
+      criticalTextures
+    // Neutral tangent-space normal (pointing straight up) — renders as flat
+    // metal until the real brush normal maps arrive via the effect below.
+    const placeholderNormal = new THREE.DataTexture(new Uint8Array([128, 128, 255, 255]), 1, 1)
+    placeholderNormal.colorSpace = NoColorSpace
+    placeholderNormal.needsUpdate = true
     return prepareIPhone16Scene(
       raw,
       {
-        brushNormalRough,
-        brushNormalSatin,
+        brushNormalRough: placeholderNormal,
+        brushNormalSatin: placeholderNormal,
         flash,
         screwGrooves,
         frontCamera,
@@ -173,7 +168,41 @@ function useIPhoneScene() {
       },
       screenTexture,
     ).scene
-  }, [raw, textures])
+  }, [raw, criticalTextures])
+
+  // Load brush normal maps after the scene is visible, then patch materials.
+  useEffect(() => {
+    const loader = new TextureLoader()
+    let cancelled = false
+    Promise.all([
+      loader.loadAsync(urls.brushNormalRough),
+      loader.loadAsync(urls.brushNormalSatin),
+    ]).then(([rough, satin]) => {
+      if (cancelled) return
+      rough.colorSpace = NoColorSpace
+      rough.needsUpdate = true
+      satin.colorSpace = NoColorSpace
+      satin.needsUpdate = true
+      scene.traverse((child: THREE.Object3D) => {
+        if (!(child instanceof THREE.Mesh)) return
+        const mat = child.material
+        if (!(mat instanceof THREE.MeshStandardMaterial)) return
+        if (mat.name === 'TITANIUM Rough') {
+          mat.normalMap = rough
+          mat.needsUpdate = true
+        } else if (mat.name === 'TITANIUM Satin') {
+          mat.normalMap = satin
+          mat.needsUpdate = true
+        }
+      })
+      invalidate()
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [scene, urls.brushNormalRough, urls.brushNormalSatin, invalidate])
+
+  return scene
 }
 
 export function PhoneSwapScene({
