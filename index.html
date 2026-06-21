@@ -56,6 +56,14 @@
       href="/images/PortraitLight_MG_3496-optimized.jpg"
       fetchpriority="high"
     />
+    <link
+      rel="preload"
+      as="image"
+      type="image/jpeg"
+      href="/images/PortraitDark_MG_3490-optimized.jpg"
+      media="(prefers-color-scheme: dark)"
+      fetchpriority="high"
+    />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -63,18 +71,26 @@
       rel="stylesheet"
     />
     <title>Joseph Patrick Roberts — Principal Product Designer</title>
-  </head>
-  <body>
-    <div id="root"></div>
     <script>
       (function () {
         try {
           if (new URLSearchParams(location.search).get('continuous') === '1') {
             document.documentElement.classList.add('continuous-chapters');
           }
+          var pref = localStorage.getItem('theme-preference');
+          var theme =
+            pref === 'light' || pref === 'dark'
+              ? pref
+              : window.matchMedia('(prefers-color-scheme: dark)').matches
+                ? 'dark'
+                : 'light';
+          document.documentElement.dataset.theme = theme;
         } catch (e) {}
       })();
     </script>
+  </head>
+  <body>
+    <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

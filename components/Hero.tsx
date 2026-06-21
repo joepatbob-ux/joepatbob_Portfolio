@@ -16,21 +16,20 @@ const PORTRAIT_DARK = '/images/PortraitDark_MG_3490-optimized.jpg'
 export function Hero() {
   const { resolvedTheme } = useTheme()
   const isMobile = useLayoutMobile()
-  const portraitSrc =
-    resolvedTheme === 'dark' ? PORTRAIT_DARK : PORTRAIT_LIGHT
 
   useMobileHeroViewport()
 
   useEffect(() => {
     const hero = document.getElementById('hero')
     if (!hero) return
-    const portrait = hero.querySelector<HTMLElement>('.hero-portrait')
+    hero.querySelectorAll<HTMLElement>('.hero-portrait').forEach((portrait) => {
+      portrait.style.removeProperty('opacity')
+      portrait.style.removeProperty('filter')
+      portrait.style.removeProperty('transform')
+      portrait.style.removeProperty('object-position')
+      portrait.style.removeProperty('visibility')
+    })
     const pin = hero.querySelector<HTMLElement>('.hero-pin')
-    portrait?.style.removeProperty('opacity')
-    portrait?.style.removeProperty('filter')
-    portrait?.style.removeProperty('transform')
-    portrait?.style.removeProperty('object-position')
-    portrait?.style.removeProperty('visibility')
     pin?.style.removeProperty('transform')
     pin?.style.removeProperty('opacity')
     pin?.style.removeProperty('filter')
@@ -66,8 +65,8 @@ export function Hero() {
           {!isMobile ? (
             <>
               <img
-                className="hero-portrait"
-                src={portraitSrc}
+                className="hero-portrait hero-portrait--light"
+                src={PORTRAIT_LIGHT}
                 alt="Joseph Patrick Roberts"
                 width={3200}
                 height={2560}
@@ -75,6 +74,18 @@ export function Hero() {
                 decoding="async"
                 fetchPriority="high"
                 draggable={false}
+              />
+              <img
+                className="hero-portrait hero-portrait--dark"
+                src={PORTRAIT_DARK}
+                alt=""
+                width={3200}
+                height={2560}
+                sizes="100vw"
+                decoding="async"
+                fetchPriority="high"
+                draggable={false}
+                aria-hidden
               />
               <div
                 className={`hero-mobile-scrim hero-mobile-scrim--${resolvedTheme}`}

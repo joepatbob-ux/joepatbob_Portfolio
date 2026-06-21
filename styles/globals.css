@@ -1305,9 +1305,9 @@ html {
     scroll-behavior: auto;
   }
 
-  /* Hero scrolls freely — chapters keep snap pinning */
+  /* Hero snaps to top when scrolling up from the first chapter (overview). */
   #hero {
-    scroll-snap-align: none;
+    scroll-snap-align: start;
     scroll-snap-stop: normal;
   }
 
