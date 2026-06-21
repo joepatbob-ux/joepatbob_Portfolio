@@ -15,9 +15,6 @@ import {
 } from 'react'
 import * as THREE from 'three'
 import { DataTexture, NoColorSpace, RGBAFormat, SRGBColorSpace, TextureLoader, UnsignedByteType } from 'three'
-
-const BLACK_SCREEN = new DataTexture(new Uint8Array([0, 0, 0, 255]), 1, 1, RGBAFormat, UnsignedByteType)
-BLACK_SCREEN.needsUpdate = true
 import type { ThreeEvent } from '@react-three/fiber'
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 import { debugLog } from '@/lib/phone-swap/debugLog'
@@ -71,6 +68,9 @@ import { SmaIPhoneLiveScreen } from '@/components/sma-ios26/SmaIPhoneLiveScreen'
 import type { DisplayScreenRect } from '@/lib/sma-ios26/displayScreenRect'
 import { usePixel8SceneGraph } from '@/lib/phone-swap/usePixel8SceneGraph'
 import { useGlb } from '@/lib/phone-swap/useGlb'
+
+const BLACK_SCREEN = new DataTexture(new Uint8Array([0, 0, 0, 255]), 1, 1, RGBAFormat, UnsignedByteType)
+BLACK_SCREEN.needsUpdate = true
 
 type GizmoMode = 'translate' | 'rotate' | 'scale'
 
