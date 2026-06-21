@@ -589,6 +589,8 @@ export function PhoneSwapScene({
           iphoneScreenUrl={iphoneScreenUrl}
           androidRef={androidRef}
           iphoneRef={iphoneRef}
+          androidScene={androidScene}
+          iphoneScene={iphoneScene}
         />
       ) : null}
       {iphoneLiveScreen ? (

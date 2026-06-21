@@ -354,6 +354,7 @@ export function applyPixel8Screen(
     child.geometry = child.geometry.clone()
     child.geometry.deleteAttribute('uv')
     generateScreenUVsFromPosition(child, PIXEL8_MIRROR_X)
+    child.name = PIXEL8_MESH.display
     if (process.env.NODE_ENV !== 'production') {
       const uvAttr = child.geometry.getAttribute('uv')
       console.error(
@@ -375,7 +376,8 @@ export function applyPixel8Screen(
       toneMapped: false,
       depthTest: true,
       depthWrite: true,
-      side: THREE.FrontSide,
+      // Baked normals point +X; default pose rotates Y≈90° so FrontSide faces away from +Z camera.
+      side: THREE.DoubleSide,
       polygonOffset: true,
       polygonOffsetFactor: -2,
       polygonOffsetUnits: -4,
