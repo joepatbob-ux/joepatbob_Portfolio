@@ -14,7 +14,10 @@ import {
   type MutableRefObject,
 } from 'react'
 import * as THREE from 'three'
-import { NoColorSpace, SRGBColorSpace, TextureLoader } from 'three'
+import { DataTexture, NoColorSpace, RGBAFormat, SRGBColorSpace, TextureLoader, UnsignedByteType } from 'three'
+
+const BLACK_SCREEN = new DataTexture(new Uint8Array([0, 0, 0, 255]), 1, 1, RGBAFormat, UnsignedByteType)
+BLACK_SCREEN.needsUpdate = true
 import type { ThreeEvent } from '@react-three/fiber'
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 import { debugLog } from '@/lib/phone-swap/debugLog'
@@ -129,7 +132,6 @@ function useIPhoneScene() {
   // Excludes the two brush normal maps (~5 MB combined as WebP) so the scene
   // can suspend and appear without waiting for surface-detail textures.
   const criticalTextures = useLoader(TextureLoader, [
-    urls.screen,
     urls.flash,
     urls.screwGrooves,
     urls.frontCamera,
@@ -138,18 +140,14 @@ function useIPhoneScene() {
   ])
 
   useLayoutEffect(() => {
-    const [screen, ...colorMaps] = criticalTextures
-    screen.colorSpace = SRGBColorSpace
-    screen.needsUpdate = true
-    colorMaps.forEach((tex: THREE.Texture) => {
+    criticalTextures.forEach((tex: THREE.Texture) => {
       tex.colorSpace = SRGBColorSpace
       tex.needsUpdate = true
     })
   }, [criticalTextures])
 
   const scene = useMemo(() => {
-    const [screenTexture, flash, screwGrooves, frontCamera, speakerAlpha, speakerBump] =
-      criticalTextures
+    const [flash, screwGrooves, frontCamera, speakerAlpha, speakerBump] = criticalTextures
     // Neutral tangent-space normal (pointing straight up) — renders as flat
     // metal until the real brush normal maps arrive via the effect below.
     const placeholderNormal = new THREE.DataTexture(new Uint8Array([128, 128, 255, 255]), 1, 1)
@@ -166,7 +164,7 @@ function useIPhoneScene() {
         speakerAlpha,
         speakerBump,
       },
-      screenTexture,
+      BLACK_SCREEN,
     ).scene
   }, [raw, criticalTextures])
 

@@ -12,7 +12,6 @@ function asset(path: string, label: string): string {
 export const PHONE_SWAP_URLS = {
   pixel8: {
     glb: asset('/models/pixel8-pro.glb', 'pixel8.glb'),
-    screen: asset('/models/Android.webp', 'pixel8.screen'),
     bodyJadeLight: asset(
       '/models/pixel-8-pro-tex/body_jade_light.png',
       'pixel8.bodyJadeLight',
@@ -29,7 +28,6 @@ export const PHONE_SWAP_URLS = {
   },
   iphone16: {
     glb: asset('/models/iphone16-pro.glb', 'iphone16.glb'),
-    screen: asset('/models/Iphone.webp', 'iphone16.screen'),
     brushNormalRough: asset(
       '/models/iphone16-pro-tex/brush_normal_a.webp',
       'iphone16.brushNormalRough',
