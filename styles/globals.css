@@ -54,6 +54,7 @@
   :root {
     --color-ink:        #0d0d0d;
     --color-hero-canvas: #f4f4f4;
+    --hero-canvas-opacity: 1;
     --color-paper:      #f0f0f0;
     /* Base accent: slightly darker than legacy #F2411B for better contrast (incl. white UI text on pill). */
     --color-accent:     #DE3E18;
@@ -138,7 +139,7 @@
   }
 
   html {
-    /* Page canvas; hero zone matches `.hero-pin` so nothing peeks above full bleed. */
+    /* Page canvas; hero zone uses fixed ::before layer driven by scroll fade. */
     background-color: var(--color-paper);
     color: var(--color-ink);
     margin: 0;
@@ -149,8 +150,14 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  html:not(.past-hero-scroll) {
+  html::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
     background-color: var(--color-hero-canvas);
+    opacity: var(--hero-canvas-opacity, 1);
   }
 
   body,

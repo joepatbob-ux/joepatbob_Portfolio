@@ -218,6 +218,10 @@ export function applyHeroPinFade(
   el.style.opacity = opacityStr
   el.style.filter = filterStr
   el.style.pointerEvents = pointerEvents
+
+  if (typeof document !== 'undefined') {
+    document.documentElement.style.setProperty('--hero-canvas-opacity', opacityStr)
+  }
 }
 
 export function resetHeroPinFade(el: HTMLElement | null): void {
@@ -225,6 +229,9 @@ export function resetHeroPinFade(el: HTMLElement | null): void {
   el.style.opacity = '1'
   el.style.filter = 'none'
   el.style.pointerEvents = ''
+  if (typeof document !== 'undefined') {
+    document.documentElement.style.setProperty('--hero-canvas-opacity', '1')
+  }
 }
 
 const HERO_NAME_FADE_VH = 0.62

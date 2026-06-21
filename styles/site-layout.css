@@ -48,7 +48,13 @@ html.sidebar-tablet-hero-active .sidebar-desktop-shell {
   box-sizing: border-box;
 }
 
-/* Hide main nav until useLayoutEffect positions it (prevents hero flash at top: 0). */
+/* Hide sidebar until useLayoutEffect positions nav (prevents hero / theme flash). */
+@media (min-width: 1024px) {
+  .sidebar-shell--fixed:not([data-nav-positioned='true']) {
+    visibility: hidden;
+  }
+}
+
 .sidebar-shell--fixed:not([data-nav-positioned='true']) [data-sidebar-main-nav] {
   visibility: hidden;
 }

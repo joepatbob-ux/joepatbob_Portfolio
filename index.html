@@ -70,6 +70,16 @@
       href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Lato:wght@400&display=swap"
       rel="stylesheet"
     />
+    <style id="theme-critical">
+      html[data-theme='dark'] {
+        color-scheme: dark;
+        --color-ink: #f0eeea;
+        --color-hero-canvas: #040404;
+        --color-paper: #101010;
+        --color-accent: #de3e18;
+        --color-rule: rgba(255, 255, 255, 0.12);
+      }
+    </style>
     <title>Joseph Patrick Roberts — Principal Product Designer</title>
     <script>
       (function () {
@@ -85,6 +95,12 @@
                 ? 'dark'
                 : 'light';
           document.documentElement.dataset.theme = theme;
+          if (theme === 'dark') {
+            document.documentElement.style.colorScheme = 'dark';
+          }
+          if (window.scrollY <= 24) {
+            document.documentElement.classList.add('in-hero-scroll');
+          }
         } catch (e) {}
       })();
     </script>

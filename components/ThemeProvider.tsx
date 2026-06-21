@@ -15,6 +15,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useState,
   useSyncExternalStore,
@@ -89,12 +90,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const resolvedTheme: 'light' | 'dark' =
     preference === 'system' ? systemTheme : preference
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     document.documentElement.dataset.theme = resolvedTheme
     const heroCanvas =
       resolvedTheme === 'dark' ? HERO_CANVAS_BG.dark : HERO_CANVAS_BG.light
     document.documentElement.style.backgroundColor = ''
     document.documentElement.style.setProperty('--color-hero-canvas', heroCanvas)
+    document.documentElement.style.colorScheme =
+      resolvedTheme === 'dark' ? 'dark' : 'light'
   }, [resolvedTheme])
 
   const value = useMemo(
