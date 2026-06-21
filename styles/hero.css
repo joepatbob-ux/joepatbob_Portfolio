@@ -46,18 +46,22 @@
   pointer-events: none;
 }
 
-/* Pinned canvas — fixed to layout viewport; mobile insets in @media below */
-html:not(.past-hero-scroll) #hero .hero-pin {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  max-width: 100vw;
-  height: 100vh;
-  min-height: 100vh;
-  min-height: -webkit-fill-available;
-  margin: 0;
-  z-index: 4;
+/* Pinned canvas — fixed to layout viewport (tablet + desktop); fades via scroll frame. */
+@media (min-width: 768px) {
+  #hero .hero-pin {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    max-width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    height: 100svh;
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+    margin: 0;
+    z-index: 4;
+  }
 }
 
 /* Letterbox behind portrait; pin canvas covers sidebar + margins */
@@ -122,13 +126,7 @@ html[data-theme='dark'] .hero-portrait--dark {
     max-width: none;
   }
 
-  /* Override desktop fixed-pin rule — hero scrolls naturally on mobile */
-  html:not(.past-hero-scroll) #hero .hero-pin {
-    position: sticky;
-    width: 100%;
-    max-width: none;
-  }
-
+  /* Tablet uses same fixed pin as desktop — sticky caused a mid-fade layout jump. */
   .hero-pin {
     display: block;
     height: var(--mobile-layout-h, 100dvh);

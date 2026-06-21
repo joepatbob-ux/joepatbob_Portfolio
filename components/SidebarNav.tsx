@@ -169,7 +169,6 @@ export function SidebarNav() {
   const activeChapterRef = useRef<string | null>(null)
   const overlayOpenRef = useRef(false)
   const dividerPastHeroRef = useRef(false)
-  const [desktopNavReady, setDesktopNavReady] = useState(false)
   const sidebarShellRef = useRef<HTMLDivElement>(null)
   const heroRef       = useRef<HTMLDivElement>(null)
   const navWrapRef    = useRef<HTMLDivElement>(null)
@@ -452,6 +451,16 @@ export function SidebarNav() {
     }
   }, [])
 
+  const setSidebarShellPositioned = useCallback((ready: boolean) => {
+    const shell = sidebarShellRef.current
+    if (!shell) return
+    if (ready) {
+      shell.setAttribute('data-nav-positioned', 'true')
+    } else {
+      shell.removeAttribute('data-nav-positioned')
+    }
+  }, [])
+
   /** Position nav before paint — avoids hero flash at `top: 0` while layout/scroll frame init. */
   useLayoutEffect(() => {
     if (usesTopBarNav) {
@@ -459,10 +468,10 @@ export function SidebarNav() {
         measureLayout()
         resetSidebarShellFade(sidebarShellRef.current)
         applyDesktopNavScroll(getScrollTop())
-        setDesktopNavReady(true)
+        setSidebarShellPositioned(true)
         setMobileNavReady(true)
       } else {
-        setDesktopNavReady(false)
+        setSidebarShellPositioned(false)
         const y = getScrollTop()
         const inHero = isTopBarInHeroScrollZone()
         mobileInHeroRef.current = inHero
@@ -489,8 +498,8 @@ export function SidebarNav() {
     document.documentElement.classList.toggle('in-hero-scroll', inHero)
     document.documentElement.classList.toggle('past-hero-scroll', !inHero)
     syncSidebarDivider(inHero)
-    setDesktopNavReady(true)
-  }, [usesTopBarNav, mobileDrawerOpen, measureLayout, applyDesktopNavScroll, applyMobileHeroScroll, syncSidebarDivider])
+    setSidebarShellPositioned(true)
+  }, [usesTopBarNav, mobileDrawerOpen, measureLayout, applyDesktopNavScroll, applyMobileHeroScroll, syncSidebarDivider, setSidebarShellPositioned])
 
   /** Top-bar nav: hero intro fades on scroll; rail + drawer overlay after hero. */
   useEffect(() => {
@@ -710,7 +719,6 @@ export function SidebarNav() {
         <div
           ref={sidebarShellRef}
           className="sidebar-shell--fixed"
-          data-nav-positioned={desktopNavReady ? 'true' : undefined}
           style={{
             position: 'fixed',
             left: 0,
