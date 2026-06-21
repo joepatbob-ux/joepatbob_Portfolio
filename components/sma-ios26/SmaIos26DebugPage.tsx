@@ -1,5 +1,6 @@
 'use client'
 
+import '@/styles/sma-ios26.css'
 import { PhoneScreenViewport } from '@/components/sma-ios26/PhoneScreenViewport'
 import { SmaIos26Proto } from '@/components/sma-ios26/SmaIos26Proto'
 import {
