@@ -101,7 +101,7 @@
 
 .phone-swap--in-flow .phone-swap__viewbox canvas {
   pointer-events: none !important;
-  touch-action: pan-y;
+  touch-action: pan-y !important;
 }
 
 .phone-swap--in-flow .phone-swap__viewbox--live-interactive canvas {
@@ -111,7 +111,7 @@
 .phone-swap__viewbox--scroll-passthrough,
 .phone-swap__viewbox--scroll-passthrough canvas {
   pointer-events: none !important;
-  touch-action: pan-y;
+  touch-action: pan-y !important;
 }
 
 .phone-swap__viewbox--live-interactive.phone-swap__viewbox--scroll-passthrough {
