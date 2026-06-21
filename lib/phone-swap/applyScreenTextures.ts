@@ -352,7 +352,17 @@ export function applyPixel8Screen(
     if (!isPixel8DisplayMesh(child)) return
 
     child.geometry = child.geometry.clone()
+    child.geometry.deleteAttribute('uv')
     generateScreenUVsFromPosition(child, PIXEL8_MIRROR_X)
+    if (process.env.NODE_ENV !== 'production') {
+      const uvAttr = child.geometry.getAttribute('uv')
+      console.error(
+        '[Pixel8Screen]', child.name,
+        uvAttr
+          ? `UV OK: ${uvAttr.count} verts, first=(${uvAttr.getX(0).toFixed(3)},${uvAttr.getY(0).toFixed(3)})`
+          : 'UV MISSING after generation',
+      )
+    }
     remapDisplayUVFlipV(child)
     backingGeometry = child.geometry.clone()
     nudgeGeometryAlongNormals(child.geometry, PIXEL8_DISPLAY.surfaceNudge)
