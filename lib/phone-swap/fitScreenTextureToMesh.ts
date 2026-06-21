@@ -93,8 +93,13 @@ export function screenTextureForDisplay(source: THREE.Texture): THREE.Texture {
 }
 
 /**
- * Generate flat XY-projected UVs for a screen mesh that has POSITION but no TEXCOORD_0.
+ * Generate flat projected UVs for a screen mesh that has POSITION but no TEXCOORD_0.
  * No-op if the mesh already has a uv attribute.
+ *
+ * Automatically picks the two axes with the largest spans (the screen plane),
+ * discarding the thin depth axis. The larger span maps to V (height) and the
+ * second-largest maps to U (width) — correct for portrait phones.
+ *
  * flipU compensates for mirrorModelX (scale.x = -1) which doesn't touch vertex positions.
  */
 export function generateScreenUVsFromPosition(mesh: THREE.Mesh, flipU = false): boolean {
@@ -105,23 +110,32 @@ export function generateScreenUVsFromPosition(mesh: THREE.Mesh, flipU = false): 
 
   let xMin = Infinity, xMax = -Infinity
   let yMin = Infinity, yMax = -Infinity
+  let zMin = Infinity, zMax = -Infinity
 
   for (let i = 0; i < pos.count; i++) {
-    const x = pos.getX(i)
-    const y = pos.getY(i)
-    xMin = Math.min(xMin, x)
-    xMax = Math.max(xMax, x)
-    yMin = Math.min(yMin, y)
-    yMax = Math.max(yMax, y)
+    const x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i)
+    if (x < xMin) xMin = x; if (x > xMax) xMax = x
+    if (y < yMin) yMin = y; if (y > yMax) yMax = y
+    if (z < zMin) zMin = z; if (z > zMax) zMax = z
   }
 
-  const xRange = Math.max(xMax - xMin, 1e-6)
-  const yRange = Math.max(yMax - yMin, 1e-6)
-  const uvData = new Float32Array(pos.count * 2)
+  type AxisDef = { min: number; range: number; get: (i: number) => number }
+  const axes: AxisDef[] = [
+    { min: xMin, range: xMax - xMin, get: (i) => pos.getX(i) },
+    { min: yMin, range: yMax - yMin, get: (i) => pos.getY(i) },
+    { min: zMin, range: zMax - zMin, get: (i) => pos.getZ(i) },
+  ]
+  // Sort descending by span; largest → V (height), second-largest → U (width)
+  axes.sort((a, b) => b.range - a.range)
+  const vAxis = axes[0]
+  const uAxis = axes[1]
+  const vRange = Math.max(vAxis.range, 1e-6)
+  const uRange = Math.max(uAxis.range, 1e-6)
 
+  const uvData = new Float32Array(pos.count * 2)
   for (let i = 0; i < pos.count; i++) {
-    let u = (pos.getX(i) - xMin) / xRange
-    const v = (pos.getY(i) - yMin) / yRange
+    let u = (uAxis.get(i) - uAxis.min) / uRange
+    const v = (vAxis.get(i) - vAxis.min) / vRange
     if (flipU) u = 1 - u
     uvData[i * 2] = u
     uvData[i * 2 + 1] = v
