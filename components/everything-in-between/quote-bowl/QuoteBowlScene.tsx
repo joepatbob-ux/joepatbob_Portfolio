@@ -146,7 +146,10 @@ export function QuoteBowlScene({
     }
   }, [handlePick, pickActionRef])
 
+  const groundY = QUOTE_BOWL.contentYOffset + bottomY - 0.05
+
   return (
+    <>
     <group ref={groupRef}>
       <group position={[0, QUOTE_BOWL.contentYOffset, 0]}>
         <primitive object={bowl} />
@@ -199,5 +202,16 @@ export function QuoteBowlScene({
 
       {stackRef ? <QuoteBowlRimTracker topY={topY} stackRef={stackRef} /> : null}
     </group>
+
+    <mesh
+      position={[0, groundY, 0]}
+      rotation={[-Math.PI / 2, 0, 0]}
+      receiveShadow
+      renderOrder={0}
+    >
+      <circleGeometry args={[2, 48]} />
+      <shadowMaterial transparent opacity={darkSurface ? 0.32 : 0.18} />
+    </mesh>
+    </>
   )
 }

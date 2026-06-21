@@ -13,15 +13,17 @@ export function StageSpinner({ label, className }: Props) {
 
   return (
     <div className={rootClass} role="status" aria-live="polite" aria-busy="true">
-      <div
-        className={[
-          'stage-spinner__ring',
-          reducedMotion ? 'stage-spinner__ring--static' : '',
-        ]
-          .filter(Boolean)
-          .join(' ')}
-        aria-hidden
-      />
+      <div className="stage-spinner__dot-wrap" aria-hidden>
+        <span
+          className={[
+            'stage-spinner__pulse',
+            reducedMotion ? 'stage-spinner__pulse--static' : '',
+          ]
+            .filter(Boolean)
+            .join(' ')}
+        />
+        <span className="stage-spinner__dot" />
+      </div>
       {label ? <p className="stage-spinner__label">{label}</p> : null}
     </div>
   )
