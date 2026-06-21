@@ -103,7 +103,18 @@ export function screenTextureForDisplay(source: THREE.Texture): THREE.Texture {
  * flipU compensates for mirrorModelX (scale.x = -1) which doesn't touch vertex positions.
  */
 export function generateScreenUVsFromPosition(mesh: THREE.Mesh, flipU = false): boolean {
-  if (mesh.geometry.getAttribute('uv')) return false
+  const existing = mesh.geometry.getAttribute('uv')
+  if (existing) {
+    let hasNonZero = false
+    for (let i = 0; i < existing.count; i++) {
+      if (existing.getX(i) !== 0 || existing.getY(i) !== 0) {
+        hasNonZero = true
+        break
+      }
+    }
+    if (existing.count > 0 && hasNonZero) return false
+    mesh.geometry.deleteAttribute('uv')
+  }
 
   const pos = mesh.geometry.getAttribute('position')
   if (!pos) return false
