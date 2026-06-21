@@ -92,6 +92,45 @@ export function screenTextureForDisplay(source: THREE.Texture): THREE.Texture {
   return map
 }
 
+/**
+ * Generate flat XY-projected UVs for a screen mesh that has POSITION but no TEXCOORD_0.
+ * No-op if the mesh already has a uv attribute.
+ * flipU compensates for mirrorModelX (scale.x = -1) which doesn't touch vertex positions.
+ */
+export function generateScreenUVsFromPosition(mesh: THREE.Mesh, flipU = false): boolean {
+  if (mesh.geometry.getAttribute('uv')) return false
+
+  const pos = mesh.geometry.getAttribute('position')
+  if (!pos) return false
+
+  let xMin = Infinity, xMax = -Infinity
+  let yMin = Infinity, yMax = -Infinity
+
+  for (let i = 0; i < pos.count; i++) {
+    const x = pos.getX(i)
+    const y = pos.getY(i)
+    xMin = Math.min(xMin, x)
+    xMax = Math.max(xMax, x)
+    yMin = Math.min(yMin, y)
+    yMax = Math.max(yMax, y)
+  }
+
+  const xRange = Math.max(xMax - xMin, 1e-6)
+  const yRange = Math.max(yMax - yMin, 1e-6)
+  const uvData = new Float32Array(pos.count * 2)
+
+  for (let i = 0; i < pos.count; i++) {
+    let u = (pos.getX(i) - xMin) / xRange
+    const v = (pos.getY(i) - yMin) / yRange
+    if (flipU) u = 1 - u
+    uvData[i * 2] = u
+    uvData[i * 2 + 1] = v
+  }
+
+  mesh.geometry.setAttribute('uv', new THREE.BufferAttribute(uvData, 2))
+  return true
+}
+
 /** Shift display vertices along normals so the PNG wins over coplanar glass. */
 export function nudgeGeometryAlongNormals(
   geometry: THREE.BufferGeometry,

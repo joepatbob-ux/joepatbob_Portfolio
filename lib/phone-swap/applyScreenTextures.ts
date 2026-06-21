@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import {
+  generateScreenUVsFromPosition,
   nudgeGeometryAlongNormals,
   remapDisplayUVFlipV,
   remapMeshUVsTo01,
@@ -13,7 +14,7 @@ import {
   IPHONE16_FRONT_OVERLAY_OBJECTS,
   IPHONE16_MESH,
 } from '@/lib/phone-swap/iphone16Assets'
-import { PIXEL8_DISPLAY, PIXEL8_DISPLAY_RENDER_ORDER, PIXEL8_MESH } from '@/lib/phone-swap/pixel8Assets'
+import { PIXEL8_DISPLAY, PIXEL8_DISPLAY_RENDER_ORDER, PIXEL8_MESH, PIXEL8_MIRROR_X } from '@/lib/phone-swap/pixel8Assets'
 import { PIXEL9_MESH } from '@/lib/phone-swap/pixel9Assets'
 import { meshMaterialSlot } from '@/lib/phone-swap/mergeMeshesByMaterial'
 
@@ -88,6 +89,7 @@ export function applyIPhone16Screen(
     if (child.name !== IPHONE16_MESH.display) return
 
     child.geometry = child.geometry.clone()
+    generateScreenUVsFromPosition(child, true)
     const atlasUV = remapDisplayUVFlipV(child)
     backingGeometry = child.geometry.clone()
     nudgeGeometryAlongNormals(child.geometry, IPHONE16_DISPLAY.surfaceNudge)
@@ -350,6 +352,7 @@ export function applyPixel8Screen(
     if (!isPixel8DisplayMesh(child)) return
 
     child.geometry = child.geometry.clone()
+    generateScreenUVsFromPosition(child, PIXEL8_MIRROR_X)
     remapDisplayUVFlipV(child)
     backingGeometry = child.geometry.clone()
     nudgeGeometryAlongNormals(child.geometry, PIXEL8_DISPLAY.surfaceNudge)
