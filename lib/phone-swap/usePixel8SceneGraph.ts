@@ -1,6 +1,6 @@
 import { useLoader } from '@react-three/fiber'
 import { useLayoutEffect, useMemo } from 'react'
-import { SRGBColorSpace, TextureLoader } from 'three'
+import { DataTexture, RGBAFormat, SRGBColorSpace, TextureLoader, UnsignedByteType } from 'three'
 import {
   PIXEL8_BODY_ATLAS,
   PIXEL8_BODY_ATLAS_FILES,
@@ -13,6 +13,10 @@ import { PHONE_SWAP_URLS } from '@/lib/phone-swap/phoneSwapUrls'
 import { preparePixel8Scene } from '@/lib/phone-swap/preparePixel8Scene'
 import { useFbxModel } from '@/lib/phone-swap/useFbxModel'
 import { useGlb } from '@/lib/phone-swap/useGlb'
+
+// Neutral dark placeholder so the screen is invisible until PhoneScreenshotTextureBinder applies the real screenshot.
+const BLACK_SCREEN = new DataTexture(new Uint8Array([0, 0, 0, 255]), 1, 1, RGBAFormat, UnsignedByteType)
+BLACK_SCREEN.needsUpdate = true
 
 function usePixel8ProTexMaps(): Pixel8MaterialMaps {
   const urls = PHONE_SWAP_URLS.pixel8
@@ -47,42 +51,30 @@ function usePixel8ProTexMaps(): Pixel8MaterialMaps {
 function usePixel8ObjScene() {
   const urls = PHONE_SWAP_URLS.pixel8
   const raw = useGlb(urls.glb)
-  const [screenTexture] = useLoader(TextureLoader, [urls.screen])
   const materialMaps = usePixel8ProTexMaps()
-
-  useLayoutEffect(() => {
-    screenTexture.colorSpace = SRGBColorSpace
-    screenTexture.needsUpdate = true
-  }, [screenTexture])
 
   return useMemo(
     () =>
-      preparePixel8Scene(raw, screenTexture, materialMaps, {
+      preparePixel8Scene(raw, BLACK_SCREEN, materialMaps, {
         applyScreen: true,
         useFbxMaterials: false,
       }),
-    [raw, screenTexture, materialMaps],
+    [raw, materialMaps],
   )
 }
 
 function usePixel8FbxScene() {
   const urls = PHONE_SWAP_URLS.pixel8
   const raw = useFbxModel(PIXEL8_FBX, PIXEL8_FBX_RESOURCE_PATH)
-  const [screenTexture] = useLoader(TextureLoader, [urls.screen])
   const materialMaps = usePixel8ProTexMaps()
-
-  useLayoutEffect(() => {
-    screenTexture.colorSpace = SRGBColorSpace
-    screenTexture.needsUpdate = true
-  }, [screenTexture])
 
   return useMemo(
     () =>
-      preparePixel8Scene(raw, screenTexture, materialMaps, {
+      preparePixel8Scene(raw, BLACK_SCREEN, materialMaps, {
         applyScreen: true,
         useFbxMaterials: true,
       }),
-    [raw, screenTexture, materialMaps],
+    [raw, materialMaps],
   )
 }
 
