@@ -10,7 +10,7 @@ import { fixInvertedMeshNormals } from '@/lib/phone-swap/mtlPhongToStandard'
 import { normalizeModel } from '@/lib/phone-swap/normalizeModel'
 import {
   applyAccentTint,
-  applyModelHoverGlow,
+  PHONE_SWAP_ACCENT_COLOR,
   restoreColorMaterial,
 } from '@/lib/phone-swap/phoneAccentHover'
 import * as THREE from 'three'
@@ -183,11 +183,14 @@ export function updateBowlGlassMaterial(
   })
 }
 
+const BOWL_HOVER_AMBER = new THREE.Color('#DE7418')
+
 type BowlHoverBaseline = {
   color: THREE.Color
   opacity: number
   emissive: THREE.Color
   emissiveIntensity: number
+  attenuationColor: THREE.Color
 }
 
 function cacheBowlHoverBaseline(material: THREE.Material) {
@@ -198,10 +201,11 @@ function cacheBowlHoverBaseline(material: THREE.Material) {
     opacity: material.opacity,
     emissive: material.emissive.clone(),
     emissiveIntensity: material.emissiveIntensity,
+    attenuationColor: material.attenuationColor.clone(),
   } satisfies BowlHoverBaseline
 }
 
-/** Orange accent glow on the glass bowl during hover. */
+/** Orange-amber accent glow on the glass bowl during hover. */
 export function applyBowlGlassHover(bowl: THREE.Object3D, hover: number) {
   bowl.traverse((child) => {
     if (!(child instanceof THREE.Mesh)) return
@@ -215,10 +219,15 @@ export function applyBowlGlassHover(bowl: THREE.Object3D, hover: number) {
       restoreColorMaterial(mat, base)
       mat.emissive.copy(base.emissive)
       mat.emissiveIntensity = base.emissiveIntensity
+      mat.attenuationColor.copy(base.attenuationColor)
       return
     }
 
     applyAccentTint(mat, base, hover)
-    applyModelHoverGlow(mat, base, hover)
+    mat.attenuationColor.copy(base.attenuationColor).lerp(BOWL_HOVER_AMBER, hover * 0.7)
+    const glowT = hover * 0.9
+    mat.emissive.copy(PHONE_SWAP_ACCENT_COLOR).multiplyScalar(glowT)
+    mat.emissiveIntensity = base.emissiveIntensity + glowT
+    mat.needsUpdate = true
   })
 }

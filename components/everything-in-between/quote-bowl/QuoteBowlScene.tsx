@@ -92,7 +92,7 @@ export function QuoteBowlScene({
 
     const motionActive = step === 'pick' && pileReady
 
-    const lerpFactor = 1 - Math.pow(0.001, delta)
+    const lerpFactor = 1 - Math.pow(0.00001, delta)
     hoverStrength.current = THREE.MathUtils.lerp(
       hoverStrength.current,
       motionActive ? hoverTarget.current : 0,
@@ -106,12 +106,18 @@ export function QuoteBowlScene({
       lerpFactor,
     )
 
+    const t = state.clock.elapsedTime
     if (motionActive && !reducedMotion && hoverStrength.current < 0.05) {
-      const t = state.clock.elapsedTime
       root.rotation.y =
         Math.sin(t * QUOTE_BOWL.idleWobbleHz) * QUOTE_BOWL.idleWobbleAmp
     } else {
       root.rotation.y = THREE.MathUtils.lerp(root.rotation.y, 0, 0.06)
+    }
+
+    if (motionActive && !reducedMotion && hoverStrength.current > 0.05) {
+      root.rotation.z = Math.sin(t * 0.9) * 0.014 * hoverStrength.current
+    } else {
+      root.rotation.z = THREE.MathUtils.lerp(root.rotation.z, 0, 0.08)
     }
 
     const showBowlHover =
