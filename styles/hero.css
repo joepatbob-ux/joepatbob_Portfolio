@@ -84,6 +84,18 @@ html:not(.past-hero-scroll) #hero .hero-pin {
   -webkit-user-drag: none;
 }
 
+.hero-portrait--dark {
+  display: none;
+}
+
+html[data-theme='dark'] .hero-portrait--light {
+  display: none;
+}
+
+html[data-theme='dark'] .hero-portrait--dark {
+  display: block;
+}
+
 .hero-mobile-scrim {
   display: none;
   pointer-events: none;

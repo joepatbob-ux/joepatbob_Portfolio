@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { resetAllChapterCopyScrollers } from '@/lib/chapterCopyScrollReset'
 import {
   chapterSlotAtScrollY,
   chapterSlotScrollTop,
@@ -51,6 +52,47 @@ function previousChapterSlot(scrollY: number): HTMLElement | null {
   return idx > 0 ? slots[idx - 1] : null
 }
 
+function scrollToHero(): void {
+  lastHandoffAt = Date.now()
+  resetAllChapterCopyScrollers()
+  window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+  requestAnimationFrame(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+  })
+}
+
+function firstChapterSlot(): HTMLElement | null {
+  const slots = chapterSlotsOrdered()
+  return slots[0] ?? null
+}
+
+/** Wheel up on the first chapter (overview) — fixed panel blocks native document scroll. */
+function tryHeroHandoff(e: WheelEvent, handoffBlocked: boolean): boolean {
+  if (e.deltaY >= 0 || window.scrollY <= 0) return false
+
+  const target = e.target
+  if (!(target instanceof HTMLElement)) return false
+  if (target.closest(WHEEL_IGNORE_SELECTOR)) return false
+
+  const first = firstChapterSlot()
+  const active = chapterSlotAtScrollY()
+  if (!first || active !== first) return false
+  if (!target.closest('.portfolio-chapter-slot[data-chapter-id]')) return false
+
+  const scroller = first.querySelector<HTMLElement>(SCROLL_TRAP_SELECTOR)
+  if (scroller && isVerticallyScrollable(scroller)) {
+    const atTop = scroller.scrollTop <= EDGE_EPSILON_PX
+    if (!atTop) return false
+  }
+
+  if (handoffBlocked) return false
+
+  e.preventDefault()
+  e.stopPropagation()
+  scrollToHero()
+  return true
+}
+
 function scrollToChapterSlot(slot: HTMLElement): void {
   lastHandoffAt = Date.now()
   scrollDocumentToChapterSlot(slot)
@@ -67,8 +109,13 @@ function shouldRouteWheel(e: WheelEvent): boolean {
   if (!(target instanceof HTMLElement)) return false
   if (target.closest(WHEEL_IGNORE_SELECTOR)) return false
   if (target.closest('#hero')) return false
-  return !!target.closest(
+  const slot = target.closest(
     '.portfolio-chapter-slot--fill.hardware-slideshow[data-chapter-id]',
+  )
+  if (!slot) return false
+  // Only trap wheel over the copy column — stage / canvas keeps native document scroll.
+  return !!target.closest(
+    '.chapter-slide__copy, .chapter-copy-scroller, .chapter-copy',
   )
 }
 
@@ -82,8 +129,18 @@ function scrollCopyBy(scroller: HTMLElement, deltaY: number): void {
  */
 function onDocumentWheel(e: WheelEvent): void {
   if (e.deltaY === 0) return
+
+  const target = e.target
+  if (target instanceof HTMLElement) {
+    if (target.closest(WHEEL_IGNORE_SELECTOR)) return
+    if (target.closest('#hero')) return
+  }
+
+  const handoffBlocked = Date.now() - lastHandoffAt < HANDOFF_COOLDOWN_MS
+
+  if (tryHeroHandoff(e, handoffBlocked)) return
+
   if (!shouldRouteWheel(e)) return
-  if (Date.now() - lastHandoffAt < HANDOFF_COOLDOWN_MS) return
 
   const scroller = activeChapterCopyScroller()
   if (!scroller || !isVerticallyScrollable(scroller)) return
@@ -102,7 +159,7 @@ function onDocumentWheel(e: WheelEvent): void {
     }
 
     const next = nextChapterSlot(window.scrollY)
-    if (!next) return
+    if (!next || handoffBlocked) return
     e.preventDefault()
     e.stopPropagation()
     scrollToChapterSlot(next)
@@ -117,7 +174,12 @@ function onDocumentWheel(e: WheelEvent): void {
   }
 
   const previous = previousChapterSlot(window.scrollY)
-  if (!previous) return
+  if (!previous) {
+    if (tryHeroHandoff(e, handoffBlocked)) return
+    return
+  }
+  if (handoffBlocked) return
+
   e.preventDefault()
   e.stopPropagation()
   scrollToChapterSlot(previous)
