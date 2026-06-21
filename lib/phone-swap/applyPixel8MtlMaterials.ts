@@ -121,6 +121,7 @@ function logoMaterial(
 ): THREE.MeshStandardMaterial {
   const mat = mtlPhongToStandard(source, {
     name: slotName,
+    color: PIXEL8_DISPLAY.backing,
     metalness: 0.12,
     roughness: 0.42,
     envMapIntensity: 0.7,
