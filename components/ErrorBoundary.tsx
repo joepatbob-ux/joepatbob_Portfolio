@@ -3,6 +3,7 @@ import { Component, type ErrorInfo, type ReactNode } from 'react'
 type Props = {
   children: ReactNode
   label?: string
+  onError?: (error: Error) => void
 }
 
 type State = { error: Error | null }
@@ -15,6 +16,7 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {
+    this.props.onError?.(error)
     if (import.meta.env.DEV) {
       console.error(
         `[ErrorBoundary${this.props.label ? `: ${this.props.label}` : ''}]`,

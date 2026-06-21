@@ -16,6 +16,7 @@ import { usePrefersReducedMotion } from '@/lib/hooks/usePrefersReducedMotion'
 import { useStagePreload } from '@/lib/hooks/useStagePreload'
 import { isPrerenderSnapshot } from '@/lib/isPrerenderSnapshot'
 import { preloadQuoteBowlStage } from '@/lib/stagePreload/quoteBowl'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { Canvas } from '@react-three/fiber'
 import dynamic from 'next/dynamic'
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
@@ -116,59 +117,61 @@ export function ConceptQuoteBowl({ answers, chapterId }: Props) {
           </button>
         ) : null}
 
-        {showLoading ? (
-          <StageLoadingOverlay label="Loading bowl…" />
-        ) : null}
+        <ErrorBoundary label="Bowl" onError={() => setSceneReady(true)}>
+          {showLoading ? (
+            <StageLoadingOverlay label="Loading bowl…" />
+          ) : null}
 
-        {showCanvas ? (
-          <Canvas
-            className="quote-bowl__canvas"
-            data-debug="canvas"
-            shadows
-            style={{ width: '100%', height: '100%' }}
-            camera={{
-              position: [...camera.position],
-              fov: camera.fov,
-              near: camera.near,
-              far: camera.far,
-            }}
-            gl={{
-              alpha: true,
-              antialias: true,
-              powerPreference: 'high-performance',
-            }}
-            dpr={canvasDpr}
-            frameloop={chapterActive ? 'always' : 'never'}
-            resize={{ scroll: false, debounce: { scroll: 0, resize: 0 } }}
-            onCreated={({ gl }) => {
-              gl.setClearColor(0x000000, 0)
-              gl.setPixelRatio(Math.min(window.devicePixelRatio || 1, QUOTE_BOWL.canvas.maxDpr))
-              gl.toneMappingExposure = darkSurface
-                ? QUOTE_BOWL.darkSurface.toneMappingExposure
-                : QUOTE_BOWL.lightSurface.toneMappingExposure
-            }}
-          >
-            <Suspense fallback={null}>
-              <StageSceneReady onReady={handleSceneReady}>
-                <ConceptQuoteBowlCanvas
-                  answers={answers}
-                  step={step}
-                  selectedSlipId={selectedSlipId}
-                  reducedMotion={reducedMotion}
-                  darkSurface={darkSurface}
-                  glassTune={glassTune}
-                  onPickSlip={onPickSlip}
-                  onReset={reset}
-                  pickActionRef={pickActionRef}
-                  debugOutlines={debugOutlines}
-                  stackRef={stackRef}
-                />
-              </StageSceneReady>
-            </Suspense>
-          </Canvas>
-        ) : (
-          <div className="quote-bowl__canvas quote-bowl__canvas--placeholder" />
-        )}
+          {showCanvas ? (
+            <Canvas
+              className="quote-bowl__canvas"
+              data-debug="canvas"
+              shadows
+              style={{ width: '100%', height: '100%' }}
+              camera={{
+                position: [...camera.position],
+                fov: camera.fov,
+                near: camera.near,
+                far: camera.far,
+              }}
+              gl={{
+                alpha: true,
+                antialias: true,
+                powerPreference: 'high-performance',
+              }}
+              dpr={canvasDpr}
+              frameloop={chapterActive ? 'always' : 'never'}
+              resize={{ scroll: false, debounce: { scroll: 0, resize: 0 } }}
+              onCreated={({ gl }) => {
+                gl.setClearColor(0x000000, 0)
+                gl.setPixelRatio(Math.min(window.devicePixelRatio || 1, QUOTE_BOWL.canvas.maxDpr))
+                gl.toneMappingExposure = darkSurface
+                  ? QUOTE_BOWL.darkSurface.toneMappingExposure
+                  : QUOTE_BOWL.lightSurface.toneMappingExposure
+              }}
+            >
+              <Suspense fallback={null}>
+                <StageSceneReady onReady={handleSceneReady}>
+                  <ConceptQuoteBowlCanvas
+                    answers={answers}
+                    step={step}
+                    selectedSlipId={selectedSlipId}
+                    reducedMotion={reducedMotion}
+                    darkSurface={darkSurface}
+                    glassTune={glassTune}
+                    onPickSlip={onPickSlip}
+                    onReset={reset}
+                    pickActionRef={pickActionRef}
+                    debugOutlines={debugOutlines}
+                    stackRef={stackRef}
+                  />
+                </StageSceneReady>
+              </Suspense>
+            </Canvas>
+          ) : (
+            <div className="quote-bowl__canvas quote-bowl__canvas--placeholder" />
+          )}
+        </ErrorBoundary>
         </div>
       </div>
 
