@@ -24,7 +24,6 @@
 @import './sidebar-layout.css';
 @import './sidebar-mobile.css';
 @import './contact-dialog.css';
-@import './sma-ios26.css';
 
 @tailwind base;
 @tailwind components;

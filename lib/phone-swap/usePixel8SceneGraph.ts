@@ -12,7 +12,7 @@ import {
 import { PHONE_SWAP_URLS } from '@/lib/phone-swap/phoneSwapUrls'
 import { preparePixel8Scene } from '@/lib/phone-swap/preparePixel8Scene'
 import { useFbxModel } from '@/lib/phone-swap/useFbxModel'
-import { useObjMtl } from '@/lib/phone-swap/useObjMtl'
+import { useGlb } from '@/lib/phone-swap/useGlb'
 
 function usePixel8ProTexMaps(): Pixel8MaterialMaps {
   const urls = PHONE_SWAP_URLS.pixel8
@@ -46,7 +46,7 @@ function usePixel8ProTexMaps(): Pixel8MaterialMaps {
 
 function usePixel8ObjScene() {
   const urls = PHONE_SWAP_URLS.pixel8
-  const raw = useObjMtl(urls.obj, urls.mtl)
+  const raw = useGlb(urls.glb)
   const [screenTexture] = useLoader(TextureLoader, [urls.screen])
   const materialMaps = usePixel8ProTexMaps()
 
