@@ -1,13 +1,12 @@
 import { prepareGoldfishBowl } from '@/lib/everything-in-between/prepareGoldfishBowl'
 import { readBowlGlassTune } from '@/lib/everything-in-between/bowlGlassTune'
-import { useObjMtl } from '@/lib/phone-swap/useObjMtl'
+import { useGlb } from '@/lib/phone-swap/useGlb'
 import { useMemo } from 'react'
 
-const BOWL_OBJ = '/models/glass-bowl-a/glass_bowl_a.obj'
-const BOWL_MTL = '/models/glass-bowl-a/glass_bowl_a.mtl'
+const BOWL_GLB = '/models/glass-bowl-a/glass_bowl_a.glb'
 
 export function useGoldfishBowlModel() {
-  const raw = useObjMtl(BOWL_OBJ, BOWL_MTL)
+  const raw = useGlb(BOWL_GLB)
   return useMemo(
     () => prepareGoldfishBowl(raw, readBowlGlassTune()),
     [raw],

@@ -67,7 +67,7 @@ import { PhoneScreenshotTextureBinder } from '@/components/phone-swap/PhoneScree
 import { SmaIPhoneLiveScreen } from '@/components/sma-ios26/SmaIPhoneLiveScreen'
 import type { DisplayScreenRect } from '@/lib/sma-ios26/displayScreenRect'
 import { usePixel8SceneGraph } from '@/lib/phone-swap/usePixel8SceneGraph'
-import { useObjMtl } from '@/lib/phone-swap/useObjMtl'
+import { useGlb } from '@/lib/phone-swap/useGlb'
 
 type GizmoMode = 'translate' | 'rotate' | 'scale'
 
@@ -124,7 +124,7 @@ function usePixel8Scene() {
 function useIPhoneScene() {
   const { invalidate } = useThree()
   const urls = PHONE_SWAP_URLS.iphone16
-  const raw = useObjMtl(urls.obj, urls.mtl)
+  const raw = useGlb(urls.glb)
 
   // Excludes the two brush normal maps (~5 MB combined as WebP) so the scene
   // can suspend and appear without waiting for surface-detail textures.
