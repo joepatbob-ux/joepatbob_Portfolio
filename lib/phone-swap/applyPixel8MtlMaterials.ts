@@ -267,6 +267,7 @@ export function applyPixel8DetailMaps(
 
     if (isLogoMesh(child, slot)) {
       child.material = logoMaterial(sourceMat, maps, slot)
+      child.visible = false
       child.frustumCulled = false
       count += 1
       return
