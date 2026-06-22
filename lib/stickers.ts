@@ -14,32 +14,32 @@ function labelFromFilename(filename: string): string {
 }
 
 export const STICKER_ASSETS: StickerAsset[] = [
-  'Jane-Sticker1.svg',
-  'Jane-Sticker2.svg',
-  'Jane-Sticker3.svg',
-  'Jane-Sticker4.svg',
-  'Allspark_sticker.svg',
-  'Botbattle_sticker.svg',
-  'FinexHoodie-Sticker.svg',
-  'FinexHoodie-Sticker2.svg',
-  'Micronaut_sticker.svg',
-  'bot_sticker1.svg',
-  'bot_sticker2.svg',
-  'bot_sticker3.svg',
-  'bot_sticker4.svg',
-  'copeland_sticker.svg',
-  'jupiter_sticker.svg',
-  'Kelvin_sticker.svg',
-  'kraken_sticker.svg',
-  'longdog_sticker.svg',
-  'mcenroe_sticker.svg',
-  'tandemly_sticker.svg',
-  'zoolander_sticker.svg',
+  'jane-sticker-1.svg',
+  'jane-sticker-2.svg',
+  'jane-sticker-3.svg',
+  'jane-sticker-4.svg',
+  'allspark-sticker.svg',
+  'botbattle-sticker.svg',
+  'finex-hoodie-sticker.svg',
+  'finex-hoodie-sticker-2.svg',
+  'micronaut-sticker.svg',
+  'bot-sticker-1.svg',
+  'bot-sticker-2.svg',
+  'bot-sticker-3.svg',
+  'bot-sticker-4.svg',
+  'copeland-sticker.svg',
+  'jupiter-sticker.svg',
+  'kelvin-sticker.svg',
+  'kraken-sticker.svg',
+  'longdog-sticker.svg',
+  'mcenroe-sticker.svg',
+  'tandemly-sticker.svg',
+  'zoolander-sticker.svg',
 ].map((file) => {
   const id = file.replace(/\.svg$/i, '').toLowerCase()
   return {
     id,
-    src: `/Stickers/${file}`,
+    src: `/images/stickers/${file}`,
     alt: `${labelFromFilename(file)} launch sticker`,
   }
 })
@@ -72,7 +72,7 @@ export function stickerHeights(mobile: boolean): StickerHeights {
 }
 
 const STICKER_SCALE_BY_ID: Record<string, number> = {
-  copeland_sticker: 0.55,
+  'copeland-sticker': 0.55,
 }
 
 export function stickerScaleFor(id: string): number {

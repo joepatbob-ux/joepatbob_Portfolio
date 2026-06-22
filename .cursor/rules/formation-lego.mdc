@@ -1,6 +1,6 @@
 ---
-description: Formation LEGO — peg grid (legoGrid) + bricks (legoBricks) on /Lego/ SVGs
-globs: components/formation/**/*,lib/formation/**/*,styles/formation-lego-board.css,public/Lego/**
+description: Formation LEGO — peg grid (legoGrid) + bricks (legoBricks) on /images/lego/ SVGs
+globs: components/formation/**/*,lib/formation/**/*,styles/formation-lego-board.css,public/images/lego/**
 
 ## Layout (components)
 
@@ -21,7 +21,7 @@ alwaysApply: false
 
 ## Bricks (`lib/formation/legoBricks.ts`)
 
-- Assets: `public/Lego/Lego_Left_*.svg`, `Lego_Right_*.svg`.
+- Assets: `public/images/lego/Lego_Left_*.svg`, `Lego_Right_*.svg`.
 - **Left snap**: position-pin orange → position-pin peg; block 0,0 uses the same peg for footprint.
 - **Right snap**: block 0,0 orange → block-origin peg + nudge; corner `pin+(1,1)` for block, else pin ≡ block peg; snap ties prefer colocated pin.
 - **Left** pivot: 4×2 along +GY. **Right** pivot: 4×2 along +GX.

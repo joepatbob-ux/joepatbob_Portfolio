@@ -89,7 +89,7 @@ Sometimes the best UX is the one that makes you forget you did any UX at all.
 
 When power stealing from the HVAC system is lost, the EIM and Sensi Lite face a choice: show an on-device error, or blank the display and surface device state to the mobile app. I designed the UX logic and notification flow behind that decision. It's the subject of US Patent 12,608,066, awarded April 2026.`,
       imageAlt: 'Equipment Interface Module product photo',
-      imageSrc: '/images/Devices/eimpath.svg',
+      imageSrc: '/images/devices/eimpath.svg',
       imageLayout: 'full-width',
       imagePosition: 'left',
     },

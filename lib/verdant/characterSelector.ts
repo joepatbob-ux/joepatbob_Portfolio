@@ -1,4 +1,4 @@
-/** Character selector — keys map to `verdant_charactor_{CODE}.svg` in `/images/Verdant_Segment/`. */
+/** Character selector — keys map to `verdant-character-{CODE}.svg` in `/images/verdant-segment/`. */
 
 export type VerdantSelection =
   | { kind: 'character'; code: string }

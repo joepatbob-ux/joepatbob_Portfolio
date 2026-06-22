@@ -61,7 +61,7 @@ export type Pixel8BodyAtlas = 'licorice_dark' | 'jade_light'
 
 export const PIXEL8_BODY_ATLAS_FILES: Record<Pixel8BodyAtlas, string> = {
   licorice_dark: `${PIXEL8_PRO_TEX}/body_licorice_dark.png`,
-  jade_light: `${PIXEL8_PRO_TEX}/body_jade_light.png`,
+  jade_light: `${PIXEL8_PRO_TEX}/body_jade_light.webp`,
 }
 
 /** Body shell uses Max UV atlas when set; otherwise {@link PIXEL8_JADE} solid fill. */

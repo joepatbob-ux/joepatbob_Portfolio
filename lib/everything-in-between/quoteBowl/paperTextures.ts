@@ -3,7 +3,7 @@ export const QUOTE_BOWL_PAPER_TEXTURES = {
   baseColor:
     '/textures/lines-handwriting-crumpled/lines_handwriting_crumpled_basecolor.png',
   normal:
-    '/textures/lines-handwriting-crumpled/lines_handwriting_crumpled_normal.png',
+    '/textures/lines-handwriting-crumpled/lines_handwriting_crumpled_normal.webp',
   roughness:
     '/textures/lines-handwriting-crumpled/lines_handwriting_crumpled_roughness.png',
 } as const

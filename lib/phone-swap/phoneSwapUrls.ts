@@ -13,7 +13,7 @@ export const PHONE_SWAP_URLS = {
   pixel8: {
     glb: asset('/models/pixel8-pro.glb', 'pixel8.glb'),
     bodyJadeLight: asset(
-      '/models/pixel-8-pro-tex/body_jade_light.png',
+      '/models/pixel-8-pro-tex/body_jade_light.webp',
       'pixel8.bodyJadeLight',
     ),
     logoAlpha: asset('/models/pixel-8-pro-tex/logo_alpha.png', 'pixel8.logoAlpha'),

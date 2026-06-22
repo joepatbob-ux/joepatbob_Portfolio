@@ -10,7 +10,7 @@ import {
 } from '@/lib/eimPathSegments'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-const SVG_SRC = '/images/Devices/eimpath.svg'
+const SVG_SRC = '/images/devices/eimpath.svg'
 const PATH_FILL = '#F5431B'
 const CYCLE_HOLD_MS = 600
 const DASH_FADE_MIN_MS = 360
