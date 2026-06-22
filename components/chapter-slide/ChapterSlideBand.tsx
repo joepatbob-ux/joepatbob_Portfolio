@@ -15,6 +15,7 @@ interface Props {
   /** Section overview — copy centered in content area, no stage column. */
   copyOnly?: boolean
   stage?: ReactNode
+  stageAriaLabel?: string
   copy: ReactNode
 }
 
@@ -29,6 +30,7 @@ export function ChapterSlideBand({
   modifier,
   copyOnly = false,
   stage,
+  stageAriaLabel,
   copy,
 }: Props) {
   const mode = useChapterLayoutMode()
@@ -56,6 +58,7 @@ export function ChapterSlideBand({
         isFlow={isFlow}
         copyScrollActive={copyScrollActive}
         stage={stage}
+        stageAriaLabel={stageAriaLabel}
         copy={copy}
       />
     </ChapterViewport>

@@ -20,6 +20,7 @@ export function EibConceptsSection() {
       chapterId={chapterId}
       fillViewport
       className="mobile-chapter-slot eib-section-slot eib-section-slot--concepts flow-chapter-slide--concepts"
+      stageAriaLabel="Concept quote bowl — UX principle answers"
       stage={
         <ConceptQuoteBowl
           chapterId={chapterId}

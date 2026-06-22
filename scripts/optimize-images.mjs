@@ -37,10 +37,10 @@ const SOURCE_GROUPS = {
   c: {
     label: 'Group C — Phone assets (quality 85, no resize)',
     pairs: [
-      ['public/images/phones/cropped/iphoneFront.png', 'public/images/phones/cropped/iphoneFront-optimized.webp'],
-      ['public/images/phones/cropped/iphoneBack.png', 'public/images/phones/cropped/iphoneBack-optimized.webp'],
-      ['public/images/phones/cropped/pixelFront.png', 'public/images/phones/cropped/pixelFront-optimized.webp'],
-      ['public/images/phones/cropped/pixelBack.png', 'public/images/phones/cropped/pixelBack-optimized.webp'],
+      ['scripts/assets/phones-cropped/iphoneFront.png', 'scripts/assets/phones-cropped/iphoneFront-optimized.webp'],
+      ['scripts/assets/phones-cropped/iphoneBack.png', 'scripts/assets/phones-cropped/iphoneBack-optimized.webp'],
+      ['scripts/assets/phones-cropped/pixelFront.png', 'scripts/assets/phones-cropped/pixelFront-optimized.webp'],
+      ['scripts/assets/phones-cropped/pixelBack.png', 'scripts/assets/phones-cropped/pixelBack-optimized.webp'],
     ],
   },
   d: {

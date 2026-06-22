@@ -21,6 +21,7 @@ export function VerdantChapter({ chapter, isLast }: Props) {
       chapterId={CHAPTER_ID}
       modifier="verdant"
       isLast={isLast}
+      stageAriaLabel="Verdant segment display prototype"
       stage={<VerdantInteractive isActive={isActive} />}
     />
   )

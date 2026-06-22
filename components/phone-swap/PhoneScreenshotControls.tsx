@@ -38,7 +38,9 @@ export function PhoneScreenshotControls({
     themeRef,
   )
   const showDots = slideCount > 1
-  const activeLabel = PHONE_SCREENSHOT_SLIDES[slideIndex]?.label ?? 'Screenshot'
+  const activeSlide = PHONE_SCREENSHOT_SLIDES[slideIndex]
+  const activeLabel = activeSlide?.label ?? 'Screenshot'
+  const activeDescription = activeSlide?.description
 
   return (
     <div
@@ -50,7 +52,9 @@ export function PhoneScreenshotControls({
       {...pauseHandlers}
     >
       <p className="phone-swap__screenshot-sr">
-        {activeLabel}, {screenTheme} mode, {slideIndex + 1} of {slideCount}
+        {activeDescription
+          ? `${activeLabel} — ${activeDescription}, ${screenTheme} mode, ${slideIndex + 1} of ${slideCount}`
+          : `${activeLabel}, ${screenTheme} mode, ${slideIndex + 1} of ${slideCount}`}
       </p>
 
       <div

@@ -219,20 +219,21 @@ components/
 ---
 
 ## Images
-Place in `/public/images/`:
+Active assets live under `/public/images/` (kebab-case folders). Reference-only photos are in `/public/images/_archive/` (not loaded by the app).
+
 ```
 portrait.jpg            ← legacy name; hero uses PortraitLight_MG_3496-optimized.jpg
 hw-touch2.jpg           ← ID evaluation session
-hw-eim.jpg              ← contractor discussion
+_archive/hw-eim.jpg     ← contractor discussion (archived)
 hw-sensilite.jpg        ← Sensi Lite PCB display
 hw-verdant.jpg          ← character set (full spread)
-hw-trane.jpg            ← Verdant VX4 PCB + display
+_archive/hw-trane.jpg     ← Verdant VX4 PCB + display (archived)
 hw-icon-testing.jpg     ← icon testing session
 mob-foundation.jpg      ← current light mode UI
 mob-color-before.jpg    ← legacy full-bleed orange
 mob-color-after.jpg     ← dark mode orange number
-mob-install.jpg         ← wirepicker before/after
-mob-spotlight.jpg       ← Spotlight UI
+_archive/mobile-wirepicker-before-after.png  ← wirepicker before/after (archived)
+_archive/mobile-spotlight-example.png        ← Spotlight UI (archived)
 ee-smallstuff.jpg       ← demo kit
 ee-team.jpg             ← Little Bit Foundation
 hw-kelvin.jpg           ← Lord Kelvin illustration (color)

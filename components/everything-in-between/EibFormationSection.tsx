@@ -27,6 +27,7 @@ export function EibFormationSection() {
       chapterId={chapterId}
       fillViewport
       className="mobile-chapter-slot eib-section-slot eib-section-slot--formation flow-chapter-slide--formation"
+      stageAriaLabel="Formation LEGO board — patent claim visualization"
       stage={<FormationLegoBoard chapterId={chapterId} />}
       copy={
         <ChapterCopyReveal headline={EIB_FORMATION.headline}>

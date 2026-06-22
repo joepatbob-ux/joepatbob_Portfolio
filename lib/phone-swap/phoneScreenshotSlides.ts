@@ -7,6 +7,7 @@ export type PhoneScreenshotSet = Record<PhoneScreenTheme, string>
 export type PhoneScreenshotSlide = {
   id: string
   label: string
+  description: string
   android: PhoneScreenshotSet
   iphone: PhoneScreenshotSet
 }
@@ -20,6 +21,7 @@ export const PHONE_SCREENSHOT_SLIDES: readonly PhoneScreenshotSlide[] = [
   {
     id: 'dashboard',
     label: 'Dashboard',
+    description: 'Home screen with current temperature and schedule',
     android: {
       light: '/images/screens/android/Dashboard_light-optimized.webp',
       dark: '/images/screens/android/Dashboard_dark-optimized.webp',
@@ -32,6 +34,7 @@ export const PHONE_SCREENSHOT_SLIDES: readonly PhoneScreenshotSlide[] = [
   {
     id: 'usage',
     label: 'Usage',
+    description: 'Energy usage history and runtime charts',
     android: {
       light: '/images/screens/android/Usage_light-optimized.webp',
       dark: '/images/screens/android/Usage_dark-optimized.webp',
@@ -44,6 +47,7 @@ export const PHONE_SCREENSHOT_SLIDES: readonly PhoneScreenshotSlide[] = [
   {
     id: 'ec',
     label: 'Equipment',
+    description: 'Connected HVAC equipment configuration',
     android: {
       light: '/images/screens/android/EC_light-optimized.webp',
       dark: '/images/screens/android/EC_dark-optimized.webp',

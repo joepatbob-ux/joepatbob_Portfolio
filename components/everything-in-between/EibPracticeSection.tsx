@@ -22,6 +22,7 @@ export function EibPracticeSection() {
       fillViewport
       isLast
       className="mobile-chapter-slot eib-section-slot eib-section-slot--practice"
+      stageAriaLabel="Launch sticker pile — drag stickers onto the page"
       stage={<StickerPile />}
       copy={
         <ChapterCopyReveal headline={EIB_PRACTICE.headline}>

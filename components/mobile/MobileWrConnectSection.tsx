@@ -15,6 +15,7 @@ export function MobileWrConnectSection() {
       fillViewport
       isLast
       className="mobile-chapter-slot mobile-chapter-slot--wr-connect"
+      stageAriaLabel={MOBILE_WR_CONNECT.imageAlt}
       stage={<div className="flow-chapter-slide__stage--empty" aria-hidden />}
       copy={
         <ChapterCopyReveal headline={MOBILE_WR_CONNECT.headline}>

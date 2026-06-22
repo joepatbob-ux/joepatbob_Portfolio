@@ -13,6 +13,12 @@ function labelFromFilename(filename: string): string {
     .trim()
 }
 
+const STICKER_ALT_OVERRIDES: Record<string, string> = {
+  'kelvin-sticker': 'Kelvin design system sticker',
+  'copeland-sticker': 'Copeland launch sticker',
+  'allspark-sticker': 'Allspark launch sticker',
+}
+
 export const STICKER_ASSETS: StickerAsset[] = [
   'jane-sticker-1.svg',
   'jane-sticker-2.svg',
@@ -40,7 +46,7 @@ export const STICKER_ASSETS: StickerAsset[] = [
   return {
     id,
     src: `/images/stickers/${file}`,
-    alt: `${labelFromFilename(file)} launch sticker`,
+    alt: STICKER_ALT_OVERRIDES[id] ?? `${labelFromFilename(file)} launch sticker`,
   }
 })
 

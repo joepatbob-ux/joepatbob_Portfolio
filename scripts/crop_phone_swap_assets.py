@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Trim and align PhoneSwap assets. Output: public/images/phones/cropped/"""
+"""Trim and align PhoneSwap assets. Output: scripts/assets/phones-cropped/"""
 from __future__ import annotations
 
 import json
@@ -9,7 +9,7 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
 IN_DIR = ROOT / "public/images/phones"
-OUT_DIR = IN_DIR / "cropped"
+OUT_DIR = ROOT / "scripts/assets/phones-cropped"
 PAD = 12
 THRESHOLD = 14
 

@@ -55,6 +55,7 @@ export function MobileSensiSection() {
       chapterId={chapterId}
       fillViewport
       className="mobile-chapter-slot mobile-chapter-slot--sensi"
+      stageAriaLabel="Sensi app on iPhone and Android 3D preview"
       stage={<MobileSensiStage />}
       copy={
         <ChapterCopyReveal headline={MOBILE_SENSI.headline}>
