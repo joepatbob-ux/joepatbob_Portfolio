@@ -8,6 +8,7 @@ interface Props {
   isLast?: boolean
   fillViewport?: boolean
   className?: string
+  stageAriaLabel?: string
   stage: ReactNode
   copy: ReactNode
 }
@@ -18,6 +19,7 @@ export function FlowChapterSlideLayout({
   isLast,
   fillViewport = true,
   className,
+  stageAriaLabel,
   stage,
   copy,
 }: Props) {
@@ -27,6 +29,7 @@ export function FlowChapterSlideLayout({
       isLast={isLast}
       fillViewport={fillViewport}
       className={['flow-chapter-slide', className].filter(Boolean).join(' ')}
+      stageAriaLabel={stageAriaLabel}
       stage={stage}
       copy={copy}
     />

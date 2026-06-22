@@ -28,6 +28,7 @@ export function WebAppsKelvinChapter() {
       fillViewport
       isLast
       className="mobile-chapter-slot web-apps-chapter-slot"
+      stageAriaLabel="Kelvin design system scratch-off reveal"
       stage={<KelvinScratch />}
       copy={
         <ChapterCopyReveal

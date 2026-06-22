@@ -333,7 +333,7 @@ export function EimPathArt({
         <div
           ref={svgHostRef}
           className="eim-path-art__svg-host"
-          aria-hidden={!svgReady}
+          aria-hidden
         />
         {dashDebug && debugLabels.length > 0 ? (
           <div className="eim-path-art__debug-labels" aria-hidden>

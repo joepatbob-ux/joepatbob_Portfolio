@@ -26,6 +26,7 @@ interface Props {
   copyClassName?: string
   /** Inner stage content — shell adds `.chapter-slide__stage` wrapper. */
   stage?: ReactNode
+  stageAriaLabel?: string
   /** Pre-built stage column (custom id, aria, or always-on stage fill). */
   stageElement?: ReactNode
   /** Inner copy — shell adds column classes and desktop scroller. */
@@ -48,6 +49,7 @@ export function ChapterSlideShell({
   copyScrollActive = false,
   copyClassName = '',
   stage,
+  stageAriaLabel,
   stageElement,
   copy,
   copyElement,
@@ -57,7 +59,7 @@ export function ChapterSlideShell({
   const stageColumn =
     stageElement ??
     (copyOnly || stage == null ? null : (
-      <div className="chapter-slide__stage">
+      <div className="chapter-slide__stage" aria-label={stageAriaLabel}>
         {mode === 'compact' ? (
           <ChapterCompactStageFill>{stage}</ChapterCompactStageFill>
         ) : (

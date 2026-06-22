@@ -29,6 +29,7 @@ export function EimChapter({ chapter, isLast }: Props) {
       chapterId={CHAPTER_ID}
       modifier="eim"
       isLast={isLast}
+      stageAriaLabel={chapter.imageAlt}
       stage={
         <EimPathArt
           active={pathActive}

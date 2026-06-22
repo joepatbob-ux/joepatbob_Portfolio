@@ -16,6 +16,7 @@ export function Touch2Chapter({ chapter, isLast }: Props) {
       chapterId="hardware-touch-2"
       modifier="touch-2"
       isLast={isLast}
+      stageAriaLabel={chapter.imageAlt}
       stage={<Touch2Carousel />}
     />
   )

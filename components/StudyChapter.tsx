@@ -29,6 +29,7 @@ export function StudyChapter({ chapter, sectionId, isLast, stage }: Props) {
       isLast={isLast}
       modifier={slideModifier(chapter)}
       copyFirst={false}
+      stageAriaLabel={stage ? chapter.imageAlt : undefined}
       stage={stage ?? <ChapterStageMedia chapter={chapter} />}
     />
   )
