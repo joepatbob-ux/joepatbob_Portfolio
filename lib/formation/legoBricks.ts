@@ -278,8 +278,8 @@ export function blockOriginNativeInBrick(pivot: BrickPivot): {
 /** White board in dark mode; black board in light mode (same viewBox as legacy plate). */
 export function legoBoardSrc(theme: LegoBoardTheme): string {
   return theme === 'dark'
-    ? '/Lego/Lego_Board_White.svg'
-    : '/Lego/Lego_Board_Black.svg'
+    ? '/images/lego/Lego_Board_White.svg'
+    : '/images/lego/Lego_Board_Black.svg'
 }
 
 /** Neutral brick contrasts the plate: black on white board, white on black board. */
@@ -300,19 +300,19 @@ export function brickArtSrc(
 ): string {
   const side = pivot === 'left' ? 'Left' : 'Right'
   if (color === 'black') {
-    return `/Lego/${neutralBrickBasename(theme, side)}.svg`
+    return `/images/lego/${neutralBrickBasename(theme, side)}.svg`
   }
-  return `/Lego/Lego_${side}_${COLOR_FILE[color]}.svg`
+  return `/images/lego/Lego_${side}_${COLOR_FILE[color]}.svg`
 }
 
 export function brickSelectedArtSrc(pivot: BrickPivot): string {
   const side = pivot === 'left' ? 'Left' : 'Right'
-  return `/Lego/Lego_Brick_${side}_Selected.svg`
+  return `/images/lego/Lego_Brick_${side}_Selected.svg`
 }
 
 export function brickSelectedWithRotateArtSrc(pivot: BrickPivot): string {
   const side = pivot === 'left' ? 'Left' : 'Right'
-  return `/Lego/Lego_Brick_${side}_Selected_wRotate.svg`
+  return `/images/lego/Lego_Brick_${side}_Selected_wRotate.svg`
 }
 
 /** Clip-path for hover ring hint — ring band from `Selected_wRotate` art (not programmatic). */
@@ -350,7 +350,7 @@ export function isPointerOnRotateRing(
 
 export function alignArtSrc(pivot: BrickPivot): string {
   const side = pivot === 'left' ? 'Left' : 'Right'
-  return `/Lego/Lego_Align_${side}.svg`
+  return `/images/lego/Lego_Align_${side}.svg`
 }
 
 export function alignPlacement(

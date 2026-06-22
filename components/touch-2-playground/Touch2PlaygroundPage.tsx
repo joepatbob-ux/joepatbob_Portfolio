@@ -20,7 +20,8 @@ class Touch2PlaygroundErrorBoundary extends Component<
       return (
         <p style={{ margin: 0, color: '#f5a89a', maxWidth: 560, lineHeight: 1.5 }}>
           Failed to load model: {this.state.error.message}. Ensure{' '}
-          <code>public/models/touch-2-master/Touch 2 Master.obj</code> exists
+          <code>public/models/touch-2-master/Touch 2 Master.obj</code> and{' '}
+          <code>touch-2-master.mtl</code> exist
           (run <code>scripts/copy-touch2-master-model.sh</code>).
         </p>
       )

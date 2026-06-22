@@ -27,7 +27,7 @@ export const BEFORE_QUAD_LAYOUT = [
 ] as const
 
 /** Foil texture from react-native-scratch-card-example `scratch-front.webp`. */
-export const SCRATCH_FRONT_SRC = '/images/web-apps-scratch-front.webp'
+export const SCRATCH_FRONT_SRC = '/images/web-apps/scratch-front.webp'
 
 function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {

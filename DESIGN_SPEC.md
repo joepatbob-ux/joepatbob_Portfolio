@@ -221,7 +221,7 @@ components/
 ## Images
 Place in `/public/images/`:
 ```
-portrait.jpg            ← hero portrait
+portrait.jpg            ← legacy name; hero uses PortraitLight_MG_3496-optimized.jpg
 hw-touch2.jpg           ← ID evaluation session
 hw-eim.jpg              ← contractor discussion
 hw-sensilite.jpg        ← Sensi Lite PCB display

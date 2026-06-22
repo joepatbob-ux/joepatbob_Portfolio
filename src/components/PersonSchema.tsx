@@ -9,7 +9,7 @@ export function PersonSchema() {
       'https://www.linkedin.com/in/joepatbob/',
       'https://patents.google.com/patent/US12608066',
     ],
-    image: 'https://joepatbob.com/images/PortraitLight_MG_3496.jpg',
+    image: 'https://joepatbob.com/images/PortraitLight_MG_3496-optimized.jpg',
   }
   return (
     <script
