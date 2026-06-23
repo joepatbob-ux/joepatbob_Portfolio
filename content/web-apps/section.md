@@ -35,4 +35,4 @@ When companies grow through acquisition, their software tells the story. Differe
 
 Copeland's web application portfolio was that story. Four products inherited from different companies, serving different industries, built at different times by teams optimizing for shipping rather than coherence. The UI worked — well enough that the business kept running, well enough that nobody wanted to risk touching it.
 
-My job was to change that without breaking anything that mattered.
+My job was to change that without breaking anything that mattered. A design system is just a shared language. The goal is making sure every product in the portfolio is speaking it.
