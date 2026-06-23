@@ -11,10 +11,25 @@ const LOCKED_TRANSLATE_DEADBAND_PX = 1
 /** Scroll band where artifact eases from content-top alignment into viewport center. */
 const CENTER_BLEND_VH = 0.14
 const CENTER_BLEND_MIN_PX = 96
+/** When copy geometry jumps (scroll snap / layout), cap visual motion per frame. */
+const CONTENT_JUMP_THRESHOLD_PX = 72
+const VISUAL_STEP_ON_JUMP_PX = 40
 
 let committedPinId: string | null = null
 /** Chapters that have reached viewport center — hold through scroll-out. */
 const centerLocked = new Set<string>()
+
+const alignPrevFrame = new Map<
+  string,
+  {
+    translateY: number
+    visualTop: number
+    stageTop: number
+    contentTop: number
+    isStuck: boolean
+    locked: boolean
+  }
+>()
 
 function prefersReducedMotion(): boolean {
   if (typeof window === 'undefined') return false
@@ -51,6 +66,37 @@ function targetArtifactTop(
 
   const t = (contentTop - stickTop) / blendPx
   return Math.round(stickTop + smoothstep(t) * (contentTop - stickTop))
+}
+
+/**
+ * Prevent a one-frame snap when scroll-snap or sticky layout shifts copy geometry.
+ */
+function clampTargetForContinuity(
+  ideal: number,
+  prev: { visualTop: number; contentTop: number } | undefined,
+  contentTop: number,
+  locked: boolean,
+): number {
+  if (!prev || locked) return ideal
+
+  const visualDelta = ideal - prev.visualTop
+  const contentStep = Math.abs(contentTop - prev.contentTop)
+
+  if (
+    contentStep > CONTENT_JUMP_THRESHOLD_PX &&
+    Math.abs(visualDelta) > VISUAL_STEP_ON_JUMP_PX
+  ) {
+    return Math.round(
+      prev.visualTop + Math.sign(visualDelta) * VISUAL_STEP_ON_JUMP_PX,
+    )
+  }
+
+  if (visualDelta < -8 && Math.abs(visualDelta) > contentStep * 1.35 + 4) {
+    const step = Math.max(8, Math.min(VISUAL_STEP_ON_JUMP_PX, Math.round(contentStep * 1.15)))
+    return Math.round(prev.visualTop - step)
+  }
+
+  return ideal
 }
 
 function copyContentTop(copy: HTMLElement): number {
@@ -215,22 +261,40 @@ export function applyContinuousStageAlign(
       centerLocked.add(chapterId)
     }
 
+    const nowLocked = centerLocked.has(chapterId)
+
+    const idealTarget = reducedMotion
+      ? stickTop
+      : targetArtifactTop(contentTop, stickTop, nowLocked, blendPx)
+
+    const prevFrame = alignPrevFrame.get(chapterId)
     const targetTop = reducedMotion
       ? stickTop
-      : targetArtifactTop(contentTop, stickTop, locked, blendPx)
+      : clampTargetForContinuity(idealTarget, prevFrame, contentTop, nowLocked)
 
     // Recompute each frame — sticky top shifts from in-flow to viewport-fixed.
     let translateY = Math.round(targetTop - stageTop - artifactOffset)
 
     const prevY = Number(artifact.dataset.stageAlignY ?? NaN)
-    if (
-      locked &&
+    const deadbandApplied =
+      nowLocked &&
       isStuck &&
       Number.isFinite(prevY) &&
       Math.abs(translateY - prevY) < LOCKED_TRANSLATE_DEADBAND_PX
-    ) {
+    if (deadbandApplied) {
       translateY = prevY
     }
+
+    const visualTop = stageTop + artifactOffset + translateY
+
+    alignPrevFrame.set(chapterId, {
+      translateY,
+      visualTop,
+      stageTop,
+      contentTop,
+      isStuck,
+      locked: nowLocked,
+    })
 
     applyArtifactTransform(artifact, translateY)
   })
