@@ -129,10 +129,9 @@
     .chapter-slide__stage[data-stage-pinned='true'] {
     position: sticky;
     top: var(--safe-area-top, 0px);
-    visibility: visible;
-    opacity: 1;
     pointer-events: auto;
     z-index: 2;
+    /* opacity driven inline from scroll reveal */
   }
 
   html.continuous-chapters
@@ -140,6 +139,7 @@
     .chapter-slide__stage[data-stage-pinned='true']
     > * {
     will-change: transform;
+    backface-visibility: hidden;
   }
 
   html.continuous-chapters

@@ -3,11 +3,54 @@ import { isContinuousChapters } from '@/lib/continuousChapters'
 import { isTopBarNavViewport } from '@/lib/layout/isTopBarNavViewport'
 
 const STAGE_SELECTOR = `${CHAPTER_SLOT_SELECTOR} .chapter-slide__stage:not(:has(.flow-chapter-slide__stage--empty))`
-const STAGE_PIN_REVEAL = 0.28
+const STAGE_PIN_REVEAL = 0.22
+const PIN_HYSTERESIS = 0.1
+const STAGE_INTERACTIVE_OPACITY = 0.38
+/** Ignore sub-pixel churn once centered and sticky. */
+const LOCKED_TRANSLATE_DEADBAND_PX = 1
+/** Scroll band where artifact eases from content-top alignment into viewport center. */
+const CENTER_BLEND_VH = 0.14
+const CENTER_BLEND_MIN_PX = 96
+
+let committedPinId: string | null = null
+/** Chapters that have reached viewport center — hold through scroll-out. */
+const centerLocked = new Set<string>()
 
 function prefersReducedMotion(): boolean {
   if (typeof window === 'undefined') return false
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches
+}
+
+function readSafeAreaTop(): number {
+  if (typeof document === 'undefined') return 0
+  const raw = getComputedStyle(document.documentElement).getPropertyValue('--safe-area-top')
+  const px = parseFloat(raw)
+  return Number.isFinite(px) ? Math.round(px) : 0
+}
+
+function smoothstep(t: number): number {
+  const x = Math.max(0, Math.min(1, t))
+  return x * x * (3 - 2 * x)
+}
+
+/**
+ * Scroll-in: track copy top, then ease into viewport center before lock.
+ * Scroll-out (locked): hold viewport center until chapter unpins.
+ */
+function targetArtifactTop(
+  contentTop: number,
+  stickTop: number,
+  locked: boolean,
+  blendPx: number,
+): number {
+  if (locked) return stickTop
+
+  const blendEnd = stickTop + blendPx
+  if (contentTop >= blendEnd) return contentTop
+  if (contentTop <= stickTop) return stickTop
+
+  const t = (contentTop - stickTop) / blendPx
+  return Math.round(stickTop + smoothstep(t) * (contentTop - stickTop))
 }
 
 function copyContentTop(copy: HTMLElement): number {
@@ -15,11 +58,31 @@ function copyContentTop(copy: HTMLElement): number {
     copy.querySelector<HTMLElement>(
       '.chapter-copy-scroller, .chapter-copy__headline, .case-study-section-header',
     ) ?? copy
-  return anchor.getBoundingClientRect().top
+  return Math.round(anchor.getBoundingClientRect().top)
 }
 
-function clearStagePin(stage: HTMLElement, artifact: HTMLElement | null): void {
+/** Opacity tied to copy reveal — lingers slightly on exit to avoid a hard blink. */
+export function stageOpacityFromReveal(reveal: number): number {
+  const t = Math.max(0, Math.min(1, reveal))
+  if (t <= 0.06) return 0
+  return Math.pow(t, 0.68)
+}
+
+function applyArtifactTransform(artifact: HTMLElement, translateY: number): void {
+  const key = String(translateY)
+  if (artifact.dataset.stageAlignY === key) return
+  artifact.dataset.stageAlignY = key
+  artifact.style.transform = `translate3d(0, ${translateY}px, 0)`
+}
+
+function clearStagePin(
+  stage: HTMLElement,
+  artifact: HTMLElement | null,
+  chapterId?: string,
+): void {
+  if (chapterId) centerLocked.delete(chapterId)
   delete stage.dataset.stagePinned
+  delete stage.dataset.stageOpacity
   stage.style.removeProperty('visibility')
   stage.style.removeProperty('opacity')
   stage.style.removeProperty('pointer-events')
@@ -29,33 +92,66 @@ function clearStagePin(stage: HTMLElement, artifact: HTMLElement | null): void {
   delete artifact.dataset.stageAlignY
 }
 
-/** Chapter with highest reveal that has a stage column (ignores copy-only overviews). */
+function stageChapterIds(revealMap: Record<string, number>): Array<{
+  id: string
+  reveal: number
+}> {
+  const chapters: Array<{ id: string; reveal: number }> = []
+  document.querySelectorAll<HTMLElement>(STAGE_SELECTOR).forEach((stage) => {
+    const chapterId = stage.closest<HTMLElement>('[data-chapter-id]')?.dataset.chapterId
+    if (!chapterId) return
+    chapters.push({ id: chapterId, reveal: revealMap[chapterId] ?? 0 })
+  })
+  return chapters
+}
+
+/** Highest-reveal stage chapter, with hysteresis so pin does not flicker at boundaries. */
 function pickStagePinId(revealMap: Record<string, number>): string | null {
   let bestId: string | null = null
   let bestReveal = 0
 
-  document.querySelectorAll<HTMLElement>(STAGE_SELECTOR).forEach((stage) => {
-    const chapterId = stage.closest<HTMLElement>('[data-chapter-id]')?.dataset.chapterId
-    if (!chapterId) return
-    const reveal = revealMap[chapterId] ?? 0
+  for (const { id, reveal } of stageChapterIds(revealMap)) {
     if (reveal >= STAGE_PIN_REVEAL && reveal > bestReveal) {
       bestReveal = reveal
-      bestId = chapterId
+      bestId = id
     }
-  })
+  }
 
+  if (!bestId) {
+    committedPinId = null
+    return null
+  }
+
+  if (!committedPinId || committedPinId === bestId) {
+    committedPinId = bestId
+    return bestId
+  }
+
+  const currentReveal = revealMap[committedPinId] ?? 0
+  if (currentReveal < 0.04) {
+    committedPinId = bestId
+    return bestId
+  }
+  if (bestReveal - currentReveal < PIN_HYSTERESIS) {
+    return committedPinId
+  }
+
+  committedPinId = bestId
   return bestId
 }
 
 /** Clear scroll-driven stage offsets (legacy slideshow / top-bar nav). */
 export function resetContinuousStageAlign(): void {
+  committedPinId = null
+  centerLocked.clear()
   document.querySelectorAll<HTMLElement>(STAGE_SELECTOR).forEach((stage) => {
-    clearStagePin(stage, stage.firstElementChild as HTMLElement | null)
+    const chapterId = stage.closest<HTMLElement>('[data-chapter-id]')?.dataset.chapterId
+    clearStagePin(stage, stage.firstElementChild as HTMLElement | null, chapterId)
   })
 }
 
 /**
- * Continuous desktop: one pinned stage at a time; tracks content top → viewport center.
+ * Continuous desktop: one pinned stage; opacity follows copy reveal, position tracks content → center.
  */
 export function applyContinuousStageAlign(
   revealMap: Record<string, number>,
@@ -69,7 +165,8 @@ export function applyContinuousStageAlign(
   const vh = window.innerHeight
   if (vh <= 0) return
 
-  const viewportCenterY = vh / 2
+  const viewportCenterY = Math.round(vh / 2)
+  const safeTop = readSafeAreaTop()
   const reducedMotion = prefersReducedMotion()
   const pinId = pickStagePinId(revealMap)
 
@@ -80,31 +177,61 @@ export function applyContinuousStageAlign(
     const artifact = stage.firstElementChild as HTMLElement | null
     if (!chapterId || !copy || !artifact) return
 
+    const reveal = revealMap[chapterId] ?? 0
     const pinned = chapterId === pinId
+    const stageOpacity = stageOpacityFromReveal(reveal)
 
-    if (!pinned) {
-      clearStagePin(stage, artifact)
+    if (!pinned || stageOpacity <= 0.01) {
+      clearStagePin(stage, artifact, chapterId)
       return
     }
 
+    // Measure layout before mutating styles (avoids rect/layout feedback jitter).
+    const stageTop = Math.round(stage.getBoundingClientRect().top)
+    const artifactOffset = artifact.offsetTop
+    const artifactH = artifact.offsetHeight
+    const contentTop = copyContentTop(copy)
+    const isStuck = stageTop <= safeTop + 2
+
+    const opacityKey = stageOpacity.toFixed(3)
+    if (stage.dataset.stageOpacity !== opacityKey) {
+      stage.dataset.stageOpacity = opacityKey
+      stage.style.opacity = opacityKey
+      stage.style.visibility = stageOpacity > 0.02 ? 'visible' : 'hidden'
+      stage.style.pointerEvents =
+        stageOpacity >= STAGE_INTERACTIVE_OPACITY ? 'auto' : 'none'
+    }
+
     stage.dataset.stagePinned = 'true'
-    stage.style.visibility = 'visible'
-    stage.style.opacity = '1'
-    stage.style.pointerEvents = 'auto'
     stage.style.zIndex = '2'
 
-    const contentTop = copyContentTop(copy)
-    const artifactH = artifact.offsetHeight
     if (artifactH <= 0) return
 
-    const stickTop = viewportCenterY - artifactH / 2
-    const targetTop = reducedMotion ? stickTop : contentTop > stickTop ? contentTop : stickTop
-    const naturalTop = stage.getBoundingClientRect().top + artifact.offsetTop
-    const translateY = Math.round((targetTop - naturalTop) * 100) / 100
-    const key = String(translateY)
+    const stickTop = Math.round(viewportCenterY - artifactH / 2)
+    const locked = centerLocked.has(chapterId)
+    const blendPx = Math.max(CENTER_BLEND_MIN_PX, Math.round(vh * CENTER_BLEND_VH))
 
-    if (artifact.dataset.stageAlignY === key) return
-    artifact.dataset.stageAlignY = key
-    artifact.style.transform = translateY === 0 ? '' : `translate3d(0, ${translateY}px, 0)`
+    if (!reducedMotion && !locked && contentTop <= stickTop && isStuck) {
+      centerLocked.add(chapterId)
+    }
+
+    const targetTop = reducedMotion
+      ? stickTop
+      : targetArtifactTop(contentTop, stickTop, locked, blendPx)
+
+    // Recompute each frame — sticky top shifts from in-flow to viewport-fixed.
+    let translateY = Math.round(targetTop - stageTop - artifactOffset)
+
+    const prevY = Number(artifact.dataset.stageAlignY ?? NaN)
+    if (
+      locked &&
+      isStuck &&
+      Number.isFinite(prevY) &&
+      Math.abs(translateY - prevY) < LOCKED_TRANSLATE_DEADBAND_PX
+    ) {
+      translateY = prevY
+    }
+
+    applyArtifactTransform(artifact, translateY)
   })
 }
