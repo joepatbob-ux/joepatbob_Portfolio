@@ -170,16 +170,20 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
       cleanup?.()
       cleanup = undefined
 
-      if (
-        window.matchMedia(LAYOUT_MQ.topBarNav).matches ||
-        isContinuousChapters()
-      ) {
+      if (window.matchMedia(LAYOUT_MQ.topBarNav).matches) {
         resetInFlowChapterPanels()
         cleanup = bindTopBarScrollSpy(
           () => phaseRef.current,
           () => (busyRef.current ? targetIdRef.current : null),
           applyScrollState,
         )
+        return
+      }
+
+      if (isContinuousChapters()) {
+        resetInFlowChapterPanels()
+        measureAndApplySlides()
+        cleanup = scheduleScrollFrame(measureAndApplySlides)
         return
       }
 
@@ -222,6 +226,32 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
             `[ChapterNav] No element for selector "${selector}" (chapter ${chapterId})`,
           )
         }
+        return
+      }
+
+      if (isContinuousChapters() && !isTopBarNavViewport()) {
+        busyRef.current = true
+        activeRef.current = chapterId
+        setActiveSlideId(chapterId)
+
+        scrollDocumentToChapterSlot(target)
+        await waitForChapterScrollSettle(target)
+        if (Math.abs(window.scrollY - chapterSlotScrollTop(target)) > 8) {
+          scrollDocumentToChapterSlot(target)
+          await waitForChapterScrollSettle(target)
+        }
+
+        navGuardRef.current = {
+          chapterId,
+          until: performance.now() + 720,
+        }
+        busyRef.current = false
+        applySlideScrollFromMeasure('idle', chapterId, navGuardRef.current)
+        flushScrollFrame()
+        requestAnimationFrame(() => {
+          applySlideScrollFromMeasure('idle', null, navGuardRef.current)
+          flushScrollFrame()
+        })
         return
       }
 

@@ -1,21 +1,30 @@
 /* Continuous chapter scroll — desktop only (≥1024). Scoped to html.continuous-chapters.
- * Mobile/tablet (≤1023) unchanged; uses existing top-bar in-flow rules.
- * Phases 0–3: in-flow panels, no snap, no nested copy scroll. Phase 4 adds sticky stage. */
+ * In-flow panels, native document scroll, scroll-driven crossfade (no nested copy trap). */
 
 @media (min-width: 1024px) {
   html.continuous-chapters {
-    scroll-snap-type: none !important;
+    scroll-snap-type: y proximity;
     scroll-behavior: auto;
   }
 
   html.continuous-chapters #hero,
   html.continuous-chapters .portfolio-chapter-slot--fill[data-chapter-id],
   html.continuous-chapters .case-study-flow-overview.portfolio-chapter-slot--fill {
-    scroll-snap-align: none !important;
-    scroll-snap-stop: normal !important;
+    scroll-snap-align: start;
+    scroll-snap-stop: normal;
+    position: relative;
+  }
+
+  html.continuous-chapters #hero {
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    margin-bottom: var(--cs-continuous-hero-exit-buffer);
+  }
+
+  html.continuous-chapters .portfolio-chapter-slot--fill[data-chapter-id],
+  html.continuous-chapters .case-study-flow-overview.portfolio-chapter-slot--fill {
     height: auto !important;
     min-height: 0 !important;
-    position: relative;
   }
 
   html.continuous-chapters
@@ -38,17 +47,39 @@
     height: auto !important;
     min-height: 0 !important;
     overflow: visible !important;
-    opacity: 1 !important;
-    visibility: visible !important;
     z-index: auto !important;
-    will-change: auto !important;
+    will-change: opacity, filter;
     transform: none !important;
-    filter: none !important;
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
-    pointer-events: auto !important;
-    padding-top: 0;
-    padding-bottom: 0;
+    /* Release legacy fixed-slideshow hidden default — React sets scroll-driven opacity */
+    opacity: unset;
+    pointer-events: unset;
+    padding-top: var(--cs-continuous-chapter-buffer);
+    padding-bottom: var(--cs-continuous-chapter-buffer);
+  }
+
+  /* Section overviews — extra runway before the first interactive chapter */
+  html.continuous-chapters
+    .case-study-flow-overview.portfolio-chapter-slot--fill.hardware-slideshow
+    .portfolio-chapter-panel {
+    padding-top: var(--cs-continuous-overview-buffer);
+    padding-bottom: var(--cs-continuous-overview-buffer);
+  }
+
+  html.continuous-chapters
+    .case-study-flow-overview.portfolio-chapter-slot--fill.hardware-slideshow
+    .chapter-slide__inner--copy-only {
+    min-height: calc(68dvh - var(--safe-area-top, 0px) - var(--safe-area-bottom, 0px));
+    justify-content: center;
+  }
+
+  html.continuous-chapters
+    .case-study-flow-overview.portfolio-chapter-slot--fill
+    + .portfolio-chapter-slot--fill.hardware-slideshow:not(.case-study-flow-overview) {
+    margin-top: calc(
+      var(--cs-inter-chapter-gap, var(--cs-section-scroll-gap)) + clamp(8vh, 12vh, 16vh)
+    );
   }
 
   html.continuous-chapters
@@ -65,6 +96,65 @@
     .chapter-slide__inner {
     max-height: none !important;
     height: auto;
+  }
+
+  /* Sticky stage: only the active chapter pins; copy crossfades independently */
+  html.continuous-chapters
+    .portfolio-chapter-slot--fill.hardware-slideshow
+    .chapter-slide__inner:not(.chapter-slide__inner--copy-only):not(
+      :has(.flow-chapter-slide__stage--empty)
+    ) {
+    align-items: start !important;
+  }
+
+  html.continuous-chapters
+    .portfolio-chapter-slot--fill.hardware-slideshow
+    .chapter-slide__stage:not(:has(.flow-chapter-slide__stage--empty)) {
+    position: relative;
+    align-self: start !important;
+    height: auto;
+    max-height: none;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    overflow: visible;
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  html.continuous-chapters
+    .portfolio-chapter-slot--fill.hardware-slideshow
+    .chapter-slide__stage[data-stage-pinned='true'] {
+    position: sticky;
+    top: var(--safe-area-top, 0px);
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+    z-index: 2;
+  }
+
+  html.continuous-chapters
+    .portfolio-chapter-slot--fill.hardware-slideshow
+    .chapter-slide__stage[data-stage-pinned='true']
+    > * {
+    will-change: transform;
+  }
+
+  html.continuous-chapters
+    .portfolio-chapter-slot--fill.hardware-slideshow
+    .chapter-slide__copy {
+    opacity: var(--chapter-copy-opacity, 1);
+    filter: var(--chapter-copy-filter, none);
+  }
+
+  html.continuous-chapters
+    .portfolio-chapter-slot--fill.hardware-slideshow
+    .chapter-slide__inner:not(.chapter-slide__inner--copy-only)
+    .chapter-slide__copy {
+    align-self: start !important;
+    justify-content: flex-start;
   }
 
   html.continuous-chapters
@@ -91,6 +181,33 @@
     overscroll-behavior-y: auto !important;
   }
 
+  html.continuous-chapters
+    .portfolio-chapter-slot--fill.hardware-slideshow
+    .portfolio-chapter-panel:has(.flow-chapter-slide--formation) {
+    overflow: visible !important;
+  }
+
+  html.continuous-chapters
+    .portfolio-chapter-slot--fill.hardware-slideshow
+    .chapter-slide.flow-chapter-slide--formation
+    .chapter-slide__viewport {
+    overflow: visible !important;
+  }
+
+  html.continuous-chapters
+    .portfolio-chapter-slot--fill.hardware-slideshow.mobile-chapter-slot--sensi
+    .portfolio-chapter-panel {
+    overflow: visible !important;
+    overflow-x: clip;
+  }
+
+  html.continuous-chapters
+    .portfolio-chapter-slot--fill.hardware-slideshow.mobile-chapter-slot--sensi
+    .chapter-slide__viewport {
+    overflow: visible !important;
+    max-height: none !important;
+  }
+
   html.continuous-chapters .portfolio-chapter-slot--fill {
     margin-bottom: var(--cs-inter-chapter-gap, var(--cs-section-scroll-gap));
   }
@@ -103,6 +220,17 @@
   }
 }
 
+@media (min-width: 1024px) and (prefers-reduced-motion: reduce) {
+  html.continuous-chapters {
+    scroll-snap-type: none !important;
+  }
+
+  html.continuous-chapters .portfolio-chapter-slot--fill[data-chapter-id],
+  html.continuous-chapters .case-study-flow-overview.portfolio-chapter-slot--fill {
+    scroll-snap-align: none !important;
+  }
+}
+
 @media (min-width: 2560px) {
   html.continuous-chapters
     .portfolio-chapter-slot--fill.hardware-slideshow
@@ -111,5 +239,13 @@
     right: auto !important;
     width: 100% !important;
     max-width: none !important;
+  }
+
+  html.continuous-chapters
+    .portfolio-chapter-slot--fill.hardware-slideshow
+    .chapter-slide__inner:not(.chapter-slide__inner--copy-only):not(
+      :has(.flow-chapter-slide__stage--empty)
+    ) {
+    align-items: start !important;
   }
 }

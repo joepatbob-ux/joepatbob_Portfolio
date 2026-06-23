@@ -39,6 +39,11 @@
   /* Section overview — same width as stage | copy band */
   --cs-overview-measure: 100%;
 
+  /* Continuous scroll: runway above/below copy for stage load (desktop ≥1024) */
+  --cs-continuous-chapter-buffer: clamp(20vh, 26vh, 32vh);
+  --cs-continuous-overview-buffer: clamp(30vh, 38vh, 46vh);
+  --cs-continuous-hero-exit-buffer: clamp(16vh, 22vh, 28vh);
+
   /* Extra scroll between snap slides (hold before next screen) */
   --cs-screen-gap: clamp(16px, 3vh, 40px);
   /* Larger pause between portfolio sections on in-flow mobile scroll */

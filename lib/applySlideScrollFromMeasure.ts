@@ -2,6 +2,10 @@ import {
   applyChapterPanelScrollStyles,
   applyPlacedStickerScrollVisibility,
 } from '@/lib/applyChapterPanelScrollStyles'
+import {
+  applyContinuousStageAlign,
+  resetContinuousStageAlign,
+} from '@/lib/applyContinuousStageAlign'
 import { isContinuousChapters } from '@/lib/continuousChapters'
 import { isTopBarNavViewport } from '@/lib/layout/isTopBarNavViewport'
 import {
@@ -40,6 +44,12 @@ export function applySlideScrollFromMeasure(
   state = applyNavGuard(state, lockedSlideId, navGuard)
 
   publishSlideScrollState(state)
+
+  if (isContinuousChapters() && !isTopBarNavViewport()) {
+    applyContinuousStageAlign(state.revealMap, state.activeSlideId)
+  } else {
+    resetContinuousStageAlign()
+  }
 
   if (
     !isTopBarNavViewport() &&

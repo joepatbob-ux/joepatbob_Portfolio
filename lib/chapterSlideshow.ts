@@ -91,33 +91,8 @@ function crossfadeWeights(t: number): { outgoing: number; incoming: number } {
   return { outgoing: 1 - eased, incoming: eased }
 }
 
-type SlideAnchor = { id: string; centerY: number }
 
-function snapSlideCenterY(el: HTMLElement): number {
-  return chapterSlotScrollCenter(el)
-}
-
-function snapSlideAnchors(): SlideAnchor[] {
-  return Array.from(
-    document.querySelectorAll<HTMLElement>(VIEWPORT_SNAP_SLOT_SELECTOR),
-  )
-    .map((el) => {
-      const id = el.dataset.chapterId
-      if (!id) return null
-      return {
-        id,
-        centerY: snapSlideCenterY(el),
-      }
-    })
-    .filter((s): s is SlideAnchor => s !== null)
-}
-
-/**
- * Opacity per chapter from scroll position (panels stay fixed; only reveal changes).
- * At most two adjacent chapters blend during a scroll transition.
- */
-export function computeChapterRevealMap(): Record<string, number> {
-  const slots = snapSlideAnchors()
+function computeRevealMapFromAnchors(slots: SlideAnchor[]): Record<string, number> {
   if (!slots.length) return {}
 
   const map: Record<string, number> = {}
@@ -167,6 +142,130 @@ export function computeChapterRevealMap(): Record<string, number> {
     }
   }
   map[best.id] = 1
+  return map
+}
+
+type SlideAnchor = { id: string; centerY: number }
+
+function snapSlideCenterY(el: HTMLElement): number {
+  return chapterSlotScrollCenter(el)
+}
+
+function snapSlideAnchors(): SlideAnchor[] {
+  return Array.from(
+    document.querySelectorAll<HTMLElement>(VIEWPORT_SNAP_SLOT_SELECTOR),
+  )
+    .map((el) => {
+      const id = el.dataset.chapterId
+      if (!id) return null
+      return {
+        id,
+        centerY: snapSlideCenterY(el),
+      }
+    })
+    .filter((s): s is SlideAnchor => s !== null)
+}
+
+/**
+ * Opacity per chapter from scroll position (panels stay fixed; only reveal changes).
+ * At most two adjacent chapters blend during a scroll transition.
+ */
+export function computeChapterRevealMap(): Record<string, number> {
+  return computeRevealMapFromAnchors(snapSlideAnchors())
+}
+
+/** Fade band as copy enters from the bottom of the viewport. */
+const COPY_ENTER_FADE_VH = 0.16
+/** Fade out as copy tail leaves — fraction of viewport height. */
+const COPY_EXIT_BOTTOM_VH = 0.4
+/** Late assist when copy top clears the upper edge (keeps stage from lingering). */
+const COPY_EXIT_TOP_VH = 0.12
+const COPY_EXIT_TOP_DEPTH_VH = 0.2
+/** Premount heavy stages when copy is this far below the fold (vh). */
+const COPY_PREMOUNT_LEAD_VH = 0.22
+
+function continuousRevealTarget(el: HTMLElement): HTMLElement {
+  return (
+    el.querySelector<HTMLElement>('.chapter-slide__copy') ??
+    el.querySelector<HTMLElement>('.portfolio-chapter-panel') ??
+    el
+  )
+}
+
+/**
+ * Reveal 0→1 as copy enters the viewport; 1→0 as copy leaves.
+ * Premounts at low weight while copy is still below the fold.
+ */
+function revealFromCopyInViewport(rect: DOMRect, vh: number): number {
+  if (vh <= 0) return 0
+
+  const top = rect.top
+  const bottom = rect.bottom
+  const fadeInPx = Math.max(80, vh * COPY_ENTER_FADE_VH)
+  const exitBottomPx = Math.max(120, vh * COPY_EXIT_BOTTOM_VH)
+  const exitTopLine = vh * COPY_EXIT_TOP_VH
+  const exitTopDepth = Math.max(80, vh * COPY_EXIT_TOP_DEPTH_VH)
+
+  if (bottom <= 0) return 0
+
+  if (top >= vh) {
+    const lead = vh * COPY_PREMOUNT_LEAD_VH
+    if (top < vh + lead) {
+      const t = 1 - (top - vh) / lead
+      return easeChapterReveal(Math.max(0, Math.min(1, t))) * 0.1
+    }
+    return 0
+  }
+
+  let enter = 1
+  if (top > vh - fadeInPx) {
+    enter = Math.max(0, (vh - top) / fadeInPx)
+  }
+
+  // Primary exit: trailing copy leaving the viewport (slow, wide band).
+  let exit = 1
+  if (bottom < exitBottomPx) {
+    exit = easeChapterReveal(Math.max(0, bottom / exitBottomPx))
+  }
+
+  // Assist only when copy is mostly gone — avoids an abrupt stage hang.
+  if (top < exitTopLine && bottom < vh * 0.5) {
+    const topExit = Math.max(0, (top + exitTopDepth) / (exitTopLine + exitTopDepth))
+    exit = Math.min(exit, easeChapterReveal(topExit))
+  }
+
+  const raw = Math.max(0, Math.min(enter, exit))
+  return easeChapterReveal(raw)
+}
+
+/**
+ * Continuous in-flow chapters: panel fade follows copy in the viewport.
+ * Adjacent chapters crossfade naturally when both copies are partially visible.
+ */
+export function computeContinuousRevealMap(): Record<string, number> {
+  const slots = chapterSlots()
+  if (!slots.length) return {}
+
+  const map: Record<string, number> = {}
+  const scrollY = window.scrollY
+  const vh = window.innerHeight
+
+  slots.forEach((el, index) => {
+    const id = el.dataset.chapterId
+    if (!id) return
+
+    const target = continuousRevealTarget(el)
+    const rect = target.getBoundingClientRect()
+    let reveal = revealFromCopyInViewport(rect, vh)
+
+    if (index === 0) {
+      const heroReveal = heroChapterHandoffProgress(scrollY, vh, rect.top + scrollY)
+      reveal = Math.max(reveal, heroReveal)
+    }
+
+    map[id] = reveal
+  })
+
   return map
 }
 
