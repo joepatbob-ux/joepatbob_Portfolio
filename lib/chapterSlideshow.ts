@@ -177,9 +177,9 @@ export function computeChapterRevealMap(): Record<string, number> {
 /** Fade band as copy enters from the bottom of the viewport. */
 const COPY_ENTER_FADE_VH = 0.16
 /** Fade out as copy tail leaves — fraction of viewport height. */
-const COPY_EXIT_BOTTOM_VH = 0.4
+const COPY_EXIT_BOTTOM_VH = 0.48
 /** Late assist when copy top clears the upper edge (keeps stage from lingering). */
-const COPY_EXIT_TOP_VH = 0.12
+const COPY_EXIT_TOP_VH = 0.1
 const COPY_EXIT_TOP_DEPTH_VH = 0.2
 /** Premount heavy stages when copy is this far below the fold (vh). */
 const COPY_PREMOUNT_LEAD_VH = 0.22
