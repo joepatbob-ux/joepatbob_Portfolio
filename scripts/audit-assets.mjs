@@ -13,7 +13,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const root = path.join(__dirname, '..')
 const publicDir = path.join(root, 'public')
 
-const SOURCE_DIRS = ['components', 'lib', 'src', 'styles']
+const SOURCE_DIRS = ['components', 'lib', 'src', 'styles', 'content']
 const EXTRA_FILES = ['index.html']
 const SECTION_FILES = ['lib/sections/hardware.ts', 'lib/sections/mobile.ts', 'lib/sections/webapps.ts', 'lib/sections/everything-else.ts']
 
@@ -67,7 +67,7 @@ function walk(dir, files = []) {
     if (entry.name === 'node_modules' || entry.name === 'dist') continue
     const full = path.join(dir, entry.name)
     if (entry.isDirectory()) walk(full, files)
-    else if (/\.(tsx?|jsx?|css|html|mjs|mdc)$/.test(entry.name)) files.push(full)
+    else if (/\.(tsx?|jsx?|css|html|mjs|mdc|md)$/.test(entry.name)) files.push(full)
   }
   return files
 }
@@ -128,13 +128,16 @@ function findUppercaseDirSegmentsInGit(trackedFiles) {
 
 function findEmptyImageAlts() {
   const hits = []
-  for (const rel of SECTION_FILES) {
-    const file = path.join(root, rel)
+  const contentDir = path.join(root, 'content')
+  const files = [...SECTION_FILES.map((f) => path.join(root, f))]
+  if (fs.existsSync(contentDir)) files.push(...walk(contentDir))
+
+  for (const file of files) {
     if (!fs.existsSync(file)) continue
     const lines = fs.readFileSync(file, 'utf8').split('\n')
     lines.forEach((line, index) => {
-      if (/imageAlt:\s*''/.test(line)) {
-        hits.push(`${rel}:${index + 1}`)
+      if (/imageAlt:\s*''/.test(line) || /"imageAlt":\s*""/.test(line)) {
+        hits.push(`${path.relative(root, file)}:${index + 1}`)
       }
     })
   }

@@ -1,45 +1,7 @@
-// lib/sections/mobile.ts
-import type { Section } from '../types'
+// lib/sections/mobile.ts — section shell in content/mobile/; chapter copy in lib/mobile/content.ts
+import sectionRaw from '@/content/mobile/section.md?raw'
+import sensiRaw from '@/content/mobile/sensi.md?raw'
+import wrConnectRaw from '@/content/mobile/wr-connect.md?raw'
+import { sectionFromMarkdown } from '@/lib/content/buildSection'
 
-export const mobile: Section = {
-  id: 'mobile',
-  label: 'Mobile',
-  eyebrow: '',
-  headline: 'A consumer app people trust and a diagnostic tool technicians rely on.',
-  overviewBody: `Sensi is the main story — a consumer thermostat app rated #1 on iOS through a decade of hardware generations, platform shifts, and new features. WR Connect is the counterpoint: a greenfield commissioning tool for White Rodgers thermostats that turned a technically complex pairing workflow into a QR code scan, and took gold for Most Valuable App at the 2023 ACHR News Dealer Design Awards.
-
-Different users. Different constraints. Same standard for getting the interaction right.`,
-  overviewMeta: [
-    { label: 'Role', value: 'Principal Product Designer' },
-    { label: 'Platform', value: 'iOS + Android' },
-    { label: 'Timeline', value: '2018 – Present' },
-    {
-      label: 'Outcome',
-      value:
-        '#1 rated smart thermostat app · 4.3 → 4.7 iOS · 4.4 Android · ratings held through migration',
-      wide: true,
-    },
-  ],
-  lessonTitle: '',
-  lessonBody: '',
-  chapters: [
-    {
-      id: 'sensi',
-      title: 'Sensi',
-      subtitle: '',
-      body: '',
-      imageAlt: 'Sensi app on iPhone and Android 3D preview',
-      imageLayout: 'full-width',
-      imagePosition: 'left',
-    },
-    {
-      id: 'wr-connect',
-      title: 'WR Connect',
-      subtitle: '',
-      body: '',
-      imageAlt: 'WR Connect app — NFC configuration flow for ignition control board',
-      imageLayout: 'full-width',
-      imagePosition: 'left',
-    },
-  ],
-}
+export const mobile = sectionFromMarkdown(sectionRaw, [sensiRaw, wrConnectRaw])
