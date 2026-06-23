@@ -25,6 +25,7 @@
     "assets",
     "vite",
     "vite.config.ts",
+    "vite-env.d.ts",
     "components",
     "lib",
     "styles"

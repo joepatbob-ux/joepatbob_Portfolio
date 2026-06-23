@@ -1,46 +1,26 @@
-// Slim nav tree — ids + labels only (no chapter body copy).
-import type { NavSection } from './types'
+// Nav tree derived from section manifests — no duplicate labels.
+import { hardware } from './sections/hardware'
+import { mobile } from './sections/mobile'
+import { webApps } from './sections/webapps'
+import { everythingElse } from './sections/everything-else'
+import type { NavSection, Section } from './types'
 
 const OVERVIEW = { id: 'overview', label: 'Overview' } as const
 
-/** Keep in sync with `lib/sections/*.ts` chapter ids + titles. */
+function navFromSection(section: Section): NavSection {
+  return {
+    id: section.id,
+    label: section.label,
+    chapters: [
+      OVERVIEW,
+      ...section.chapters.map((chapter) => ({ id: chapter.id, label: chapter.title })),
+    ],
+  }
+}
+
 export const SECTION_NAV_META: readonly NavSection[] = [
-  {
-    id: 'hardware',
-    label: 'Hardware',
-    chapters: [
-      OVERVIEW,
-      { id: 'touch-2', label: 'Touch 2' },
-      { id: 'eim', label: 'EIM' },
-      { id: 'sensi-lite', label: 'Sensi Lite' },
-      { id: 'verdant', label: 'Verdant' },
-    ],
-  },
-  {
-    id: 'mobile',
-    label: 'Mobile',
-    chapters: [
-      OVERVIEW,
-      { id: 'sensi', label: 'Sensi' },
-      { id: 'wr-connect', label: 'WR Connect' },
-    ],
-  },
-  {
-    id: 'web-apps',
-    label: 'Web Apps',
-    chapters: [
-      OVERVIEW,
-      { id: 'kelvin-ds', label: 'Kelvin DS' },
-    ],
-  },
-  {
-    id: 'everything-else',
-    label: 'Everything In Between',
-    chapters: [
-      OVERVIEW,
-      { id: 'concepts', label: 'Concepts' },
-      { id: 'formation', label: 'Formation' },
-      { id: 'practice', label: 'Practice' },
-    ],
-  },
+  navFromSection(hardware),
+  navFromSection(mobile),
+  navFromSection(webApps),
+  navFromSection(everythingElse),
 ]
