@@ -3,14 +3,15 @@
 
 @media (min-width: 1024px) {
   html.continuous-chapters {
-    scroll-snap-type: y proximity;
+    /* Scroll-snap caused ~300px geometry jumps that skipped the center blend band. */
+    scroll-snap-type: none;
     scroll-behavior: auto;
   }
 
   html.continuous-chapters #hero,
   html.continuous-chapters .portfolio-chapter-slot--fill[data-chapter-id],
   html.continuous-chapters .case-study-flow-overview.portfolio-chapter-slot--fill {
-    scroll-snap-align: start;
+    scroll-snap-align: none;
     scroll-snap-stop: normal;
     position: relative;
   }
