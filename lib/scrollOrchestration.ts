@@ -1,6 +1,7 @@
 import {
   CHAPTER_SLOT_SELECTOR,
   computeChapterRevealMap,
+  computeContinuousRevealMap,
   pickActiveSlideId,
   pickActiveSlideIdForTopBarNav,
   publishActiveSlideId,
@@ -75,14 +76,22 @@ export function measureSlideScrollState(
     return { revealMap: {}, activeSlideId: null, inHero: false }
   }
 
-  if (isTopBarNavViewport() || isContinuousChapters()) {
-    const inHero = isTopBarNavViewport()
-      ? isTopBarInHeroScrollZone()
-      : shouldSuppressChapterReveal()
+  if (isTopBarNavViewport()) {
+    const inHero = isTopBarInHeroScrollZone()
     const revealMap = computeInFlowRevealMap()
     return {
       revealMap,
       activeSlideId: inHero ? null : pickActiveSlideIdForTopBarNav(),
+      inHero,
+    }
+  }
+
+  if (isContinuousChapters()) {
+    const inHero = shouldSuppressChapterReveal()
+    const revealMap = computeContinuousRevealMap()
+    return {
+      revealMap,
+      activeSlideId: inHero ? null : pickActiveSlideId(revealMap),
       inHero,
     }
   }

@@ -14,3 +14,17 @@ export function blurOutFromReveal(
     filter: blurPx > 0.2 ? `blur(${blurPx.toFixed(1)}px)` : 'none',
   }
 }
+
+/** Continuous scroll — linger slightly through the fade to avoid a hard blip. */
+export function blurOutFromRevealForContinuous(
+  reveal: number,
+  maxBlurPx: number,
+): { opacity: number; filter: string } {
+  const t = Math.max(0, Math.min(1, reveal))
+  const opacity = Math.pow(t, 0.82)
+  const blurPx = t >= 0.8 ? 0 : (1 - t / 0.8) * maxBlurPx
+  return {
+    opacity,
+    filter: blurPx > 0.2 ? `blur(${blurPx.toFixed(1)}px)` : 'none',
+  }
+}
