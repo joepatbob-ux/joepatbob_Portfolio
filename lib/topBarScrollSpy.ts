@@ -60,6 +60,10 @@ export function bindTopBarScrollSpy(
     if (inHero !== lastInHero || inHero !== heroPaused) {
       heroPaused = inHero
       schedulePublish()
+      return
+    }
+    if (!inHero) {
+      schedulePublish()
     }
   }
 
