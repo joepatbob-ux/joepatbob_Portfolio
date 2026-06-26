@@ -1,29 +1,49 @@
+'use client'
+
+import { useQuoteTypewriter } from '@/lib/everything-in-between/useQuoteTypewriter'
+
 type Props = {
   showSlip: boolean
+  slipExiting?: boolean
   quote: string
-  onReset?: () => void
+  reducedMotion: boolean
+  onTypewriterComplete?: () => void
   debugOutlines?: boolean
 }
 
 export function QuoteBowlControls({
   showSlip,
+  slipExiting = false,
   quote,
-  onReset,
+  reducedMotion,
+  onTypewriterComplete,
   debugOutlines,
 }: Props) {
-  if (!showSlip && !debugOutlines) return null
+  const typedQuote = useQuoteTypewriter(
+    quote,
+    showSlip,
+    reducedMotion,
+    onTypewriterComplete,
+  )
+  const displayQuote = showSlip ? typedQuote : slipExiting ? quote : ''
+
+  if (!showSlip && !slipExiting && !debugOutlines) return null
 
   return (
     <div className="quote-bowl__controls" data-debug="controls">
-      <div className="quote-bowl__slip-wrap">
-        <div className="quote-bowl__slip" role="status" aria-live="polite" data-debug="slip">
-          <p className="quote-bowl__quote">{quote || '\u00A0'}</p>
+      {showSlip || slipExiting ? (
+        <div
+          className={[
+            'quote-bowl__slip-wrap',
+            slipExiting ? 'quote-bowl__slip-wrap--exit' : '',
+          ]
+            .filter(Boolean)
+            .join(' ')}
+        >
+          <div className="quote-bowl__slip" role="status" aria-live="polite" data-debug="slip">
+            <p className="quote-bowl__quote">{displayQuote || '\u00A0'}</p>
+          </div>
         </div>
-      </div>
-      {showSlip && onReset ? (
-        <button type="button" className="quote-bowl__reset" onClick={onReset}>
-          Pick again
-        </button>
       ) : null}
     </div>
   )

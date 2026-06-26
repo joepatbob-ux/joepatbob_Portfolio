@@ -34,9 +34,13 @@ type Props = {
   chapterId: string
 }
 
-function bowlActionLabel(step: ReturnType<typeof useQuoteBowlFlow>['step']) {
+function bowlActionLabel(
+  step: ReturnType<typeof useQuoteBowlFlow>['step'],
+  canRepick: boolean,
+) {
   if (step === 'pick') return 'Reach into the bowl'
-  return 'Reach into the bowl again'
+  if (step === 'revealed' && canRepick) return 'Reach into the bowl again'
+  return 'Quote bowl'
 }
 
 export function ConceptQuoteBowl({ answers, chapterId }: Props) {
@@ -53,9 +57,19 @@ export function ConceptQuoteBowl({ answers, chapterId }: Props) {
     step,
     selectedSlipId,
     answer,
+    pullStartedAt,
+    resetStartedAt,
+    showSlip,
+    slipExiting,
+    showReset,
+    hasPickedOnce,
+    pendingPick,
+    pileSeed,
+    lastQuote,
     reset,
     onPickSlip,
-    showTypedQuote,
+    onTypewriterComplete,
+    clearPendingPick,
     isPickTarget,
   } = useQuoteBowlFlow(reducedMotion)
   const {
@@ -84,11 +98,23 @@ export function ConceptQuoteBowl({ answers, chapterId }: Props) {
     <div className={['quote-bowl', debugOutlines ? 'quote-bowl--debug' : ''].filter(Boolean).join(' ')}>
       <div className="quote-bowl__stack" data-debug="stack" ref={stackRef}>
         <QuoteBowlControls
-          showSlip={showTypedQuote && answer != null}
+          showSlip={showSlip && answer != null}
+          slipExiting={slipExiting}
           quote={answer ?? ''}
-          onReset={reset}
+          reducedMotion={reducedMotion}
+          onTypewriterComplete={onTypewriterComplete}
           debugOutlines={debugOutlines}
         />
+
+        {step === 'revealed' && showReset ? (
+          <p className="quote-bowl__coach-hint quote-bowl__coach-hint--repick" aria-hidden>
+            Reach in again
+          </p>
+        ) : !hasPickedOnce && step === 'pick' ? (
+          <p className="quote-bowl__coach-hint" aria-hidden>
+            Reach in
+          </p>
+        ) : null}
 
         <div
           className={[
@@ -104,7 +130,7 @@ export function ConceptQuoteBowl({ answers, chapterId }: Props) {
           type="button"
           className="quote-bowl__a11y-trigger"
           onClick={handlePickAction}
-          aria-label={bowlActionLabel(step)}
+          aria-label={bowlActionLabel(step, showReset)}
         />
         {tuneDev ? (
           <button
@@ -156,11 +182,19 @@ export function ConceptQuoteBowl({ answers, chapterId }: Props) {
                     answers={answers}
                     step={step}
                     selectedSlipId={selectedSlipId}
+                    pullStartedAt={pullStartedAt}
+                    resetStartedAt={resetStartedAt}
+                    showSlip={showSlip}
+                    pileSeed={pileSeed}
+                    pendingPick={pendingPick}
+                    lastQuote={lastQuote}
                     reducedMotion={reducedMotion}
                     darkSurface={darkSurface}
                     glassTune={glassTune}
                     onPickSlip={onPickSlip}
                     onReset={reset}
+                    onClearPendingPick={clearPendingPick}
+                    canRepick={showReset}
                     pickActionRef={pickActionRef}
                     debugOutlines={debugOutlines}
                     stackRef={stackRef}

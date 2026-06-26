@@ -7,19 +7,22 @@ import * as THREE from 'three'
 
 type Props = {
   topY: number
+  /** Ball-rise target Y in bowl-local space — aligns HTML slip with 3D pull. */
+  rimY?: number
   stackRef: RefObject<HTMLElement | null>
 }
 
 /** Projects the bowl rim to `--quote-bowl-rim-top` on the HTML stack. */
-export function QuoteBowlRimTracker({ topY, stackRef }: Props) {
+export function QuoteBowlRimTracker({ topY, rimY, stackRef }: Props) {
   const { camera, size } = useThree()
   const world = useMemo(() => new THREE.Vector3(), [])
+  const trackY = rimY ?? topY
 
   useFrame(() => {
     const stack = stackRef.current
     if (!stack) return
 
-    world.set(0, topY + QUOTE_BOWL.contentYOffset, 0)
+    world.set(0, trackY + QUOTE_BOWL.contentYOffset, 0)
     world.project(camera)
 
     const stage = stack.querySelector('.quote-bowl__stage')
