@@ -18,11 +18,9 @@ I moved the configuration to the thermostat.
 
 Through a simple pairing and configuration flow, the contractor sets the equipment location and type from the thermostat, once, without leaving. The EIM receives that information and configures itself accordingly.
 
-The product context makes the scale of that decision clearer: 44% of homes have four wires or fewer, but heat pump installations require six. The EIM was built for that gap. And where the leading competitor shipped three separate modules to cover the same use cases, the Sensi EIM did it with one.
+The product context makes the scale of that decision clearer: 44% of homes have four wires or fewer, but heat pump installations require six. The EIM was built for that gap. Where the leading competitor shipped three separate modules to cover the same use cases, the Sensi EIM did it with one.
 
-Contractors noticed immediately. In field training sessions following launch, two separate distributor groups called out the pairing process independently — specifically that configuring from one location, without going back and forth to press buttons, was what they appreciated most. The launch webinar drew over 180 contractors. That's the design decision validated in the field, by the people it was built for.
-
-Sometimes the best UX is the one that makes you forget you did any UX at all.
+Contractors noticed immediately. In field training sessions following launch, two separate distributor groups called out the pairing process independently — specifically that configuring from one location, without back-and-forth button pressing, was what they appreciated most. The launch webinar drew over 180 contractors. That's the design decision validated in the field by the people it was built for.
 
 **Patent: US 12,608,066**
 

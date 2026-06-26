@@ -247,21 +247,15 @@ export function computeContinuousRevealMap(): Record<string, number> {
   if (!slots.length) return {}
 
   const map: Record<string, number> = {}
-  const scrollY = window.scrollY
   const vh = window.innerHeight
 
-  slots.forEach((el, index) => {
+  slots.forEach((el) => {
     const id = el.dataset.chapterId
     if (!id) return
 
     const target = continuousRevealTarget(el)
     const rect = target.getBoundingClientRect()
-    let reveal = revealFromCopyInViewport(rect, vh)
-
-    if (index === 0) {
-      const heroReveal = heroChapterHandoffProgress(scrollY, vh, rect.top + scrollY)
-      reveal = Math.max(reveal, heroReveal)
-    }
+    const reveal = revealFromCopyInViewport(rect, vh)
 
     map[id] = reveal
   })
