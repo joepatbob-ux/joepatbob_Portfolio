@@ -7,6 +7,8 @@ const STAGE_PIN_REVEAL = 0.22
 const PIN_HYSTERESIS = 0.1
 const STAGE_INTERACTIVE_OPACITY = 0.38
 const STAGE_CLEAR_THRESHOLD = 0.005
+/** Stage reveal below this — allow exit translate (centered sticky otherwise resets transform). */
+const STAGE_EXITING_REVEAL = 0.985
 /** Scroll band where artifact eases from content-top alignment into viewport center. */
 const CENTER_BLEND_VH = 0.14
 const CENTER_BLEND_MIN_PX = 96
@@ -122,6 +124,7 @@ function clearStagePin(
   }
   delete stage.dataset.stagePinned
   delete stage.dataset.stageCentered
+  delete stage.dataset.stageExiting
   delete stage.dataset.stageOpacity
   stage.style.removeProperty('--stage-artifact-half')
   stage.style.removeProperty('visibility')
@@ -237,8 +240,9 @@ export function applyContinuousStageAlign(
     const stageReveal = stageRevealMap[chapterId] ?? 0
     const pinned = chapterId === pinId || chapterId === exitingPinId
     const stageOpacity = stageOpacityFromReveal(stageReveal)
+    const isExiting = stageReveal < STAGE_EXITING_REVEAL
 
-    if (!pinned || stageOpacity <= STAGE_CLEAR_THRESHOLD) {
+    if (!pinned || stageReveal <= STAGE_CLEAR_THRESHOLD) {
       clearStagePin(stage, artifact, chapterId)
       if (chapterId === exitingPinId) {
         exitingPinId = null
@@ -263,6 +267,12 @@ export function applyContinuousStageAlign(
 
     stage.dataset.stagePinned = 'true'
     stage.style.zIndex = chapterId === exitingPinId ? '1' : '2'
+
+    if (isExiting) {
+      stage.dataset.stageExiting = 'true'
+    } else {
+      delete stage.dataset.stageExiting
+    }
 
     if (artifactH <= 0) return
 

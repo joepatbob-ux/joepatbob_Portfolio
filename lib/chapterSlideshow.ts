@@ -272,14 +272,15 @@ function stageRevealFromCopyGeometry(
     return copyReveal
   }
 
-  const inLowerViewport = bottom > vh * (1 - STAGE_HOLD_COPY_BOTTOM_VH)
-
-  if (copyReveal > STAGE_HOLD_THRESHOLD || inLowerViewport) {
-    return copyReveal >= STAGE_HOLD_THRESHOLD ? 1 : copyReveal
+  // Enter: follow copy until it is meaningfully on screen.
+  if (copyReveal < STAGE_HOLD_THRESHOLD && top > vh * 0.55) {
+    return copyReveal
   }
 
-  if (copyReveal < STAGE_HOLD_THRESHOLD && bottom > vh * 0.35) {
-    return copyReveal
+  // Hold stage full while copy is still visible — including lower-viewport tail on exit.
+  const inLowerViewport = bottom > vh * (1 - STAGE_HOLD_COPY_BOTTOM_VH)
+  if (copyReveal >= STAGE_HOLD_THRESHOLD || inLowerViewport) {
+    return 1
   }
 
   const exitStartPx = vh * STAGE_EXIT_START_VH
