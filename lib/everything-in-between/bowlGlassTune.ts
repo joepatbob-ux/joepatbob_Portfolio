@@ -142,6 +142,29 @@ export function applyBowlGlassTune(
   material.needsUpdate = true
 }
 
+/** Subtle edge read when the bowl sits on a light page. */
+export function applyLightSurfaceGlassBoost(
+  material: THREE.MeshPhysicalMaterial,
+  boost: {
+    envMapIntensityMin: number
+    attenuationColor: string
+    attenuationDistanceMax: number
+    clearcoatMin: number
+  },
+): void {
+  material.envMapIntensity = Math.max(
+    material.envMapIntensity,
+    boost.envMapIntensityMin,
+  )
+  material.clearcoat = Math.max(material.clearcoat, boost.clearcoatMin)
+  material.attenuationColor.set(boost.attenuationColor)
+  material.attenuationDistance = Math.min(
+    material.attenuationDistance,
+    boost.attenuationDistanceMax,
+  )
+  material.needsUpdate = true
+}
+
 /** Stronger reflections + rim read when the canvas sits on a near-black page. */
 export function applyDarkSurfaceGlassBoost(
   material: THREE.MeshPhysicalMaterial,

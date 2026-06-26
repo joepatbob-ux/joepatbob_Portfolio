@@ -7,10 +7,11 @@ import {
   type PaperSimBall,
   stepPaperPilePhysics,
 } from '@/lib/everything-in-between/quoteBowl/paperPilePhysics'
+import type { QuoteBowlStep } from '@/lib/everything-in-between/quoteBowl/types'
 import type { QuoteSlipLayout } from '@/lib/everything-in-between/quotePaper'
 import { useFrame, useThree } from '@react-three/fiber'
 import { type RefObject, useEffect, useRef } from 'react'
-import * as THREE from 'three'
+import type * as THREE from 'three'
 
 type BowlBounds = {
   innerRadius: number
@@ -20,6 +21,8 @@ type BowlBounds = {
   paperRestOffsetY: number
 }
 
+type RimPoint = { x: number; y: number; z: number }
+
 type Options = {
   layouts: readonly QuoteSlipLayout[]
   bounds: BowlBounds
@@ -27,33 +30,59 @@ type Options = {
   physicsActive: boolean
   reducedMotion: boolean
   selectedSlipId: number | null
-  step: 'pick' | 'revealed'
+  step: QuoteBowlStep
+  resetStartedAt: number | null
+  rimDrop: RimPoint | null
 }
 
-const gravityWorld = new THREE.Vector3(0, -1, 0)
-const gravityTarget = new THREE.Vector3()
-const gravityLocal = new THREE.Vector3()
-const bowlQuat = new THREE.Quaternion()
+function restFloorY(ball: PaperSimBall): number {
+  return ball.bounds.pileBottomY + ball.bounds.restOffsetY
+}
+
+function seedDropVelocity(ball: PaperSimBall, fromRim = false) {
+  if (fromRim) {
+    ball.vx = (Math.random() - 0.5) * 0.03
+    ball.vy = -0.28 - Math.random() * 0.1
+    ball.vz = (Math.random() - 0.5) * 0.03
+    return
+  }
+
+  const floorY = restFloorY(ball)
+  const dropHeight = ball.y - floorY
+  if (dropHeight > 0.04) {
+    ball.vy = -Math.min(0.55, 0.22 + dropHeight * 1.8)
+    ball.vx = (Math.random() - 0.5) * 0.015
+    ball.vz = (Math.random() - 0.5) * 0.015
+    return
+  }
+
+  ball.vx = 0
+  ball.vy = 0
+  ball.vz = 0
+}
 
 export function usePaperPilePhysics({
   layouts,
   bounds,
-  bowlRotationRef,
+  bowlRotationRef: _bowlRotationRef,
   physicsActive,
   reducedMotion,
   selectedSlipId,
   step,
+  resetStartedAt,
+  rimDrop,
 }: Options) {
   const ballsRef = useRef<PaperSimBall[]>([])
   const layoutKeyRef = useRef('')
   const frozenRef = useRef(false)
-  const gravityReadyRef = useRef(false)
+  const resetDropKeyRef = useRef<string | null>(null)
   const invalidate = useThree((s) => s.invalidate)
 
   useEffect(() => {
     const layoutKey = layouts.map((l) => `${l.id}:${l.position.join(',')}`).join('|')
     if (layoutKey === layoutKeyRef.current) return
     layoutKeyRef.current = layoutKey
+    resetDropKeyRef.current = null
 
     ballsRef.current = layouts.map((layout) => {
       const ball = createPaperSimBall(
@@ -66,20 +95,17 @@ export function usePaperPilePhysics({
         !reducedMotion,
       )
       if (!reducedMotion) {
-        ball.vy = -0.35 - Math.random() * 0.15
-        ball.vx = (Math.random() - 0.5) * 0.02
-        ball.vz = (Math.random() - 0.5) * 0.02
+        seedDropVelocity(ball)
       }
       return ball
     })
     frozenRef.current = false
-    gravityReadyRef.current = false
     invalidate()
   }, [layouts, bounds, reducedMotion, invalidate])
 
   useEffect(() => {
-    frozenRef.current = step !== 'pick'
-    if (step === 'pick' && physicsActive) {
+    frozenRef.current = step !== 'pick' && step !== 'resetting'
+    if ((step === 'pick' || step === 'resetting') && physicsActive) {
       invalidate()
     }
   }, [step, physicsActive, invalidate])
@@ -102,36 +128,47 @@ export function usePaperPilePhysics({
     )
   }, [selectedSlipId, layouts, bounds, step])
 
+  useEffect(() => {
+    if (
+      step !== 'resetting' ||
+      resetStartedAt == null ||
+      selectedSlipId == null ||
+      rimDrop == null
+    ) {
+      return
+    }
+    const dropKey = `${resetStartedAt}:${selectedSlipId}`
+    if (resetDropKeyRef.current === dropKey) return
+    resetDropKeyRef.current = dropKey
+
+    const ball = ballsRef.current.find((b) => b.layout.id === selectedSlipId)
+    if (!ball) return
+
+    ball.x = rimDrop.x
+    ball.y = rimDrop.y + bounds.paperRadius * 0.22
+    ball.z = rimDrop.z
+    seedDropVelocity(ball, true)
+    invalidate()
+  }, [bounds.paperRadius, invalidate, resetStartedAt, rimDrop, selectedSlipId, step])
+
   useFrame((_, delta) => {
     const balls = ballsRef.current
     if (balls.length === 0) return
 
     const frameDt = Math.min(delta, 1 / 30)
-    const { subSteps, gravitySmoothing } = QUOTE_BOWL.paper.physics
+    const { subSteps } = QUOTE_BOWL.paper.physics
     const subDt = frameDt / subSteps
 
     if (physicsActive && !frozenRef.current) {
-      const root = bowlRotationRef.current
-      if (root) {
-        root.getWorldQuaternion(bowlQuat)
-        gravityTarget.copy(gravityWorld).applyQuaternion(bowlQuat.invert())
-      } else {
-        gravityTarget.set(0, -1, 0)
-      }
-
-      if (!gravityReadyRef.current) {
-        gravityLocal.copy(gravityTarget)
-        gravityReadyRef.current = true
-      } else {
-        gravityLocal.lerp(gravityTarget, gravitySmoothing)
-      }
-      gravityLocal.normalize()
+      const gravityX = 0
+      const gravityY = -1
+      const gravityZ = 0
 
       for (let i = 0; i < subSteps; i += 1) {
         stepPaperPilePhysics(balls, {
-          gravityX: gravityLocal.x,
-          gravityY: gravityLocal.y,
-          gravityZ: gravityLocal.z,
+          gravityX,
+          gravityY,
+          gravityZ,
           delta: subDt,
         })
       }
@@ -139,7 +176,7 @@ export function usePaperPilePhysics({
 
     if (!physicsActive || frozenRef.current) {
       for (const ball of balls) {
-        if (selectedSlipId === ball.layout.id && step !== 'pick') {
+        if (selectedSlipId === ball.layout.id && step !== 'pick' && step !== 'resetting') {
           continue
         }
         clampPaperSimBall(ball)

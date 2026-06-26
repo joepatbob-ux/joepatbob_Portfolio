@@ -9,6 +9,7 @@ export function useQuoteTypewriter(
   text: string | null,
   active: boolean,
   reducedMotion: boolean,
+  onComplete?: () => void,
 ): string {
   const [visible, setVisible] = useState('')
 
@@ -20,6 +21,7 @@ export function useQuoteTypewriter(
 
     if (reducedMotion) {
       setVisible(text)
+      onComplete?.()
       return
     }
 
@@ -30,11 +32,12 @@ export function useQuoteTypewriter(
       setVisible(text.slice(0, index))
       if (index >= text.length) {
         window.clearInterval(timer)
+        onComplete?.()
       }
     }, CHAR_MS)
 
     return () => window.clearInterval(timer)
-  }, [active, reducedMotion, text])
+  }, [active, onComplete, reducedMotion, text])
 
   return visible
 }

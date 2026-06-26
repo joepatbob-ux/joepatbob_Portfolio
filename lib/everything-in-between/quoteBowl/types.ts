@@ -3,17 +3,25 @@ import type { QuoteSlipLayout } from '@/lib/everything-in-between/quotePaper'
 import type { MutableRefObject, RefObject } from 'react'
 import type * as THREE from 'three'
 
-export type QuoteBowlStep = 'pick' | 'revealed'
+export type QuoteBowlStep = 'pick' | 'pulling' | 'revealed' | 'resetting'
 
 export type QuoteBowlCanvasProps = {
   answers: readonly string[]
   step: QuoteBowlStep
   selectedSlipId: number | null
+  pullStartedAt: number | null
+  resetStartedAt: number | null
+  showSlip: boolean
+  pileSeed: number
+  pendingPick: boolean
+  lastQuote: string | null
   reducedMotion: boolean
   darkSurface: boolean
   glassTune: BowlGlassTuneSettings
   onPickSlip: (layout: QuoteSlipLayout) => void
-  onReset: () => void
+  onReset: (options?: { chainPick?: boolean }) => void
+  onClearPendingPick: () => void
+  canRepick: boolean
   pickActionRef?: MutableRefObject<(() => void) | null>
   debugOutlines?: boolean
   stackRef?: RefObject<HTMLElement | null>

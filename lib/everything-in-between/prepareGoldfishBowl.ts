@@ -1,6 +1,7 @@
 import {
   applyBowlGlassTune,
   applyDarkSurfaceGlassBoost,
+  applyLightSurfaceGlassBoost,
   createTunedBowlGlassMaterial,
   readBowlGlassTune,
   type BowlGlassTuneSettings,
@@ -159,22 +160,37 @@ export function prepareGoldfishBowl(
   }
 }
 
+function clearBowlHoverBaseline(bowl: THREE.Object3D) {
+  bowl.traverse((child) => {
+    if (!(child instanceof THREE.Mesh)) return
+    const mat = child.material
+    if (mat instanceof THREE.MeshPhysicalMaterial) {
+      delete mat.userData.bowlHoverBaseline
+    }
+  })
+}
+
 export function updateBowlGlassMaterial(
   bowl: THREE.Object3D,
   tune: BowlGlassTuneSettings,
   darkSurface = false,
 ) {
+  clearBowlHoverBaseline(bowl)
   bowl.traverse((child) => {
     if (child instanceof THREE.Mesh) {
       if (child.material instanceof THREE.MeshPhysicalMaterial) {
         applyBowlGlassTune(child.material, tune)
         if (darkSurface) {
           applyDarkSurfaceGlassBoost(child.material, QUOTE_BOWL.darkSurface.glass)
+        } else {
+          applyLightSurfaceGlassBoost(child.material, QUOTE_BOWL.lightSurface.glass)
         }
       } else {
         const material = createTunedBowlGlassMaterial(tune)
         if (darkSurface) {
           applyDarkSurfaceGlassBoost(material, QUOTE_BOWL.darkSurface.glass)
+        } else {
+          applyLightSurfaceGlassBoost(material, QUOTE_BOWL.lightSurface.glass)
         }
         child.material = material
       }

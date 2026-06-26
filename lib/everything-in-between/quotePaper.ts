@@ -1,4 +1,5 @@
 import { settlePaperPile } from '@/lib/everything-in-between/quoteBowl/settlePaperPile'
+import { PHONE_SWAP_ACCENT } from '@/lib/phone-swap/phoneAccentHover'
 import { QUOTE_BOWL } from '@/lib/everything-in-between/quoteBowl/constants'
 import {
   bowlRadiusAtY,
@@ -91,8 +92,9 @@ export function buildQuoteSlipLayouts(
   pileBottomY: number,
   paperRadius: number,
   paperRestOffsetY: number,
+  pileSeed = 1464,
 ): QuoteSlipLayout[] {
-  const rand = seededRandom(1464)
+  const rand = seededRandom(pileSeed)
   const pool = [...answers]
   for (let i = pool.length - 1; i > 0; i -= 1) {
     const j = Math.floor(rand() * (i + 1))
@@ -114,7 +116,7 @@ export function buildQuoteSlipLayouts(
       restOffsetY: paperRestOffsetY * scale,
     }
     const [x, y, z] = randomPointInsideBowl(rand, bounds, 'upper')
-    const pose = randomPaperPose(seededRandom(1464 + i * 97))
+    const pose = randomPaperPose(seededRandom(pileSeed + i * 97))
 
     layouts.push({
       id: i,
@@ -125,8 +127,8 @@ export function buildQuoteSlipLayouts(
       rotation: pose.rotation,
       stretch: pose.stretch,
       scale,
-      foldSeed: 100 + i * 17,
-      crinkleSeed: 400 + i * 23,
+      foldSeed: pileSeed + i * 17,
+      crinkleSeed: pileSeed + i * 23,
     })
   }
 
@@ -143,6 +145,7 @@ export function buildInsideBowlLayouts(
   pileBottomY: number,
   paperRadius: number,
   paperRestOffsetY: number,
+  pileSeed = 1464,
 ): QuoteSlipLayout[] {
   const dropped = buildQuoteSlipLayouts(
     answers,
@@ -153,6 +156,7 @@ export function buildInsideBowlLayouts(
     pileBottomY,
     paperRadius,
     paperRestOffsetY,
+    pileSeed,
   )
 
   return settlePaperPile(dropped, {
@@ -223,8 +227,13 @@ export function snapLayoutsInsideBowl(
 /** Topmost folded slip — pulled when the bowl is clicked. */
 export function pickSlipFromBowl(
   slips: readonly QuoteSlipLayout[],
-  liveY?: (slip: QuoteSlipLayout) => number,
+  options?: {
+    liveY?: (slip: QuoteSlipLayout) => number
+    excludeQuote?: string | null
+  },
 ): QuoteSlipLayout {
+  const liveY = options?.liveY
+  const excludeQuote = options?.excludeQuote
   if (slips.length === 0) {
     return {
       id: 0,
@@ -240,17 +249,27 @@ export function pickSlipFromBowl(
   }
   const yOf = (slip: QuoteSlipLayout) =>
     liveY ? liveY(slip) : slip.position[1]
-  const topN = [...slips]
+  const pool = excludeQuote
+    ? slips.filter((slip) => slip.quote !== excludeQuote)
+    : [...slips]
+  const candidates = pool.length > 0 ? pool : [...slips]
+  const topN = [...candidates]
     .sort((a, b) => yOf(b) - yOf(a))
-    .slice(0, Math.max(1, Math.ceil(slips.length * 0.5)))
+    .slice(0, Math.max(1, Math.ceil(candidates.length * 0.5)))
   const idx = Math.floor(Math.random() * topN.length)
   return topN[idx] ?? slips[0]
 }
 
-function paintCrinkle(ctx: CanvasRenderingContext2D, w: number, h: number, seed: number) {
+function paintCrinkle(
+  ctx: CanvasRenderingContext2D,
+  w: number,
+  h: number,
+  seed: number,
+  onAccent = false,
+) {
   ctx.save()
-  ctx.globalAlpha = 0.07
-  ctx.strokeStyle = '#2a2a2a'
+  ctx.globalAlpha = onAccent ? 0.12 : 0.07
+  ctx.strokeStyle = onAccent ? '#ffffff' : '#2a2a2a'
   ctx.lineWidth = 1
   const rand = seededRandom(seed)
   for (let i = 0; i < 28; i += 1) {
@@ -280,23 +299,34 @@ function paintCrinkle(ctx: CanvasRenderingContext2D, w: number, h: number, seed:
   ctx.putImageData(image, 0, 0)
 }
 
+const NOTEBOOK_SLIP = {
+  marginX: 0.09,
+  textInsetX: 0.14,
+  textMaxWidth: 0.78,
+  whiteLine: 'rgba(255, 255, 255, 0.22)',
+  greyLine: 'rgba(38, 38, 38, 0.14)',
+  marginLine: 'rgba(255, 250, 244, 0.48)',
+} as const
+
 function paintNotebookBase(ctx: CanvasRenderingContext2D, w: number, h: number) {
-  ctx.fillStyle = '#faf6eb'
+  ctx.fillStyle = PHONE_SWAP_ACCENT
   ctx.fillRect(0, 0, w, h)
 
-  const marginX = w * 0.09
-  ctx.fillStyle = 'rgba(229, 115, 115, 0.55)'
-  ctx.fillRect(marginX, 0, w * 0.008, h)
+  const marginX = w * NOTEBOOK_SLIP.marginX
+  const lineStep = h / 5
 
-  ctx.strokeStyle = 'rgba(42, 42, 42, 0.1)'
-  ctx.lineWidth = 1
-  const lineStep = h / 6
-  for (let y = lineStep; y < h; y += lineStep) {
+  for (let i = 1; i < 5; i += 1) {
+    const y = lineStep * i + 0.5
+    ctx.strokeStyle = i % 2 === 1 ? NOTEBOOK_SLIP.whiteLine : NOTEBOOK_SLIP.greyLine
+    ctx.lineWidth = 1
     ctx.beginPath()
-    ctx.moveTo(0, y + 0.5)
-    ctx.lineTo(w, y + 0.5)
+    ctx.moveTo(0, y)
+    ctx.lineTo(w, y)
     ctx.stroke()
   }
+
+  ctx.fillStyle = NOTEBOOK_SLIP.marginLine
+  ctx.fillRect(marginX, 0, Math.max(1, w * 0.008), h)
 }
 
 /** Notebook paper with crinkle shading + typewriter snippet. */
@@ -310,21 +340,26 @@ export function paintQuoteSlipTexture(
   textProgress = 1,
 ) {
   paintNotebookBase(ctx, width, height)
-  paintCrinkle(ctx, width, height, seed)
+  paintCrinkle(ctx, width, height, seed, true)
 
-  ctx.strokeStyle = 'rgba(42, 42, 42, 0.16)'
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.22)'
   ctx.lineWidth = 1.25
   ctx.strokeRect(0.5, 0.5, width - 1, height - 1)
 
   if (showText && textProgress > 0) {
-    ctx.fillStyle = '#1f1f1f'
+    ctx.fillStyle = '#fff9f4'
     const fontSize = Math.max(18, Math.round(height * 0.109))
     ctx.font = `500 ${fontSize}px "Courier New", Courier, "Lucida Console", monospace`
     ctx.textBaseline = 'middle'
     const copy = text.startsWith('"') ? text : `"${text}"`
     const chars = Math.max(0, Math.floor(copy.length * THREE.MathUtils.clamp(textProgress, 0, 1)))
     if (chars > 0) {
-      ctx.fillText(copy.slice(0, chars), width * 0.14, height * 0.52, width * 0.78)
+      ctx.fillText(
+        copy.slice(0, chars),
+        width * NOTEBOOK_SLIP.textInsetX,
+        height * 0.52,
+        width * NOTEBOOK_SLIP.textMaxWidth,
+      )
     }
   }
 }

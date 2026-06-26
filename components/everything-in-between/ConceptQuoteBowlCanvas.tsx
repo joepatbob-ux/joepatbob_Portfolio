@@ -1,5 +1,6 @@
 'use client'
 
+import { BowlGlThemeSync } from '@/components/everything-in-between/quote-bowl/BowlGlThemeSync'
 import { QuoteBowlScene } from '@/components/everything-in-between/quote-bowl/QuoteBowlScene'
 import { QuoteBowlSceneLighting } from '@/components/everything-in-between/quote-bowl/QuoteBowlSceneLighting'
 import type { QuoteBowlCanvasProps } from '@/lib/everything-in-between/quoteBowl/types'
@@ -12,6 +13,7 @@ export function ConceptQuoteBowlCanvas(props: QuoteBowlCanvasProps) {
 
   return (
     <>
+      <BowlGlThemeSync darkSurface={darkSurface} />
       <QuoteBowlSceneLighting darkSurface={darkSurface} />
       <QuoteBowlScene {...sceneProps} darkSurface={darkSurface} />
     </>

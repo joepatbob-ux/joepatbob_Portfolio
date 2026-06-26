@@ -37,8 +37,7 @@ export function useQuoteBowlPaperMaps(material: THREE.MeshStandardMaterial) {
     material.roughnessMap = roughness
     material.normalScale.set(0.65, 0.65)
     material.metalness = 0
-    material.roughness = 1
-    material.color.set('#ffffff')
+    material.roughness = 0.94
     material.needsUpdate = true
   }, [baseColor, material, normal, roughness])
 }
