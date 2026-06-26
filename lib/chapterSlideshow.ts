@@ -272,14 +272,18 @@ function stageRevealFromCopyGeometry(
     return copyReveal
   }
 
-  // Enter: follow copy until it is meaningfully on screen.
+  // Enter: ramp stage with copy instead of snapping to full at threshold.
   if (copyReveal < STAGE_HOLD_THRESHOLD && top > vh * 0.55) {
     return copyReveal
   }
 
+  if (copyReveal < STAGE_HOLD_THRESHOLD) {
+    return Math.min(1, copyReveal / STAGE_HOLD_THRESHOLD)
+  }
+
   // Hold stage full while copy is still visible — including lower-viewport tail on exit.
   const inLowerViewport = bottom > vh * (1 - STAGE_HOLD_COPY_BOTTOM_VH)
-  if (copyReveal >= STAGE_HOLD_THRESHOLD || inLowerViewport) {
+  if (inLowerViewport) {
     return 1
   }
 
