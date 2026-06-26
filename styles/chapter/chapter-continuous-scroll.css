@@ -158,8 +158,16 @@
     > * {
     position: sticky;
     top: calc(50dvh - var(--stage-artifact-half, 0px));
-    transform: none !important;
     will-change: auto;
+  }
+
+  html.continuous-chapters
+    .portfolio-chapter-slot--fill.hardware-slideshow
+    .chapter-slide__stage[data-stage-pinned='true'][data-stage-centered='true']:not(
+      [data-stage-exiting='true']
+    )
+    > * {
+    transform: none !important;
   }
 
   html.continuous-chapters
