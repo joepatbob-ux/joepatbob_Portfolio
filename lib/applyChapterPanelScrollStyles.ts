@@ -5,6 +5,7 @@ import { CHAPTER_SLOT_SELECTOR } from '@/lib/chapterSlideshow'
 import { isLayoutMobileViewport } from '@/lib/layout/isLayoutMobileViewport'
 import { isTopBarNavViewport } from '@/lib/layout/isTopBarNavViewport'
 import { panelZFromScrollReveal } from '@/lib/layout/stacking'
+import { SCROLL_BLUR_PX, blurOutFromRevealForContinuous } from '@/lib/scrollBlur'
 
 const PANEL_SELECTOR = `${CHAPTER_SLOT_SELECTOR} .portfolio-chapter-panel`
 
@@ -17,7 +18,46 @@ export function resetInFlowChapterPanels(): void {
     panel.style.removeProperty('filter')
     panel.style.removeProperty('transition')
     panel.style.removeProperty('visibility')
+    panel.style.removeProperty('--chapter-copy-opacity')
+    panel.style.removeProperty('--chapter-copy-filter')
     panel.removeAttribute('aria-hidden')
+  })
+}
+
+/** Strip continuous copy fade vars when leaving cinema scroll mode. */
+export function resetContinuousCopyFade(): void {
+  document.querySelectorAll<HTMLElement>(PANEL_SELECTOR).forEach((panel) => {
+    panel.style.removeProperty('--chapter-copy-opacity')
+    panel.style.removeProperty('--chapter-copy-filter')
+  })
+}
+
+/** Imperative copy opacity each rAF — avoids React reveal stepping. */
+export function applyContinuousCopyFade(
+  copyRevealMap: Record<string, number>,
+): void {
+  if (!isContinuousChapters() || isTopBarNavViewport()) return
+
+  document.querySelectorAll<HTMLElement>(CHAPTER_SLOT_SELECTOR).forEach((slot) => {
+    const id = slot.dataset.chapterId
+    if (!id) return
+    const panel = slot.querySelector<HTMLElement>('.portfolio-chapter-panel')
+    if (!panel) return
+
+    const reveal = copyRevealMap[id] ?? 0
+    const { opacity, filter } = blurOutFromRevealForContinuous(
+      reveal,
+      SCROLL_BLUR_PX,
+    )
+    const opacityKey = opacity.toFixed(3)
+    const filterKey = filter
+    if (panel.dataset.copyFadeOpacity === opacityKey && panel.dataset.copyFadeFilter === filterKey) {
+      return
+    }
+    panel.dataset.copyFadeOpacity = opacityKey
+    panel.dataset.copyFadeFilter = filterKey
+    panel.style.setProperty('--chapter-copy-opacity', opacityKey)
+    panel.style.setProperty('--chapter-copy-filter', filter)
   })
 }
 

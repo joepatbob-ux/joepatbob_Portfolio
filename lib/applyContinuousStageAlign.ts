@@ -6,14 +6,18 @@ const STAGE_SELECTOR = `${CHAPTER_SLOT_SELECTOR} .chapter-slide__stage:not(:has(
 const STAGE_PIN_REVEAL = 0.22
 const PIN_HYSTERESIS = 0.1
 const STAGE_INTERACTIVE_OPACITY = 0.38
+const STAGE_CLEAR_THRESHOLD = 0.005
 /** Scroll band where artifact eases from content-top alignment into viewport center. */
 const CENTER_BLEND_VH = 0.14
 const CENTER_BLEND_MIN_PX = 96
 /** When copy geometry jumps abnormally, cap visual motion per frame. */
 const CONTENT_JUMP_THRESHOLD_PX = 72
 const VISUAL_STEP_ON_JUMP_PX = 40
+/** Upward travel while stage exits after copy is gone. */
+const STAGE_EXIT_TRAVEL_PX = 140
 
 let committedPinId: string | null = null
+let exitingPinId: string | null = null
 /** Chapters that have reached viewport center — hold through scroll-out. */
 const centerLocked = new Set<string>()
 
@@ -82,11 +86,16 @@ function copyContentTop(copy: HTMLElement): number {
   return Math.round(anchor.getBoundingClientRect().top)
 }
 
-/** Opacity tied to copy reveal — lingers slightly on exit to avoid a hard blink. */
+/** Opacity tied to stage reveal — lingers on exit to avoid a hard blink. */
 export function stageOpacityFromReveal(reveal: number): number {
   const t = Math.max(0, Math.min(1, reveal))
-  if (t <= 0.06) return 0
+  if (t <= STAGE_CLEAR_THRESHOLD) return 0
   return Math.pow(t, 0.68)
+}
+
+function exitTranslateY(stageReveal: number): number {
+  if (stageReveal >= 0.995) return 0
+  return -Math.round((1 - stageReveal) * STAGE_EXIT_TRAVEL_PX)
 }
 
 function applyArtifactTransform(artifact: HTMLElement, translateY: number): void {
@@ -123,7 +132,7 @@ function clearStagePin(
   clearArtifactTransform(artifact)
 }
 
-function stageChapterIds(revealMap: Record<string, number>): Array<{
+function stageChapterIds(stageRevealMap: Record<string, number>): Array<{
   id: string
   reveal: number
 }> {
@@ -131,17 +140,17 @@ function stageChapterIds(revealMap: Record<string, number>): Array<{
   document.querySelectorAll<HTMLElement>(STAGE_SELECTOR).forEach((stage) => {
     const chapterId = stage.closest<HTMLElement>('[data-chapter-id]')?.dataset.chapterId
     if (!chapterId) return
-    chapters.push({ id: chapterId, reveal: revealMap[chapterId] ?? 0 })
+    chapters.push({ id: chapterId, reveal: stageRevealMap[chapterId] ?? 0 })
   })
   return chapters
 }
 
 /** Highest-reveal stage chapter, with hysteresis so pin does not flicker at boundaries. */
-function pickStagePinId(revealMap: Record<string, number>): string | null {
+function pickStagePinId(stageRevealMap: Record<string, number>): string | null {
   let bestId: string | null = null
   let bestReveal = 0
 
-  for (const { id, reveal } of stageChapterIds(revealMap)) {
+  for (const { id, reveal } of stageChapterIds(stageRevealMap)) {
     if (reveal >= STAGE_PIN_REVEAL && reveal > bestReveal) {
       bestReveal = reveal
       bestId = id
@@ -158,7 +167,7 @@ function pickStagePinId(revealMap: Record<string, number>): string | null {
     return bestId
   }
 
-  const currentReveal = revealMap[committedPinId] ?? 0
+  const currentReveal = stageRevealMap[committedPinId] ?? 0
   if (currentReveal < 0.04) {
     committedPinId = bestId
     return bestId
@@ -174,6 +183,7 @@ function pickStagePinId(revealMap: Record<string, number>): string | null {
 /** Clear scroll-driven stage offsets (legacy slideshow / top-bar nav). */
 export function resetContinuousStageAlign(): void {
   committedPinId = null
+  exitingPinId = null
   centerLocked.clear()
   alignPrevFrame.clear()
   document.querySelectorAll<HTMLElement>(STAGE_SELECTOR).forEach((stage) => {
@@ -183,10 +193,10 @@ export function resetContinuousStageAlign(): void {
 }
 
 /**
- * Continuous desktop: one pinned stage; opacity follows copy reveal, position tracks content → center.
+ * Continuous desktop: one pinned stage; opacity follows stage reveal (lags copy on exit).
  */
 export function applyContinuousStageAlign(
-  revealMap: Record<string, number>,
+  stageRevealMap: Record<string, number>,
   _activeSlideId: string | null,
 ): void {
   if (!isContinuousChapters() || isTopBarNavViewport()) {
@@ -199,7 +209,23 @@ export function applyContinuousStageAlign(
 
   const viewportCenterY = Math.round(vh / 2)
   const reducedMotion = prefersReducedMotion()
-  const pinId = pickStagePinId(revealMap)
+  const previousPinId = committedPinId
+  const pinId = pickStagePinId(stageRevealMap)
+
+  if (
+    exitingPinId &&
+    (stageRevealMap[exitingPinId] ?? 0) <= STAGE_CLEAR_THRESHOLD
+  ) {
+    exitingPinId = null
+  }
+
+  if (
+    previousPinId &&
+    previousPinId !== pinId &&
+    (stageRevealMap[previousPinId] ?? 0) > STAGE_CLEAR_THRESHOLD
+  ) {
+    exitingPinId = previousPinId
+  }
 
   document.querySelectorAll<HTMLElement>(STAGE_SELECTOR).forEach((stage) => {
     const slot = stage.closest<HTMLElement>('[data-chapter-id]')
@@ -208,12 +234,15 @@ export function applyContinuousStageAlign(
     const artifact = stage.firstElementChild as HTMLElement | null
     if (!chapterId || !copy || !artifact) return
 
-    const reveal = revealMap[chapterId] ?? 0
-    const pinned = chapterId === pinId
-    const stageOpacity = stageOpacityFromReveal(reveal)
+    const stageReveal = stageRevealMap[chapterId] ?? 0
+    const pinned = chapterId === pinId || chapterId === exitingPinId
+    const stageOpacity = stageOpacityFromReveal(stageReveal)
 
-    if (!pinned || stageOpacity <= 0.01) {
+    if (!pinned || stageOpacity <= STAGE_CLEAR_THRESHOLD) {
       clearStagePin(stage, artifact, chapterId)
+      if (chapterId === exitingPinId) {
+        exitingPinId = null
+      }
       return
     }
 
@@ -221,18 +250,19 @@ export function applyContinuousStageAlign(
     const artifactOffset = artifact.offsetTop
     const artifactH = artifact.offsetHeight
     const contentTop = copyContentTop(copy)
+    const exitY = exitTranslateY(stageReveal)
 
-    const opacityKey = stageOpacity.toFixed(2)
+    const opacityKey = stageOpacity.toFixed(3)
     if (stage.dataset.stageOpacity !== opacityKey) {
       stage.dataset.stageOpacity = opacityKey
       stage.style.opacity = opacityKey
-      stage.style.visibility = stageOpacity > 0.02 ? 'visible' : 'hidden'
+      stage.style.visibility = 'visible'
       stage.style.pointerEvents =
         stageOpacity >= STAGE_INTERACTIVE_OPACITY ? 'auto' : 'none'
     }
 
     stage.dataset.stagePinned = 'true'
-    stage.style.zIndex = '2'
+    stage.style.zIndex = chapterId === exitingPinId ? '1' : '2'
 
     if (artifactH <= 0) return
 
@@ -250,9 +280,9 @@ export function applyContinuousStageAlign(
     if (holdCenter) {
       stage.dataset.stageCentered = 'true'
       stage.style.setProperty('--stage-artifact-half', `${Math.round(artifactH / 2)}px`)
-      clearArtifactTransform(artifact)
+      applyArtifactTransform(artifact, exitY)
       alignPrevFrame.set(chapterId, {
-        visualTop: stickTop,
+        visualTop: stickTop + exitY,
         contentTop,
       })
       return
@@ -263,9 +293,9 @@ export function applyContinuousStageAlign(
 
     const inBlend = contentTop < blendEnd
     if (!inBlend) {
-      clearArtifactTransform(artifact)
+      applyArtifactTransform(artifact, exitY)
       alignPrevFrame.set(chapterId, {
-        visualTop: stageTop + artifactOffset,
+        visualTop: stageTop + artifactOffset + exitY,
         contentTop,
       })
       return
@@ -273,7 +303,7 @@ export function applyContinuousStageAlign(
 
     const idealTarget = blendTargetTop(contentTop, stickTop, blendPx)
     const targetTop = clampTargetForContinuity(idealTarget, prevFrame, contentTop)
-    const translateY = Math.round(targetTop - stageTop - artifactOffset)
+    const translateY = Math.round(targetTop - stageTop - artifactOffset) + exitY
     const visualTop = stageTop + artifactOffset + translateY
 
     alignPrevFrame.set(chapterId, {

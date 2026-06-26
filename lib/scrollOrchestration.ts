@@ -1,7 +1,7 @@
 import {
   CHAPTER_SLOT_SELECTOR,
   computeChapterRevealMap,
-  computeContinuousRevealMap,
+  computeContinuousRevealMaps,
   pickActiveSlideId,
   pickActiveSlideIdForTopBarNav,
   publishActiveSlideId,
@@ -17,8 +17,19 @@ export type SlideNavPhase = 'idle' | 'out' | 'in'
 
 export type SlideScrollState = {
   revealMap: Record<string, number>
+  stageRevealMap: Record<string, number>
   activeSlideId: string | null
   inHero: boolean
+}
+
+function withStageMirror(
+  revealMap: Record<string, number>,
+  stageRevealMap?: Record<string, number>,
+): Pick<SlideScrollState, 'revealMap' | 'stageRevealMap'> {
+  return {
+    revealMap,
+    stageRevealMap: stageRevealMap ?? revealMap,
+  }
 }
 
 function computeFlowChapterRevealMap(): Record<string, number> {
@@ -63,24 +74,32 @@ export function measureSlideScrollState(
 ): SlideScrollState {
   if (lockedSlideId) {
     if (phase === 'out') {
-      return { revealMap: {}, activeSlideId: lockedSlideId, inHero: false }
+      return {
+        ...withStageMirror({}),
+        activeSlideId: lockedSlideId,
+        inHero: false,
+      }
     }
     return {
-      revealMap: { [lockedSlideId]: 1 },
+      ...withStageMirror({ [lockedSlideId]: 1 }),
       activeSlideId: lockedSlideId,
       inHero: false,
     }
   }
 
   if (phase === 'out') {
-    return { revealMap: {}, activeSlideId: null, inHero: false }
+    return {
+      ...withStageMirror({}),
+      activeSlideId: null,
+      inHero: false,
+    }
   }
 
   if (isTopBarNavViewport()) {
     const inHero = isTopBarInHeroScrollZone()
     const revealMap = computeInFlowRevealMap()
     return {
-      revealMap,
+      ...withStageMirror(revealMap),
       activeSlideId: inHero ? null : pickActiveSlideIdForTopBarNav(),
       inHero,
     }
@@ -88,16 +107,21 @@ export function measureSlideScrollState(
 
   if (isContinuousChapters()) {
     const inHero = shouldSuppressChapterReveal()
-    const revealMap = computeContinuousRevealMap()
+    const { copy, stage } = computeContinuousRevealMaps()
     return {
-      revealMap,
-      activeSlideId: inHero ? null : pickActiveSlideId(revealMap),
+      revealMap: copy,
+      stageRevealMap: stage,
+      activeSlideId: inHero ? null : pickActiveSlideId(copy),
       inHero,
     }
   }
 
   if (shouldSuppressChapterReveal()) {
-    return { revealMap: {}, activeSlideId: null, inHero: true }
+    return {
+      ...withStageMirror({}),
+      activeSlideId: null,
+      inHero: true,
+    }
   }
 
   const revealMap = {
@@ -105,7 +129,7 @@ export function measureSlideScrollState(
     ...computeFlowChapterRevealMap(),
   }
   return {
-    revealMap,
+    ...withStageMirror(revealMap),
     activeSlideId: pickActiveSlideId(revealMap),
     inHero: false,
   }

@@ -1,6 +1,8 @@
 import {
   applyChapterPanelScrollStyles,
+  applyContinuousCopyFade,
   applyPlacedStickerScrollVisibility,
+  resetContinuousCopyFade,
 } from '@/lib/applyChapterPanelScrollStyles'
 import {
   applyContinuousStageAlign,
@@ -30,6 +32,7 @@ function applyNavGuard(
     ...state,
     activeSlideId: navGuard.chapterId,
     revealMap: { [navGuard.chapterId]: 1 },
+    stageRevealMap: { [navGuard.chapterId]: 1 },
     inHero: false,
   }
 }
@@ -46,8 +49,10 @@ export function applySlideScrollFromMeasure(
   publishSlideScrollState(state)
 
   if (isContinuousChapters() && !isTopBarNavViewport()) {
-    applyContinuousStageAlign(state.revealMap, state.activeSlideId)
+    applyContinuousCopyFade(state.revealMap)
+    applyContinuousStageAlign(state.stageRevealMap, state.activeSlideId)
   } else {
+    resetContinuousCopyFade()
     resetContinuousStageAlign()
   }
 

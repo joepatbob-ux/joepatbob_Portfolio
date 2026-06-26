@@ -119,7 +119,6 @@
     align-items: flex-start;
     justify-content: center;
     overflow: visible;
-    visibility: hidden;
     opacity: 0;
     pointer-events: none;
     z-index: 0;
