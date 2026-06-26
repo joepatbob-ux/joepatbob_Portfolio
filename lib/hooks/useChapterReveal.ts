@@ -23,7 +23,7 @@ export function useChapterReveal(chapterId: string): number {
   }
 
   if (isContinuousChapters()) {
-    return nav.reveals[chapterId] ?? 0
+    return published
   }
 
   return published

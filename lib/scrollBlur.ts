@@ -21,7 +21,7 @@ export function blurOutFromRevealForContinuous(
   maxBlurPx: number,
 ): { opacity: number; filter: string } {
   const t = Math.max(0, Math.min(1, reveal))
-  const opacity = Math.pow(t, 0.72)
+  const opacity = Math.pow(t, 0.6)
   const blurPx = t >= 0.85 ? 0 : (1 - t / 0.85) * maxBlurPx * 0.65
   return {
     opacity,

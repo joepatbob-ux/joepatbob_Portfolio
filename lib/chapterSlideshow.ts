@@ -177,12 +177,29 @@ export function computeChapterRevealMap(): Record<string, number> {
 /** Fade band as copy enters from the bottom of the viewport. */
 const COPY_ENTER_FADE_VH = 0.16
 /** Fade out as copy tail leaves — fraction of viewport height. */
-const COPY_EXIT_BOTTOM_VH = 0.48
+const COPY_EXIT_BOTTOM_VH = 0.52
 /** Late assist when copy top clears the upper edge (keeps stage from lingering). */
 const COPY_EXIT_TOP_VH = 0.1
 const COPY_EXIT_TOP_DEPTH_VH = 0.2
 /** Premount heavy stages when copy is this far below the fold (vh). */
 const COPY_PREMOUNT_LEAD_VH = 0.22
+/** Hold stage at full opacity while copy is still meaningfully visible. */
+const STAGE_HOLD_THRESHOLD = 0.12
+/** Copy bottom in lower fraction of viewport — stage stays full during text exit. */
+const STAGE_HOLD_COPY_BOTTOM_VH = 0.2
+/** Stage exit scroll band after copy has cleared (vh). */
+const STAGE_EXIT_VH = 0.26
+const STAGE_EXIT_START_VH = 0.12
+
+export type ContinuousRevealMaps = {
+  copy: Record<string, number>
+  stage: Record<string, number>
+}
+
+function easeOutCubic(t: number): number {
+  const x = Math.max(0, Math.min(1, t))
+  return 1 - Math.pow(1 - x, 3)
+}
 
 function continuousRevealTarget(el: HTMLElement): HTMLElement {
   return (
@@ -239,14 +256,53 @@ function revealFromCopyInViewport(rect: DOMRect, vh: number): number {
 }
 
 /**
- * Continuous in-flow chapters: panel fade follows copy in the viewport.
+ * Stage reveal lags copy on exit: hold full opacity until text is substantially gone,
+ * then fade over a dedicated scroll band (cinema handoff).
+ */
+function stageRevealFromCopyGeometry(
+  rect: DOMRect,
+  vh: number,
+  copyReveal: number,
+): number {
+  if (vh <= 0) return 0
+
+  const { top, bottom } = rect
+
+  if (top >= vh) {
+    return copyReveal
+  }
+
+  const inLowerViewport = bottom > vh * (1 - STAGE_HOLD_COPY_BOTTOM_VH)
+
+  if (copyReveal > STAGE_HOLD_THRESHOLD || inLowerViewport) {
+    return copyReveal >= STAGE_HOLD_THRESHOLD ? 1 : copyReveal
+  }
+
+  if (copyReveal < STAGE_HOLD_THRESHOLD && bottom > vh * 0.35) {
+    return copyReveal
+  }
+
+  const exitStartPx = vh * STAGE_EXIT_START_VH
+  const exitBandPx = Math.max(140, vh * STAGE_EXIT_VH)
+
+  if (bottom >= exitStartPx) {
+    return 1
+  }
+
+  const t = Math.max(0, Math.min(1, (exitStartPx - bottom) / exitBandPx))
+  return easeOutCubic(1 - t)
+}
+
+/**
+ * Continuous in-flow chapters: copy and stage reveal maps (staggered exit).
  * Adjacent chapters crossfade naturally when both copies are partially visible.
  */
-export function computeContinuousRevealMap(): Record<string, number> {
+export function computeContinuousRevealMaps(): ContinuousRevealMaps {
   const slots = chapterSlots()
-  if (!slots.length) return {}
+  if (!slots.length) return { copy: {}, stage: {} }
 
-  const map: Record<string, number> = {}
+  const copy: Record<string, number> = {}
+  const stage: Record<string, number> = {}
   const vh = window.innerHeight
 
   slots.forEach((el) => {
@@ -255,12 +311,18 @@ export function computeContinuousRevealMap(): Record<string, number> {
 
     const target = continuousRevealTarget(el)
     const rect = target.getBoundingClientRect()
-    const reveal = revealFromCopyInViewport(rect, vh)
+    const copyReveal = revealFromCopyInViewport(rect, vh)
 
-    map[id] = reveal
+    copy[id] = copyReveal
+    stage[id] = stageRevealFromCopyGeometry(rect, vh, copyReveal)
   })
 
-  return map
+  return { copy, stage }
+}
+
+/** @deprecated Use {@link computeContinuousRevealMaps} — copy map only. */
+export function computeContinuousRevealMap(): Record<string, number> {
+  return computeContinuousRevealMaps().copy
 }
 
 function visibleHeightInViewport(rect: DOMRect, vh: number): number {

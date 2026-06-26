@@ -17,7 +17,6 @@ import {
 import {
   SCROLL_BLUR_PX,
   blurOutFromReveal,
-  blurOutFromRevealForContinuous,
 } from '@/lib/scrollBlur'
 
 const SCROLL_EASE = 'cubic-bezier(0.16, 1, 0.3, 1)'
@@ -55,22 +54,12 @@ export function useChapterPanelOpacity(chapterId: string) {
   if (phase === 'idle' && isContinuousChapters()) {
     const reveal = scrollReveal
     const isActive = reveal > 0.42
-    const reducedMotion =
-      typeof window !== 'undefined' &&
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    const { opacity, filter } = reducedMotion
-      ? { opacity: reveal > 0.5 ? 1 : 0, filter: 'none' as const }
-      : blurOutFromRevealForContinuous(reveal, SCROLL_BLUR_PX)
 
     return {
-      opacity,
+      opacity: reveal,
       isActive,
       ariaHidden: !chapterIsAccessible(reveal),
       style: {
-        opacity: 1,
-        filter: 'none',
-        ['--chapter-copy-opacity' as string]: opacity,
-        ['--chapter-copy-filter' as string]: filter,
         zIndex: panelZFromScrollReveal(reveal, false),
         pointerEvents: isActive ? 'auto' : 'none',
         visibility: 'visible',
