@@ -6,7 +6,7 @@ import { getLayoutViewportHeight } from '@/lib/mobileViewport'
 import { getDocumentScrollY } from '@/lib/documentScrollY'
 import { useLayoutMobile } from '@/lib/hooks/useLayoutMobile'
 import { useMobileHeroViewport } from '@/lib/useMobileHeroViewport'
-import { scheduleScrollFrame } from '@/lib/scrollFrame'
+import { flushScrollFrame, scheduleScrollFrame } from '@/lib/scrollFrame'
 import { useEffect } from 'react'
 import { useTheme } from '@/components/ThemeProvider'
 
@@ -31,11 +31,8 @@ export function Hero() {
     })
     const pin = hero.querySelector<HTMLElement>('.hero-pin')
     pin?.style.removeProperty('transform')
-    pin?.style.removeProperty('opacity')
-    pin?.style.removeProperty('filter')
-    pin?.style.removeProperty('visibility')
 
-    return scheduleScrollFrame(() => {
+    const syncPinFade = () => {
       const pinEl = document.querySelector<HTMLElement>('#hero .hero-pin')
       const topBarNav = window.matchMedia(LAYOUT_MQ.topBarNav).matches
       const viewportH = getLayoutViewportHeight() || window.innerHeight
@@ -45,17 +42,12 @@ export function Hero() {
         viewportH,
         topBarNav ? 0 : 10,
       )
-    })
-  }, [resolvedTheme])
+    }
 
-  useEffect(() => {
-    const hero = document.getElementById('hero')
-    if (!hero) return
-    const pin = hero.querySelector<HTMLElement>('.hero-pin')
-    pin?.style.removeProperty('opacity')
-    pin?.style.removeProperty('filter')
-    pin?.style.removeProperty('visibility')
-    pin?.style.removeProperty('pointer-events')
+    syncPinFade()
+    flushScrollFrame()
+
+    return scheduleScrollFrame(syncPinFade)
   }, [resolvedTheme])
 
   return (
