@@ -7,14 +7,15 @@ const STAGE_PIN_REVEAL = 0.22
 const PIN_HYSTERESIS = 0.1
 const STAGE_INTERACTIVE_OPACITY = 0.38
 const STAGE_CLEAR_THRESHOLD = 0.005
-/** Stage reveal below this — allow exit translate (centered sticky otherwise resets transform). */
-const STAGE_EXITING_REVEAL = 0.985
 /** Scroll band where artifact eases from content-top alignment into viewport center. */
-const CENTER_BLEND_VH = 0.14
-const CENTER_BLEND_MIN_PX = 96
+const CENTER_BLEND_VH = 0.22
+const CENTER_BLEND_MIN_PX = 120
 /** When copy geometry jumps abnormally, cap visual motion per frame. */
 const CONTENT_JUMP_THRESHOLD_PX = 72
 const VISUAL_STEP_ON_JUMP_PX = 40
+/** Ease onto viewport center over this many px (scroll-in stick). */
+const STICK_LAND_PX = 80
+const STICK_LAND_RATE = 0.4
 /** Upward travel while stage exits after copy is gone. */
 const STAGE_EXIT_TRAVEL_PX = 140
 
@@ -88,6 +89,55 @@ function copyContentTop(copy: HTMLElement): number {
   return Math.round(anchor.getBoundingClientRect().top)
 }
 
+/** Artifact top with any scroll-driven translate stripped (stable across layout shifts). */
+function artifactNaturalTop(artifact: HTMLElement): number {
+  const appliedY = Number(artifact.dataset.stageAlignY ?? 0)
+  return Math.round(artifact.getBoundingClientRect().top - appliedY)
+}
+
+function resolveAlignTargetTop(
+  chapterId: string,
+  contentTop: number,
+  stickTop: number,
+  blendPx: number,
+  blendEnd: number,
+  exitY: number,
+  reducedMotion: boolean,
+  prevFrame: { visualTop: number; contentTop: number } | undefined,
+): number {
+  if (reducedMotion || centerLocked.has(chapterId)) {
+    return stickTop
+  }
+
+  let ideal: number
+  if (contentTop >= blendEnd) {
+    ideal = contentTop
+  } else {
+    ideal = blendTargetTop(contentTop, stickTop, blendPx)
+  }
+
+  // Ease onto viewport center — never snap the full remaining distance in one frame.
+  if (exitY === 0 && ideal === stickTop && prevFrame) {
+    const dist = stickTop - prevFrame.visualTop
+    if (Math.abs(dist) > 1) {
+      const step =
+        Math.abs(dist) <= STICK_LAND_PX
+          ? Math.abs(dist) * STICK_LAND_RATE
+          : Math.min(56, Math.abs(dist) * STICK_LAND_RATE)
+      ideal = Math.round(prevFrame.visualTop + Math.sign(dist) * step)
+    }
+  }
+
+  const targetTop = clampTargetForContinuity(ideal, prevFrame, contentTop)
+
+  if (exitY === 0 && Math.abs(targetTop - stickTop) <= 2) {
+    centerLocked.add(chapterId)
+    return stickTop
+  }
+
+  return targetTop
+}
+
 /** Opacity tied to stage reveal — lingers on exit to avoid a hard blink. */
 export function stageOpacityFromReveal(reveal: number): number {
   const t = Math.max(0, Math.min(1, reveal))
@@ -123,10 +173,9 @@ function clearStagePin(
     alignPrevFrame.delete(chapterId)
   }
   delete stage.dataset.stagePinned
-  delete stage.dataset.stageCentered
+  delete stage.dataset.stageCenterLocked
   delete stage.dataset.stageExiting
   delete stage.dataset.stageOpacity
-  stage.style.removeProperty('--stage-artifact-half')
   stage.style.removeProperty('visibility')
   stage.style.removeProperty('opacity')
   stage.style.removeProperty('pointer-events')
@@ -240,7 +289,6 @@ export function applyContinuousStageAlign(
     const stageReveal = stageRevealMap[chapterId] ?? 0
     const pinned = chapterId === pinId || chapterId === exitingPinId
     const stageOpacity = stageOpacityFromReveal(stageReveal)
-    const isExiting = stageReveal < STAGE_EXITING_REVEAL
 
     if (!pinned || stageReveal <= STAGE_CLEAR_THRESHOLD) {
       clearStagePin(stage, artifact, chapterId)
@@ -250,8 +298,6 @@ export function applyContinuousStageAlign(
       return
     }
 
-    const stageTop = Math.round(stage.getBoundingClientRect().top)
-    const artifactOffset = artifact.offsetTop
     const artifactH = artifact.offsetHeight
     const contentTop = copyContentTop(copy)
     const exitY = exitTranslateY(stageReveal)
@@ -268,12 +314,6 @@ export function applyContinuousStageAlign(
     stage.dataset.stagePinned = 'true'
     stage.style.zIndex = chapterId === exitingPinId ? '1' : '2'
 
-    if (isExiting) {
-      stage.dataset.stageExiting = 'true'
-    } else {
-      delete stage.dataset.stageExiting
-    }
-
     if (artifactH <= 0) return
 
     const stickTop = Math.round(viewportCenterY - artifactH / 2)
@@ -281,43 +321,29 @@ export function applyContinuousStageAlign(
     const blendEnd = stickTop + blendPx
     const prevFrame = alignPrevFrame.get(chapterId)
 
-    if (!reducedMotion && contentTop <= stickTop) {
-      centerLocked.add(chapterId)
+    const targetTop = resolveAlignTargetTop(
+      chapterId,
+      contentTop,
+      stickTop,
+      blendPx,
+      blendEnd,
+      exitY,
+      reducedMotion,
+      prevFrame,
+    )
+
+    const naturalTop = artifactNaturalTop(artifact)
+    const translateY = Math.round(targetTop - naturalTop) + exitY
+    const visualTop = naturalTop + translateY
+
+    if (centerLocked.has(chapterId)) {
+      stage.dataset.stageCenterLocked = 'true'
+    } else {
+      delete stage.dataset.stageCenterLocked
     }
-
-    const holdCenter = reducedMotion || centerLocked.has(chapterId)
-
-    if (holdCenter) {
-      stage.dataset.stageCentered = 'true'
-      stage.style.setProperty('--stage-artifact-half', `${Math.round(artifactH / 2)}px`)
-      applyArtifactTransform(artifact, exitY)
-      alignPrevFrame.set(chapterId, {
-        visualTop: stickTop + exitY,
-        contentTop,
-      })
-      return
-    }
-
-    delete stage.dataset.stageCentered
-    stage.style.removeProperty('--stage-artifact-half')
-
-    const inBlend = contentTop < blendEnd
-    if (!inBlend) {
-      applyArtifactTransform(artifact, exitY)
-      alignPrevFrame.set(chapterId, {
-        visualTop: stageTop + artifactOffset + exitY,
-        contentTop,
-      })
-      return
-    }
-
-    const idealTarget = blendTargetTop(contentTop, stickTop, blendPx)
-    const targetTop = clampTargetForContinuity(idealTarget, prevFrame, contentTop)
-    const translateY = Math.round(targetTop - stageTop - artifactOffset) + exitY
-    const visualTop = stageTop + artifactOffset + translateY
 
     alignPrevFrame.set(chapterId, {
-      visualTop,
+      visualTop: visualTop - exitY,
       contentTop,
     })
     applyArtifactTransform(artifact, translateY)
