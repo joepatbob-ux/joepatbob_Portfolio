@@ -1,5 +1,6 @@
 import { chapterSlotScrollCenter } from '@/lib/chapterSnapScroll'
 import { VIEWPORT_SNAP_SLOT_SELECTOR } from '@/lib/chapterFlow'
+import { CHAPTER_INTERACTIVE_VISIBILITY } from '@/lib/chapterVisibility'
 import { heroChapterHandoffProgress } from '@/lib/heroScroll'
 import { isLayoutMobileViewport } from '@/lib/layout/isLayoutMobileViewport'
 import { getLayoutViewportHeight } from '@/lib/mobileViewport'
@@ -8,6 +9,7 @@ import { getLayoutViewportHeight } from '@/lib/mobileViewport'
 export const CHAPTER_SLOT_SELECTOR = '.portfolio-chapter-slot[data-chapter-id]'
 
 let publishedRevealMap: Record<string, number> = {}
+let publishedStageRevealMap: Record<string, number> = {}
 let publishedActiveSlideId: string | null = null
 
 type ChapterScrollListener = () => void
@@ -39,6 +41,21 @@ export function publishChapterRevealMap(map: Record<string, number>): void {
   notifyChapterScrollState()
 }
 
+/** Stage reveal map — staggered exit; consumed by React stage gates. */
+export function publishChapterStageRevealMap(map: Record<string, number>): void {
+  publishedStageRevealMap = map
+  notifyChapterScrollState()
+}
+
+export function publishChapterScrollMaps(
+  copy: Record<string, number>,
+  stage: Record<string, number>,
+): void {
+  publishedRevealMap = copy
+  publishedStageRevealMap = stage
+  notifyChapterScrollState()
+}
+
 /** Viewport-centered slide index — used by stickers when reveal map is empty or lagging. */
 export function publishActiveSlideId(id: string | null): void {
   publishedActiveSlideId = id
@@ -51,6 +68,10 @@ export function activeSlideIdPublished(): string | null {
 
 export function chapterRevealForId(chapterId: string): number {
   return publishedRevealMap[chapterId] ?? 0
+}
+
+export function chapterStageRevealForId(chapterId: string): number {
+  return publishedStageRevealMap[chapterId] ?? 0
 }
 
 /** Chapter slide whose document center is closest to this Y (page coordinates). */
@@ -175,21 +196,21 @@ export function computeChapterRevealMap(): Record<string, number> {
 }
 
 /** Fade band as copy enters from the bottom of the viewport. */
-const COPY_ENTER_FADE_VH = 0.16
+const COPY_ENTER_FADE_VH = 0.18
+/** Minimum copy weight while copy intersects viewport (reduces grey bands between chapters). */
+const COPY_REVEAL_VIEWPORT_FLOOR = 0.04
 /** Fade out as copy tail leaves — fraction of viewport height. */
 const COPY_EXIT_BOTTOM_VH = 0.52
 /** Late assist when copy top clears the upper edge (keeps stage from lingering). */
 const COPY_EXIT_TOP_VH = 0.1
 const COPY_EXIT_TOP_DEPTH_VH = 0.2
-/** Premount heavy stages when copy is this far below the fold (vh). */
-const COPY_PREMOUNT_LEAD_VH = 0.22
-/** Hold stage at full opacity while copy is still meaningfully visible. */
-const STAGE_HOLD_THRESHOLD = 0.12
+/** Stage hidden until copy crosses interactive threshold. */
+const STAGE_HOLD_THRESHOLD = CHAPTER_INTERACTIVE_VISIBILITY
 /** Copy bottom in lower fraction of viewport — stage stays full during text exit. */
-const STAGE_HOLD_COPY_BOTTOM_VH = 0.2
+const STAGE_HOLD_COPY_BOTTOM_VH = 0.32
 /** Stage exit scroll band after copy has cleared (vh). */
-const STAGE_EXIT_VH = 0.26
-const STAGE_EXIT_START_VH = 0.12
+const STAGE_EXIT_VH = 0.34
+const STAGE_EXIT_START_VH = 0.18
 
 export type ContinuousRevealMaps = {
   copy: Record<string, number>
@@ -226,11 +247,6 @@ function revealFromCopyInViewport(rect: DOMRect, vh: number): number {
   if (bottom <= 0) return 0
 
   if (top >= vh) {
-    const lead = vh * COPY_PREMOUNT_LEAD_VH
-    if (top < vh + lead) {
-      const t = 1 - (top - vh) / lead
-      return easeChapterReveal(Math.max(0, Math.min(1, t))) * 0.1
-    }
     return 0
   }
 
@@ -252,7 +268,13 @@ function revealFromCopyInViewport(rect: DOMRect, vh: number): number {
   }
 
   const raw = Math.max(0, Math.min(enter, exit))
-  return easeChapterReveal(raw)
+  let reveal = easeChapterReveal(raw)
+
+  if (bottom > 0 && top < vh && reveal > 0) {
+    reveal = Math.max(reveal, COPY_REVEAL_VIEWPORT_FLOOR)
+  }
+
+  return reveal
 }
 
 /**
@@ -269,15 +291,16 @@ function stageRevealFromCopyGeometry(
   const { top, bottom } = rect
 
   if (top >= vh) {
-    return copyReveal
+    return 0
   }
 
-  // Enter: ramp stage with copy instead of snapping to full at threshold.
-  if (copyReveal < STAGE_HOLD_THRESHOLD && top > vh * 0.55) {
-    return copyReveal
-  }
-
+  // Stage stays hidden until copy has meaningfully entered the viewport.
   if (copyReveal < STAGE_HOLD_THRESHOLD) {
+    return 0
+  }
+
+  // Enter: ramp stage with copy as headline rises into the upper viewport.
+  if (top > vh * 0.5) {
     return Math.min(1, copyReveal / STAGE_HOLD_THRESHOLD)
   }
 

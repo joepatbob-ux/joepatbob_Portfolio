@@ -8,7 +8,8 @@ import { useStickers } from '@/components/StickerProvider'
 import { useLayoutMobile } from '@/lib/hooks/useLayoutMobile'
 import { useLayoutTopBarNav } from '@/lib/hooks/useLayoutTopBarNav'
 import { eibChapterId } from '@/lib/everything-in-between/content'
-import { activeSlideIdPublished } from '@/lib/chapterSlideshow'
+import { activeSlideIdPublished, chapterRevealForId } from '@/lib/chapterSlideshow'
+import { CHAPTER_STAGE_PAINT_VISIBILITY } from '@/lib/chapterVisibility'
 import { isContinuousChapters } from '@/lib/continuousChapters'
 import { pileStackOffset, randomPileRotation } from '@/lib/stickers'
 import { scheduleScrollFrame } from '@/lib/scrollFrame'
@@ -39,10 +40,12 @@ export function StickerPile() {
 
   useEffect(() => {
     const sync = () => {
-      const active = inFlowScroll
-        ? activeSlideIdPublished()
-        : activeSlideId
-      const vis = active === PRACTICE_CHAPTER_ID
+      const vis = inFlowScroll
+        ? isContinuousChapters()
+          ? chapterRevealForId(PRACTICE_CHAPTER_ID) >=
+            CHAPTER_STAGE_PAINT_VISIBILITY
+          : activeSlideIdPublished() === PRACTICE_CHAPTER_ID
+        : activeSlideId === PRACTICE_CHAPTER_ID
       if (vis !== pileVisibleRef.current) {
         pileVisibleRef.current = vis
         setPileVisible(vis)

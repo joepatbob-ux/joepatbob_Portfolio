@@ -2,6 +2,7 @@
 
 import { ChapterCopyScroller } from '@/components/ChapterCopyScroller'
 import { ChapterCompactStageFill } from '@/components/chapter-slide/ChapterCompactStageFill'
+import { ChapterStageAlign } from '@/components/chapter-slide/ChapterStageAlign'
 import { isContinuousChapters } from '@/lib/continuousChapters'
 import {
   ChapterCompactViewInner,
@@ -60,11 +61,13 @@ export function ChapterSlideShell({
     stageElement ??
     (copyOnly || stage == null ? null : (
       <div className="chapter-slide__stage" aria-label={stageAriaLabel}>
-        {mode === 'compact' ? (
-          <ChapterCompactStageFill>{stage}</ChapterCompactStageFill>
-        ) : (
-          stage
-        )}
+        <ChapterStageAlign>
+          {mode === 'compact' ? (
+            <ChapterCompactStageFill>{stage}</ChapterCompactStageFill>
+          ) : (
+            stage
+          )}
+        </ChapterStageAlign>
       </div>
     ))
 

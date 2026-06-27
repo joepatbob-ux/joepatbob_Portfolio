@@ -49,6 +49,21 @@
   box-sizing: border-box;
 }
 
+.touch2-carousel:not(.touch2-carousel--sized) {
+  visibility: hidden;
+}
+
+.touch2-carousel--sized {
+  visibility: visible;
+}
+
+@media (min-width: 1024px) {
+  html.continuous-chapters .touch2-carousel {
+    min-height: var(--cs-touch2-rail-h-ref, 432px);
+    min-width: min(100%, var(--cs-touch2-stage-outer-w));
+  }
+}
+
 .touch2-carousel__slides {
   position: relative;
   margin: 0;
@@ -57,6 +72,7 @@
   max-width: 100%;
   height: var(--touch2-rail-h);
   min-height: var(--touch2-rail-h);
+  aspect-ratio: var(--touch2-frame-aspect);
   flex-shrink: 0;
   overflow: hidden;
   border-radius: var(--touch2-radius);

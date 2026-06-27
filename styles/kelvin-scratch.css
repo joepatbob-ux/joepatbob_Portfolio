@@ -18,22 +18,25 @@
   container-name: kelvin-scratch-root;
   --scratch-ticket-scale: 1;
   --scratch-ticket-aspect: calc(1274.34 / 805.73);
-  --scratch-ticket-max-h: min(
-    calc(var(--cs-verdant-glyph-max-h, min(52dvh, 480px)) * 0.85),
-    calc(100cqw * var(--scratch-ticket-aspect) * var(--scratch-ticket-scale)),
-    min(78dvh, 620px),
-    calc(100dvh - 11rem)
+  /* Absolute cap — avoid min(100%, …) under fit-content stage align (continuous scroll). */
+  --scratch-ticket-w-max: clamp(
+    var(--cs-stage-min, 220px),
+    34vw,
+    var(--cs-stage-max, 560px)
   );
-  /* Width from capped height — max-h already limits via 100cqw; no % (breaks max-content column) */
-  --scratch-ticket-render-w: calc(
-    var(--scratch-ticket-max-h) * 805.73 / 1274.34
-  );
+  --scratch-ticket-h-max: min(52dvh, 620px, calc(100dvh - 11rem));
 
   margin: 0 0 28px;
   padding: 0;
-  width: 100%;
+  width: var(--scratch-ticket-w, var(--scratch-ticket-w-max));
   max-width: 100%;
   box-sizing: border-box;
+}
+
+.kelvin-scratch--placeholder {
+  width: 100%;
+  min-height: min(480px, 52dvh);
+  pointer-events: none;
 }
 
 @media (max-width: 767px) {
@@ -55,6 +58,7 @@
 }
 
 .kelvin-scratch__stage.web-apps-scratch__stage {
+  position: relative;
   flex-wrap: nowrap;
   flex-direction: column;
   align-items: center;
@@ -105,7 +109,8 @@
   flex-direction: column;
   align-items: center;
   gap: clamp(4px, 1vh, 10px);
-  width: var(--scratch-ticket-render-w);
+  width: var(--scratch-ticket-w, var(--scratch-ticket-w-max));
+  min-width: var(--cs-stage-min, 220px);
   max-width: 100%;
   flex: 0 0 auto;
   align-self: center;
@@ -116,9 +121,11 @@
 .kelvin-scratch__ticket-stack {
   position: relative;
   width: 100%;
-  height: var(--scratch-ticket-max-h);
+  aspect-ratio: 805.73 / 1274.34;
+  height: auto;
+  max-height: var(--scratch-ticket-h, var(--scratch-ticket-h-max));
+  min-height: min(240px, 42dvh);
   max-width: 100%;
-  max-height: var(--scratch-ticket-max-h);
   flex-shrink: 0;
   overflow: hidden;
 }

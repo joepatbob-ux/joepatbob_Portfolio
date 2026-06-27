@@ -6,6 +6,9 @@
     /* Scroll-snap caused ~300px geometry jumps that skipped the center blend band. */
     scroll-snap-type: none;
     scroll-behavior: auto;
+    /* One canvas for bleed + chapters — avoids paper vs hero-canvas mismatch in gaps. */
+    --color-hero-canvas: var(--color-paper);
+    --cs-inter-chapter-gap: clamp(40px, 6vh, 80px);
   }
 
   html.continuous-chapters #hero,
@@ -53,11 +56,16 @@
     transform: none !important;
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
+    background-color: transparent;
     /* Release legacy fixed-slideshow hidden default — React sets scroll-driven opacity */
     opacity: unset;
     pointer-events: unset;
     padding-top: var(--cs-continuous-chapter-buffer);
     padding-bottom: var(--cs-continuous-chapter-buffer);
+  }
+
+  html.continuous-chapters article[data-section-id] {
+    background-color: transparent !important;
   }
 
   /* Section overviews — extra runway before the first interactive chapter */
@@ -79,7 +87,21 @@
     .case-study-flow-overview.portfolio-chapter-slot--fill
     + .portfolio-chapter-slot--fill.hardware-slideshow:not(.case-study-flow-overview) {
     margin-top: calc(
-      var(--cs-inter-chapter-gap, var(--cs-section-scroll-gap)) + clamp(8vh, 12vh, 16vh)
+      var(--cs-inter-chapter-gap, var(--cs-section-scroll-gap)) + clamp(4vh, 6vh, 8vh)
+    );
+  }
+
+  /* Stage + copy share the band — slightly more stage room, tighter gutter */
+  html.continuous-chapters
+    .portfolio-chapter-slot--fill.hardware-slideshow
+    .chapter-slide__inner:not(.chapter-slide__inner--copy-only):not(
+      :has(.flow-chapter-slide__stage--empty)
+    ) {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr) !important;
+    column-gap: var(--cs-continuous-grid-gap) !important;
+    min-height: calc(
+      100dvh - var(--safe-area-top, 0px) - var(--safe-area-bottom, 0px) -
+        var(--cs-continuous-chapter-buffer) * 2
     );
   }
 
@@ -110,6 +132,13 @@
 
   html.continuous-chapters
     .portfolio-chapter-slot--fill.hardware-slideshow
+    .chapter-slide__stage[data-stage-pinned='true']
+    .kelvin-scratch {
+    pointer-events: auto;
+  }
+
+  html.continuous-chapters
+    .portfolio-chapter-slot--fill.hardware-slideshow
     .chapter-slide__stage:not(:has(.flow-chapter-slide__stage--empty)) {
     position: relative;
     align-self: start !important;
@@ -117,7 +146,7 @@
     max-height: none;
     display: flex;
     align-items: flex-start;
-    justify-content: center;
+    justify-content: flex-start;
     overflow: visible;
     opacity: 0;
     pointer-events: none;
@@ -136,16 +165,37 @@
 
   html.continuous-chapters
     .portfolio-chapter-slot--fill.hardware-slideshow
-    .chapter-slide__stage[data-stage-pinned='true'][data-stage-center-locked='true'] {
-    min-height: calc(100dvh - var(--safe-area-top, 0px));
+    .chapter-slide__stage[data-stage-pinned='true']
+    > [data-chapter-stage-align] {
+    will-change: transform;
+    backface-visibility: hidden;
   }
 
   html.continuous-chapters
     .portfolio-chapter-slot--fill.hardware-slideshow
-    .chapter-slide__stage[data-stage-pinned='true']
-    > * {
-    will-change: transform;
-    backface-visibility: hidden;
+    .chapter-stage-align:has(.kelvin-scratch) {
+    width: 100%;
+  }
+
+  html.continuous-chapters
+    .portfolio-chapter-slot--fill.hardware-slideshow
+    .chapter-stage-align {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    width: fit-content;
+    max-width: 100%;
+    margin-inline: auto;
+    box-sizing: border-box;
+  }
+
+  html.continuous-chapters
+    .portfolio-chapter-slot--fill.hardware-slideshow
+    .chapter-slide--sensi-lite
+    .chapter-stage-align {
+    width: min(100%, var(--cs-sensi-lite-stage-max-w, 320px));
+    min-height: calc(min(100%, var(--cs-sensi-lite-stage-max-w, 320px)) * 147 / 240);
   }
 
   html.continuous-chapters
@@ -161,6 +211,7 @@
     .chapter-slide__copy {
     align-self: start !important;
     justify-content: flex-start;
+    padding-top: var(--cs-continuous-copy-lead);
   }
 
   html.continuous-chapters

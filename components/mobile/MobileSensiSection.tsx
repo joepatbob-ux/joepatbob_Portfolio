@@ -12,7 +12,7 @@ import {
   splitParagraphs,
 } from '@/components/mobile/MobileSectionParts'
 import { useHydrated } from '@/lib/hooks/useHydrated'
-import { useChapterStageMount } from '@/lib/hooks/useChapterStageMount'
+import { useChapterStageReady } from '@/lib/chapterStageMountContext'
 import { MOBILE_SENSI, mobileChapterId } from '@/lib/mobile/content'
 
 const PhoneSwap = dynamic(
@@ -27,15 +27,10 @@ const PhoneSwap = dynamic(
 /** Renders inside ChapterViewport — gates the heavy 3D chunk until the slide is near. */
 function MobileSensiStage() {
   const hydrated = useHydrated()
-  const chapterId = mobileChapterId('sensi')
-  const { mount } = useChapterStageMount(chapterId)
+  const stageReady = useChapterStageReady()
 
-  if (!hydrated || !mount) {
-    return (
-      <p className="phone-swap__fallback" aria-hidden="true">
-        Loading 3D preview…
-      </p>
-    )
+  if (!hydrated || !stageReady) {
+    return <div className="phone-swap__stage-reserve" aria-hidden="true" />
   }
 
   return (

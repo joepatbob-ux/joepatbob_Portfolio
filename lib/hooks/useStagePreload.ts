@@ -1,16 +1,16 @@
 'use client'
 
 import { useChapterReveal } from '@/lib/hooks/useChapterReveal'
+import { CHAPTER_INTERACTIVE_VISIBILITY } from '@/lib/chapterVisibility'
 import { useEffect, useRef } from 'react'
 
 /**
  * Fire a stage preload once the chapter starts entering the viewport.
- * Uses a low threshold so assets warm while the user is still scrolling toward it.
  */
 export function useStagePreload(
   chapterId: string,
   preload: () => void | Promise<void>,
-  threshold = 0.01,
+  threshold = CHAPTER_INTERACTIVE_VISIBILITY,
 ): void {
   const reveal = useChapterReveal(chapterId)
   const firedRef = useRef(false)

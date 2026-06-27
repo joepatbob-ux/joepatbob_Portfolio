@@ -2,6 +2,8 @@
 
 import { useEffect } from 'react'
 import { useChapterPanelOpacity } from '@/lib/useChapterPanelOpacity'
+import { CHAPTER_STAGE_PAINT_VISIBILITY } from '@/lib/chapterVisibility'
+import { useChapterStageReady } from '@/lib/chapterStageMountContext'
 import { useHydrated } from '@/lib/hooks/useHydrated'
 import { useChapterStageMount } from '@/lib/hooks/useChapterStageMount'
 import { isPrerenderSnapshot } from '@/lib/isPrerenderSnapshot'
@@ -55,14 +57,18 @@ interface Props {
 export function FormationLegoBoard({ chapterId }: Props) {
   const hydrated = useHydrated()
   const { resolvedTheme } = useTheme()
-  const { mount: stageMount } = useChapterStageMount(chapterId)
+  const stageReady = useChapterStageReady()
+  const { mount: stageMount, stageReveal } = useChapterStageMount(chapterId)
   const panel = useChapterPanelOpacity(chapterId)
-  const showBoard = stageMount
-  const showBricks = stageMount && (panel.opacity ?? 0) > 0.12
+  const showBricks =
+    stageReady &&
+    stageMount &&
+    stageReveal >= CHAPTER_STAGE_PAINT_VISIBILITY &&
+    !panel.ariaHidden
 
   const board = useFormationLegoBoard({
     syncBoardRectOnScroll: false,
-    visible: showBoard && !panel.ariaHidden,
+    visible: showBricks,
   })
   const { plate, hasMeasured } = board
 
@@ -90,7 +96,7 @@ export function FormationLegoBoard({ chapterId }: Props) {
     `formation-lego--theme-${resolvedTheme}`,
   ].join(' ')
 
-  if (!hydrated || !stageMount || isPrerenderSnapshot()) {
+  if (!hydrated || isPrerenderSnapshot()) {
     return (
       <div className={rootClass}>
         <div className="formation-lego__stage">

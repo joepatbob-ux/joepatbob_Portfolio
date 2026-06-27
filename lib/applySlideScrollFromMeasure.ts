@@ -50,7 +50,11 @@ export function applySlideScrollFromMeasure(
 
   if (isContinuousChapters() && !isTopBarNavViewport()) {
     applyContinuousCopyFade(state.revealMap)
-    applyContinuousStageAlign(state.stageRevealMap, state.activeSlideId)
+    applyContinuousStageAlign(
+      state.stageRevealMap,
+      state.revealMap,
+      state.activeSlideId,
+    )
   } else {
     resetContinuousCopyFade()
     resetContinuousStageAlign()

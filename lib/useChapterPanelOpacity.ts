@@ -5,6 +5,7 @@ import { isFixedSlideshowFlowChapter, isFlowChapterId } from '@/lib/chapterFlow'
 import { isContinuousChapters } from '@/lib/continuousChapters'
 import {
   chapterIsAccessible,
+  chapterIsContinuousActive,
   chapterIsInteractive,
 } from '@/lib/chapterVisibility'
 import { useChapterReveal, usePublishedActiveSlideId } from '@/lib/hooks/useChapterReveal'
@@ -53,7 +54,11 @@ export function useChapterPanelOpacity(chapterId: string) {
 
   if (phase === 'idle' && isContinuousChapters()) {
     const reveal = scrollReveal
-    const isActive = reveal > 0.42
+    const isActive = chapterIsContinuousActive(
+      reveal,
+      publishedActiveSlideId,
+      chapterId,
+    )
 
     return {
       opacity: reveal,

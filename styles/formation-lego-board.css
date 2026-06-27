@@ -119,7 +119,7 @@
 
 .formation-lego__board--placeholder {
   width: 100%;
-  min-height: 12rem;
+  aspect-ratio: 1376.98 / 805;
   visibility: hidden;
   pointer-events: none;
 }

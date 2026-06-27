@@ -12,6 +12,7 @@ import { useQuoteBowlGlassTune } from '@/lib/everything-in-between/quoteBowl/use
 import { useCanvasDpr } from '@/lib/hooks/useCanvasDpr'
 import { useHydrated } from '@/lib/hooks/useHydrated'
 import { useChapterStageMount } from '@/lib/hooks/useChapterStageMount'
+import { useChapterStageReady } from '@/lib/chapterStageMountContext'
 import { usePrefersReducedMotion } from '@/lib/hooks/usePrefersReducedMotion'
 import { useStagePreload } from '@/lib/hooks/useStagePreload'
 import { isPrerenderSnapshot } from '@/lib/isPrerenderSnapshot'
@@ -45,8 +46,8 @@ function bowlActionLabel(
 
 export function ConceptQuoteBowl({ answers, chapterId }: Props) {
   const hydrated = useHydrated()
-  const { mount: stageMount, active: chapterActive } =
-    useChapterStageMount(chapterId)
+  const stageReady = useChapterStageReady()
+  const { active: chapterActive } = useChapterStageMount(chapterId)
   const [sceneReady, setSceneReady] = useState(false)
   useStagePreload(chapterId, preloadQuoteBowlStage)
   const { resolvedTheme } = useTheme()
@@ -91,7 +92,7 @@ export function ConceptQuoteBowl({ answers, chapterId }: Props) {
     setSceneReady(true)
   }, [])
   const { camera } = QUOTE_BOWL
-  const showCanvas = stageMount && hydrated && !isPrerenderSnapshot()
+  const showCanvas = stageReady && hydrated && !isPrerenderSnapshot()
   const showLoading = showCanvas && !sceneReady
 
   return (

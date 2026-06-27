@@ -2,6 +2,7 @@
 
 import { ChapterViewport } from '@/components/ChapterViewport'
 import { ChapterCompactStageFill } from '@/components/chapter-slide/ChapterCompactStageFill'
+import { ChapterStageAlign } from '@/components/chapter-slide/ChapterStageAlign'
 import { ChapterSlideCopy } from '@/components/chapter-slide/ChapterSlideCopy'
 import { ChapterSlideShell } from '@/components/chapter-slide/ChapterSlideShell'
 import { ChapterCopyReveal } from '@/components/chapter-slide/ChapterCopyReveal'
@@ -82,7 +83,9 @@ export function SectionLessons({
           stageElement={
             children ? (
               <div className="chapter-slide__stage">
-                <ChapterCompactStageFill>{children}</ChapterCompactStageFill>
+                <ChapterStageAlign>
+                  <ChapterCompactStageFill>{children}</ChapterCompactStageFill>
+                </ChapterStageAlign>
               </div>
             ) : undefined
           }

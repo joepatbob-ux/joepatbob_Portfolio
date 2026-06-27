@@ -7,17 +7,23 @@ import { kelvinScratchRootStyle } from '@/lib/kelvin-scratch/ticket'
 import { useKelvinCoin } from '@/lib/kelvin-scratch/useKelvinCoin'
 import { useKelvinScratchAssets } from '@/lib/kelvin-scratch/useKelvinScratchAssets'
 import { useHydrated } from '@/lib/hooks/useHydrated'
+import { useChapterStageMount } from '@/lib/hooks/useChapterStageMount'
 import { isPrerenderSnapshot } from '@/lib/isPrerenderSnapshot'
 import { memo, useRef } from 'react'
 import '@/styles/web-apps-scratch-reveal.css'
 import '@/styles/kelvin-scratch.css'
 
-function KelvinScratchInner() {
+type Props = {
+  chapterId: string
+}
+
+function KelvinScratchInner({ chapterId }: Props) {
   const hydrated = useHydrated()
+  const { mount: stageMount } = useChapterStageMount(chapterId)
   const { resolvedTheme } = useTheme()
   const stageRef = useRef<HTMLDivElement>(null)
   const assets = useKelvinScratchAssets()
-  const coin = useKelvinCoin(stageRef, assets.ready)
+  const coin = useKelvinCoin(stageRef, assets.ready && stageMount)
 
   const stageClass = [
     'kelvin-scratch__stage',
@@ -27,8 +33,13 @@ function KelvinScratchInner() {
     .filter(Boolean)
     .join(' ')
 
-  if (isPrerenderSnapshot() || !hydrated) {
-    return null
+  if (isPrerenderSnapshot() || !hydrated || !stageMount) {
+    return (
+      <div
+        className="kelvin-scratch kelvin-scratch--placeholder"
+        aria-hidden="true"
+      />
+    )
   }
 
   return (

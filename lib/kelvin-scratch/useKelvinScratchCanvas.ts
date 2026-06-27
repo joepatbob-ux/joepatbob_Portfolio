@@ -65,7 +65,8 @@ export function useKelvinScratchCanvas({
   onScratchStart,
   onScratchEnd,
 }: Options) {
-  const { ref: zoneRef, size: zoneSize } = useElementSize<HTMLDivElement>()
+  const { ref: zoneRef, refObject: zoneElRef, size: zoneSize } =
+    useElementSize<HTMLDivElement>()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const brushImgRef = useRef<HTMLImageElement | null>(null)
   const lastPointRef = useRef<{ x: number; y: number } | null>(null)
@@ -87,7 +88,7 @@ export function useKelvinScratchCanvas({
 
   const zoneW = zoneSize.width
   const zoneH = zoneSize.height
-  const hasSize = zoneW >= 1 && zoneH >= 1
+  const hasSize = zoneW >= 32 && zoneH >= 32
 
   useEffect(() => {
     let cancelled = false
@@ -157,7 +158,7 @@ export function useKelvinScratchCanvas({
   )
 
   useEffect(() => {
-    const root = captureRootRef?.current ?? zoneRef.current
+    const root = captureRootRef?.current ?? zoneElRef.current
     if (!root || !enabled || coinInTray || !brushReady || !hasSize) return
 
     const onPointerDown = (e: PointerEvent) => {
@@ -197,7 +198,7 @@ export function useKelvinScratchCanvas({
     }
   }, [
     captureRootRef,
-    zoneRef,
+    zoneElRef,
     enabled,
     coinInTray,
     brushReady,
