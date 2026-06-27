@@ -65,14 +65,9 @@
 .flow-chapter-slide .chapter-slide__stage .touch2-carousel,
 .flow-chapter-slide .chapter-slide__stage .mobile-figure__img,
 .flow-chapter-slide .chapter-slide__stage .kelvin-scratch {
-  width: 100%;
+  width: var(--scratch-ticket-w, var(--scratch-ticket-w-max));
   max-width: 100%;
   margin-inline: auto;
-}
-
-.flow-chapter-slide .chapter-slide__stage .kelvin-scratch__column {
-  width: var(--scratch-ticket-render-w);
-  max-width: 100%;
 }
 
 /* Mobile viewport layout — styles/chapter/chapter-slide-mobile.css */

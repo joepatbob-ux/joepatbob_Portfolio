@@ -2,22 +2,27 @@
 
 import { useChapterNav } from '@/components/ChapterNavProvider'
 import { useChapterActive } from '@/lib/chapterActiveContext'
+import {
+  CHAPTER_INTERACTIVE_VISIBILITY,
+  CHAPTER_STAGE_PAINT_VISIBILITY,
+  chapterIsInteractive,
+} from '@/lib/chapterVisibility'
+import { isContinuousChapters } from '@/lib/continuousChapters'
 import { useChapterReveal, usePublishedActiveSlideId } from '@/lib/hooks/useChapterReveal'
-import { chapterIsInteractive } from '@/lib/chapterVisibility'
-
-/** Mount canvas before full interactivity so assets can load off-screen. */
-const STAGE_PREMOUNT_REVEAL = 0.02
+import { useChapterStageReveal } from '@/lib/hooks/useChapterStageReveal'
 
 const latchedStageMount = new Set<string>()
 
 /**
  * Stage mount vs. run state for heavy WebGL / canvas chapters.
- * - `mount`: latched once near viewport — never unmounts on re-scroll.
+ * - `mount`: latched once copy is interactively visible — never unmounts on re-scroll.
  * - `active`: chapter is the scroll target — run sims, enable frameloop, etc.
  */
 export function useChapterStageMount(chapterId: string) {
   const active = useChapterActive()
   const reveal = useChapterReveal(chapterId)
+  const stageReveal = useChapterStageReveal(chapterId)
+  const continuous = isContinuousChapters()
   const nav = useChapterNav()
   const publishedActiveSlideId = usePublishedActiveSlideId()
   const activeSlideId =
@@ -27,13 +32,16 @@ export function useChapterStageMount(chapterId: string) {
     activeSlideId,
     chapterId,
   )
-  const premount = reveal >= STAGE_PREMOUNT_REVEAL
 
-  if (active || interactive || premount) {
+  const mountReady = continuous
+    ? stageReveal >= CHAPTER_STAGE_PAINT_VISIBILITY
+    : reveal >= CHAPTER_INTERACTIVE_VISIBILITY
+
+  if (active || interactive || mountReady) {
     latchedStageMount.add(chapterId)
   }
 
   const mount = latchedStageMount.has(chapterId)
 
-  return { mount, active, reveal }
+  return { mount, active, reveal, stageReveal }
 }

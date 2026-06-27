@@ -40,9 +40,11 @@
   --cs-overview-measure: 100%;
 
   /* Continuous scroll: runway above/below copy for stage load (desktop ≥1024) */
-  --cs-continuous-chapter-buffer: clamp(20vh, 26vh, 32vh);
-  --cs-continuous-overview-buffer: clamp(30vh, 38vh, 46vh);
-  --cs-continuous-hero-exit-buffer: clamp(16vh, 22vh, 28vh);
+  --cs-continuous-chapter-buffer: clamp(12vh, 16vh, 20vh);
+  --cs-continuous-overview-buffer: clamp(20vh, 26vh, 32vh);
+  --cs-continuous-hero-exit-buffer: clamp(14vh, 18vh, 22vh);
+  --cs-continuous-copy-lead: clamp(5vh, 8vh, 11vh);
+  --cs-continuous-grid-gap: clamp(28px, 3.5vw, 56px);
 
   /* Extra scroll between snap slides (hold before next screen) */
   --cs-screen-gap: clamp(16px, 3vh, 40px);

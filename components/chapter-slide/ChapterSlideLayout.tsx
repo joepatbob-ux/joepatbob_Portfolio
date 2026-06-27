@@ -2,6 +2,7 @@
 
 import { ChapterViewport } from '@/components/ChapterViewport'
 import { ChapterCompactStageFill } from '@/components/chapter-slide/ChapterCompactStageFill'
+import { ChapterStageAlign } from '@/components/chapter-slide/ChapterStageAlign'
 import { ChapterSlideCopy } from '@/components/chapter-slide/ChapterSlideCopy'
 import { ChapterSlideShell } from '@/components/chapter-slide/ChapterSlideShell'
 import { InteractiveStageCursor } from '@/components/chapter-slide/InteractiveStageCursor'
@@ -63,11 +64,13 @@ export function ChapterSlideLayout({
       aria-label={stageAriaLabel}
     >
       {stageReady ? (
-        mode === 'compact' ? (
-          <ChapterCompactStageFill>{stageInner}</ChapterCompactStageFill>
-        ) : (
-          stageInner
-        )
+        <ChapterStageAlign>
+          {mode === 'compact' ? (
+            <ChapterCompactStageFill>{stageInner}</ChapterCompactStageFill>
+          ) : (
+            stageInner
+          )}
+        </ChapterStageAlign>
       ) : null}
     </div>
   )

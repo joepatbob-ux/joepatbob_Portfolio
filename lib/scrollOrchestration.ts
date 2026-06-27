@@ -5,7 +5,7 @@ import {
   pickActiveSlideId,
   pickActiveSlideIdForTopBarNav,
   publishActiveSlideId,
-  publishChapterRevealMap,
+  publishChapterScrollMaps,
 } from '@/lib/chapterSlideshow'
 import { FLOW_CHAPTER_SLOT_SELECTOR } from '@/lib/chapterFlow'
 import { isContinuousChapters } from '@/lib/continuousChapters'
@@ -136,6 +136,10 @@ export function measureSlideScrollState(
 }
 
 export function publishSlideScrollState(state: SlideScrollState): void {
-  publishChapterRevealMap(state.revealMap)
+  if (isContinuousChapters() && !isTopBarNavViewport()) {
+    publishChapterScrollMaps(state.revealMap, state.stageRevealMap)
+  } else {
+    publishChapterScrollMaps(state.revealMap, state.revealMap)
+  }
   publishActiveSlideId(state.activeSlideId)
 }

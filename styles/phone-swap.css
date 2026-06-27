@@ -858,6 +858,13 @@
   padding: 24px 16px;
 }
 
+.phone-swap__stage-reserve {
+  width: 100%;
+  min-height: min(50dvh, 360px);
+  pointer-events: none;
+  visibility: hidden;
+}
+
 .phone-swap__fallback-detail {
   display: block;
   margin-top: 8px;

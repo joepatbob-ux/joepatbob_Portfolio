@@ -1,8 +1,9 @@
 'use client'
 
 import { ChapterActiveProvider } from '@/lib/chapterActiveContext'
+import { ChapterStageMountProvider } from '@/lib/chapterStageMountContext'
 import { useChapterPanelOpacity } from '@/lib/useChapterPanelOpacity'
-import { memo, type CSSProperties, type ReactNode } from 'react'
+import { memo, useRef, type CSSProperties, type ReactNode } from 'react'
 
 interface Props {
   chapterId: string
@@ -24,35 +25,39 @@ function ChapterViewportInner({
   children,
   afterPanel,
 }: Props) {
+  const rootRef = useRef<HTMLElement>(null)
   const { style: panelStyle, isActive, ariaHidden } = useChapterPanelOpacity(chapterId)
 
   return (
-    <section
-      data-chapter-id={chapterId}
-      className={[
-        'portfolio-chapter-slot',
-        fillViewport ? 'portfolio-chapter-slot--fill' : '',
-        className,
-      ]
-        .filter(Boolean)
-        .join(' ')}
-      style={{
-        scrollMarginTop: 0,
-        minWidth: 0,
-        ...style,
-      }}
-    >
-      <div
-        className="portfolio-chapter-panel"
-        style={panelStyle ?? undefined}
-        aria-hidden={ariaHidden}
+    <ChapterStageMountProvider chapterId={chapterId} rootRef={rootRef}>
+      <section
+        ref={rootRef}
+        data-chapter-id={chapterId}
+        className={[
+          'portfolio-chapter-slot',
+          fillViewport ? 'portfolio-chapter-slot--fill' : '',
+          className,
+        ]
+          .filter(Boolean)
+          .join(' ')}
+        style={{
+          scrollMarginTop: 0,
+          minWidth: 0,
+          ...style,
+        }}
       >
-        <ChapterActiveProvider active={isActive}>
-          {children}
-        </ChapterActiveProvider>
-      </div>
-      {afterPanel}
-    </section>
+        <div
+          className="portfolio-chapter-panel"
+          style={panelStyle ?? undefined}
+          aria-hidden={ariaHidden}
+        >
+          <ChapterActiveProvider active={isActive}>
+            {children}
+          </ChapterActiveProvider>
+        </div>
+        {afterPanel}
+      </section>
+    </ChapterStageMountProvider>
   )
 }
 

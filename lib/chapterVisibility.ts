@@ -3,8 +3,11 @@
 /** Below this — hide from assistive tech (`aria-hidden`). */
 export const CHAPTER_A11Y_VISIBILITY = 0.05
 
-/** At/above this — mount WebGL, run carousel preload, etc. */
+/** At/above this — mount WebGL/canvas DOM (off-screen warm-up). */
 export const CHAPTER_INTERACTIVE_VISIBILITY = 0.12
+
+/** At/above this — imperative stage paint + run sims/carousel (continuous desktop). */
+export const CHAPTER_STAGE_PAINT_VISIBILITY = 0.22
 
 /** Placed stickers follow panel crossfade above this reveal (matches panel aria threshold). */
 export const CHAPTER_STICKER_SCROLL_VISIBILITY = 0.08
@@ -20,5 +23,26 @@ export function chapterIsInteractive(
 ): boolean {
   return (
     visibility >= CHAPTER_INTERACTIVE_VISIBILITY || activeSlideId === chapterId
+  )
+}
+
+/** Continuous desktop — stage visible and chapter "active" for sims/preload. */
+export function chapterIsStagePainted(
+  stageReveal: number,
+  copyReveal: number,
+): boolean {
+  return (
+    stageReveal >= CHAPTER_STAGE_PAINT_VISIBILITY ||
+    copyReveal >= CHAPTER_STAGE_PAINT_VISIBILITY
+  )
+}
+
+export function chapterIsContinuousActive(
+  copyReveal: number,
+  activeSlideId: string | null,
+  chapterId: string,
+): boolean {
+  return (
+    copyReveal >= CHAPTER_STAGE_PAINT_VISIBILITY || activeSlideId === chapterId
   )
 }

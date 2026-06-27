@@ -1,14 +1,26 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type RefCallback,
+} from 'react'
 
 /** Observe an element’s content box — for sizing canvas/scratch surfaces from CSS layout. */
 export function useElementSize<T extends HTMLElement>() {
-  const ref = useRef<T>(null)
+  const ref = useRef<T | null>(null)
+  const [node, setNode] = useState<T | null>(null)
   const [size, setSize] = useState({ width: 0, height: 0 })
 
+  const setRef = useCallback<RefCallback<T>>((el) => {
+    ref.current = el
+    setNode(el)
+  }, [])
+
   useEffect(() => {
-    const el = ref.current
+    const el = node
     if (!el) return
 
     const update = (entry?: ResizeObserverEntry) => {
@@ -25,7 +37,7 @@ export function useElementSize<T extends HTMLElement>() {
     const ro = new ResizeObserver((entries) => update(entries[0]))
     ro.observe(el)
     return () => ro.disconnect()
-  }, [])
+  }, [node])
 
-  return { ref, size }
+  return { ref: setRef, refObject: ref, size }
 }

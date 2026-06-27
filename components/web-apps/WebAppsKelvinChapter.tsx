@@ -29,7 +29,7 @@ export function WebAppsKelvinChapter() {
       isLast
       className="mobile-chapter-slot web-apps-chapter-slot"
       stageAriaLabel="Kelvin design system scratch-off reveal"
-      stage={<KelvinScratch />}
+      stage={<KelvinScratch chapterId={WEB_APPS_KELVIN_CHAPTER_ID} />}
       copy={
         <ChapterCopyReveal
           headline={WEB_APPS_KELVIN.headline}
