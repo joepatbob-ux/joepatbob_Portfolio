@@ -4,24 +4,30 @@
   "label": "Hardware",
   "eyebrow": "",
   "headline": "Designing for a screen is one thing.",
-  "overviewMeta": [
+  "overviewBlocks": [
     {
-      "label": "Role",
-      "value": "Lead Product Designer"
+      "kind": "scope",
+      "items": [
+        "Sensi Touch 2",
+        "Sensi EIM",
+        "Sensi Lite",
+        "Verdant VX4",
+        "Verdant Line Voltage"
+      ]
     },
     {
-      "label": "Company",
-      "value": "Copeland (Sensi)"
-    },
-    {
-      "label": "Products",
-      "value": "Sensi Touch 2 · Sensi Lite · Verdant VX4 · Verdant Line Voltage · EIM",
-      "wide": true
-    },
-    {
-      "label": "Patents",
-      "value": "US 12,608,066 · Segment display character set (pending)",
-      "wide": true
+      "kind": "patents",
+      "items": [
+        {
+          "number": "US 12,608,066",
+          "title": "Low Power Detection",
+          "status": "Awarded · 2026"
+        },
+        {
+          "number": "Patent pending",
+          "title": "Segment display character set"
+        }
+      ]
     }
   ],
   "lessonTitle": "",

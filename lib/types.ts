@@ -13,10 +13,41 @@ export interface Chapter {
 
 export interface OverviewMetaItem {
   label: string
-  value: string
-  /** Full-width band below the tile grid — long outcome / products lines. */
+  /** @deprecated Prefer `overviewBlocks` on the section. */
+  value?: string
+  /** @deprecated Prefer `overviewBlocks` on the section. */
+  items?: readonly string[]
+  /** @deprecated Scope uses `overviewBlocks` instead. */
   wide?: boolean
 }
+
+export interface OverviewPatentEntry {
+  number: string
+  title?: string
+  status?: string
+}
+
+export interface OverviewScopeBlock {
+  kind: 'scope'
+  items: readonly string[]
+}
+
+export interface OverviewPatentsBlock {
+  kind: 'patents'
+  items: readonly OverviewPatentEntry[]
+}
+
+export interface OverviewAwardBlock {
+  kind: 'award'
+  product: string
+  headline: string
+  detail?: string
+}
+
+export type OverviewBlock =
+  | OverviewScopeBlock
+  | OverviewPatentsBlock
+  | OverviewAwardBlock
 
 export interface Section {
   id: string
@@ -24,7 +55,9 @@ export interface Section {
   eyebrow: string
   headline: string
   overviewBody: string
+  /** @deprecated Prefer `overviewBlocks`. */
   overviewMeta?: readonly OverviewMetaItem[]
+  overviewBlocks?: readonly OverviewBlock[]
   lessonTitle: string
   lessonBody: string
   chapters: Chapter[]

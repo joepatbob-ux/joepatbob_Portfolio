@@ -17,7 +17,7 @@ export function EverythingInBetweenChapter() {
         chapterId={EIB_OVERVIEW_ID}
         headline={everythingElse.headline}
         body={everythingElse.overviewBody}
-        meta={everythingElse.overviewMeta}
+        blocks={everythingElse.overviewBlocks}
         className="mobile-chapter-slot--overview"
       />
       <EibConceptsSection />

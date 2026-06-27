@@ -88,85 +88,163 @@
   width: 100%;
 }
 
-/* ── Overview metadata — tile grid + bands; label over value in each block ── */
+/* ── Overview blocks — scope grid, patents, award ── */
 
-.case-study-overview-meta {
+.case-study-overview-blocks {
   width: 100%;
   margin-top: clamp(24px, 4vh, 40px);
   display: flex;
   flex-direction: column;
-  gap: clamp(10px, 1.8vh, 14px);
+  gap: clamp(20px, 3vh, 28px);
 }
 
-.case-study-overview-meta--split {
-  gap: clamp(14px, 2.2vh, 20px);
+.case-study-overview-block {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
 }
 
-.case-study-overview-meta__tiles,
-.case-study-overview-meta__bands {
+.case-study-overview-block__label {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: var(--cs-label-size);
+  letter-spacing: var(--cs-label-tracking);
+  text-transform: uppercase;
+  color: var(--color-accent);
+  line-height: 1.35;
+}
+
+.case-study-overview-scope {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
   margin: 0;
   padding: 0;
 }
 
-.case-study-overview-meta__tiles {
+.case-study-overview-scope__name {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 1.25;
+  color: var(--cs-body-color);
+}
+
+.case-study-overview-scope__detail {
+  margin-inline-start: 0;
+}
+
+.case-study-overview-patents {
   display: grid;
   grid-template-columns: 1fr;
   gap: 10px;
 }
 
-.case-study-overview-meta__bands {
+.case-study-overview-patent {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--cs-block-gap);
+  min-width: 0;
+  margin: 0;
+  padding: var(--cs-block-pad);
+  background: var(--cs-block-bg);
+  border: none;
+  border-radius: var(--cs-block-radius);
 }
 
-.case-study-overview-meta__value {
-  font-size: clamp(14px, 1.55vw, var(--cs-body-size));
-  line-height: 1.5;
-  text-wrap: pretty;
+.case-study-overview-patent__number {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 1.25;
+  color: var(--cs-body-color);
 }
 
-@media (min-width: 768px) {
-  .case-study-overview-meta__tiles {
+.case-study-overview-patent__title {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--cs-block-body-size);
+  line-height: var(--cs-block-body-leading);
+  color: var(--cs-body-color);
+}
+
+.case-study-overview-patent__status {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+  color: var(--color-ink);
+  opacity: 0.72;
+}
+
+.case-study-overview-award {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cs-block-gap);
+  margin: 0;
+  padding: var(--cs-emphasis-pad);
+  background: var(--cs-callout-bg);
+  border: none;
+  border-radius: var(--cs-block-radius);
+}
+
+.case-study-overview-award__product {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: var(--cs-label-size);
+  letter-spacing: var(--cs-label-tracking);
+  text-transform: uppercase;
+  color: var(--color-accent);
+  line-height: 1.35;
+}
+
+.case-study-overview-award__headline {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 1.35;
+  color: var(--cs-body-color);
+}
+
+.case-study-overview-award__detail {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--cs-block-body-size);
+  line-height: var(--cs-block-body-leading);
+  color: var(--cs-body-color);
+}
+
+@media (min-width: 640px) {
+  .case-study-overview-scope {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
   }
 
-  .case-study-overview-meta__tiles--odd
-    .case-study-overview-meta__tile:last-child {
+  .case-study-overview-scope--odd
+    .case-study-overview-scope__cell:last-child {
     grid-column: 1 / -1;
   }
-}
 
-@media (min-width: 1024px) {
-  .case-study-overview-meta__tiles {
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 10.5rem), 1fr));
-    gap: 14px;
-  }
-
-  .case-study-overview-meta__tiles--odd
-    .case-study-overview-meta__tile:last-child {
-    grid-column: auto;
-  }
-}
-
-@media (min-width: 1200px) {
-  .case-study-overview-meta__tiles {
-    gap: 16px;
-  }
-
-  .case-study-overview-meta__bands {
+  .case-study-overview-patents {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
   }
 }
 
 @media (max-width: 767px) {
-  .case-study-overview-meta {
+  .case-study-overview-blocks {
     margin-top: clamp(20px, 3.5vh, 32px);
   }
 }
 
-.case-study-flow-overview__inner--center .case-study-overview-meta {
+.case-study-flow-overview__inner--center .case-study-overview-blocks {
   text-align: left;
 }
 

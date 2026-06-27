@@ -4,26 +4,6 @@
   "label": "Everything In Between",
   "eyebrow": "",
   "headline": "Good design work doesn't come from talent applied domain by domain.",
-  "overviewMeta": [
-    {
-      "label": "Role",
-      "value": "Principal Product Designer"
-    },
-    {
-      "label": "Sections",
-      "value": "Concepts · Formation · Practice"
-    },
-    {
-      "label": "Scope",
-      "value": "UX principles · Design formation · Organizational craft",
-      "wide": true
-    },
-    {
-      "label": "Patents",
-      "value": "US 12,608,066 · Segment display character set (pending)",
-      "wide": true
-    }
-  ],
   "lessonTitle": "",
   "lessonBody": "",
   "chapterOrder": [

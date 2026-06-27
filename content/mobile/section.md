@@ -4,23 +4,19 @@
   "label": "Mobile",
   "eyebrow": "",
   "headline": "A consumer app people trust and a diagnostic tool technicians rely on.",
-  "overviewMeta": [
+  "overviewBlocks": [
     {
-      "label": "Role",
-      "value": "Principal Product Designer"
+      "kind": "scope",
+      "items": [
+        "Sensi Mobile App (iOS + Android)",
+        "WR Connect (iOS + Android)"
+      ]
     },
     {
-      "label": "Platform",
-      "value": "iOS + Android"
-    },
-    {
-      "label": "Timeline",
-      "value": "2018 – Present"
-    },
-    {
-      "label": "Outcome",
-      "value": "#1 rated smart thermostat app · 4.3 → 4.7 iOS · 4.4 Android · ratings held through migration",
-      "wide": true
+      "kind": "award",
+      "product": "WR Connect",
+      "headline": "Gold — Most Valuable App",
+      "detail": "2023 ACHR News Dealer Design Awards"
     }
   ],
   "lessonTitle": "",

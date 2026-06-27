@@ -14,7 +14,7 @@ export function MobileChapter() {
         chapterId="mobile-overview"
         headline={mobile.headline}
         body={mobile.overviewBody}
-        meta={mobile.overviewMeta}
+        blocks={mobile.overviewBlocks}
         className="mobile-chapter-slot--overview"
       />
       <MobileSensiSection />
