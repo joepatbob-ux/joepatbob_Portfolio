@@ -4,23 +4,16 @@
   "label": "Web Apps",
   "eyebrow": "",
   "headline": "Four products. Two domains. One design system.",
-  "overviewMeta": [
+  "overviewBlocks": [
     {
-      "label": "Role",
-      "value": "Principal Product Designer"
-    },
-    {
-      "label": "Design system",
-      "value": "Kelvin"
-    },
-    {
-      "label": "Status",
-      "value": "Active, parallel track rollout"
-    },
-    {
-      "label": "Products",
-      "value": "Sensi MTM · Verdant Thermostat Manager · Copeland Connect+ · Copeland TempTrak 6",
-      "wide": true
+      "kind": "scope",
+      "items": [
+        "Kelvin design system",
+        "Sensi MTM",
+        "Verdant Thermostat Manager",
+        "Copeland Connect+",
+        "Copeland TempTrak 6"
+      ]
     }
   ],
   "lessonTitle": "",

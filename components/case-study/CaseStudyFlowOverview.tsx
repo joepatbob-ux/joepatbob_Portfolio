@@ -1,17 +1,17 @@
 'use client'
 
-import { CaseStudyOverviewMeta } from '@/components/case-study/CaseStudyOverviewMeta'
+import { CaseStudyOverviewBlocks } from '@/components/case-study/CaseStudyOverviewBlocks'
 import { CaseStudySectionHeader } from '@/components/case-study/CaseStudySectionHeader'
 import { ChapterSlideBand } from '@/components/chapter-slide/ChapterSlideBand'
 import { formatChapterInline } from '@/lib/chapter-slide/formatChapterInline'
 import { parseChapterBody } from '@/lib/chapter-slide/parseChapterBody'
-import type { OverviewMetaItem } from '@/lib/types'
+import type { OverviewBlock } from '@/lib/types'
 
 interface Props {
   chapterId: string
   headline: string
   body: string
-  meta?: readonly OverviewMetaItem[]
+  blocks?: readonly OverviewBlock[]
   subhead?: string
   align?: 'left' | 'center'
   className?: string
@@ -22,7 +22,7 @@ export function CaseStudyFlowOverview({
   chapterId,
   headline,
   body,
-  meta,
+  blocks,
   subhead,
   align = 'center',
   className,
@@ -64,7 +64,9 @@ export function CaseStudyFlowOverview({
               ))}
             </div>
           ) : null}
-          {meta && meta.length > 0 ? <CaseStudyOverviewMeta items={meta} /> : null}
+          {blocks && blocks.length > 0 ? (
+            <CaseStudyOverviewBlocks blocks={blocks} />
+          ) : null}
         </div>
       }
     />

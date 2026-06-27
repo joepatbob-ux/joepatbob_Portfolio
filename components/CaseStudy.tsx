@@ -51,7 +51,7 @@ export function CaseStudy({ section, sectionId }: Props) {
           chapterId={`${sectionId}-overview`}
           headline={section.headline}
           body={section.overviewBody}
-          meta={section.overviewMeta}
+          blocks={section.overviewBlocks}
         />
       )}
 

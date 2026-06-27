@@ -29,6 +29,8 @@
 
 .case-study-overview-meta__tile,
 .case-study-overview-meta__band,
+.case-study-overview-scope__cell,
+.case-study-overview-patent,
 .cs-label-grid__cell,
 .mobile-label-grid__cell,
 .web-apps-product-grid__cell,
@@ -60,6 +62,7 @@
 }
 
 .case-study-overview-meta__value,
+.case-study-overview-scope__detail,
 .cs-label-grid__text,
 .mobile-label-grid__text,
 .web-apps-product-grid__desc,

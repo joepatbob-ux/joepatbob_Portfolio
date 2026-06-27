@@ -1,4 +1,4 @@
-import type { Chapter, OverviewMetaItem, Section } from '../types'
+import type { Chapter, OverviewBlock, OverviewMetaItem, Section } from '../types'
 import { parseMarkdownFile } from './parseMarkdown'
 
 type SectionMeta = {
@@ -7,6 +7,7 @@ type SectionMeta = {
   eyebrow?: string
   headline: string
   overviewMeta?: readonly OverviewMetaItem[]
+  overviewBlocks?: readonly OverviewBlock[]
   lessonTitle?: string
   lessonBody?: string
   chapterOrder?: readonly string[]
@@ -47,6 +48,7 @@ export function sectionFromMarkdown(sectionRaw: string, chapterRaws: readonly st
     headline: meta.headline,
     overviewBody: body,
     overviewMeta: meta.overviewMeta,
+    overviewBlocks: meta.overviewBlocks,
     lessonTitle: meta.lessonTitle ?? '',
     lessonBody: meta.lessonBody ?? '',
     chapters,
