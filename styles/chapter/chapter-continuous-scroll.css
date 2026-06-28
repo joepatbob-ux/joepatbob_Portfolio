@@ -173,7 +173,10 @@
 
   html.continuous-chapters
     .portfolio-chapter-slot--fill.hardware-slideshow
-    .chapter-stage-align:has(.kelvin-scratch) {
+    .chapter-stage-align:has(.kelvin-scratch),
+  html.continuous-chapters
+    .portfolio-chapter-slot--fill.hardware-slideshow
+    .chapter-stage-align:has(.formation-lego) {
     width: 100%;
   }
 

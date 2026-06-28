@@ -144,6 +144,15 @@ function shouldHoldCenter(contentTop: number, stickTop: number, enterBlendPx: nu
   return contentTop <= stickTop + enterBlendPx
 }
 
+/** Short interactive stages (Formation LEGO) pair with copy headline, not viewport center. */
+function prefersHeadlinePairAlign(align: HTMLElement): boolean {
+  return align.querySelector('.formation-lego') != null
+}
+
+function headlinePairTranslateY(align: HTMLElement, contentTop: number): number {
+  return translateToStickTop(align, contentTop)
+}
+
 function setPhase(
   stage: HTMLElement,
   align: HTMLElement,
@@ -379,23 +388,27 @@ export function applyContinuousStageAlign(
       shouldHoldCenter(contentTop, stickTop, enterBlendPx)
     ) {
       phase = 'center'
-      translateY = centerTranslateY(
-        align,
-        stickTop,
-        layoutTop,
-        contentTop,
-        artifactH,
-        enterBlendPx,
-      )
+      translateY = prefersHeadlinePairAlign(align)
+        ? headlinePairTranslateY(align, contentTop)
+        : centerTranslateY(
+            align,
+            stickTop,
+            layoutTop,
+            contentTop,
+            artifactH,
+            enterBlendPx,
+          )
     } else {
       phase = 'enter'
-      translateY = enterBlendTranslateY(
-        align,
-        stickTop,
-        layoutTop,
-        contentTop,
-        enterBlendPx,
-      )
+      translateY = prefersHeadlinePairAlign(align)
+        ? headlinePairTranslateY(align, contentTop)
+        : enterBlendTranslateY(
+            align,
+            stickTop,
+            layoutTop,
+            contentTop,
+            enterBlendPx,
+          )
     }
 
     if (exitY < 0) {
