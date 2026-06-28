@@ -348,11 +348,6 @@ export function computeContinuousRevealMaps(): ContinuousRevealMaps {
   return { copy, stage }
 }
 
-/** @deprecated Use {@link computeContinuousRevealMaps} — copy map only. */
-export function computeContinuousRevealMap(): Record<string, number> {
-  return computeContinuousRevealMaps().copy
-}
-
 function visibleHeightInViewport(rect: DOMRect, vh: number): number {
   return Math.max(0, Math.min(rect.bottom, vh) - Math.max(rect.top, 0))
 }

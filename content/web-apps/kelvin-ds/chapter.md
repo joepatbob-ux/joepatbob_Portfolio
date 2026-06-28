@@ -5,7 +5,8 @@
   "subtitle": "",
   "imageAlt": "Kelvin design system scratch-off reveal",
   "imageLayout": "full-width",
-  "imagePosition": "left"
+  "imagePosition": "left",
+  "subStoryOrder": ["01-products", "02-stakes", "03-system", "04-rollout"]
 }
 ---
 

@@ -2,7 +2,7 @@
 
 import { FlowChapterSlideLayout } from '@/components/chapter-slide/FlowChapterSlideLayout'
 import { ChapterCopyReveal } from '@/components/chapter-slide/ChapterCopyReveal'
-import { KelvinScratch } from '@/components/web-apps/KelvinScratch'
+import { KelvinScratch } from '@/components/web-apps/kelvin-scratch/KelvinScratch'
 import {
   MobileProse,
   MobileSubStory,

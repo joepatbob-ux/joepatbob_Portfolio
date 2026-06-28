@@ -1,6 +1,4 @@
 // lib/sections/webapps.ts
-import sectionRaw from '@/content/web-apps/section.md?raw'
-import kelvinDsRaw from '@/content/web-apps/kelvin-ds.md?raw'
-import { sectionFromMarkdown } from '@/lib/content/buildSection'
+import { loadSection } from '@/lib/content/loadSection'
 
-export const webApps = sectionFromMarkdown(sectionRaw, [kelvinDsRaw])
+export const webApps = loadSection('web-apps')

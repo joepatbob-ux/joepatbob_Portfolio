@@ -1,10 +1,6 @@
 /** Structured copy for the Mobile case study (Sensi · WR Connect). */
 
-import sensiIntroRaw from '@/content/mobile/sensi-intro.md?raw'
-import sensiColorModeRaw from '@/content/mobile/sensi-color-mode.md?raw'
-import sensiInstallFlowRaw from '@/content/mobile/sensi-install-flow.md?raw'
-import sensiSpotlightRaw from '@/content/mobile/sensi-spotlight.md?raw'
-import wrConnectRaw from '@/content/mobile/wr-connect.md?raw'
+import { requireContentRaw } from '@/lib/content/contentModules'
 import { parseMarkdownFile, splitBodySections } from '@/lib/content/parseMarkdown'
 
 export const MOBILE_SECTION_TABS = [
@@ -69,19 +65,24 @@ function loadSpotlightStory(raw: string) {
   }
 }
 
-const sensiIntro = parseMarkdownFile<SensiIntroMeta>(sensiIntroRaw)
+const SENSI_FOLDER = 'mobile/sensi'
+const sensiIntro = parseMarkdownFile<SensiIntroMeta>(
+  requireContentRaw(`${SENSI_FOLDER}/intro`),
+)
 
 export const MOBILE_SENSI = {
   headline: sensiIntro.meta.headline,
   intro: sensiIntro.body,
   subStories: [
-    loadColorModeStory(sensiColorModeRaw),
-    loadInstallFlowStory(sensiInstallFlowRaw),
-    loadSpotlightStory(sensiSpotlightRaw),
+    loadColorModeStory(requireContentRaw(`${SENSI_FOLDER}/color-mode`)),
+    loadInstallFlowStory(requireContentRaw(`${SENSI_FOLDER}/install-flow`)),
+    loadSpotlightStory(requireContentRaw(`${SENSI_FOLDER}/spotlight`)),
   ],
 } as const
 
-const wrConnect = parseMarkdownFile<WrConnectMeta>(wrConnectRaw)
+const wrConnect = parseMarkdownFile<WrConnectMeta>(
+  requireContentRaw('mobile/wr-connect'),
+)
 
 export const MOBILE_WR_CONNECT = {
   headline: wrConnect.meta.headline,
