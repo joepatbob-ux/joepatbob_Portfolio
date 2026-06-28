@@ -40,13 +40,22 @@ export function chapterFromMarkdown(raw: string): Chapter {
 
 export function sectionFromMarkdown(sectionRaw: string, chapterRaws: readonly string[]): Section {
   const { meta, body } = parseMarkdownFile<SectionMeta>(sectionRaw)
+  return sectionFromParts(sectionRaw, body, chapterRaws)
+}
+
+export function sectionFromParts(
+  sectionRaw: string,
+  overviewBody: string,
+  chapterRaws: readonly string[],
+): Section {
+  const { meta } = parseMarkdownFile<SectionMeta>(sectionRaw)
   const chapters = chapterRaws.map(chapterFromMarkdown)
   return {
     id: meta.id,
     label: meta.label,
     eyebrow: meta.eyebrow ?? '',
     headline: meta.headline,
-    overviewBody: body,
+    overviewBody,
     overviewMeta: meta.overviewMeta,
     overviewBlocks: meta.overviewBlocks,
     lessonTitle: meta.lessonTitle ?? '',

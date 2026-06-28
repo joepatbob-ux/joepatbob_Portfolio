@@ -98,8 +98,3 @@ export function CaseStudyOverviewBlocks({ blocks }: Props) {
     </div>
   )
 }
-
-/** @deprecated Use CaseStudyOverviewBlocks */
-export function CaseStudyOverviewMeta({ blocks }: Props) {
-  return <CaseStudyOverviewBlocks blocks={blocks} />
-}

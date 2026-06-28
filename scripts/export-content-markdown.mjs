@@ -138,7 +138,7 @@ function exportMobile() {
   const wr = extractExportConst(src, 'MOBILE_WR_CONNECT')
 
   writeMd(
-    path.join(root, 'content/mobile/sensi-intro.md'),
+    path.join(root, 'content/mobile/sensi/intro.md'),
     { headline: sensi.headline },
     sensi.intro,
   )
@@ -159,7 +159,7 @@ function exportMobile() {
     if (closeBody) extra.push(closeBody)
     if (extra.length) prose = [prose, ...extra].join('\n\n---\n\n')
 
-    writeMd(path.join(root, `content/mobile/sensi-${subFiles[i]}.md`), meta, prose)
+    writeMd(path.join(root, `content/mobile/sensi/${subFiles[i]}.md`), meta, prose)
   })
 
   writeMd(
@@ -175,7 +175,7 @@ function exportWebApps() {
   const chapterId = src.match(/WEB_APPS_KELVIN_CHAPTER_ID = '([^']+)'/)?.[1]
 
   writeMd(
-    path.join(root, 'content/web-apps/kelvin-intro.md'),
+    path.join(root, 'content/web-apps/kelvin-ds/intro.md'),
     {
       chapterId,
       headline: kelvin.headline,
@@ -212,7 +212,7 @@ function exportWebApps() {
     if (close?.trim()) parts.push(close.trim())
     if (body?.trim()) parts.push(body.trim())
 
-    writeMd(path.join(root, `content/web-apps/kelvin-${files[i]}.md`), meta, parts.join('\n\n---\n\n'))
+    writeMd(path.join(root, `content/web-apps/kelvin-ds/${files[i]}.md`), meta, parts.join('\n\n---\n\n'))
   })
 }
 
@@ -239,7 +239,7 @@ function exportEib() {
   )
 
   writeMd(
-    path.join(root, 'content/everything-in-between/concepts.md'),
+    path.join(root, 'content/everything-in-between/concepts/chapter.md'),
     {
       id: 'concepts',
       title: 'Concepts',
@@ -250,7 +250,7 @@ function exportEib() {
   )
 
   writeMd(
-    path.join(root, 'content/everything-in-between/formation.md'),
+    path.join(root, 'content/everything-in-between/formation/chapter.md'),
     {
       id: 'formation',
       title: 'Formation',
@@ -262,7 +262,7 @@ function exportEib() {
   )
 
   writeMd(
-    path.join(root, 'content/everything-in-between/practice.md'),
+    path.join(root, 'content/everything-in-between/practice/chapter.md'),
     {
       id: 'practice',
       title: 'Practice',

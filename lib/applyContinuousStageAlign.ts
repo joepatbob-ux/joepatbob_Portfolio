@@ -42,9 +42,10 @@ function stageAlignTarget(stage: HTMLElement): HTMLElement | null {
 
 function copyContentTop(copy: HTMLElement): number {
   const anchor =
-    copy.querySelector<HTMLElement>(
-      '.chapter-copy__headline, .case-study-section-header, .chapter-copy-scroller',
-    ) ?? copy
+    copy.querySelector<HTMLElement>('.chapter-copy__headline') ??
+    copy.querySelector<HTMLElement>('.case-study-section-header__headline') ??
+    copy.querySelector<HTMLElement>('.case-study-section-header') ??
+    copy
   return Math.round(anchor.getBoundingClientRect().top)
 }
 
@@ -192,6 +193,7 @@ function applyArtifactTransform(align: HTMLElement, translateY: number): void {
 function clearArtifactTransform(align: HTMLElement): void {
   align.style.removeProperty('transform')
   delete align.dataset.stageAlignY
+  delete align.dataset.stageAlignLatchY
 }
 
 function clearStagePin(
@@ -205,6 +207,7 @@ function clearStagePin(
   delete stage.dataset.stagePinned
   delete stage.dataset.stageExiting
   delete stage.dataset.stageOpacity
+  delete stage.dataset.stageCenterHeld
   stage.style.opacity = '0'
   stage.style.visibility = 'hidden'
   stage.style.removeProperty('pointer-events')
@@ -272,8 +275,8 @@ export function resetContinuousStageAlign(): void {
 }
 
 /**
- * Continuous desktop: idle → enter → center → exit.
- * Center = viewport vertical midpoint; translate derived from layout top each frame.
+ * Continuous desktop: idle → enter → center (latched) → exit.
+ * Center Y is captured once and held until scroll-out — copy scroll must not drag the artifact.
  */
 export function applyContinuousStageAlign(
   stageRevealMap: Record<string, number>,
@@ -363,8 +366,13 @@ export function applyContinuousStageAlign(
     stage.style.zIndex = isPin ? '2' : '1'
 
     const artifactH = artifactHeight(align)
+    const latchedY = align.dataset.stageAlignLatchY
+
     if (artifactH < ALIGN_HEIGHT_MIN_PX) {
       setPhase(stage, align, 'enter')
+      if (latchedY != null) {
+        applyArtifactTransform(align, Number(latchedY))
+      }
       return
     }
 
@@ -375,31 +383,45 @@ export function applyContinuousStageAlign(
     const stickyEngaged =
       Math.round(stage.getBoundingClientRect().top) <=
       (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--safe-area-top')) || 0) + 4
+    const centerHeld = stage.dataset.stageCenterHeld === 'true'
+    const exitActive = exitY !== 0
 
     let phase: AlignPhase
     let translateY: number
 
-    if (exitY !== 0) {
+    if (exitActive) {
       phase = 'exit'
+      delete stage.dataset.stageCenterHeld
+      delete align.dataset.stageAlignLatchY
       translateY = translateToStickTop(align, stickTop) + exitY
     } else if (
       reducedMotion ||
+      centerHeld ||
       stickyEngaged ||
       shouldHoldCenter(contentTop, stickTop, enterBlendPx)
     ) {
       phase = 'center'
-      translateY = prefersHeadlinePairAlign(align)
-        ? headlinePairTranslateY(align, contentTop)
-        : centerTranslateY(
-            align,
-            stickTop,
-            layoutTop,
-            contentTop,
-            artifactH,
-            enterBlendPx,
-          )
+      stage.dataset.stageCenterHeld = 'true'
+
+      if (latchedY != null) {
+        translateY = Number(latchedY)
+      } else {
+        translateY = prefersHeadlinePairAlign(align)
+          ? headlinePairTranslateY(align, contentTop)
+          : centerTranslateY(
+              align,
+              stickTop,
+              layoutTop,
+              contentTop,
+              artifactH,
+              enterBlendPx,
+            )
+        align.dataset.stageAlignLatchY = String(translateY)
+      }
     } else {
       phase = 'enter'
+      delete stage.dataset.stageCenterHeld
+      delete align.dataset.stageAlignLatchY
       translateY = prefersHeadlinePairAlign(align)
         ? headlinePairTranslateY(align, contentTop)
         : enterBlendTranslateY(

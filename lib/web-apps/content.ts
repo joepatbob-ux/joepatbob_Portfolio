@@ -1,10 +1,6 @@
 /** Structured copy for Web Apps — single Kelvin DS chapter. */
 
-import kelvinIntroRaw from '@/content/web-apps/kelvin-intro.md?raw'
-import kelvin01Raw from '@/content/web-apps/kelvin-01-products.md?raw'
-import kelvin02Raw from '@/content/web-apps/kelvin-02-stakes.md?raw'
-import kelvin03Raw from '@/content/web-apps/kelvin-03-system.md?raw'
-import kelvin04Raw from '@/content/web-apps/kelvin-04-rollout.md?raw'
+import { requireContentRaw } from '@/lib/content/contentModules'
 import { parseMarkdownFile, splitBodySections } from '@/lib/content/parseMarkdown'
 
 type KelvinIntroMeta = {
@@ -74,7 +70,10 @@ function loadRolloutStory(raw: string) {
   }
 }
 
-const kelvinIntro = parseMarkdownFile<KelvinIntroMeta>(kelvinIntroRaw)
+const KELVIN_FOLDER = 'web-apps/kelvin-ds'
+const kelvinIntro = parseMarkdownFile<KelvinIntroMeta>(
+  requireContentRaw(`${KELVIN_FOLDER}/intro`),
+)
 
 export const WEB_APPS_KELVIN_CHAPTER_ID = kelvinIntro.meta.chapterId
 
@@ -82,9 +81,9 @@ export const WEB_APPS_KELVIN = {
   headline: kelvinIntro.meta.headline,
   subhead: kelvinIntro.meta.subhead,
   subStories: [
-    loadProductsStory(kelvin01Raw),
-    loadStakesStory(kelvin02Raw),
-    loadSystemStory(kelvin03Raw),
-    loadRolloutStory(kelvin04Raw),
+    loadProductsStory(requireContentRaw(`${KELVIN_FOLDER}/01-products`)),
+    loadStakesStory(requireContentRaw(`${KELVIN_FOLDER}/02-stakes`)),
+    loadSystemStory(requireContentRaw(`${KELVIN_FOLDER}/03-system`)),
+    loadRolloutStory(requireContentRaw(`${KELVIN_FOLDER}/04-rollout`)),
   ],
 } as const
