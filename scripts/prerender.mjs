@@ -17,7 +17,13 @@ const url = `http://127.0.0.1:${port}/`
 const snapshotUrl = `${url}?prerender=1`
 const VIEWPORT = { width: 1440, height: 900, deviceScaleFactor: 1 }
 
-const ANCHORS = ['complex systems', '12,608,066', 'thermostat', 'Kelvin']
+/** Copy markers that must be in the hydrated snapshot (keep in sync with live content). */
+const ANCHORS = ['product systems', '12,608,066', 'thermostat', 'Kelvin']
+
+function missingAnchors(html, needles) {
+  const lower = html.toLowerCase()
+  return needles.filter((n) => !lower.includes(n.toLowerCase()))
+}
 
 async function launchBrowser() {
   const isServerlessBuild = Boolean(process.env.VERCEL || process.env.CI)
@@ -139,15 +145,24 @@ async function main() {
       await page.goto(snapshotUrl, { waitUntil: 'networkidle0', timeout: 120_000 })
 
       console.log('[prerender] Waiting for anchor text…')
+      await page.evaluate(() => {
+        window.scrollTo(0, document.documentElement.scrollHeight)
+      })
       await page.waitForFunction(
         (needles) => {
           const text = document.documentElement?.innerHTML ?? ''
           const lower = text.toLowerCase()
           return needles.every((n) => lower.includes(n.toLowerCase()))
         },
-        { timeout: 90_000 },
+        { timeout: 90_000, polling: 200 },
         ANCHORS,
-      )
+      ).catch(async (err) => {
+        const html = await page.content()
+        const missing = missingAnchors(html, ANCHORS)
+        throw new Error(
+          `${err instanceof Error ? err.message : String(err)} — missing anchors: ${missing.join(', ') || '(none)'}`,
+        )
+      })
 
       const html = await page.content()
       const outPath = path.join(root, 'dist/index.html')
