@@ -1,19 +1,60 @@
 .stage-spinner {
+  --stage-spinner-icon-size: 28px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 12px;
+  color: var(--color-ink, #1a1a1a);
+}
+
+.stage-spinner__halo {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(var(--stage-spinner-icon-size) + 22px);
+  height: calc(var(--stage-spinner-icon-size) + 22px);
+}
+
+.stage-spinner__ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1.5px solid color-mix(in srgb, currentColor 14%, transparent);
+  border-top-color: color-mix(in srgb, currentColor 52%, transparent);
+  animation: stage-spinner-spin 1.15s cubic-bezier(0.45, 0.05, 0.35, 0.95) infinite;
+}
+
+.stage-spinner__pulse {
+  position: absolute;
+  inset: 5px;
+  border-radius: 50%;
+  background: color-mix(in srgb, currentColor 7%, transparent);
+  animation: stage-spinner-pulse 2.2s ease-in-out infinite;
 }
 
 .stage-spinner__label {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 10px;
   line-height: 1.5;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   color: var(--color-muted);
   text-align: center;
   margin: 0;
-  max-width: 16rem;
+  max-width: 14rem;
+  animation: stage-spinner-label 2.4s ease-in-out infinite;
+}
+
+.stage-spinner-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: min(50dvh, 360px);
+  padding: 24px 16px;
+  box-sizing: border-box;
 }
 
 .stage-loading-overlay {
@@ -24,4 +65,55 @@
   align-items: center;
   justify-content: center;
   pointer-events: none;
+  background: color-mix(in srgb, var(--color-hero-canvas, #f4f4f4) 76%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+@keyframes stage-spinner-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes stage-spinner-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.9);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes stage-spinner-label {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stage-spinner__ring {
+    animation: none;
+    border-top-color: color-mix(in srgb, currentColor 32%, transparent);
+  }
+
+  .stage-spinner__pulse,
+  .stage-spinner__label {
+    animation: none;
+    opacity: 1;
+  }
+
+  .stage-loading-overlay {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
 }
