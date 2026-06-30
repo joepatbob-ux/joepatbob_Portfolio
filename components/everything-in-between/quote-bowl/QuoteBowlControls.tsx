@@ -8,7 +8,6 @@ type Props = {
   quote: string
   reducedMotion: boolean
   onTypewriterComplete?: () => void
-  debugOutlines?: boolean
 }
 
 export function QuoteBowlControls({
@@ -17,7 +16,6 @@ export function QuoteBowlControls({
   quote,
   reducedMotion,
   onTypewriterComplete,
-  debugOutlines,
 }: Props) {
   const typedQuote = useQuoteTypewriter(
     quote,
@@ -27,10 +25,10 @@ export function QuoteBowlControls({
   )
   const displayQuote = showSlip ? typedQuote : slipExiting ? quote : ''
 
-  if (!showSlip && !slipExiting && !debugOutlines) return null
+  if (!showSlip && !slipExiting) return null
 
   return (
-    <div className="quote-bowl__controls" data-debug="controls">
+    <div className="quote-bowl__controls">
       {showSlip || slipExiting ? (
         <div
           className={[

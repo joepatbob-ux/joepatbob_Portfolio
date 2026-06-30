@@ -3,7 +3,7 @@
   "id": "hardware",
   "label": "Hardware",
   "eyebrow": "",
-  "headline": "Designing for a screen is one thing.",
+  "headline": "Hardware is where constraints become visible.",
   "overviewBlocks": [
     {
       "kind": "scope",

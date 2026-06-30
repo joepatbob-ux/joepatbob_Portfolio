@@ -4,7 +4,6 @@ import {
   applyPixel9MtlMaterials,
 } from '@/lib/phone-swap/applyPixel9MtlMaterials'
 import { applyPixel9Screen } from '@/lib/phone-swap/applyScreenTextures'
-import { debugLog } from '@/lib/phone-swap/debugLog'
 import { mergeAllMaterialIslands } from '@/lib/phone-swap/mergeMeshesByMaterial'
 import { mirrorModelX } from '@/lib/phone-swap/mirrorModelX'
 import { normalizeModel } from '@/lib/phone-swap/normalizeModel'
@@ -79,28 +78,6 @@ export function preparePixel9Scene(
   }
 
   const frameMesh = clone.getObjectByName(PIXEL9_MESH.body) as THREE.Mesh | undefined
-
-  // #region agent log
-  debugLog(
-    'preparePixel9Scene.ts:ready',
-    'Pixel 9 scene prepared',
-    {
-      colorVariant: PIXEL9_COLOR_VARIANT,
-      mtlMeshes,
-      screenMeshes,
-      applyScreen,
-      modelMirroredX: clone.scale.x < 0,
-      frameMeshFound: !!frameMesh,
-      frameColor: sampleMaterialColor(frameMesh),
-      maxDim,
-      fitRadius: radius,
-      mergeResults,
-      splitCount,
-    },
-    'M',
-    'pixel9-porcelain-mirror',
-  )
-  // #endregion
 
   return { scene: clone, fitRadius: radius }
 }

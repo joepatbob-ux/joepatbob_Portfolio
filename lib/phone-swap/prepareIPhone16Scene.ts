@@ -5,7 +5,6 @@ import {
   applyIPhone16Screen,
   IPHONE16_MESH,
 } from '@/lib/phone-swap/applyScreenTextures'
-import { debugLog } from '@/lib/phone-swap/debugLog'
 import {
   IPHONE16_RING_OBJECTS,
   IPHONE16_SIDE_OBJECTS,
@@ -242,19 +241,6 @@ function applyIPhone16ProMaterials(root: THREE.Object3D, maps: IPhone16ProMaps) 
       child.frustumCulled = false
     }
   })
-
-  // #region agent log
-  debugLog(
-    'prepareIPhone16Scene.ts:materials',
-    'iPhone 16 Pro mesh-based titanium',
-    {
-      meshCounts: counts,
-      brushRoughLoaded: !!maps.brushNormalRough.image,
-    },
-    'M',
-    'iphone-titanium-v2',
-  )
-  // #endregion
 }
 
 /** Cinema 4D iPhone 16 Pro — `Display` mesh + SCREEN material (same pattern as Android). */
@@ -277,24 +263,6 @@ export function prepareIPhone16Scene(
   const display = clone.getObjectByName(IPHONE16_MESH.display)
   const body = clone.getObjectByName(IPHONE16_MESH.body)
   const glass = clone.getObjectByName(IPHONE16_MESH.glass)
-
-  // #region agent log
-  debugLog(
-    'prepareIPhone16Scene.ts:ready',
-    'iPhone 16 Pro scene prepared',
-    {
-      displayFound: !!display,
-      bodyFound: !!body,
-      displayMeshes,
-      glassVisible: glass?.visible ?? null,
-      modelMirroredX: clone.scale.x < 0,
-      maxDim,
-      fitRadius: radius,
-    },
-    'S',
-    'iphone-titanium-v2',
-  )
-  // #endregion
 
   return { scene: clone, fitRadius: radius }
 }

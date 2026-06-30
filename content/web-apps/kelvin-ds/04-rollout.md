@@ -1,30 +1,47 @@
 ---
 {
   "number": "04",
-  "heading": "It's okay to move the cheese, as long as you put it somewhere better.",
+  "heading": "The rollout had to prove itself before asking users to change.",
   "ndaNote": "The work is under NDA. What follows is the rollout strategy and the patterns validated in production."
 }
 ---
 
-The standard design system playbook — freeze features, migrate everything, relaunch — doesn't work for a user base with regulatory SOPs and hardware dependencies. The risk profile is too high and the organizational will for that kind of disruption doesn't exist.
+The standard design system playbook — freeze features, migrate everything, relaunch — does not work when users have regulatory SOPs tied to specific UI flows.
 
-Instead, Kelvin rolls out through a parallel track approach: small, non-critical features built in Kelvin running alongside the existing interface. Users can try them, give feedback, and continue using what they know. No forced migration. No retraining before the new experience has proven itself.
+The risk is too high, and the organizational appetite for that kind of disruption does not exist.
 
-This generates something the big-bang approach can't: cross-platform intelligence. A component validated in MTM — a lower-stakes HVAC management context — informs how the same component gets calibrated for TempTrak's higher-stakes environment. Shared patterns, validated at different risk levels, in sequence.
+Kelvin rolls out through a parallel track: new, non-critical features built in Kelvin run alongside the existing interface. Users can try them, give feedback, and continue using what they know.
 
-I used AI to compress the distance between design intent and presentation-ready artifacts — producing Kelvin component documentation and stakeholder decks quickly enough that alignment happened before the work was done, not after. Speed to alignment matters when you're asking stakeholders to invest in infrastructure they can't see yet.
+No forced migration. No retraining before the new experience has proven itself.
 
-The feedback has been clear. Users aren't asking "why did you change things." They're asking for more, faster. Task completion is quicker — clearing alarms, setting defrost cycle schedules, managing configurations. The things that used to require navigating overlapping paths now have a direct route.
+This generates something a big-bang approach cannot: cross-product validation.
 
-**Alarm management**
-Across cold chain products, alarm acknowledgment is a frequent, high-stakes task handled inconsistently in legacy interfaces depending on entry point and feature version. Kelvin establishes a single, predictable pattern regardless of how you got there.
+A component proven in MTM, a lower-stakes HVAC management context, informs how the same component gets calibrated for TempTrak's higher-stakes environment.
 
-**Schedule configuration**
-Setting defrost cycles, temperature schedules, and setpoint controls involves similar underlying logic across MTM, Verdant, and the cold chain products — but legacy implementations looked and behaved differently in each. A shared scheduling component with product-appropriate configuration reduces cognitive load and development effort alike.
+Shared patterns, validated at different risk levels, in sequence.
 
-**Sensor and device status**
-Hardware state communication — connected, disconnected, alert, offline — appears across all four products. Kelvin standardizes how device state is expressed visually and behaviorally, so users develop reliable expectations regardless of which product they're in.
+---
 
-Kelvin is a foundation, not a finish line. As parallel track validation continues, the rollout will expand to more complex workflows — eventually including the SOP-critical flows in TempTrak that require the most careful transition planning.
+Alignment needed artifacts before the system was finished.
 
-What's visible is the outcome: customers asking for more of something they used to resist. That's the real before and after.
+Speed to alignment was a real constraint.
+
+Stakeholders investing in design infrastructure need to see it working before it is finished. I used AI to produce component documentation and stakeholder-facing artifacts quickly enough that alignment happened while the work was still in progress.
+
+The speed mattered.
+
+But the judgment still came from the design work: what needed to exist, how it should behave, and where risk had to be managed.
+
+---
+
+The signal changed from resistance to demand.
+
+The response has been clear.
+
+Users are not asking why things changed. They are asking for more, faster.
+
+Alarm acknowledgment, defrost cycle scheduling, sensor status management: tasks that previously required navigating overlapping legacy paths now have a direct route.
+
+The before and after is not a visual comparison.
+
+It is the difference between users who resisted change and users asking when the next piece ships.

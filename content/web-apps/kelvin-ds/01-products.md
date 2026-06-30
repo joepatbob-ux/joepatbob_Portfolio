@@ -1,7 +1,7 @@
 ---
 {
   "number": "01",
-  "heading": "The Products",
+  "heading": "The cost of inaction was hidden. The cost of change was obvious.",
   "products": [
     {
       "name": "Sensi MTM",
@@ -11,24 +11,40 @@
     {
       "name": "Verdant Thermostat Manager",
       "domain": "Hospitality HVAC",
-      "description": "The software backbone for hospitality properties — hotel operators configuring room temperature schedules, managing setpoint limits, monitoring system status across a property. The legacy interface had three structural problems: content was dense and unmanageable without collapsible columns, actions were scattered rather than consolidated, and the layout didn't adapt across devices. Those three things became the design brief."
+      "description": "The software backbone for hospitality properties — hotel operators configuring room temperature schedules, managing setpoint limits, monitoring system status across a property."
     },
     {
       "name": "Copeland Connect+",
       "domain": "Cold Chain Retail",
-      "description": "Cold chain monitoring for grocery refrigeration. Operators monitoring units, receiving alerts, managing temperature compliance across store locations. User discovery interviews before any design work shaped the Connect+ redesign direction and the initial prototypes for iterative testing."
+      "description": "Cold chain monitoring for grocery refrigeration. Operators monitoring units, receiving alerts, managing temperature compliance across store locations."
     },
     {
       "name": "Copeland TempTrak 6",
       "domain": "Cold Chain Medical",
-      "description": "Cold chain monitoring for medical and pharmaceutical refrigeration. The highest-stakes product in the portfolio — temperature excursions here don't mean spoiled food, they mean compromised vaccines, medications, and biologics."
+      "description": "Cold chain monitoring for medical and pharmaceutical refrigeration. The highest-stakes product in the portfolio — temperature excursions here do not mean spoiled food, they mean compromised vaccines, medications, and biologics."
     }
   ]
 }
 ---
 
-The fragmentation wasn't careless. Each product was built to work — and it did, well enough to generate revenue, well enough that proposing a UI investment always lost to the next feature request.
+Four products were built by separate internal teams over time, each solving their own users' problems without coordination.
 
-That's a specific organizational dynamic worth naming. When software is making money, the business case for fixing its UX is harder to make than the business case for new capabilities. The cost of inaction is invisible. The cost of change is obvious.
+Each worked well enough to keep running.
 
-Year after year, features get bolted on through the path of least resistance. In TempTrak, this produced multiple ways to accomplish the same task — each one a remnant of a different team's solution, all preserved because removing any of them might break someone's workflow. The UI accumulated complexity the way a city accumulates one-way streets: each decision made local sense, the aggregate made navigation unreasonable.
+That was also the problem.
+
+When software is generating revenue, the case for improving its UX consistently loses to the case for new capabilities. The cost of inaction is invisible. The cost of change is obvious, especially when users have regulatory SOPs that reference specific interface flows.
+
+Changing a screen in TempTrak is not just a UX decision. It can require documented retraining and SOP revision.
+
+So features got added through the path of least resistance, year over year.
+
+In TempTrak, that produced multiple ways to complete the same task, each one a remnant of a different team's solution, preserved because removing any of them might break someone's workflow.
+
+The interface accumulated complexity the way infrastructure does: each decision made local sense, and the aggregate made navigation unreasonable.
+
+Kelvin was the answer to that accumulation.
+
+Not a redesign.
+
+A shared language that lets four products evolve toward coherence without requiring any of them to stop working in the meantime.

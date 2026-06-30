@@ -1,7 +1,6 @@
 'use client'
 
 import { useFrame } from '@react-three/fiber'
-import { debugLog } from '@/lib/phone-swap/debugLog'
 import {
   forwardRef,
   useEffect,
@@ -71,23 +70,6 @@ export const PhoneModel = forwardRef<THREE.Group, PhoneModelProps>(
       targetPosition.current.set(position[0], position[1], position[2])
       targetRotationY.current = rotationY
       targetScale.current = scale
-      // #region agent log
-      debugLog(
-        'PhoneModel.tsx:target',
-        'swap target updated (lerp, no snap)',
-        {
-          x: position[0],
-          y: position[1],
-          z: position[2],
-          rotationY,
-          scale,
-          renderOrder,
-          snap,
-        },
-        'M',
-        'post-fix',
-      )
-      // #endregion
     }, [position[0], position[1], position[2], rotationY, scale, renderOrder, snap])
 
     const loggedFrame = useRef(false)
@@ -103,21 +85,6 @@ export const PhoneModel = forwardRef<THREE.Group, PhoneModelProps>(
 
       if (!loggedFrame.current) {
         loggedFrame.current = true
-        // #region agent log
-        debugLog(
-          'PhoneModel.tsx:useFrame',
-          'first frame',
-          {
-            x: group.position.x,
-            y: group.position.y,
-            z: group.position.z,
-            scale: group.scale.x,
-            renderOrder,
-          },
-          'R',
-          'post-fix',
-        )
-        // #endregion
       }
 
       group.position.lerp(targetPosition.current, LERP)

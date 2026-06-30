@@ -1,33 +1,39 @@
 ---
 {
-  "headline": "The foundation, not the feature."
+  "headline": "Modernizing a mature app without breaking trust."
 }
 ---
 
-By the time I took ownership of the app design, it had the kind of UI you'd expect from a product that moved fast and prioritized shipping: functional, but patchy. Custom controls where system components would have worked fine. Patterns that made sense in 2017 and never got revisited. A design language that accumulated inconsistencies over years of one-off decisions.
+By the time I took full ownership of the Sensi app, it had the kind of design you would expect from a product that moved fast: functional, but inconsistent.
 
-The ratings reflected it. Around 4.3 stars. Not bad, but not a product people were excited about.
+Custom controls where platform components would have worked. Patterns from 2017 that never got revisited. Ratings around 4.3 stars.
 
-The first phase was a ground-up redesign: simplified thermostat control, a cleaner dashboard, consistent system states, a design language that felt intentional. Ratings climbed from 4.3 to 4.7 on iOS, 4.4 on Android.
+Not bad enough to fix on its own.
 
-Shipping the redesign was the easy part. Keeping it good over time is the harder problem.
+But not structured well enough to scale.
 
-**The platform migrations to SwiftUI and Material Expressive were the opportunity to actually fix it.**
+The first phase was a ground-up redesign: cleaner thermostat control, a coherent dashboard, and consistent system states. Ratings climbed to 4.7 on iOS and 4.4 on Android.
 
-The practical reason: Apple and Google ship OS updates that change system behaviors, components, and visual defaults. Custom components don't get those updates automatically. System components do. For an app supporting hardware going back to 2014, that maintenance overhead compounds fast.
+Shipping the redesign was tractable.
 
-The design reason: system components bring accessibility behaviors, dynamic type, dark mode, and expected interaction models for free. Custom components have to earn all of that separately — and on a lean team, they often don't. Dark mode became a side effect of migration rather than a standalone project. Every migrated screen got it as part of the deal.
+Keeping it good over time is the harder problem.
 
-There's a philosophy underneath this: users spend more time in other apps than they do in ours. Following established platform patterns isn't conceding ground — it's directing effort toward the decisions that are genuinely unique to Sensi.
+**Platform migration is product strategy.**
 
-**How we're doing it**
+The platform migrations to SwiftUI and Material Expressive were not cosmetic.
 
-This isn't a big-bang rewrite. Feature-freezing a shipping product to modernize everything at once isn't realistic, and it's nearly impossible to justify to stakeholders who see platform migration as cosmetic work.
+Apple and Google ship OS updates that change system behaviors and visual defaults. Custom components do not inherit those updates. System components do.
 
-The strategy is screen-by-screen: when a new feature touches a screen, that screen gets migrated. New work is built in SwiftUI or Material Expressive from the start. Legacy screens get updated when there's a natural reason to open them.
+For an app supporting hardware going back to 2014, that debt compounds fast.
 
-I used AI to compress the distance between design intent and working prototype — producing platform-accurate interaction models from Figma quickly enough to validate behavior before it became an engineering conversation. That speed matters when you're proposing a migration strategy to stakeholders skeptical of the ROI. A prototype that shows the migrated experience is a faster path to alignment than a deck that describes it.
+The migration strategy is screen by screen, tied to real work. When a feature touches a screen, that screen gets migrated.
 
-To make sure feedback came from the right cross-section of users, I built a structured beta program with filtered recruiting — across OS version, hardware tenure, control preference, and accessibility needs. Not just the loudest people who opt into betas.
+Slower than a big-bang rewrite, but every migration is justified by something shipping.
 
-It's slower, but sustainable. Every migration is tied to something real rather than being pure overhead.
+**Testing works differently at this scale.**
+
+With a few million active users, the app has enough surface area to run structured experiments.
+
+A/B testing and ranked-choice validation inform decisions that would otherwise come down to opinion. The beta program uses filtered recruiting across OS version, hardware generation, control preference, and accessibility needs.
+
+The goal is feedback that reflects the actual user base, not just the most vocal segment.

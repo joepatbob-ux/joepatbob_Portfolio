@@ -3,7 +3,6 @@ import {
   ANDROID_MESH,
   applyAndroidScreen,
 } from '@/lib/phone-swap/applyScreenTextures'
-import { debugLog } from '@/lib/phone-swap/debugLog'
 import { normalizeModel } from '@/lib/phone-swap/normalizeModel'
 
 /** Deep-clone meshes so UV/material edits never touch the shared OBJ cache. */
@@ -57,23 +56,6 @@ export function prepareAndroidScene(
 
   hideReflectionShell(clone)
   const screenMeshes = applyAndroidScreen(clone, screenTexture)
-
-  // #region agent log
-  const glass = clone.getObjectByName(ANDROID_MESH.glass)
-  debugLog(
-    'prepareAndroidScene.ts:ready',
-    'Android scene prepared',
-    {
-      bodyMeshes,
-      screenMeshes,
-      maxDim,
-      fitRadius: radius,
-      glassVisible: glass?.visible ?? null,
-    },
-    'S',
-    'post-fix',
-  )
-  // #endregion
 
   return { scene: clone, fitRadius: radius }
 }

@@ -28,7 +28,7 @@ export function navMainSentenceAriaLabel(): string {
   const body = NAV_SECTIONS.map(
     (sec, i) => sec.label + navSectionConnector(i, NAV_SECTIONS.length),
   ).join('')
-  return `I simplify complex systems across ${body}`
+  return `I design product systems across ${body}`
 }
 
 /** Match chapter id to section (longest id first for `web-apps`, `everything-else`). */

@@ -16,6 +16,8 @@ out/
 
 # debug / os
 .cursor/debug*.log
+DEBUG/
+content.zip
 .DS_Store
 .tmp/
 public/favicon/~ai-*.tmp

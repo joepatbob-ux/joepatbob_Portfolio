@@ -2,16 +2,46 @@
 {
   "id": "practice",
   "title": "Practice",
-  "headline": "Practice",
+  "headline": "Design is wider than the screen.",
   "imageAlt": "Launch sticker pile — drag stickers onto the page",
-  "close": "Direct, collaborative, not precious."
+  "close": "The surface changes. The obligation does not."
 }
 ---
 
-I built a portable demo kit because the sales team needed to show the product somewhere without a power outlet. I built self-serve files so marketing and support teams can update screen content and export hardware and app screenshots without routing every request through a designer.
+Great design lives at the intersection of form and function.
 
-I consulted with Trane's internal design team on their premium touchscreen thermostat — an extension of the Touch 2 interaction model into a different product line, by a different company. I'm currently advocating for a shared retail packaging system across the Sensi and Verdant product lines — a manufacturing and brand coherence argument that has nothing to do with any single product and everything to do with how the portfolio presents itself as a whole.
+That is not a controversial position, but what it means in practice is broader than it might seem.
 
-I use AI to compress the distance between idea and artifact — producing working prototypes from Figma and assembling presentation-ready results quickly — so I can spend my time on the decisions that actually require design judgment. AI accelerates execution. It doesn't replace the judgment about what's worth executing.
+Form and function do not stop at the screen.
 
-None of this has a clean UX rationale. All of it comes from the same place the work does.
+The contractor installing the thermostat, the developer building the feature, the sales rep demoing the product, the marketing team figuring out how to talk about it, the support team answering the call: they are all having an experience of what was designed.
+
+If those experiences are not considered, the design is not finished.
+
+A product users love but sales cannot explain is leaving value on the table.
+
+A feature that tests well but developers dread building is not done.
+
+A workflow that works in the app but fails during installation is not a good experience.
+
+All of those touchpoints feed back into what the product becomes.
+
+This is why I do not draw a hard line between UX and brand. A label on a package and a push notification on a phone are both moments where the product meets a person.
+
+The discipline is the same: understand the moment, understand the person, and make the interaction clear and honest.
+
+---
+
+AI compresses the distance between decision and artifact.
+
+I use AI to move faster between decision and artifact: building working prototypes from Figma, assembling documentation, exploring interface behavior, and creating stakeholder-facing material without the usual lag between design completion and communication.
+
+The speed matters when alignment needs to happen before a decision is made rather than after.
+
+What AI does not replace is judgment.
+
+It does not decide what is worth building. It does not understand which constraint matters most. It does not know when a familiar workflow carries regulatory risk, when a contractor will reject an interaction, or when a product surface is about to become too crowded to scale.
+
+That part does not compress.
+
+That is the work.

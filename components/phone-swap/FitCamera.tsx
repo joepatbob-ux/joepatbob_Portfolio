@@ -4,7 +4,6 @@ import { useThree } from '@react-three/fiber'
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 import { useLayoutEffect } from 'react'
 import * as THREE from 'three'
-import { debugLog } from '@/lib/phone-swap/debugLog'
 
 /** Frame camera on a normalized object (origin-centered). */
 export function FitCamera({
@@ -39,20 +38,6 @@ export function FitCamera({
       controls.maxDistance = radius * 5
       controls.update()
     }
-
-    // #region agent log
-    debugLog(
-      'FitCamera.tsx:fit',
-      'camera framed on subject',
-      {
-        radius,
-        distance,
-        boxCenter: { x: sphere.center.x, y: sphere.center.y, z: sphere.center.z },
-      },
-      'F',
-      'post-fix',
-    )
-    // #endregion
   }, [camera, controls, subject, margin])
 
   return null

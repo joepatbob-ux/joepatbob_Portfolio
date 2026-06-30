@@ -23,7 +23,6 @@ export type QuoteBowlCanvasProps = {
   onClearPendingPick: () => void
   canRepick: boolean
   pickActionRef?: MutableRefObject<(() => void) | null>
-  debugOutlines?: boolean
   stackRef?: RefObject<HTMLElement | null>
 }
 

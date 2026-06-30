@@ -17,7 +17,6 @@ import * as THREE from 'three'
 import { DataTexture, NoColorSpace, RGBAFormat, SRGBColorSpace, TextureLoader, UnsignedByteType } from 'three'
 import type { ThreeEvent } from '@react-three/fiber'
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
-import { debugLog } from '@/lib/phone-swap/debugLog'
 import {
   backDeviceFromSnapshot,
 } from '@/lib/phone-swap/phoneDeviceRoles'
@@ -366,13 +365,6 @@ export function PhoneSwapScene({
   }, [animating, swapProgress, animSession])
 
   useEffect(() => {
-    debugLog(
-      'PhoneSwapScene.tsx:mount',
-      'dual phone swap scene',
-      { swapProgress, layoutMode, viewLocked },
-      'C',
-      'post-fix',
-    )
   }, [swapProgress, layoutMode, viewLocked])
 
   useLayoutEffect(() => {

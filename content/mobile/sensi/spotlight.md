@@ -4,47 +4,43 @@
   "decisions": [
     {
       "label": "Named section",
-      "text": "Spotlight is a named section, not injected into the existing feed. Users can see it, understand what it is, and choose to engage. The thermostat card stays untouched."
+      "text": "Spotlight is a named section on the home screen, clearly separated from the thermostat controls."
     },
     {
       "label": "Partner attribution",
-      "text": "Partner logos sit at the top of every card. Users should know the offer is coming from their utility company, not from Sensi. Transparency builds more trust than white-labeling the content."
+      "text": "Explicit partner attribution so users know the offer is coming from their utility company, not from Sensi."
     },
     {
       "label": "Consistent CTA",
-      "text": "The Learn More CTA is always the same style and position regardless of content type. Once you've tapped one Spotlight card, you know how all of them work. Expiration dates shown explicitly when relevant. No dark patterns."
+      "text": "Consistent CTA position regardless of content type. Once you've tapped one Spotlight card, you know how all of them work."
     },
     {
       "label": "Soft notification",
-      "text": "A count badge on the section header acts as a soft notification — no push alert, but users get a signal when something new is waiting."
+      "text": "A soft badge notification rather than a push alert when something new is waiting."
     }
   ],
   "testingHeading": "What testing revealed"
 }
 ---
 
-Sensi partners with utility companies to offer energy demand-response programs — enroll and save money during peak usage hours. Good programs. Low enrollment because users had no reason to go looking for them inside the app.
+Sensi partners with utility companies on energy demand-response programs. Enroll and save during peak hours. Good programs. Low enrollment because there was no natural moment inside the app where users encountered them.
 
-There was also no good way to surface new features or products to existing users without touching the thermostat card.
+There was also no clean way to surface new features without touching the thermostat card, the one screen users actually open the app for.
 
-Spotlight was the answer: a named, dedicated section on the home screen carrying partner content, product news, and savings opportunities. Built native from the start.
+Spotlight is a named, dedicated section on the home screen: partner offers, product news, savings opportunities, clearly separated from the thermostat controls.
 
-**The hard constraints**
+The content is not mine. Copy comes from Copeland's marketing team in collaboration with energy partners. I do not control headline length, offer framing, or partner branding.
 
-The content isn't mine. Card copy is written by Copeland's marketing team in collaboration with energy partners. I don't control headline length, offer details, or partner logos — the design system has to handle all of that while still feeling like Sensi.
+The card has one shot to inform and motivate before handing off to a partner-owned enrollment flow. It cannot rely on what comes next.
 
-We lose the user at the tap. Learn More opens a partner-owned enrollment flow in an in-app browser. The card has one shot to inform and motivate before the handoff. It can't rely on the next screen to do any of the work.
+And it cannot feel like an ad.
 
-And it can't feel like an ad. Sensi users trust the app to be a neutral utility tool. The moment Spotlight reads like a banner, that trust takes a hit.
+Sensi users trust the app as a neutral utility tool. A content surface that reads as promotional undercuts that directly.
 
----
-
-I tested the card design through iterative copy development and in-depth user interviews across multiple rounds before launch. Working directly with energy partners to get the messaging right meant the cards communicated real program value rather than generic marketing copy — the only way a trust-dependent utility app can carry a content surface.
+The decisions followed from that constraint: named section rather than injected content, explicit partner attribution, consistent CTA position, soft badge notification rather than push alert.
 
 ---
 
-Energy program enrollment increased measurably after launch. Specific numbers are under NDA.
+App Store ratings held flat: 4.7 iOS, 4.4 Android.
 
-The metric I watch most closely: app store ratings held. 4.7 iOS · 4.4 Android, flat through the Spotlight launch. For a content surface added to a utility app, no regression is a win. It means users didn't experience it as an intrusion.
-
-Spotlight also created a repeatable integration path for future partners without redesigning anything. The system does the work.
+For a content surface added to a utility app, no regression is the win. Enrollment increased measurably. The integration path is reusable for future partners without redesign.
