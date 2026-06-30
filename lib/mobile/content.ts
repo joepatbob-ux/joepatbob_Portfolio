@@ -1,7 +1,7 @@
 /** Structured copy for the Mobile case study (Sensi · WR Connect). */
 
 import { requireContentRaw } from '@/lib/content/contentModules'
-import { parseMarkdownFile, splitBodySections } from '@/lib/content/parseMarkdown'
+import { parseMarkdownFile } from '@/lib/content/parseMarkdown'
 
 export const MOBILE_SECTION_TABS = [
   { id: 'sensi', label: 'Sensi' },
@@ -53,7 +53,11 @@ function loadSpotlightStory(raw: string) {
     decisions: readonly { label: string; text: string }[]
     testingHeading: string
   }>(raw)
-  const [intro, testingBody, closeBody] = splitBodySections(body)
+  const parts = body.split(/\n---\n/).map((part) => part.trim())
+  const intro = parts[0] ?? ''
+  // Two sections: intro + close. Three sections: intro + testing + close.
+  const testingBody = parts.length >= 3 ? (parts[1] ?? '') : ''
+  const closeBody = parts.length >= 3 ? (parts[2] ?? '') : (parts[1] ?? '')
 
   return {
     heading: meta.heading,

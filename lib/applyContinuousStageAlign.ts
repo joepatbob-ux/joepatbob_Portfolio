@@ -86,37 +86,6 @@ function artifactHeight(align: HTMLElement): number {
   return best
 }
 
-function easeSmoothstep(t: number): number {
-  const x = Math.max(0, Math.min(1, t))
-  return x * x * (3 - 2 * x)
-}
-
-function centerTranslateY(
-  align: HTMLElement,
-  stickTop: number,
-  layoutTop: number,
-  contentTop: number,
-  artifactH: number,
-  enterBlendPx: number,
-): number {
-  const centerY = translateToStickTop(align, stickTop)
-
-  // Deep read — headline cleared above; keep artifact at viewport center.
-  if (contentTop < stickTop * 0.35) {
-    return centerY
-  }
-
-  const pairPull = stickTop + Math.min(enterBlendPx * 0.65, artifactH * 0.4)
-  if (contentTop <= pairPull) {
-    const headlineY = contentTop - layoutTop
-    const span = Math.max(1, pairPull - stickTop * 0.35)
-    const t = easeSmoothstep((contentTop - stickTop * 0.35) / span)
-    return Math.round(centerY + t * (headlineY - centerY))
-  }
-
-  return centerY
-}
-
 function enterBlendTranslateY(
   align: HTMLElement,
   stickTop: number,
@@ -208,6 +177,8 @@ function clearStagePin(
   delete stage.dataset.stageExiting
   delete stage.dataset.stageOpacity
   delete stage.dataset.stageCenterHeld
+  delete stage.dataset.stageCentered
+  stage.style.removeProperty('--stage-artifact-half')
   stage.style.opacity = '0'
   stage.style.visibility = 'hidden'
   stage.style.removeProperty('pointer-events')
@@ -215,6 +186,21 @@ function clearStagePin(
   clearPhase(stage, align)
   if (!align) return
   clearArtifactTransform(align)
+}
+
+function applyCssViewportCenter(
+  stage: HTMLElement,
+  align: HTMLElement,
+  artifactH: number,
+): void {
+  stage.dataset.stageCentered = 'true'
+  stage.style.setProperty('--stage-artifact-half', `${Math.round(artifactH / 2)}px`)
+  clearArtifactTransform(align)
+}
+
+function clearCssViewportCenter(stage: HTMLElement, align: HTMLElement): void {
+  delete stage.dataset.stageCentered
+  stage.style.removeProperty('--stage-artifact-half')
 }
 
 function stageChapterIds(stageRevealMap: Record<string, number>): Array<{
@@ -393,6 +379,7 @@ export function applyContinuousStageAlign(
       phase = 'exit'
       delete stage.dataset.stageCenterHeld
       delete align.dataset.stageAlignLatchY
+      clearCssViewportCenter(stage, align)
       translateY = translateToStickTop(align, stickTop) + exitY
     } else if (
       reducedMotion ||
@@ -403,25 +390,23 @@ export function applyContinuousStageAlign(
       phase = 'center'
       stage.dataset.stageCenterHeld = 'true'
 
-      if (latchedY != null) {
-        translateY = Number(latchedY)
+      if (prefersHeadlinePairAlign(align)) {
+        clearCssViewportCenter(stage, align)
+        if (latchedY != null) {
+          translateY = Number(latchedY)
+        } else {
+          translateY = headlinePairTranslateY(align, contentTop)
+          align.dataset.stageAlignLatchY = String(translateY)
+        }
       } else {
-        translateY = prefersHeadlinePairAlign(align)
-          ? headlinePairTranslateY(align, contentTop)
-          : centerTranslateY(
-              align,
-              stickTop,
-              layoutTop,
-              contentTop,
-              artifactH,
-              enterBlendPx,
-            )
-        align.dataset.stageAlignLatchY = String(translateY)
+        applyCssViewportCenter(stage, align, artifactH)
+        translateY = 0
       }
     } else {
       phase = 'enter'
       delete stage.dataset.stageCenterHeld
       delete align.dataset.stageAlignLatchY
+      clearCssViewportCenter(stage, align)
       translateY = prefersHeadlinePairAlign(align)
         ? headlinePairTranslateY(align, contentTop)
         : enterBlendTranslateY(
@@ -440,6 +425,10 @@ export function applyContinuousStageAlign(
     }
 
     setPhase(stage, align, phase)
-    applyArtifactTransform(align, translateY)
+    if (phase === 'center' && stage.dataset.stageCentered === 'true') {
+      clearArtifactTransform(align)
+    } else {
+      applyArtifactTransform(align, translateY)
+    }
   })
 }

@@ -65,9 +65,15 @@ export function MobileSensiSection() {
             <MobileSubStory heading={spotlight.heading}>
               <MobileProse paragraphs={splitParagraphs(spotlight.intro)} />
               <MobileLabelGrid items={spotlight.decisions} />
-              <MobileSubStoryHeading heading={spotlight.testingHeading} />
-              <MobileProse paragraphs={splitParagraphs(spotlight.testingBody)} />
-              <MobileProse paragraphs={splitParagraphs(spotlight.closeBody)} />
+              {spotlight.testingBody ? (
+                <>
+                  <MobileSubStoryHeading heading={spotlight.testingHeading} />
+                  <MobileProse paragraphs={splitParagraphs(spotlight.testingBody)} />
+                </>
+              ) : null}
+              {spotlight.closeBody ? (
+                <MobileProse paragraphs={splitParagraphs(spotlight.closeBody)} />
+              ) : null}
             </MobileSubStory>
           </div>
         </ChapterCopyReveal>

@@ -198,13 +198,3 @@ export function createTunedBowlGlassMaterial(
   applyBowlGlassTune(material, tune)
   return material
 }
-
-export function formatBowlGlassTuneTs(tune: BowlGlassTuneSettings): string {
-  const t = clampBowlGlassTune(tune)
-  return `export const BOWL_GLASS_TUNE = ${JSON.stringify(t, null, 2)} as const`
-}
-
-export function readBowlTuneEnabled(): boolean {
-  if (typeof window === 'undefined') return false
-  return new URLSearchParams(window.location.search).has('bowl-tune')
-}

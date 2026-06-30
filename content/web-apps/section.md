@@ -3,7 +3,7 @@
   "id": "web-apps",
   "label": "Web Apps",
   "eyebrow": "",
-  "headline": "Four products. Two domains. One design system.",
+  "headline": "Software shows how it was built.",
   "overviewBlocks": [
     {
       "kind": "scope",

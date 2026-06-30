@@ -2,7 +2,7 @@
 {
   "id": "eim",
   "title": "EIM",
-  "subtitle": "Solving a problem by moving it somewhere better.",
+  "subtitle": "The design problem was not the hardware. It was the trip.",
   "imageAlt": "Equipment Interface Module product photo",
   "imageSrc": "/images/devices/eimpath.svg",
   "imageLayout": "full-width",
@@ -10,18 +10,36 @@
 }
 ---
 
-The Equipment Interface Module is designed to work with both indoor and outdoor HVAC equipment — a flexibility most EIMs don't offer. The configuration challenge: how does a contractor tell the EIM what kind of equipment it's connected to?
+The Equipment Interface Module bridges thermostats to HVAC equipment in installations where standard wiring falls short.
 
-The obvious answer — configure it at the unit — requires traveling back and forth between the thermostat and the equipment. In a typical installation that means multiple trips, often up and down stairs, often in tight mechanical spaces.
+In homes with four wires or fewer, heat pump installations may require six. Where competitors shipped three separate modules to cover the same range of use cases, the Sensi EIM handled all of them with one.
 
-I moved the configuration to the thermostat.
+The design problem was not the hardware. It was configuration.
 
-Through a simple pairing and configuration flow, the contractor sets the equipment location and type from the thermostat, once, without leaving. The EIM receives that information and configures itself accordingly.
+The obvious approach would have been configuring the EIM at the unit. But in a typical installation, that means traveling between the thermostat and the equipment, often through tight mechanical spaces or up and down stairs.
 
-The product context makes the scale of that decision clearer: 44% of homes have four wires or fewer, but heat pump installations require six. The EIM was built for that gap. Where the leading competitor shipped three separate modules to cover the same use cases, the Sensi EIM did it with one.
+Each trip is time a contractor is not billing for.
 
-Contractors noticed immediately. In field training sessions following launch, two separate distributor groups called out the pairing process independently — specifically that configuring from one location, without back-and-forth button pressing, was what they appreciated most. The launch webinar drew over 180 contractors. That's the design decision validated in the field by the people it was built for.
+**Move configuration to where the contractor already is.**
 
-**Patent: US 12,608,066**
+I moved configuration to the thermostat.
 
-When power stealing from the HVAC system is lost, the EIM and Sensi Lite face a choice: show an on-device error, or blank the display and surface device state to the mobile app. I designed the UX logic and notification flow behind that decision. It's the subject of US Patent 12,608,066, awarded April 2026.
+Through a pairing and configuration flow built into the thermostat interface, the contractor sets equipment location and type once, without leaving. The EIM receives that information and configures itself.
+
+A workflow that used to require back-and-forth movement between two physical locations happens in one place.
+
+That is the kind of design work that does not look dramatic on a screen. The value is in removing movement, uncertainty, and lost time from the job.
+
+**Contractors noticed the part that mattered.**
+
+The field response made the value clear.
+
+In training sessions following launch, two separate distributor groups independently called out the pairing process as what they noticed most: configuring from one location without physically moving between the thermostat and equipment.
+
+The launch webinar drew more than 180 contractors.
+
+When the people the product was built for call out the workflow unprompted, that is validation.
+
+With contractors, silence is also data. They are vocal when something does not work. The pairing flow generated no iteration requests after launch.
+
+It just worked.

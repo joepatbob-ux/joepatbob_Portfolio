@@ -3,7 +3,7 @@
   "id": "everything-else",
   "label": "Everything In Between",
   "eyebrow": "",
-  "headline": "Good design work doesn't come from talent applied domain by domain.",
+  "headline": "The work between the work.",
   "lessonTitle": "",
   "lessonBody": "",
   "chapterOrder": [

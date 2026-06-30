@@ -1,18 +1,18 @@
 ---
 {
-  "heading": "When the app and the device contradicted each other.",
+  "heading": "When the app and the thermostat contradicted each other.",
   "problems": [
     {
       "label": "Accessibility",
-      "text": "A saturated orange or blue background creates contrast failures for text and UI elements sitting on top of it. WCAG compliance becomes a moving target when the background color is dynamic."
+      "text": "Saturated full-bleed backgrounds broke contrast ratios for overlaid UI elements."
     },
     {
       "label": "Dark mode",
-      "text": "There's no clean dark mode equivalent for a full-bleed orange screen. Desaturate it and it becomes unrecognizable. Leave it as-is and it doesn't work. Neither is acceptable."
+      "text": "There was no workable dark mode equivalent for a full-bleed orange screen."
     },
     {
       "label": "Consistency",
-      "text": "The Sensi Touch 2 thermostat already used a better visual language for mode communication — temperature numbers turning blue when cooling, orange when heating. Independent reviewers called it out specifically, noting it made it easier to know exactly when the HVAC was running. The app and the device were telling two different stories to the same user."
+      "text": "The thermostat display already used a better pattern: the temperature number changing color rather than the entire screen."
     }
   ],
   "scrubber": {
@@ -25,12 +25,16 @@
 }
 ---
 
-The legacy app used full-screen color to communicate HVAC mode. Orange for heat, blue for cool, neutral for passive. The intent was right: mode state is important information, and making it ambient rather than buried in a label is good instinct.
+The legacy app used full-screen color to communicate HVAC mode: orange for heat, blue for cool, neutral for off.
 
-The execution had three problems.
+The intent was right. Mode state is important information, and making it ambient is a good instinct.
 
-**The solution: move the color to the number.**
+The execution created three problems that could not be solved independently. Saturated full-bleed backgrounds broke contrast ratios for overlaid UI elements. There was no workable dark mode equivalent. And the thermostat display already used a better pattern: the temperature number changing color rather than the entire screen.
 
-Instead of the background adopting the mode color, the displayed temperature adopts it. The information is still ambient — sitting on the most prominent element on the screen — but surgical rather than wholesale.
+The app and the device were telling two different stories about the same system state.
 
-One change. Three problems solved. Accessibility contrast is predictable. Dark mode works without special casing. The app and the thermostat now speak the same visual language. A user who glances at their device and opens the app sees the same system communicating the same information.
+Moving the color from the background to the temperature number closed all three at once.
+
+Contrast ratios became predictable. Dark mode worked without special casing. The app adopted the same visual language the hardware was already using.
+
+A user glancing at the thermostat and opening the app now sees the same information expressed the same way.

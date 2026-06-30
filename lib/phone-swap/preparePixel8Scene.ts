@@ -8,7 +8,6 @@ import {
 } from '@/lib/phone-swap/applyPixel8MtlMaterials'
 import { applyPixel8Screen } from '@/lib/phone-swap/applyScreenTextures'
 import { consolidateMeshesBySlot } from '@/lib/phone-swap/consolidateMeshesBySlot'
-import { debugLog } from '@/lib/phone-swap/debugLog'
 import {
   fixInvertedMeshNormals,
   rebuildMeshNormals,
@@ -102,35 +101,6 @@ export function preparePixel8Scene(
   const fbxMaterials = useFbxMaterials
     ? collectFbxMaterialSummary(clone).slice(0, 12)
     : undefined
-
-  // #region agent log
-  debugLog(
-    'preparePixel8Scene.ts:ready',
-    'Pixel 8 Pro scene prepared',
-    {
-      mtlMeshes,
-      screenMeshes,
-      phongRemaining,
-      slotNames,
-      applyScreen,
-      useFbxMaterials,
-      detailMaps,
-      creamMeshes,
-      colorVariant: PIXEL8_COLOR_VARIANT,
-      fbxMaterials,
-      modelMirroredX: PIXEL8_MIRROR_X && clone.scale.x < 0,
-      frameMeshFound: !!frameMesh,
-      frameColor: sampleMaterialColor(frameMesh),
-      maxDim,
-      fitRadius: radius,
-      consolidateResults,
-      splitCount,
-      normalsFixed,
-    },
-    'M',
-    useFbxMaterials ? 'pixel8-fbx' : 'pixel8-mtl',
-  )
-  // #endregion
 
   return { scene: clone, fitRadius: radius }
 }

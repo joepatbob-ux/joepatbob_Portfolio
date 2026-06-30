@@ -3,7 +3,7 @@
   "id": "mobile",
   "label": "Mobile",
   "eyebrow": "",
-  "headline": "A consumer app people trust and a diagnostic tool technicians rely on.",
+  "headline": "The app has to outlive the launch.",
   "overviewBlocks": [
     {
       "kind": "scope",

@@ -6,7 +6,6 @@ import {
   remapMeshUVsTo01,
   screenTextureForDisplay,
 } from '@/lib/phone-swap/fitScreenTextureToMesh'
-import { debugLog } from '@/lib/phone-swap/debugLog'
 
 import {
   IPHONE16_DISPLAY,
@@ -51,16 +50,6 @@ export function applyIPhoneScreen(
     const map = screenTextureForDisplay(screenTexture)
     if (map.image) map.needsUpdate = true
 
-    // #region agent log
-    debugLog(
-      'applyScreenTextures.tsx:iPhoneScreen',
-      'display UV remapped to 0-1',
-      { meshName: child.name, atlasUV, flipY: map.flipY },
-      'U',
-      'post-fix',
-    )
-    // #endregion
-
     child.material = new THREE.MeshBasicMaterial({
       map,
       toneMapped: false,
@@ -95,16 +84,6 @@ export function applyIPhone16Screen(
     nudgeGeometryAlongNormals(child.geometry, IPHONE16_DISPLAY.surfaceNudge)
     const map = screenTextureForDisplay(screenTexture)
     if (map.image) map.needsUpdate = true
-
-    // #region agent log
-    debugLog(
-      'applyScreenTextures.tsx:iPhone16Screen',
-      'display UV remapped, V flipped',
-      { meshName: child.name, atlasUV, flipY: map.flipY, uvFlipV: true },
-      'U',
-      'iphone-screen-flip-v',
-    )
-    // #endregion
 
     child.material = new THREE.MeshBasicMaterial({
       map,
@@ -245,16 +224,6 @@ export function applyPixel9Screen(
     const atlasUV = remapMeshUVsTo01(child)
     const map = screenTextureForDisplay(screenTexture)
     if (map.image) map.needsUpdate = true
-
-    // #region agent log
-    debugLog(
-      'applyScreenTextures.tsx:pixel9Screen',
-      'display UV remapped on merged mesh',
-      { meshName: child.name, atlasUV, flipY: map.flipY },
-      'U',
-      'pixel9-merge-fix',
-    )
-    // #endregion
 
     child.material = new THREE.MeshBasicMaterial({
       map,
@@ -493,16 +462,6 @@ export function applyAndroidScreen(
     if (map.image) {
       map.needsUpdate = true
     }
-
-    // #region agent log
-    debugLog(
-      'applyScreenTextures.tsx:androidScreen',
-      'display UV remapped to 0-1',
-      { meshName: child.name, atlasUV, flipY: map.flipY },
-      'U',
-      'post-fix',
-    )
-    // #endregion
 
     child.material = new THREE.MeshBasicMaterial({
       map,

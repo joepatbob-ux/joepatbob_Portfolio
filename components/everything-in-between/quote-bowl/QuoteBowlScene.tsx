@@ -4,7 +4,6 @@ import {
   bowlRimTarget,
   CrumpledPaperPile,
 } from '@/components/everything-in-between/quote-bowl/CrumpledPaperPile'
-import { QuoteBowlDebugOutlines } from '@/components/everything-in-between/quote-bowl/QuoteBowlDebugOutlines'
 import { QuoteBowlPileShadowReceiver } from '@/components/everything-in-between/quote-bowl/QuoteBowlPileShadowReceiver'
 import { QuoteBowlPickTarget } from '@/components/everything-in-between/quote-bowl/QuoteBowlPickTarget'
 import { QuoteBowlRimTracker } from '@/components/everything-in-between/quote-bowl/QuoteBowlRimTracker'
@@ -45,7 +44,6 @@ export function QuoteBowlScene({
   onClearPendingPick,
   canRepick,
   pickActionRef,
-  debugOutlines = false,
   stackRef,
 }: QuoteBowlCanvasProps) {
   const prepared = useGoldfishBowlModel()
@@ -308,17 +306,6 @@ export function QuoteBowlScene({
             }}
           />
         </group>
-
-        {debugOutlines ? (
-          <QuoteBowlDebugOutlines
-            bottomY={bottomY}
-            topY={topY}
-            fitRadius={fitRadius}
-            innerRadius={innerRadius}
-            pileBottomY={pileBottomY}
-            pileTopY={pileTopY}
-          />
-        ) : null}
 
         {stackRef ? (
           <QuoteBowlRimTracker topY={topY} rimY={rim.y} stackRef={stackRef} />

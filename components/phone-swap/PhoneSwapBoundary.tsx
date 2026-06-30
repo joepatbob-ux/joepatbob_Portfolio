@@ -1,6 +1,5 @@
 'use client'
 
-import { debugLog } from '@/lib/phone-swap/debugLog'
 import { Component, type ErrorInfo, type ReactNode } from 'react'
 
 interface Props {
@@ -21,18 +20,6 @@ export class PhoneSwapBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {
-    // #region agent log
-    debugLog(
-      'PhoneSwapBoundary.tsx:componentDidCatch',
-      'PhoneSwap error boundary caught',
-      {
-        errorMessage: error.message,
-        errorName: error.name,
-        componentStack: info.componentStack?.slice(0, 400),
-      },
-      'A',
-    )
-    // #endregion
     if (import.meta.env.DEV) {
       console.warn('[PhoneSwap]', error, info.componentStack)
     }

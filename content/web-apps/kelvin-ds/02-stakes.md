@@ -1,20 +1,26 @@
 ---
 {
   "number": "02",
-  "heading": "These users cannot afford to be confused."
+  "heading": "The resistance to change was rational."
 }
 ---
 
-The stakes vary across the portfolio, but they're never low.
+The stakes vary across the portfolio, but they are never low.
 
 ---
 
-In TempTrak, users are medical and pharmaceutical facility managers operating under regulatory oversight. Temperature logs are compliance documents. Alarm acknowledgment is a documented procedure. Their Standard Operating Procedures reference specific UI flows — which means a changed interface doesn't just require retraining, it potentially invalidates documented processes that exist for regulatory reasons.
+TempTrak users are medical and pharmaceutical facility managers working under regulatory oversight. Temperature logs are compliance documents. Alarm acknowledgment is a documented procedure tied to SOPs that may reference specific UI flows.
 
-The hardware integration compounds this. Temperature sensors, humidity sensors, door sensors — all feeding data into these systems. A UI change that disrupts a sensor workflow doesn't just frustrate a user, it creates a gap in the monitoring chain for materials that cannot be compromised.
+A changed interface does not just require retraining. It can invalidate documented processes that exist for regulatory reasons.
+
+The hardware integration compounds the risk. Temperature sensors, humidity sensors, and door sensors feed data into these systems continuously.
+
+A UI change that disrupts a monitoring workflow does not create confusion.
+
+It creates a gap in the chain for materials that cannot be compromised.
 
 ---
 
-This is why the "if it ain't broke" culture persisted. Caution made sense. The cost of being wrong wasn't a bad review — it was a cold chain failure in a medical facility.
+This is why the "if it ain't broke" culture was rational, not just resistant. The cost of being wrong was not a bad review.
 
-Any modernization strategy had to account for all of this. Not work around it. Account for it.
+Any modernization strategy had to account for that reality, not work around it.

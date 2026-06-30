@@ -2,6 +2,10 @@
 {}
 ---
 
-Designing for hardware is another problem entirely. Over several product cycles at Copeland, I led UX across five thermostat products — each with its own constraint profile, audience, and set of tradeoffs. Designing across five products in the same ecosystem means every decision either compounds or conflicts — so every decision has to know which one it's doing. Over eight years as the sole designer at Copeland, that has produced five shipped products, two patents, and a design system serving four product lines.
+Over eight years as the sole designer at Copeland, I led UX across five thermostat products, each with its own constraint profile, audience, and failure modes.
 
-The through-line across all of them: the interface has to do the hard work so the person using it doesn't.
+Some products used fixed-segment displays. Some used touchscreens. Some had three buttons and almost no room for instruction. Hospitality thermostats had to be understood from across a hotel room by guests who may not speak the language on the label.
+
+Every surface has to work on its own terms while still feeling like it belongs to the same product family.
+
+That is not a visual style problem. It is a decision-making problem. Every call either reinforces the system or quietly undermines it.

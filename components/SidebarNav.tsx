@@ -719,7 +719,7 @@ export function SidebarNav() {
         >
           <span className="sidebar-mobile-rail__chrome" aria-hidden />
           <p className="sidebar-mobile-rail__label" aria-hidden="true">
-            I simplify complex systems for{' '}
+            I design product systems for{' '}
             <span className="sidebar-mobile-rail__label-accent">
               {currentSection.label}
             </span>

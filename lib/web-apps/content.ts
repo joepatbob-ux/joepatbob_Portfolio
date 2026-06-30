@@ -1,7 +1,7 @@
 /** Structured copy for Web Apps — single Kelvin DS chapter. */
 
 import { requireContentRaw } from '@/lib/content/contentModules'
-import { parseMarkdownFile, splitBodySections } from '@/lib/content/parseMarkdown'
+import { parseMarkdownFile } from '@/lib/content/parseMarkdown'
 
 type KelvinIntroMeta = {
   chapterId: string
@@ -27,7 +27,10 @@ function loadProductsStory(raw: string) {
 
 function loadStakesStory(raw: string) {
   const { meta, body } = parseMarkdownFile<{ number: string; heading: string }>(raw)
-  const [intro, complianceCallout, close] = splitBodySections(body)
+  const parts = body.split(/\n---\n/).map((part) => part.trim())
+  const intro = parts[0] ?? ''
+  const complianceCallout = parts[1] ?? ''
+  const close = parts[2] ?? ''
 
   return {
     number: meta.number,

@@ -1,0 +1,347 @@
+Portfolio Content Draft
+Editorial chapter draft for joepatbob.com
+Navigation model: Hardware / Mobile / Web Apps / Everything in Between
+Opening
+I design product systems for complex physical and digital experiences.
+For the past eight years, I have been the sole product designer across Copeland’s thermostat hardware, mobile apps, contractor tools, and web platforms. The work sits at the intersection of interface design, hardware constraints, installation workflows, product architecture, and business adoption.
+The through-line is simple: every surface has to work on its own terms while still belonging to a larger system.
+A touchscreen thermostat is not a fixed-segment thermostat with more pixels. A three-button thermostat is not a cheaper version of a touchscreen. A contractor app is not a consumer onboarding flow. A regulated web platform cannot be modernized like a marketing site. A design system is not useful if it ignores the workflows people have already built their jobs around.
+This portfolio is organized by surface area: hardware, mobile, web applications, and the work between them. But the real subject is decision-making under constraint.
+What should the product communicate when the display goes dark? What should move into the app because the hardware cannot safely handle it? What should stay familiar because the workflow is tied to training, compliance, or trust? What should become a system because the same problem will keep appearing in new forms?
+That is the work I have been doing at Copeland: designing the connective tissue between products, teams, users, and constraints.
+
+Hardware
+Overview
+Hardware is where constraints become visible.
+Over eight years as the sole designer at Copeland, I led UX across five thermostat products, each with its own constraint profile, audience, and failure modes.
+Some products used fixed-segment displays. Some used touchscreens. Some had three buttons and almost no room for instruction. Hospitality thermostats had to be understood from across a hotel room by guests who may not speak the language on the label.
+Every surface has to work on its own terms while still feeling like it belongs to the same product family.
+That is not a visual style problem. It is a decision-making problem. Every call either reinforces the system or quietly undermines it.
+Touch 2
+A touchscreen is not a fixed-segment display.
+Sensi Touch 1 was designed to mirror the Sensi Smart, the Wi-Fi-connected fixed-segment thermostat sitting next to it in the product line.
+That was a reasonable instinct for a first-generation touchscreen product. But a touchscreen is not a fixed-segment display with more pixels. It is a different surface with a different contract.
+Touch 2 was the opportunity to correct that.
+Touch 1’s menu structure was solid, and I was not going to change navigation users already understood. But the visual language, interaction model, and interface architecture all needed to change so the product could use the capabilities it already had.
+Before design work began, I analyzed Touch 1’s strengths and weaknesses, mapped the competitive landscape, and interviewed utility partners, contractors, and homeowners. Each group had different failure modes to surface. The breadth was not research for its own sake. It was the only way to know which problems were real.
+One button, one job.
+The most consequential change was not visual.
+Every screen has a primary action. In Touch 1, that action was buried or inconsistent depending on where the user was. I introduced a persistent contextual action button: whatever the most important next step was, always in the same place, always relevant to the current screen.
+Users learn the pattern once, and it works everywhere.
+That kind of consistency is invisible when it holds and expensive when it does not.
+The architecture had to outlive the first release.
+The less visible decision was building the interface architecture to be extensible.
+Remote sensors and the Equipment Interface Module were not in scope at the time. I still built the UI framework so those features could be added later without breaking what existed.
+They were added later, and they fit.
+That is what happens when architecture is treated as a design decision rather than an engineering detail.
+Physical and digital decisions were connected from the start.
+I was involved from the industrial design evaluation phase, running testing and feeding back on how different form-factor concepts affected the UI.
+On a touchscreen product, physical and digital decisions interact at every level. Thickness affects reach targets. Bezel width affects perceived screen space. Screen size changes what interaction density feels acceptable.
+I was the connection between those conversations.
+Touch 2 shipped at 0.77 inches, the thinnest smart thermostat in the category at launch. The interaction model later informed consulting work with Trane’s internal design team on their premium touchscreen thermostat, which confirmed the work held up outside our own product line.
+EIM
+The design problem was not the hardware. It was the trip.
+The Equipment Interface Module bridges thermostats to HVAC equipment in installations where standard wiring falls short.
+In homes with four wires or fewer, heat pump installations may require six. Where competitors shipped three separate modules to cover the same range of use cases, the Sensi EIM handled all of them with one.
+The design problem was not the hardware. It was configuration.
+The obvious approach would have been configuring the EIM at the unit. But in a typical installation, that means traveling between the thermostat and the equipment, often through tight mechanical spaces or up and down stairs.
+Each trip is time a contractor is not billing for.
+Move configuration to where the contractor already is.
+I moved configuration to the thermostat.
+Through a pairing and configuration flow built into the thermostat interface, the contractor sets equipment location and type once, without leaving. The EIM receives that information and configures itself.
+A workflow that used to require back-and-forth movement between two physical locations happens in one place.
+That is the kind of design work that does not look dramatic on a screen. The value is in removing movement, uncertainty, and lost time from the job.
+Contractors noticed the part that mattered.
+The field response made the value clear.
+In training sessions following launch, two separate distributor groups independently called out the pairing process as what they noticed most: configuring from one location without physically moving between the thermostat and equipment.
+The launch webinar drew more than 180 contractors.
+When the people the product was built for call out the workflow unprompted, that is validation.
+With contractors, silence is also data. They are vocal when something does not work. The pairing flow generated no iteration requests after launch.
+It just worked.
+Sensi Lite
+Thirty-two segments, three buttons, no room to hide.
+Sensi Lite was the most constrained product I have worked on.
+Thirty-two display segments. Three buttons: up, down, and menu/action. The mandate was a complete thermostat experience for a budget-tier product that still had to feel considered.
+At this level of constraint, design becomes editorial.
+You cannot show everything, so every character has to earn its place. Every button press has to count. Every hidden layer has to be hidden for a reason.
+Navigation stayed flat because hierarchy was too expensive.
+Hierarchy is expensive when you have three buttons.
+I kept navigation flat and cyclical so users move through settings in a loop rather than drilling into nested menus. The menu/action button serves different roles depending on how it is pressed: a standard press moves through the flow, a long press enters homeowner settings, and a second long press accesses contractor configuration.
+That last layer matters.
+Contractor settings can break an HVAC configuration if a homeowner stumbles into them. The long-press-to-long-press pattern keeps those settings reachable for installers and out of sight for everyone else, without removing DIY capability.
+With flat navigation, order becomes logic.
+When navigation is flat, the sequence of settings is not just organizational. It is functional.
+Some settings are conditional. Configure a heat pump, and reversing valve direction needs to follow immediately. The order of the flow has to match the logic of the equipment.
+I sequenced settings based on dependency logic, with the most common equipment configuration defaulting to the top to reduce installation time.
+Testing had to include the whole product.
+Usability testing revealed that 23% of users stalled at the three-dot menu button because it did not read as interactive. Auto mode caused hesitation in 30%, confirming the conditional sequencing was doing real work.
+Icon testing across five variants landed on a square inside a circle, borrowed from the media stop symbol, and carried forward into later products.
+I also observed physical installation: wire tucking, snap-to-baseplate behavior, and clip resistance. Those observations fed directly back into the hardware design.
+On a product this constrained, the line between UI and physical design is thin.
+When the display goes dark, the system still has to communicate.
+Thermostats like Sensi Lite rely on power stealing from the HVAC system. When that power is lost or insufficient, the display cannot function normally.
+The question becomes what the system does next and how it tells the user what is happening when the device they would normally check has gone dark.
+I was part of the team that worked through that problem: what shuts down, in what order, and how device state gets communicated when the hardware cannot display it.
+The answer involved a prioritized shutdown sequence and a notification flow that surfaces device state through the cloud to the mobile app. The user’s phone becomes the display when the thermostat cannot be.
+That work is the subject of US Patent 12,608,066, awarded April 2026.
+The decisions I lost changed how I work.
+Two positions did not survive stakeholder review. Post-launch data proved them right.
+I wanted fan circulation runtime surfaced higher for homeowner accessibility. It was pushed down in favor of a mobile-first vision and became a recurring customer service issue.
+I proposed moving the menu/action button to the opposite side of the display to reduce accidental capacitive taps. Hardware engineering preferred in-line alignment. Accidental taps became a post-launch issue that required a firmware patch.
+I do not tell those stories to relitigate them.
+I tell them because they changed how I work.
+Document the testing rationale. If you are going to lose an argument, lose it with evidence, so when the data comes in, the record is already there.
+Verdant
+Designing for guests who will never be onboarded.
+The Verdant VX4 and Line Voltage thermostats serve the hospitality market, a fundamentally different design context than residential.
+Hotel guests speak different languages, have different levels of technical familiarity, and interact with the thermostat once rather than over years. The interface has to communicate immediately, to anyone, without instruction or support.
+There is no onboarding. No help text a guest will read. No long-term learning curve.
+The interface works on its own terms or it fails.
+Text was not a reliable tool.
+The Line Voltage thermostat for the European market pushed this further.
+Text was not a reliable tool across the language range the product needed to serve, so I replaced text labels with iconography throughout.
+A visual language built entirely around function.
+An icon either communicates or it does not, and there is no copy underneath to cover for ambiguity.
+The character set had to work from across a hotel room.
+Standard 7-segment displays are optimized for manufacturing simplicity, not legibility.
+Reading a temperature from across a hotel room is a different problem than reading it up close, and standard segment geometry was not built for that moment.
+I started by researching existing standard and non-standard fixed-segment forms, then mapped ideal numerals in Lato, the same typeface used in Sensi Touch 2 where it had already proven itself with users.
+Working on transparency paper, I overlaid all digits to find common points and segment cut lines. Then I looked for ways to reduce the total segment count by identifying where segments always appear together and could be treated as one.
+That reduction required concessions in less common letterforms like W and Q. User testing confirmed those edge cases were legible enough for the contexts where they appeared.
+The testing had to match the room.
+The final candidates went to A/B testing using PCB prototypes manufactured by our supplier.
+Testing took place in a large room simulating hotel scale, roughly 15 to 20 feet of viewing distance, with participants who had no familiarity with the product.
+We varied lighting conditions, displayed random text, and measured both read accuracy and aesthetic preference across versions.
+The character set that came out of that process is the subject of a pending US patent. The novel claim sits at the intersection of segment geometry and the reduction method.
+Knowledge should not stay trapped in one product line.
+The wireless protocol developed for Verdant’s hardware found its way into Sensi’s room sensor architecture.
+Not because the products share an ecosystem, but because the problem was the same and the work already existed.
+Expertise built in one context is an asset everywhere the same problem shows up. The organizational cost of siloing it by product line is real.
+
+Mobile
+Overview
+The app has to outlive the launch.
+Two mobile products, two different problems.
+Sensi is a consumer app that has to earn its place on someone’s home screen for the life of their thermostat, across hardware generations, platform shifts, and a user base that spans first-time homeowners and HVAC professionals.
+WR Connect was a greenfield tool for a technical audience with no patience for friction and real consequences for getting the interaction wrong.
+Different users. Different constraints.
+The same obligation: make the interface do the work.
+Sensi
+Modernizing a mature app without breaking trust.
+By the time I took full ownership of the Sensi app, it had the kind of design you would expect from a product that moved fast: functional, but inconsistent.
+Custom controls where platform components would have worked. Patterns from 2017 that never got revisited. Ratings around 4.3 stars.
+Not bad enough to fix on its own.
+But not structured well enough to scale.
+The first phase was a ground-up redesign: cleaner thermostat control, a coherent dashboard, and consistent system states. Ratings climbed to 4.7 on iOS and 4.4 on Android.
+Shipping the redesign was tractable.
+Keeping it good over time is the harder problem.
+Platform migration is product strategy.
+The platform migrations to SwiftUI and Material Expressive were not cosmetic.
+Apple and Google ship OS updates that change system behaviors and visual defaults. Custom components do not inherit those updates. System components do.
+For an app supporting hardware going back to 2014, that debt compounds fast.
+The migration strategy is screen by screen, tied to real work. When a feature touches a screen, that screen gets migrated.
+Slower than a big-bang rewrite, but every migration is justified by something shipping.
+The app and the thermostat had to tell the same story.
+The legacy app used full-screen color to communicate HVAC mode: orange for heat, blue for cool, neutral for off.
+The intent was right. Mode state is important information, and making it ambient is a good instinct.
+The execution created three problems that could not be solved independently. Saturated full-bleed backgrounds broke contrast ratios for overlaid UI elements. There was no workable dark mode equivalent. And the thermostat display already used a better pattern: the temperature number changing color rather than the entire screen.
+The app and the device were telling two different stories about the same system state.
+Moving the color from the background to the temperature number closed all three at once.
+Contrast ratios became predictable. Dark mode worked without special casing. The app adopted the same visual language the hardware was already using.
+A user glancing at the thermostat and opening the app now sees the same information expressed the same way.
+Installation is not a normal onboarding flow.
+The installation flow is one of the highest-stakes experiences in the app.
+A homeowner misidentifying wires in the wire picker means the app infers the wrong equipment configuration. The consequences are not cosmetic.
+The legacy flow had two buttons at the bottom of every screen: Previous and Next.
+Modern iOS and Android both provide reliable back navigation at the top of the screen. Users expect it there. A second back button does not add safety. It adds visual weight, splits attention, and buries the primary action between two competing controls.
+Removing Previous made Continue the unambiguous primary action.
+The help link moved above Continue as a proper tappable target. The progress indicator moved into the navigation bar, showing install position without consuming screen real estate.
+App Store reviewers noticed without being prompted. One long-term user described the step-by-step guidance as “a little touch that made me fall in love with it.”
+That kind of response comes from the interface working with what users already know rather than against it.
+A content surface cannot feel like an ad.
+Sensi partners with utility companies on energy demand-response programs. Enroll and save during peak hours. Good programs. Low enrollment because there was no natural moment inside the app where users encountered them.
+There was also no clean way to surface new features without touching the thermostat card, the one screen users actually open the app for.
+Spotlight is a named, dedicated section on the home screen: partner offers, product news, savings opportunities, clearly separated from the thermostat controls.
+The content is not mine. Copy comes from Copeland’s marketing team in collaboration with energy partners. I do not control headline length, offer framing, or partner branding.
+The card has one shot to inform and motivate before handing off to a partner-owned enrollment flow. It cannot rely on what comes next.
+And it cannot feel like an ad.
+Sensi users trust the app as a neutral utility tool. A content surface that reads as promotional undercuts that directly.
+The decisions followed from that constraint: named section rather than injected content, explicit partner attribution, consistent CTA position, soft badge notification rather than push alert.
+App Store ratings held flat: 4.7 iOS, 4.4 Android.
+For a content surface added to a utility app, no regression is the win. Enrollment increased measurably. The integration path is reusable for future partners without redesign.
+Testing works differently at this scale.
+With a few million active users, the app has enough surface area to run structured experiments.
+A/B testing and ranked-choice validation inform decisions that would otherwise come down to opinion. The beta program uses filtered recruiting across OS version, hardware generation, control preference, and accessibility needs.
+The goal is feedback that reflects the actual user base, not just the most vocal segment.
+WR Connect
+The right protocol for the moment.
+WR Connect was a blank canvas.
+No legacy to inherit. No existing users to protect. No accumulated design debt.
+The problem was hard enough on its own.
+The audience: contractors configuring ignition control boards under time pressure, often in tight mechanical spaces, with equipment that cannot be powered on if the configuration is wrong.
+A bad interaction does not mean frustration.
+It means damaged components and a return visit the contractor does not get paid for.
+Traditional configuration runs through dip switches and cryptic 3-digit codes on the board itself, requiring the technician to be physically at the unit with documentation written for engineers.
+An incorrect setting can damage components before the system comes on for the first time.
+The installation state defined the interaction model.
+HVAC systems are off during installation.
+Any configuration method requiring a powered board was eliminated, which ruled out Bluetooth for initial setup and pointed directly to NFC.
+The flow itself is straightforward by design: the app presents a prominent Read button to pull the current configuration off the board, settings appear as a simple list to configure, and a Write button transfers the updated configuration back over NFC.
+No power required. No dip switches. No cryptic codes.
+The complexity that lived on the physical board moved into the app, where it could be managed correctly before anything touched hardware.
+Not every contractor needs the beginner path.
+For repeat jobs, the app supports saved profiles, both predefined by Copeland and user-created, so a contractor who does the same board type regularly can skip the Read entirely and write a known configuration directly.
+Experienced technicians who already know what settings need changing can also write directly without reading first.
+The app supports all three workflows without forcing anyone through the one designed for the least experienced user.
+One tool across configuration and diagnostics.
+The boards themselves cover a meaningful range of the market. Copeland produces replacement boards for most competitor models a contractor would encounter in the field, and WR Connect serves as the common configuration interface across all of them.
+One tool regardless of what is being replaced.
+Once the system powered on, Bluetooth opened a diagnostic channel. The same app that configured the board could now monitor it in real time: live fault codes, system status, operational data.
+One tool across two distinct phases of the technician’s workflow, with a different protocol suited to each.
+WR Connect received a Gold Dealer Design Award from ACHR News.
+More telling: the core functionality was absorbed into Copeland Mobile, a broader platform serving the full product portfolio.
+The standalone app did not survive.
+The work did.
+
+Web Apps
+Overview
+Software shows how it was built.
+Software built by separate teams over time tells the story of how it was built.
+Different visual languages, different interaction patterns, different component behaviors. Each one a reasonable decision made without visibility into what the rest of the portfolio was doing.
+Copeland’s web application portfolio was that story.
+Four products serving two distinct domains, built separately by internal teams optimizing for their own users.
+One design system built to unify them without breaking what was already working.
+Kelvin DS
+Modernizing without forcing disruption.
+Four products. Two domains.
+A user base that includes grocery operators, hotel managers, medical facility staff, and property managers, each with different stakes, different workflows, and different tolerance for change.
+Before any system work, I reviewed what was already in place: what each product was doing well, where the friction was, and what workflows users had already built their SOPs around.
+That last part mattered most.
+In a regulated environment, you cannot change an interface without understanding what processes depend on it.
+The design system had to account for what already existed, not replace it.
+That is what Kelvin is built around.
+The cost of inaction was hidden. The cost of change was obvious.
+Four products were built by separate internal teams over time, each solving their own users’ problems without coordination.
+Each worked well enough to keep running.
+That was also the problem.
+When software is generating revenue, the case for improving its UX consistently loses to the case for new capabilities. The cost of inaction is invisible. The cost of change is obvious, especially when users have regulatory SOPs that reference specific interface flows.
+Changing a screen in TempTrak is not just a UX decision. It can require documented retraining and SOP revision.
+So features got added through the path of least resistance, year over year.
+In TempTrak, that produced multiple ways to complete the same task, each one a remnant of a different team’s solution, preserved because removing any of them might break someone’s workflow.
+The interface accumulated complexity the way infrastructure does: each decision made local sense, and the aggregate made navigation unreasonable.
+Kelvin was the answer to that accumulation.
+Not a redesign.
+A shared language that lets four products evolve toward coherence without requiring any of them to stop working in the meantime.
+The resistance to change was rational.
+The stakes vary across the portfolio, but they are never low.
+TempTrak users are medical and pharmaceutical facility managers working under regulatory oversight. Temperature logs are compliance documents. Alarm acknowledgment is a documented procedure tied to SOPs that may reference specific UI flows.
+A changed interface does not just require retraining. It can invalidate documented processes that exist for regulatory reasons.
+The hardware integration compounds the risk. Temperature sensors, humidity sensors, and door sensors feed data into these systems continuously.
+A UI change that disrupts a monitoring workflow does not create confusion.
+It creates a gap in the chain for materials that cannot be compromised.
+This is why the “if it ain’t broke” culture was rational, not just resistant. The cost of being wrong was not a bad review.
+Any modernization strategy had to account for that reality, not work around it.
+Kelvin is a system for shared behavior, not visual sameness.
+Kelvin is named for Lord Kelvin, whose work on temperature measurement is foundational to the domains these products operate in.
+The system is built on a themed shadcn foundation with custom components developed for the interaction patterns that appear consistently across the portfolio: alarm management, schedule configuration, sensor and device status.
+The goal is not visual homogeneity.
+It is a shared language that makes each product feel like it belongs to the same family while serving its own context and user.
+Four things define what Kelvin is responsible for.
+Consistent visual language across all products, so a user moving between MTM and TempTrak feels oriented rather than lost.
+Shared interaction patterns for overlapping functionality, calibrated for the different stakes of each context.
+Production efficiency through component reuse, which reduces inconsistencies introduced by parallel implementation.
+Accessibility built in at the component level: dark mode, dynamic type, contrast compliance, rather than retrofitted after the fact.
+The rollout had to prove itself before asking users to change.
+The standard design system playbook — freeze features, migrate everything, relaunch — does not work when users have regulatory SOPs tied to specific UI flows.
+The risk is too high, and the organizational appetite for that kind of disruption does not exist.
+Kelvin rolls out through a parallel track: new, non-critical features built in Kelvin run alongside the existing interface. Users can try them, give feedback, and continue using what they know.
+No forced migration. No retraining before the new experience has proven itself.
+This generates something a big-bang approach cannot: cross-product validation.
+A component proven in MTM, a lower-stakes HVAC management context, informs how the same component gets calibrated for TempTrak’s higher-stakes environment.
+Shared patterns, validated at different risk levels, in sequence.
+Alignment needed artifacts before the system was finished.
+Speed to alignment was a real constraint.
+Stakeholders investing in design infrastructure need to see it working before it is finished. I used AI to produce component documentation and stakeholder-facing artifacts quickly enough that alignment happened while the work was still in progress.
+The speed mattered.
+But the judgment still came from the design work: what needed to exist, how it should behave, and where risk had to be managed.
+The signal changed from resistance to demand.
+The response has been clear.
+Users are not asking why things changed. They are asking for more, faster.
+Alarm acknowledgment, defrost cycle scheduling, sensor status management: tasks that previously required navigating overlapping legacy paths now have a direct route.
+The before and after is not a visual comparison.
+It is the difference between users who resisted change and users asking when the next piece ships.
+
+Everything in Between
+Overview
+The work between the work.
+The work in the other sections came from somewhere.
+This section is about the thinking underneath it: where it formed, what it holds, and where it shows up when there is no finished product to point to.
+A portable demo kit so the sales team could show live product without a power outlet.
+Self-serve export files so marketing and support could update screen content and pull screenshots without routing every request through a designer.
+Consulting with Trane’s internal design team on their premium touchscreen thermostat.
+Packaging system advocacy across Sensi and Verdant that is as much a manufacturing argument as a brand one.
+None of it has a clean UX rationale in the narrow sense.
+All of it comes from the same place: UX happens at every level of an organization.
+The screen is one touchpoint. So is the demo, the onboarding email, the install guide, the support answer, and the conversation between a sales rep and a customer.
+If something I can do makes the sales team more effective, gives a developer fewer obstacles, helps marketing explain the product, or makes support faster and clearer, that value eventually reaches the user.
+The scope of design work is as wide as you are willing to make it.
+Ideas
+Ideas before they have a home.
+Some design work starts before there is a roadmap slot, a formal project, or a team ready to build it.
+That work is easy to dismiss because it does not always arrive as a finished product. But it often creates the conditions for better product decisions later.
+A demo kit is not a screen, but it changes how sales can explain the product.
+A packaging system is not an app, but it changes how a product line is understood before the product is ever installed.
+A screenshot export tool is not a customer-facing feature, but it changes how marketing, support, and documentation teams stay current without slowing the product team down.
+These things matter because product experience is not limited to the moment of use.
+Products are sold, installed, supported, documented, updated, compared, misunderstood, and explained. Every one of those moments shapes what the product becomes in someone’s mind.
+I tend to notice those gaps.
+Then I look for the smallest artifact that can make the system work better.
+Sometimes that is a prototype. Sometimes it is documentation. Sometimes it is a naming system, a diagram, a sales tool, a packaging direction, or a rough concept that gives people something concrete enough to react to.
+The point is not to make everything bigger.
+The point is to make the right thing visible early enough that the organization can act on it.
+Formation
+Brand, product, and the instinct to make things coherent.
+I came up through brand design: identity, packaging, and print.
+Work where the canvas is fixed, every decision has to earn its place, and the artifact ships with no ability to patch it afterward.
+That instinct carried into product design intact. It just found new constraints to work inside: hardware tolerances, firmware limitations, regulatory requirements, OEM relationships, installation workflows, and platform debt.
+I still take on brand work. The boundary between the two disciplines has always felt artificial to me.
+Brand is how people experience a product before they use it. UX is how they experience it while they do. They are both about the same thing: the feeling a product leaves with someone.
+Treating them as separate concerns with separate owners is where products start to feel incoherent.
+That combination keeps proving useful in places I did not expect.
+The segment character set I designed from scratch for Verdant is as much a typography problem as a UI problem.
+The packaging system I am advocating for across Sensi and Verdant is a brand coherence argument that also happens to be a manufacturing efficiency argument.
+The patents came from asking what the product should communicate when the hardware cannot behave normally, which is a brand question applied to a firmware problem.
+The answers do not always look like design work from the outside.
+They come from the same place.
+Practice
+Design is wider than the screen.
+Great design lives at the intersection of form and function.
+That is not a controversial position, but what it means in practice is broader than it might seem.
+Form and function do not stop at the screen.
+The contractor installing the thermostat, the developer building the feature, the sales rep demoing the product, the marketing team figuring out how to talk about it, the support team answering the call: they are all having an experience of what was designed.
+If those experiences are not considered, the design is not finished.
+A product users love but sales cannot explain is leaving value on the table.
+A feature that tests well but developers dread building is not done.
+A workflow that works in the app but fails during installation is not a good experience.
+All of those touchpoints feed back into what the product becomes.
+This is why I do not draw a hard line between UX and brand. A label on a package and a push notification on a phone are both moments where the product meets a person.
+The discipline is the same: understand the moment, understand the person, and make the interaction clear and honest.
+The surface changes.
+The obligation does not.
+AI compresses the distance between decision and artifact.
+I use AI to move faster between decision and artifact: building working prototypes from Figma, assembling documentation, exploring interface behavior, and creating stakeholder-facing material without the usual lag between design completion and communication.
+The speed matters when alignment needs to happen before a decision is made rather than after.
+What AI does not replace is judgment.
+It does not decide what is worth building. It does not understand which constraint matters most. It does not know when a familiar workflow carries regulatory risk, when a contractor will reject an interaction, or when a product surface is about to become too crowded to scale.
+That part does not compress.
+That is the work.
+
+Appendix: Chapter Layout Pattern
+Use this as the repeatable content pattern for each chapter page on the site.
+Hero thesis: product name, short editorial line, 2-3 sentence setup, one strong artifact.
+Constraint block: the few facts that make the product hard.
+Decision stack: 2-4 important decisions, each with a short narrative section.
+Evidence strip: patents, testing results, ratings, awards, adoption signals, contractor response.
+Artifacts: images with captions that explain the decision, not just what the image shows.
+Closing line: the principle or lesson that carried forward.
+Best rule for the whole portfolio: every chapter should answer, “What did this product force me to understand that a normal portfolio case study would miss?”
