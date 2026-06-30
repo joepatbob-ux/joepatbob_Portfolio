@@ -474,7 +474,7 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
             <Suspense
               fallback={
                 <Html center>
-                  <StageSpinner label="Loading phones…" />
+                  <StageSpinner label="Loading phones…" size="lg" />
                 </Html>
               }
             >
@@ -512,7 +512,7 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
         </Canvas>
         ) : (
           <div className="phone-swap__viewbox-placeholder">
-            <StageSpinner label="Loading 3D preview…" />
+            <StageSpinner label="Loading 3D preview…" size="lg" />
           </div>
         )}
       </div>

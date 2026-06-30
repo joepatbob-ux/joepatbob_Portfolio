@@ -14,13 +14,12 @@ import {
 import { useHydrated } from '@/lib/hooks/useHydrated'
 import { useChapterStageReady } from '@/lib/chapterStageMountContext'
 import { MOBILE_SENSI, mobileChapterId } from '@/lib/mobile/content'
+import { StageLoadingFallback } from '@/components/stage/StageSpinner'
 
 const PhoneSwap = dynamic(
   () => import('@/components/PhoneSwap').then((m) => ({ default: m.PhoneSwap })),
   {
-    loading: () => (
-      <p className="phone-swap__fallback">Loading 3D preview…</p>
-    ),
+    loading: () => <StageLoadingFallback label="Loading 3D preview…" />,
   },
 )
 

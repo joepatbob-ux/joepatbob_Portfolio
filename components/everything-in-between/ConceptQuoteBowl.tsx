@@ -146,7 +146,7 @@ export function ConceptQuoteBowl({ answers, chapterId }: Props) {
 
         <ErrorBoundary label="Bowl" onError={() => setSceneReady(true)}>
           {showLoading ? (
-            <StageLoadingOverlay label="Loading bowl…" />
+            <StageLoadingOverlay label="Loading bowl…" size="lg" />
           ) : null}
 
           {showCanvas ? (
