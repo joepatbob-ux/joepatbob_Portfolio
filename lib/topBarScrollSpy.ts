@@ -1,3 +1,4 @@
+import { applyPlacedStickerScrollVisibility } from '@/lib/applyChapterPanelScrollStyles'
 import { CHAPTER_SLOT_SELECTOR } from '@/lib/chapterSlideshow'
 import { isTopBarInHeroScrollZone } from '@/lib/heroScroll'
 import {
@@ -24,6 +25,7 @@ export function bindTopBarScrollSpy(
   const publish = () => {
     const state = measureSlideScrollState(getPhase(), getLockId())
     publishSlideScrollState(state)
+    applyPlacedStickerScrollVisibility(state.revealMap, state.activeSlideId)
     lastInHero = state.inHero
     lastActiveId = state.activeSlideId
     onUpdate(state)

@@ -2,29 +2,34 @@
 
 import { useChapterNav } from '@/components/ChapterNavProvider'
 import { useStickers } from '@/components/StickerProvider'
+import { usePublishedActiveSlideId } from '@/lib/hooks/useChapterReveal'
 import { useLayoutTopBarNav } from '@/lib/hooks/useLayoutTopBarNav'
-import { activeSlideIdPublished } from '@/lib/chapterSlideshow'
 import { isContinuousChapters } from '@/lib/continuousChapters'
 import { useEffect } from 'react'
 
 /** Set down selected stickers when the viewport chapter changes. */
 export function useStickerActiveChapterSync(): void {
-  const { activeSlideId } = useChapterNav()
+  const { activeSlideId, phase } = useChapterNav()
   const topBarNav = useLayoutTopBarNav()
   const inFlowScroll = topBarNav || isContinuousChapters()
+  const publishedActiveSlideId = usePublishedActiveSlideId()
   const { selectedInstanceId, placed, selectSticker } = useStickers()
 
-  const effectiveActiveSlideId = inFlowScroll
-    ? (activeSlideId ?? activeSlideIdPublished())
-    : activeSlideId
+  const effectiveActiveSlideId =
+    inFlowScroll && phase === 'idle'
+      ? publishedActiveSlideId
+      : activeSlideId
 
   useEffect(() => {
-    if (!selectedInstanceId || !effectiveActiveSlideId) return
+    if (!selectedInstanceId) return
 
     const sticker = placed.find((s) => s.instanceId === selectedInstanceId)
     if (!sticker?.chapterId) return
 
-    if (effectiveActiveSlideId !== sticker.chapterId) {
+    if (
+      !effectiveActiveSlideId ||
+      effectiveActiveSlideId !== sticker.chapterId
+    ) {
       selectSticker(null)
     }
   }, [
