@@ -25,7 +25,7 @@ export function bindTopBarScrollSpy(
   const publish = () => {
     const state = measureSlideScrollState(getPhase(), getLockId())
     publishSlideScrollState(state)
-    applyPlacedStickerScrollVisibility(state.revealMap, state.activeSlideId)
+    applyPlacedStickerScrollVisibility(state.revealMap, state.activeSlideId, state.inHero)
     lastInHero = state.inHero
     lastActiveId = state.activeSlideId
     onUpdate(state)

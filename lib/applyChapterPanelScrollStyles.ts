@@ -120,6 +120,7 @@ export function applyChapterPanelScrollStyles(
 export function applyPlacedStickerScrollVisibility(
   revealMap: Record<string, number>,
   activeSlideId: string | null,
+  inHero = false,
 ): void {
   const topBarNav = isTopBarNavViewport() || isContinuousChapters()
 
@@ -132,7 +133,7 @@ export function applyPlacedStickerScrollVisibility(
 
     let visible: boolean
     if (topBarNav) {
-      visible = activeSlideId === chapterId
+      visible = !inHero && activeSlideId === chapterId
     } else {
       const reveal = revealMap[chapterId] ?? 0
       visible = reveal > CHAPTER_STICKER_SCROLL_VISIBILITY

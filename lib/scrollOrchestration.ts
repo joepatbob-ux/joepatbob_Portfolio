@@ -5,6 +5,7 @@ import {
   pickActiveSlideId,
   pickActiveSlideIdForTopBarNav,
   publishActiveSlideId,
+  publishInHero,
   publishChapterScrollMaps,
 } from '@/lib/chapterSlideshow'
 import { FLOW_CHAPTER_SLOT_SELECTOR } from '@/lib/chapterFlow'
@@ -142,4 +143,5 @@ export function publishSlideScrollState(state: SlideScrollState): void {
     publishChapterScrollMaps(state.revealMap, state.revealMap)
   }
   publishActiveSlideId(state.activeSlideId)
+  publishInHero(state.inHero)
 }

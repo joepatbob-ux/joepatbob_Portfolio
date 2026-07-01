@@ -97,7 +97,7 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
         if (!busyRef.current) {
           let best = state.activeSlideId
           const guard = navGuardRef.current
-          if (guard && performance.now() < guard.until) {
+          if (guard && performance.now() < guard.until && !state.inHero) {
             const slot = document.querySelector<HTMLElement>(
               `.portfolio-chapter-slot[data-chapter-id="${CSS.escape(guard.chapterId)}"]`,
             )
@@ -136,7 +136,7 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
       if (!busyRef.current) {
         let best = state.activeSlideId
         const guard = navGuardRef.current
-        if (guard && performance.now() < guard.until) {
+        if (guard && performance.now() < guard.until && !state.inHero) {
           const slot = document.querySelector<HTMLElement>(
             `.portfolio-chapter-slot[data-chapter-id="${CSS.escape(guard.chapterId)}"]`,
           )
