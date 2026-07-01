@@ -164,6 +164,20 @@ async function main() {
         )
       })
 
+      console.log('[prerender] Scrolling back to hero for snapshot…')
+      await page.evaluate(async () => {
+        window.scrollTo(0, 0)
+        await new Promise((resolve) => {
+          requestAnimationFrame(() => requestAnimationFrame(resolve))
+        })
+        document
+          .querySelectorAll(
+            '.sticker-pile-portal, .sticker-layer, .sticker-layer__drag',
+          )
+          .forEach((node) => node.remove())
+      })
+      await page.waitForFunction(() => window.scrollY <= 4, { timeout: 10_000 })
+
       const html = await page.content()
       const outPath = path.join(root, 'dist/index.html')
       writeFileSync(outPath, html, 'utf8')

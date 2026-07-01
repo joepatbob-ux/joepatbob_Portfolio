@@ -5,6 +5,7 @@ import { isContinuousChapters } from '@/lib/continuousChapters'
 import {
   activeSlideIdPublished,
   chapterRevealForId,
+  inHeroPublished,
   subscribeChapterScrollState,
 } from '@/lib/chapterSlideshow'
 import { useSyncExternalStore } from 'react'
@@ -35,5 +36,14 @@ export function usePublishedActiveSlideId(): string | null {
     subscribeChapterScrollState,
     activeSlideIdPublished,
     () => null,
+  )
+}
+
+/** True while the hero portrait zone is active (stickers should stay hidden). */
+export function usePublishedInHero(): boolean {
+  return useSyncExternalStore(
+    subscribeChapterScrollState,
+    inHeroPublished,
+    () => false,
   )
 }

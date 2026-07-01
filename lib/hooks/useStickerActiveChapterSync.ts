@@ -2,7 +2,7 @@
 
 import { useChapterNav } from '@/components/ChapterNavProvider'
 import { useStickers } from '@/components/StickerProvider'
-import { usePublishedActiveSlideId } from '@/lib/hooks/useChapterReveal'
+import { usePublishedActiveSlideId, usePublishedInHero } from '@/lib/hooks/useChapterReveal'
 import { useLayoutTopBarNav } from '@/lib/hooks/useLayoutTopBarNav'
 import { isContinuousChapters } from '@/lib/continuousChapters'
 import { useEffect } from 'react'
@@ -13,6 +13,7 @@ export function useStickerActiveChapterSync(): void {
   const topBarNav = useLayoutTopBarNav()
   const inFlowScroll = topBarNav || isContinuousChapters()
   const publishedActiveSlideId = usePublishedActiveSlideId()
+  const inHero = usePublishedInHero()
   const { selectedInstanceId, placed, selectSticker } = useStickers()
 
   const effectiveActiveSlideId =
@@ -27,6 +28,7 @@ export function useStickerActiveChapterSync(): void {
     if (!sticker?.chapterId) return
 
     if (
+      inHero ||
       !effectiveActiveSlideId ||
       effectiveActiveSlideId !== sticker.chapterId
     ) {
@@ -34,6 +36,7 @@ export function useStickerActiveChapterSync(): void {
     }
   }, [
     effectiveActiveSlideId,
+    inHero,
     placed,
     selectSticker,
     selectedInstanceId,

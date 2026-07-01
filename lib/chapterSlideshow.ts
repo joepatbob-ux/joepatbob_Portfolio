@@ -11,6 +11,7 @@ export const CHAPTER_SLOT_SELECTOR = '.portfolio-chapter-slot[data-chapter-id]'
 let publishedRevealMap: Record<string, number> = {}
 let publishedStageRevealMap: Record<string, number> = {}
 let publishedActiveSlideId: string | null = null
+let publishedInHero = false
 
 type ChapterScrollListener = () => void
 const chapterScrollListeners = new Set<ChapterScrollListener>()
@@ -62,8 +63,17 @@ export function publishActiveSlideId(id: string | null): void {
   notifyChapterScrollState()
 }
 
+export function publishInHero(inHero: boolean): void {
+  publishedInHero = inHero
+  notifyChapterScrollState()
+}
+
 export function activeSlideIdPublished(): string | null {
   return publishedActiveSlideId
+}
+
+export function inHeroPublished(): boolean {
+  return publishedInHero
 }
 
 export function chapterRevealForId(chapterId: string): number {

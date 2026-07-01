@@ -14,6 +14,7 @@ import { isContinuousChapters } from '@/lib/continuousChapters'
 import { pileStackOffset, randomPileRotation } from '@/lib/stickers'
 import { scheduleScrollFrame } from '@/lib/scrollFrame'
 import { useAnchorPortalFollow } from '@/lib/useAnchorPortalFollow'
+import { isPrerenderSnapshot } from '@/lib/isPrerenderSnapshot'
 
 const PRACTICE_CHAPTER_ID = eibChapterId('practice')
 
@@ -32,6 +33,9 @@ export function StickerPile() {
 
   useEffect(() => {
     setMounted(true)
+    document
+      .querySelectorAll<HTMLElement>('body > .sticker-pile-portal:not([data-sticker-managed])')
+      .forEach((node) => node.remove())
   }, [])
 
   useEffect(() => {
@@ -92,7 +96,7 @@ export function StickerPile() {
   const usePortal = !topBarNav
   const portalRef = useAnchorPortalFollow(
     anchorRef,
-    mounted && pileVisible && usePortal,
+    mounted && pileVisible && usePortal && !isPrerenderSnapshot(),
   )
 
   deck.forEach((asset) => {
@@ -169,9 +173,11 @@ export function StickerPile() {
     usePortal &&
     mounted &&
     pileVisible &&
+    !isPrerenderSnapshot() &&
     createPortal(
       <div
         ref={portalRef}
+        data-sticker-managed=""
         className={[
           'sticker-pile-portal',
           draggingTop ? 'sticker-pile-portal--pile-drag' : '',

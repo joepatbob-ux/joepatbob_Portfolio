@@ -13,7 +13,7 @@ import {
 } from '@/lib/stickerPickBounds'
 import { isContinuousChapters } from '@/lib/continuousChapters'
 import { CHAPTER_STICKER_SCROLL_VISIBILITY } from '@/lib/chapterVisibility'
-import { useChapterReveal, usePublishedActiveSlideId } from '@/lib/hooks/useChapterReveal'
+import { useChapterReveal, usePublishedActiveSlideId, usePublishedInHero } from '@/lib/hooks/useChapterReveal'
 import { useLayoutTopBarNav } from '@/lib/hooks/useLayoutTopBarNav'
 import {
   pointerAngleDeg,
@@ -65,6 +65,7 @@ export function PlacedStickerControl({ sticker }: Props) {
   const topBarNav = useLayoutTopBarNav()
   const inFlowScroll = topBarNav || isContinuousChapters()
   const publishedActiveSlideId = usePublishedActiveSlideId()
+  const inHero = usePublishedInHero()
   const effectiveActiveSlideId =
     inFlowScroll && phase === 'idle'
       ? publishedActiveSlideId
@@ -73,6 +74,7 @@ export function PlacedStickerControl({ sticker }: Props) {
   const reveal = useChapterReveal(sticker.chapterId ?? '')
   const chapterInView = Boolean(
     sticker.chapterId &&
+      !inHero &&
       (inFlowScroll
         ? effectiveActiveSlideId === sticker.chapterId
         : reveal > CHAPTER_STICKER_SCROLL_VISIBILITY),

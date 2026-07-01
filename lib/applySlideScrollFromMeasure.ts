@@ -26,6 +26,7 @@ function applyNavGuard(
 ): SlideScrollState {
   if (lockedSlideId) return state
   if (!navGuard || performance.now() >= navGuard.until) return state
+  if (state.inHero) return state
 
   // Keep destination visible after programmatic nav — snap may still be settling.
   return {
@@ -67,7 +68,7 @@ export function applySlideScrollFromMeasure(
   ) {
     applyChapterPanelScrollStyles(state.revealMap, state.activeSlideId)
   }
-  applyPlacedStickerScrollVisibility(state.revealMap, state.activeSlideId)
+  applyPlacedStickerScrollVisibility(state.revealMap, state.activeSlideId, state.inHero)
 
   return state
 }
