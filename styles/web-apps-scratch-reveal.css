@@ -11,6 +11,14 @@
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
+/* Desktop continuous scroll: keep the ticket in the shared artifact size
+   band (card + tray ≈ 55dvh) instead of filling the column. */
+@media (min-width: 1024px) {
+  html.continuous-chapters .kelvin-scratch {
+    --scratch-card-max: 380px;
+  }
+}
+
 .web-apps-scratch__stage {
   position: relative;
   display: flex;

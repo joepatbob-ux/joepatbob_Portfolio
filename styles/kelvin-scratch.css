@@ -21,10 +21,11 @@
   /* Absolute cap — avoid min(100%, …) under fit-content stage align (continuous scroll). */
   --scratch-ticket-w-max: clamp(
     var(--cs-stage-min, 220px),
-    34vw,
+    28vw,
     var(--cs-stage-max, 560px)
   );
-  --scratch-ticket-h-max: min(52dvh, 620px, calc(100dvh - 11rem));
+  /* Shared artifact band: ticket + tray together land near ~55dvh. */
+  --scratch-ticket-h-max: min(40dvh, 480px, calc(100dvh - 12rem));
 
   margin: 0 0 28px;
   padding: 0;

@@ -170,10 +170,13 @@
     --cs-stage-col: minmax(0, 1fr);
     --cs-copy-col: minmax(0, 2fr);
     --cs-band-max: var(--cs-content-pane-max);
-    --cs-verdant-glyph-max-h: min(50dvh, 440px);
+    /* Artifact size band: every stage lands near the Touch 2 reference
+       (~45-55dvh tall). Tall artifacts cap height; wide ones cap width. */
+    --cs-verdant-glyph-max-h: min(30dvh, 280px);
     --cs-verdant-max-w: min(100%, var(--cs-stage-gallery-w));
     --cs-eim-stage-max-w: var(--cs-stage-gallery-w);
-    --cs-sensi-lite-stage-max-w: var(--cs-stage-gallery-w);
+    --cs-sensi-lite-stage-max-w: min(100%, 380px);
+    --cs-phone-viewbox-max-w: min(var(--cs-stage-max), 400px);
   }
 }
 
