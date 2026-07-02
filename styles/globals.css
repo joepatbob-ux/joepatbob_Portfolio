@@ -963,19 +963,23 @@
 
 @media (min-width: 1680px) {
   .sticker-pile {
-    --pile-scatter: 1.5;
+    --pile-scatter: 1.7;
   }
 }
 
 @media (min-width: 2000px) {
   .sticker-pile {
-    --pile-scatter: 2;
+    --pile-scatter: 2.4;
   }
 }
 
+/* Cinema: the whole pile scales toward the other artifact sizes (~600px)
+   in addition to the wider scatter. */
 @media (min-width: 2560px) {
   .sticker-pile {
-    --pile-scatter: 2.6;
+    --pile-scatter: 2.8;
+    transform: scale(1.35);
+    transform-origin: center;
   }
 }
 

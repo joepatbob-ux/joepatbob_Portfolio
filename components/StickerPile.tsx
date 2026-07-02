@@ -11,7 +11,7 @@ import { eibChapterId } from '@/lib/everything-in-between/content'
 import { activeSlideIdPublished, chapterRevealForId } from '@/lib/chapterSlideshow'
 import { CHAPTER_STAGE_PAINT_VISIBILITY } from '@/lib/chapterVisibility'
 import { isContinuousChapters } from '@/lib/continuousChapters'
-import { pileStackOffset, randomPileRotation } from '@/lib/stickers'
+import { pileRotationForId, pileScatterOffsetForId } from '@/lib/stickers'
 import { scheduleScrollFrame } from '@/lib/scrollFrame'
 import { useAnchorPortalFollow } from '@/lib/useAnchorPortalFollow'
 import { isPrerenderSnapshot } from '@/lib/isPrerenderSnapshot'
@@ -25,7 +25,6 @@ export function StickerPile() {
   const topBarNav = useLayoutTopBarNav()
   const inFlowScroll = topBarNav || isContinuousChapters()
   const { activeSlideId } = useChapterNav()
-  const rotationsRef = useRef<Map<string, number>>(new Map())
   const anchorRef = useRef<HTMLDivElement>(null)
   const pileVisibleRef = useRef(false)
   const [mounted, setMounted] = useState(false)
@@ -37,10 +36,6 @@ export function StickerPile() {
       .querySelectorAll<HTMLElement>('body > .sticker-pile-portal:not([data-sticker-managed])')
       .forEach((node) => node.remove())
   }, [])
-
-  useEffect(() => {
-    rotationsRef.current.clear()
-  }, [layoutMobile])
 
   useEffect(() => {
     const sync = () => {
@@ -62,13 +57,7 @@ export function StickerPile() {
   }, [inFlowScroll, activeSlideId])
 
   const rotationFor = useCallback(
-    (id: string) => {
-      const cached = rotationsRef.current.get(id)
-      if (cached !== undefined) return cached
-      const rotation = randomPileRotation(layoutMobile)
-      rotationsRef.current.set(id, rotation)
-      return rotation
-    },
+    (id: string) => pileRotationForId(id, layoutMobile),
     [layoutMobile],
   )
 
@@ -99,10 +88,6 @@ export function StickerPile() {
     mounted && pileVisible && usePortal && !isPrerenderSnapshot(),
   )
 
-  deck.forEach((asset) => {
-    rotationFor(asset.id)
-  })
-
   const pileStack = (
     <div
       className="sticker-pile"
@@ -118,7 +103,7 @@ export function StickerPile() {
           {[...deck].reverse().map((asset, reverseIndex) => {
             const indexFromTop = deck.length - 1 - reverseIndex
             const isTopCard = asset.id === topAsset?.id
-            const layout = pileStackOffset(indexFromTop, deck.length, layoutMobile)
+            const layout = pileScatterOffsetForId(asset.id, layoutMobile)
             const rotation = rotationFor(asset.id)
 
             const cardClass = [
