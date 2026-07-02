@@ -12,8 +12,6 @@ const STAGE_PIN_REVEAL = CHAPTER_STAGE_PAINT_VISIBILITY
 const PIN_HYSTERESIS = 0.12
 const STAGE_INTERACTIVE_OPACITY = 0.38
 const STAGE_CLEAR_THRESHOLD = 0.004
-const CENTER_ENTER_BLEND_VH = 0.22
-const CENTER_ENTER_BLEND_MIN_PX = 120
 const STAGE_EXIT_TRAVEL_PX = 140
 const ALIGN_HEIGHT_MIN_PX = 48
 
@@ -112,11 +110,6 @@ function artifactHeight(align: HTMLElement): number {
  * Pure geometry helpers — operate on measured numbers, never touch the DOM.
  * ------------------------------------------------------------------------- */
 
-function prefersReducedMotion(): boolean {
-  if (typeof window === 'undefined') return false
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches
-}
-
 function easeOutQuart(t: number): number {
   const x = Math.max(0, Math.min(1, t))
   return 1 - Math.pow(1 - x, 4)
@@ -135,33 +128,6 @@ function translateToStickTop(
   stickTop: number,
 ): number {
   return appliedY + (stickTop - visualTop)
-}
-
-function enterBlendTranslateY(
-  centerY: number,
-  stickTop: number,
-  layoutTop: number,
-  contentTop: number,
-  enterBlendPx: number,
-): number {
-  const centerPullLine = stickTop + enterBlendPx
-
-  if (contentTop <= centerPullLine) {
-    return centerY
-  }
-
-  const copyTrackLine = centerPullLine + enterBlendPx
-  const copyTrackY = contentTop - layoutTop
-  if (contentTop >= copyTrackLine) {
-    return copyTrackY
-  }
-
-  const t = (contentTop - centerPullLine) / enterBlendPx
-  return centerY + t * (copyTrackY - centerY)
-}
-
-function shouldHoldCenter(contentTop: number, stickTop: number, enterBlendPx: number): boolean {
-  return contentTop <= stickTop + enterBlendPx
 }
 
 /** Opacity tracks reveal linearly — pow curves linger then snap on fast exit. */
@@ -311,9 +277,7 @@ type StageMeasure = {
   stickTop: number
   visualTop: number
   appliedY: number
-  layoutTop: number
   contentTop: number
-  stageTop: number
   latchedY: number | null
   headlinePair: boolean
 }
@@ -405,54 +369,29 @@ function measureStage(
     stageVisibleLatch.add(chapterId)
   }
 
-  const base: Omit<
-    StageMeasure,
-    | 'action'
-    | 'artifactH'
-    | 'stickTop'
-    | 'visualTop'
-    | 'appliedY'
-    | 'layoutTop'
-    | 'contentTop'
-    | 'stageTop'
-    | 'latchedY'
-    | 'headlinePair'
-  > = { entry, stageOpacity, isPin }
+  const cleared: Omit<StageMeasure, 'action'> = {
+    entry,
+    stageOpacity,
+    isPin,
+    artifactH: 0,
+    stickTop: 0,
+    visualTop: 0,
+    appliedY: 0,
+    contentTop: 0,
+    latchedY: null,
+    headlinePair: false,
+  }
 
   if (!painted) {
     if (!stageVisibleLatch.has(chapterId) && stageReveal < STAGE_PIN_REVEAL) {
-      return {
-        ...base,
-        action: 'clear-if-unlatched',
-        artifactH: 0,
-        stickTop: 0,
-        visualTop: 0,
-        appliedY: 0,
-        layoutTop: 0,
-        contentTop: 0,
-        stageTop: 0,
-        latchedY: null,
-        headlinePair: false,
-      }
+      return { ...cleared, action: 'clear-if-unlatched' }
     }
     if (
       stageReveal <= STAGE_CLEAR_THRESHOLD ||
       stageOpacity <= 0 ||
       copyReveal < CHAPTER_INTERACTIVE_VISIBILITY
     ) {
-      return {
-        ...base,
-        action: 'clear',
-        artifactH: 0,
-        stickTop: 0,
-        visualTop: 0,
-        appliedY: 0,
-        layoutTop: 0,
-        contentTop: 0,
-        stageTop: 0,
-        latchedY: null,
-        headlinePair: false,
-      }
+      return { ...cleared, action: 'clear' }
     }
   }
 
@@ -461,29 +400,24 @@ function measureStage(
   const artifactH = artifactHeight(align)
   const visualTop = align.getBoundingClientRect().top
   const contentTop = copyContentAnchor(copy).getBoundingClientRect().top
-  const stageTop = stage.getBoundingClientRect().top
   const latchedRaw = align.dataset.stageAlignLatchY
 
   return {
-    ...base,
+    entry,
+    stageOpacity,
+    isPin,
     action: 'apply',
     artifactH,
     stickTop: viewportCenterTop(vh, artifactH),
     visualTop,
     appliedY,
-    layoutTop: visualTop - appliedY,
     contentTop,
-    stageTop,
     latchedY: latchedRaw != null ? Number(latchedRaw) : null,
     headlinePair: prefersHeadlinePairAlign(align),
   }
 }
 
-function writeStage(
-  m: StageMeasure,
-  reducedMotion: boolean,
-  enterBlendPx: number,
-): void {
+function writeStage(m: StageMeasure): void {
   const { stage, align, chapterId, stageReveal } = m.entry
   if (!chapterId || !align) return
 
@@ -527,55 +461,42 @@ function writeStage(
   }
 
   const exitY = exitTranslateY(stageReveal)
-  const stickyEngaged = m.stageTop <= safeAreaInsets().top + 4
-  const centerHeld = stage.dataset.stageCenterHeld === 'true'
   const exitActive = exitY !== 0
-  const centerY = translateToStickTop(m.appliedY, m.visualTop, m.stickTop)
 
   let phase: AlignPhase
-  let translateY: number
+  let translateY: number | null
 
-  if (exitActive) {
-    phase = 'exit'
-    delete stage.dataset.stageCenterHeld
-    delete align.dataset.stageAlignLatchY
-    clearCssViewportCenter(stage)
-    translateY = centerY + exitY
-  } else if (
-    reducedMotion ||
-    centerHeld ||
-    stickyEngaged ||
-    shouldHoldCenter(m.contentTop, m.stickTop, enterBlendPx)
-  ) {
-    phase = 'center'
-    stage.dataset.stageCenterHeld = 'true'
-
-    if (m.headlinePair) {
-      clearCssViewportCenter(stage)
-      if (m.latchedY != null) {
-        translateY = m.latchedY
-      } else {
-        translateY = translateToStickTop(m.appliedY, m.visualTop, m.contentTop)
-        align.dataset.stageAlignLatchY = String(quant(translateY))
-      }
+  if (m.headlinePair) {
+    // Formation LEGO pairs with the copy headline via a latched transform —
+    // it never uses the viewport-center sticky.
+    if (exitActive) {
+      phase = 'exit'
+      delete align.dataset.stageAlignLatchY
+      translateY =
+        translateToStickTop(m.appliedY, m.visualTop, m.stickTop) + exitY
+    } else if (m.latchedY != null) {
+      phase = 'center'
+      translateY = m.latchedY
     } else {
-      applyCssViewportCenter(stage, align, m.artifactH)
-      translateY = 0
+      phase = 'center'
+      translateY = translateToStickTop(m.appliedY, m.visualTop, m.contentTop)
+      align.dataset.stageAlignLatchY = String(quant(translateY))
     }
   } else {
-    phase = 'enter'
-    delete stage.dataset.stageCenterHeld
-    delete align.dataset.stageAlignLatchY
-    clearCssViewportCenter(stage)
-    translateY = m.headlinePair
-      ? translateToStickTop(m.appliedY, m.visualTop, m.contentTop)
-      : enterBlendTranslateY(
-          centerY,
-          m.stickTop,
-          m.layoutTop,
-          m.contentTop,
-          enterBlendPx,
-        )
+    // Sticky is the only centering mechanism: the artifact rides in flow at
+    // scroll speed and position:sticky catches it at the viewport center.
+    // No JS position interpolation — interpolating between copy-track and
+    // center moved the artifact faster than the scroll and snapped at the
+    // handoff (the "jump on scroll-in").
+    applyCssViewportCenter(stage, align, m.artifactH)
+    if (exitActive) {
+      phase = 'exit'
+      translateY = exitY
+    } else {
+      // Stuck once the flow position reaches the center line.
+      phase = m.visualTop <= m.stickTop + 1 ? 'center' : 'enter'
+      translateY = null
+    }
   }
 
   if (exitY < 0) {
@@ -587,7 +508,7 @@ function writeStage(
   }
 
   setPhase(stage, align, phase)
-  if (phase === 'center' && stage.dataset.stageCentered === 'true') {
+  if (translateY == null) {
     clearArtifactTransform(align)
   } else {
     applyArtifactTransform(align, translateY)
@@ -610,12 +531,6 @@ export function applyContinuousStageAlign(
 
   const vh = window.innerHeight
   if (vh <= 0) return
-
-  const reducedMotion = prefersReducedMotion()
-  const enterBlendPx = Math.max(
-    CENTER_ENTER_BLEND_MIN_PX,
-    Math.round(vh * CENTER_ENTER_BLEND_VH),
-  )
 
   const entries = collectStageEntries(stageRevealMap, copyRevealMap)
   const previousPinId = committedPinId
@@ -645,6 +560,6 @@ export function applyContinuousStageAlign(
 
   // Write pass — style/dataset writes only; no reads that force layout.
   for (const measure of measures) {
-    writeStage(measure, reducedMotion, enterBlendPx)
+    writeStage(measure)
   }
 }

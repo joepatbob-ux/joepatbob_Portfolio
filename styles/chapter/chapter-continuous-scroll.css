@@ -163,12 +163,8 @@
     /* opacity driven inline from scroll reveal */
   }
 
-  /* Layer promotion only while the artifact actually moves (enter/exit) —
+  /* Layer promotion only while the artifact actually transforms (exit) —
      a permanent will-change pins GPU memory for every visible stage. */
-  html.continuous-chapters
-    .portfolio-chapter-slot--fill.hardware-slideshow
-    .chapter-slide__stage[data-stage-pinned='true']
-    > [data-chapter-stage-align][data-stage-phase='enter'],
   html.continuous-chapters
     .portfolio-chapter-slot--fill.hardware-slideshow
     .chapter-slide__stage[data-stage-pinned='true']
@@ -198,15 +194,14 @@
     .chapter-slide__stage[data-stage-pinned='true'][data-stage-centered='true']
     > [data-chapter-stage-align] {
     position: sticky;
-    /* Must equal the JS enter-blend target (viewportCenterTop in
-       applyContinuousStageAlign) or the transform→sticky handoff snaps. */
+    /* The sole centering mechanism: the artifact rides in flow and sticks
+       here. Keep in sync with viewportCenterTop in applyContinuousStageAlign.
+       No transform override — the exit translate composes with sticky. */
     top: calc(
       var(--safe-area-top, 0px) +
         (100dvh - var(--safe-area-top, 0px) - var(--safe-area-bottom, 0px)) / 2 -
         var(--stage-artifact-half, 0px)
     );
-    transform: none !important;
-    will-change: auto;
   }
 
   html.continuous-chapters
