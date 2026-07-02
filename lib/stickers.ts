@@ -50,11 +50,11 @@ export const STICKER_ASSETS: StickerAsset[] = [
   }
 })
 
-export const STICKER_SIZE_PILE = 184
-export const STICKER_SIZE_PLACED = 216
-export const STICKER_SIZE_PILE_MOBILE = 128
-export const STICKER_SIZE_PLACED_MOBILE = 160
-export const STICKER_PILE_PAD = 48
+export const STICKER_SIZE_PILE = 168
+export const STICKER_SIZE_PLACED = 200
+export const STICKER_SIZE_PILE_MOBILE = 106
+export const STICKER_SIZE_PLACED_MOBILE = 132
+export const STICKER_PILE_PAD = 56
 export const STICKER_PILE_PAD_MOBILE = 28
 
 export type StickerHeights = {
@@ -89,7 +89,9 @@ export function stickerHeight(base: number, id: string): number {
   return Math.round(base * stickerScaleFor(id))
 }
 
-/** Fan offset for a card in the pile (0 = top, total - 1 = bottom). */
+/** Fan offset for a card in the pile (0 = top, total - 1 = bottom).
+ * Base scatter in px — CSS scales it up on wide screens via --pile-scatter,
+ * so the pile spreads without the stickers themselves growing. */
 export function pileStackOffset(
   indexFromTop: number,
   total: number,
@@ -97,8 +99,8 @@ export function pileStackOffset(
 ): { x: number; y: number } {
   if (total <= 1) return { x: 0, y: 0 }
   const depth = indexFromTop / (total - 1)
+  const layer = indexFromTop + 1
   if (mobile) {
-    const layer = indexFromTop + 1
     return {
       x: Math.round(
         22 * depth + Math.sin(layer * 1.9) * 9 + (layer % 3) * 4,
@@ -109,13 +111,17 @@ export function pileStackOffset(
     }
   }
   return {
-    x: Math.round(14 * depth),
-    y: Math.round(11 * depth),
+    x: Math.round(
+      30 * depth + Math.sin(layer * 1.9) * 13 + (layer % 3) * 5 - 12,
+    ),
+    y: Math.round(
+      24 * depth + Math.cos(layer * 2.35) * 10 + (layer % 2) * 6 - 10,
+    ),
   }
 }
 
 export function randomPileRotation(mobile = false): number {
-  const spread = mobile ? 26 : 15
+  const spread = mobile ? 26 : 22
   return Math.round((Math.random() * spread * 2 - spread) * 10) / 10
 }
 
