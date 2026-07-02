@@ -226,12 +226,16 @@
     box-sizing: border-box;
   }
 
+  /* Compound selector — .chapter-slide--sensi-lite sits on the same element
+     as .hardware-slideshow. The old descendant selector never matched, so the
+     fit-content align collapsed to 0x0 (children are width:100%) and the
+     proto never painted. The definite width breaks that cycle; the
+     aspect-ratio reserves height before the proto lays out. */
   html.continuous-chapters
-    .portfolio-chapter-slot--fill.hardware-slideshow
-    .chapter-slide--sensi-lite
+    .portfolio-chapter-slot--fill.hardware-slideshow.chapter-slide--sensi-lite
     .chapter-stage-align {
     width: min(100%, var(--cs-sensi-lite-stage-max-w, 320px));
-    min-height: calc(min(100%, var(--cs-sensi-lite-stage-max-w, 320px)) * 147 / 240);
+    aspect-ratio: 240 / 147;
   }
 
   html.continuous-chapters

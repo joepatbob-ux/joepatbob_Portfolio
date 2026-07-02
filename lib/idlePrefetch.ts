@@ -12,6 +12,9 @@ const PREFETCH_ASSETS = [
   '/draco/draco_decoder.wasm',
   '/models/iphone16-pro.glb',
   '/models/paper-crumpled/paper_crumpled.glb',
+  '/textures/lines-handwriting-crumpled/lines_handwriting_crumpled_basecolor.webp',
+  '/textures/lines-handwriting-crumpled/lines_handwriting_crumpled_normal.webp',
+  '/textures/lines-handwriting-crumpled/lines_handwriting_crumpled_roughness.webp',
 ]
 
 let started = false

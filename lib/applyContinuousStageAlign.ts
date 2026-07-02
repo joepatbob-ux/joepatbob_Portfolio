@@ -100,7 +100,16 @@ function artifactHeight(align: HTMLElement): number {
   bindCacheInvalidation()
   observeArtifact(align)
   const cached = artifactHeightCache.get(align)
-  if (cached && cached.generation === heightGeneration) return cached.height
+  // A below-minimum height means the stage content hasn't laid out yet, and
+  // deep-descendant growth won't fire the ResizeObserver when the align box
+  // itself stays collapsed — keep re-measuring until real content appears.
+  if (
+    cached &&
+    cached.generation === heightGeneration &&
+    cached.height >= ALIGN_HEIGHT_MIN_PX
+  ) {
+    return cached.height
+  }
   const height = measureArtifactHeight(align)
   artifactHeightCache.set(align, { generation: heightGeneration, height })
   return height
