@@ -8,6 +8,8 @@ import { SidebarNav } from '@/components/SidebarNav'
 import { StickerProvider } from '@/components/StickerProvider'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import { hardware } from '@/lib/sections/hardware'
+import { startIdlePrefetch } from '@/lib/idlePrefetch'
+import { useEffect } from 'react'
 
 const StickerLayer = dynamic(
   () =>
@@ -18,6 +20,10 @@ const StickerLayer = dynamic(
 )
 
 export default function App() {
+  useEffect(() => {
+    startIdlePrefetch()
+  }, [])
+
   return (
     <div className="vite-font-mono">
       <ThemeProvider>

@@ -18,7 +18,15 @@ const app = (
 )
 
 if (root.hasChildNodes()) {
-  hydrateRoot(root, app)
+  hydrateRoot(root, app, {
+    onRecoverableError(error, errorInfo) {
+      console.error(
+        '[hydration]',
+        error instanceof Error ? error.message : String(error),
+        errorInfo?.componentStack ?? '',
+      )
+    },
+  })
 } else {
   createRoot(root).render(app)
 }

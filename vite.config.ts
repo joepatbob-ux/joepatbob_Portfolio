@@ -2,17 +2,6 @@ import path from 'path'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-function vendorChunk(id: string): string | undefined {
-  if (!id.includes('node_modules')) return undefined
-  if (id.includes('three') || id.includes('@react-three')) {
-    if (id.includes('@react-three/drei')) return 'vendor-drei'
-    if (id.includes('@react-three/fiber')) return 'vendor-r3f'
-    return 'vendor-three'
-  }
-  if (id.includes('react-dom') || id.includes('/react/')) return 'vendor-react'
-  return undefined
-}
-
 export default defineConfig({
   plugins: [react()],
   resolve: {
@@ -23,15 +12,9 @@ export default defineConfig({
       'next/dynamic': path.resolve(__dirname, 'vite/shims/next-dynamic.tsx'),
     },
   },
-  build: {
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          return vendorChunk(id)
-        },
-      },
-    },
-  },
+  // No manualChunks: under rolldown the old grouping fused three+drei+react-dom
+  // into one eager chunk. Default splitting keeps the 3D stack behind the lazy
+  // section/stage boundaries; the entry must not import it.
   server: {
     port: 3000,
     strictPort: true,

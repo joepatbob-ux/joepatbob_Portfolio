@@ -163,11 +163,19 @@
     /* opacity driven inline from scroll reveal */
   }
 
+  /* Layer promotion only while the artifact actually transforms (exit) —
+     a permanent will-change pins GPU memory for every visible stage. */
+  html.continuous-chapters
+    .portfolio-chapter-slot--fill.hardware-slideshow
+    .chapter-slide__stage[data-stage-pinned='true']
+    > [data-chapter-stage-align][data-stage-phase='exit'] {
+    will-change: transform;
+  }
+
   html.continuous-chapters
     .portfolio-chapter-slot--fill.hardware-slideshow
     .chapter-slide__stage[data-stage-pinned='true']
     > [data-chapter-stage-align] {
-    will-change: transform;
     backface-visibility: hidden;
   }
 
@@ -186,9 +194,14 @@
     .chapter-slide__stage[data-stage-pinned='true'][data-stage-centered='true']
     > [data-chapter-stage-align] {
     position: sticky;
-    top: calc(50dvh - var(--stage-artifact-half, 0px));
-    transform: none !important;
-    will-change: auto;
+    /* The sole centering mechanism: the artifact rides in flow and sticks
+       here. Keep in sync with viewportCenterTop in applyContinuousStageAlign.
+       No transform override — the exit translate composes with sticky. */
+    top: calc(
+      var(--safe-area-top, 0px) +
+        (100dvh - var(--safe-area-top, 0px) - var(--safe-area-bottom, 0px)) / 2 -
+        var(--stage-artifact-half, 0px)
+    );
   }
 
   html.continuous-chapters
@@ -213,12 +226,16 @@
     box-sizing: border-box;
   }
 
+  /* Compound selector — .chapter-slide--sensi-lite sits on the same element
+     as .hardware-slideshow. The old descendant selector never matched, so the
+     fit-content align collapsed to 0x0 (children are width:100%) and the
+     proto never painted. The definite width breaks that cycle; the
+     aspect-ratio reserves height before the proto lays out. */
   html.continuous-chapters
-    .portfolio-chapter-slot--fill.hardware-slideshow
-    .chapter-slide--sensi-lite
+    .portfolio-chapter-slot--fill.hardware-slideshow.chapter-slide--sensi-lite
     .chapter-stage-align {
     width: min(100%, var(--cs-sensi-lite-stage-max-w, 320px));
-    min-height: calc(min(100%, var(--cs-sensi-lite-stage-max-w, 320px)) * 147 / 240);
+    aspect-ratio: 240 / 147;
   }
 
   html.continuous-chapters
