@@ -3,7 +3,7 @@
  * Runs after vite build; uses puppeteer-core + @sparticuz/chromium on CI/Vercel.
  */
 import { spawn } from 'node:child_process'
-import { writeFileSync } from 'node:fs'
+import { readFileSync, writeFileSync } from 'node:fs'
 import { createInterface } from 'node:readline'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -179,7 +179,14 @@ async function main() {
       })
 
       console.log('[prerender] Scrolling back to hero for snapshot…')
-      await page.evaluate(async () => {
+      // Vite injects <link rel="modulepreload"> for every lazy chunk the crawl
+      // touched. Keeping them in the snapshot would make production eagerly
+      // fetch the whole 3D stack — strip everything the built HTML didn't ship.
+      const builtHtml = readFileSync(path.join(root, 'dist/index.html'), 'utf8')
+      const shippedPreloads = [
+        ...builtHtml.matchAll(/<link rel="modulepreload"[^>]*href="([^"]+)"/g),
+      ].map((m) => m[1])
+      await page.evaluate(async (keepPreloads) => {
         window.scrollTo(0, 0)
         await new Promise((resolve) => {
           requestAnimationFrame(() => requestAnimationFrame(resolve))
@@ -189,7 +196,14 @@ async function main() {
             '.sticker-pile-portal, .sticker-layer, .sticker-layer__drag',
           )
           .forEach((node) => node.remove())
-      })
+        const keep = new Set(keepPreloads)
+        document
+          .querySelectorAll('link[rel="modulepreload"]')
+          .forEach((link) => {
+            const href = link.getAttribute('href')
+            if (!href || !keep.has(href)) link.remove()
+          })
+      }, shippedPreloads)
       await page.waitForFunction(() => window.scrollY <= 4, { timeout: 10_000 })
 
       const html = await page.content()
