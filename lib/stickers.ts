@@ -50,10 +50,10 @@ export const STICKER_ASSETS: StickerAsset[] = [
   }
 })
 
-export const STICKER_SIZE_PILE = 168
-export const STICKER_SIZE_PLACED = 200
-export const STICKER_SIZE_PILE_MOBILE = 106
-export const STICKER_SIZE_PLACED_MOBILE = 132
+export const STICKER_SIZE_PILE = 143
+export const STICKER_SIZE_PLACED = 170
+export const STICKER_SIZE_PILE_MOBILE = 90
+export const STICKER_SIZE_PLACED_MOBILE = 112
 export const STICKER_PILE_PAD = 56
 export const STICKER_PILE_PAD_MOBILE = 28
 
