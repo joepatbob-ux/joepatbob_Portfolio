@@ -68,7 +68,7 @@ export function StickerLayer() {
               src={activeDrag.asset.src}
               alt={activeDrag.asset.alt}
               assetId={activeDrag.asset.id}
-              size="placed"
+              size="drag"
               rotation={activeDrag.rotation}
               elevated
             />
