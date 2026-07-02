@@ -130,15 +130,6 @@ function viewportCenterTop(vh: number, artifactH: number): number {
   return safeTop + visibleH / 2 - artifactH / 2
 }
 
-/** Closed-loop: nudge translate so artifact top lands on stickTop (stable once centered). */
-function translateToStickTop(
-  appliedY: number,
-  visualTop: number,
-  stickTop: number,
-): number {
-  return appliedY + (stickTop - visualTop)
-}
-
 /** Opacity tracks reveal linearly — pow curves linger then snap on fast exit. */
 export function stageOpacityFromReveal(reveal: number): number {
   const t = Math.max(0, Math.min(1, reveal))
@@ -161,20 +152,6 @@ function stageAlignTarget(stage: HTMLElement): HTMLElement | null {
     stage.querySelector<HTMLElement>(ALIGN_SELECTOR) ??
     (stage.firstElementChild as HTMLElement | null)
   )
-}
-
-function copyContentAnchor(copy: HTMLElement): HTMLElement {
-  return (
-    copy.querySelector<HTMLElement>('.chapter-copy__headline') ??
-    copy.querySelector<HTMLElement>('.case-study-section-header__headline') ??
-    copy.querySelector<HTMLElement>('.case-study-section-header') ??
-    copy
-  )
-}
-
-/** Short interactive stages (Formation LEGO) pair with copy headline, not viewport center. */
-function prefersHeadlinePairAlign(align: HTMLElement): boolean {
-  return align.querySelector('.formation-lego') != null
 }
 
 function setPhase(
@@ -285,10 +262,6 @@ type StageMeasure = {
   artifactH: number
   stickTop: number
   visualTop: number
-  appliedY: number
-  contentTop: number
-  latchedY: number | null
-  headlinePair: boolean
 }
 
 function collectStageEntries(
@@ -385,10 +358,6 @@ function measureStage(
     artifactH: 0,
     stickTop: 0,
     visualTop: 0,
-    appliedY: 0,
-    contentTop: 0,
-    latchedY: null,
-    headlinePair: false,
   }
 
   if (!painted) {
@@ -405,11 +374,8 @@ function measureStage(
   }
 
   // Layout reads — grouped here so the write pass never forces a reflow.
-  const appliedY = Number(align.dataset.stageAlignY ?? 0)
   const artifactH = artifactHeight(align)
   const visualTop = align.getBoundingClientRect().top
-  const contentTop = copyContentAnchor(copy).getBoundingClientRect().top
-  const latchedRaw = align.dataset.stageAlignLatchY
 
   return {
     entry,
@@ -419,10 +385,6 @@ function measureStage(
     artifactH,
     stickTop: viewportCenterTop(vh, artifactH),
     visualTop,
-    appliedY,
-    contentTop,
-    latchedY: latchedRaw != null ? Number(latchedRaw) : null,
-    headlinePair: prefersHeadlinePairAlign(align),
   }
 }
 
@@ -463,9 +425,6 @@ function writeStage(m: StageMeasure): void {
 
   if (m.artifactH < ALIGN_HEIGHT_MIN_PX) {
     setPhase(stage, align, 'enter')
-    if (m.latchedY != null) {
-      applyArtifactTransform(align, m.latchedY)
-    }
     return
   }
 
@@ -475,37 +434,19 @@ function writeStage(m: StageMeasure): void {
   let phase: AlignPhase
   let translateY: number | null
 
-  if (m.headlinePair) {
-    // Formation LEGO pairs with the copy headline via a latched transform —
-    // it never uses the viewport-center sticky.
-    if (exitActive) {
-      phase = 'exit'
-      delete align.dataset.stageAlignLatchY
-      translateY =
-        translateToStickTop(m.appliedY, m.visualTop, m.stickTop) + exitY
-    } else if (m.latchedY != null) {
-      phase = 'center'
-      translateY = m.latchedY
-    } else {
-      phase = 'center'
-      translateY = translateToStickTop(m.appliedY, m.visualTop, m.contentTop)
-      align.dataset.stageAlignLatchY = String(quant(translateY))
-    }
+  // Sticky is the only centering mechanism: the artifact rides in flow at
+  // scroll speed and position:sticky catches it at the viewport center.
+  // No JS position interpolation — interpolating between copy-track and
+  // center moved the artifact faster than the scroll and snapped at the
+  // handoff (the "jump on scroll-in").
+  applyCssViewportCenter(stage, align, m.artifactH)
+  if (exitActive) {
+    phase = 'exit'
+    translateY = exitY
   } else {
-    // Sticky is the only centering mechanism: the artifact rides in flow at
-    // scroll speed and position:sticky catches it at the viewport center.
-    // No JS position interpolation — interpolating between copy-track and
-    // center moved the artifact faster than the scroll and snapped at the
-    // handoff (the "jump on scroll-in").
-    applyCssViewportCenter(stage, align, m.artifactH)
-    if (exitActive) {
-      phase = 'exit'
-      translateY = exitY
-    } else {
-      // Stuck once the flow position reaches the center line.
-      phase = m.visualTop <= m.stickTop + 1 ? 'center' : 'enter'
-      translateY = null
-    }
+    // Stuck once the flow position reaches the center line.
+    phase = m.visualTop <= m.stickTop + 1 ? 'center' : 'enter'
+    translateY = null
   }
 
   if (exitY < 0) {

@@ -26,7 +26,10 @@
 
 .web-apps-scratch__card-wrap {
   position: relative;
-  width: min(100%, var(--scratch-card-max));
+  /* The card is square with overflow:hidden — capping only its max-height
+     (72dvh) chopped the artwork on wide, short windows. Cap the width by the
+     same measure so the whole card scales instead of clipping. */
+  width: min(100%, var(--scratch-card-max), 72dvh);
   max-width: 100%;
   flex: 0 0 auto;
 }
@@ -336,7 +339,7 @@
   }
 
   .web-apps-scratch__card-wrap {
-    width: 100%;
+    width: min(100%, 62dvh);
   }
 
   .web-apps-scratch__card {
