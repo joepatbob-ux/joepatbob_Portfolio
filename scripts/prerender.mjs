@@ -43,6 +43,19 @@ async function launchBrowser() {
     })
   }
 
+  const executablePath =
+    process.env.PRERENDER_EXECUTABLE_PATH || process.env.PUPPETEER_EXECUTABLE_PATH
+
+  if (executablePath) {
+    console.log(`[prerender] Launching browser at ${executablePath}…`)
+    return puppeteer.launch({
+      executablePath,
+      headless: true,
+      defaultViewport: VIEWPORT,
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    })
+  }
+
   console.log('[prerender] Launching local Chrome (channel: chrome)…')
   try {
     return await puppeteer.launch({
@@ -53,8 +66,9 @@ async function launchBrowser() {
     })
   } catch (err) {
     throw new Error(
-      'Local prerender requires Google Chrome installed (channel: "chrome"). ' +
-        'Install Chrome or run the build on Vercel/CI with @sparticuz/chromium. ' +
+      'Local prerender requires Google Chrome installed (channel: "chrome") ' +
+        'or PRERENDER_EXECUTABLE_PATH/PUPPETEER_EXECUTABLE_PATH pointing at a ' +
+        'Chromium binary. Or run the build on Vercel/CI with @sparticuz/chromium. ' +
         `Original error: ${err instanceof Error ? err.message : String(err)}`,
     )
   }

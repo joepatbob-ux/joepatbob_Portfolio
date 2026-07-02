@@ -117,12 +117,10 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
       }
 
       if (phaseRef.current === 'idle') {
-        if (chapterRevealsChanged(revealsRef.current, state.revealMap)) {
-          revealsRef.current = state.revealMap
-          setReveals(state.revealMap)
-        } else {
-          revealsRef.current = state.revealMap
-        }
+        // Hot scroll path: context consumers only read `reveals` during nav
+        // transitions, so idle scroll keeps the ref fresh without a React
+        // re-render per step. runNavigate snapshots the ref into state.
+        revealsRef.current = state.revealMap
       } else if (state.inHero || phaseRef.current === 'out') {
         if (Object.keys(revealsRef.current).length > 0) {
           revealsRef.current = {}
@@ -260,6 +258,9 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
       activeRef.current = chapterId
       setActiveSlideId(chapterId)
 
+      // Consumers read `reveals` from context once phase leaves 'idle' —
+      // publish the ref that idle scrolling kept current (batched with setPhase).
+      setReveals(revealsRef.current)
       setPhase('out')
       await waitForPaint()
 

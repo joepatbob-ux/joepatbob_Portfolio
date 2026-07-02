@@ -163,11 +163,23 @@
     /* opacity driven inline from scroll reveal */
   }
 
+  /* Layer promotion only while the artifact actually moves (enter/exit) —
+     a permanent will-change pins GPU memory for every visible stage. */
+  html.continuous-chapters
+    .portfolio-chapter-slot--fill.hardware-slideshow
+    .chapter-slide__stage[data-stage-pinned='true']
+    > [data-chapter-stage-align][data-stage-phase='enter'],
+  html.continuous-chapters
+    .portfolio-chapter-slot--fill.hardware-slideshow
+    .chapter-slide__stage[data-stage-pinned='true']
+    > [data-chapter-stage-align][data-stage-phase='exit'] {
+    will-change: transform;
+  }
+
   html.continuous-chapters
     .portfolio-chapter-slot--fill.hardware-slideshow
     .chapter-slide__stage[data-stage-pinned='true']
     > [data-chapter-stage-align] {
-    will-change: transform;
     backface-visibility: hidden;
   }
 
@@ -186,7 +198,13 @@
     .chapter-slide__stage[data-stage-pinned='true'][data-stage-centered='true']
     > [data-chapter-stage-align] {
     position: sticky;
-    top: calc(50dvh - var(--stage-artifact-half, 0px));
+    /* Must equal the JS enter-blend target (viewportCenterTop in
+       applyContinuousStageAlign) or the transform→sticky handoff snaps. */
+    top: calc(
+      var(--safe-area-top, 0px) +
+        (100dvh - var(--safe-area-top, 0px) - var(--safe-area-bottom, 0px)) / 2 -
+        var(--stage-artifact-half, 0px)
+    );
     transform: none !important;
     will-change: auto;
   }
