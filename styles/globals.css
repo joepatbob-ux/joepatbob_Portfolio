@@ -973,13 +973,11 @@
   }
 }
 
-/* Cinema: the whole pile scales toward the other artifact sizes (~600px)
-   in addition to the wider scatter. */
+/* Cinema: footprint grows through scatter alone — scaling the pile made
+   stickers render larger than their true size, so they shrank on pickup. */
 @media (min-width: 2560px) {
   .sticker-pile {
-    --pile-scatter: 2.8;
-    transform: scale(1.35);
-    transform-origin: center;
+    --pile-scatter: 3.6;
   }
 }
 

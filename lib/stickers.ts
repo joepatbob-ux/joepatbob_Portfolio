@@ -50,10 +50,12 @@ export const STICKER_ASSETS: StickerAsset[] = [
   }
 })
 
+/* One size from pile to hand to placed — any size change on pickup or
+ * stick-down reads as a glitch. */
 export const STICKER_SIZE_PILE = 143
-export const STICKER_SIZE_PLACED = 170
+export const STICKER_SIZE_PLACED = 143
 export const STICKER_SIZE_PILE_MOBILE = 90
-export const STICKER_SIZE_PLACED_MOBILE = 112
+export const STICKER_SIZE_PLACED_MOBILE = 90
 export const STICKER_PILE_PAD = 56
 export const STICKER_PILE_PAD_MOBILE = 28
 
