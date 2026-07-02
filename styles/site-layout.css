@@ -82,9 +82,12 @@ html.sidebar-tablet-hero-active .sidebar-desktop-shell {
     --cs-copy-col: minmax(0, 2fr);
     --cs-split-gap: 160px;
     --cs-section-gap: 80px;
-    --cs-content-pane-max: calc(
-      100vw - var(--sidebar-width) - var(--content-pad-left) -
-        var(--content-pad-x)
+    --cs-content-pane-max: min(
+      calc(
+        100vw - var(--sidebar-width) - var(--content-pad-left) -
+          var(--content-pad-x)
+      ),
+      var(--cs-content-pane-cap, 1720px)
     );
   }
 

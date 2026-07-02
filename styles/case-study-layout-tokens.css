@@ -24,10 +24,15 @@
   );
   --cs-copy-measure-max: min(96ch, 100%);
 
-  /* Usable width inside the content pane (sidebar → right pad) */
-  --cs-content-pane-max: calc(
-    100vw - var(--sidebar-width, 280px) - var(--content-pad-left, 0px) -
-      var(--content-pad-x, 32px)
+  /* Usable width inside the content pane (sidebar → right pad).
+     Capped for cinema displays — bands center via their auto margins. */
+  --cs-content-pane-cap: 1720px;
+  --cs-content-pane-max: min(
+    calc(
+      100vw - var(--sidebar-width, 280px) - var(--content-pad-left, 0px) -
+        var(--content-pad-x, 32px)
+    ),
+    var(--cs-content-pane-cap)
   );
 
   --cs-band-max-raw: calc(

@@ -119,6 +119,10 @@
     .chapter-slide__inner {
     max-height: none !important;
     height: auto;
+    /* Cinema displays: the slideshow shell forces max-width 100%, which lets
+       the band span the whole pane — re-apply the band cap and center it. */
+    max-width: min(var(--cs-band-max), 100%) !important;
+    margin-inline: auto !important;
   }
 
   /* Sticky stage: only the active chapter pins; copy crossfades independently */
