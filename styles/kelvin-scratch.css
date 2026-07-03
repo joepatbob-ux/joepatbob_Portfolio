@@ -19,12 +19,16 @@
   --scratch-ticket-scale: 1;
   --scratch-ticket-aspect: calc(1274.34 / 805.73);
   /* Absolute cap — avoid min(100%, …) under fit-content stage align (continuous scroll). */
-  --scratch-ticket-w-max: clamp(
-    var(--cs-stage-min, 220px),
-    34vw,
-    var(--cs-stage-max, 560px)
+  /* Shared artifact band: ticket + tray together land near ~55dvh. */
+  --scratch-ticket-h-max: min(44dvh, 500px, calc(100dvh - 12rem));
+  /* Width must follow the height cap through the ticket aspect (805.73 wide
+     x 1274.34 tall). A wider box + overflow:hidden crops the ticket art at
+     the bottom — the JS width echo then locks the crop in. */
+  --scratch-ticket-w-from-h: calc(var(--scratch-ticket-h-max) * 0.6323);
+  --scratch-ticket-w-max: min(
+    clamp(var(--cs-stage-min, 220px), 28vw, var(--cs-stage-max, 560px)),
+    var(--scratch-ticket-w-from-h)
   );
-  --scratch-ticket-h-max: min(52dvh, 620px, calc(100dvh - 11rem));
 
   margin: 0 0 28px;
   padding: 0;
@@ -35,7 +39,9 @@
 
 .kelvin-scratch--placeholder {
   width: 100%;
-  min-height: min(480px, 52dvh);
+  /* Reserve the final artifact box (ticket + tray) so the stage doesn't
+     resize when the interactive mounts. */
+  min-height: calc(var(--scratch-ticket-h-max) + 8rem);
   pointer-events: none;
 }
 
@@ -110,7 +116,9 @@
   align-items: center;
   gap: clamp(4px, 1vh, 10px);
   width: var(--scratch-ticket-w, var(--scratch-ticket-w-max));
-  min-width: var(--cs-stage-min, 220px);
+  /* Never force the column wider than the aspect-correct ticket — a floor
+     above it re-introduces the bottom crop on short viewports. */
+  min-width: min(var(--cs-stage-min, 220px), var(--scratch-ticket-w-from-h));
   max-width: 100%;
   flex: 0 0 auto;
   align-self: center;

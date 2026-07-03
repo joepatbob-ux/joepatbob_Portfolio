@@ -956,6 +956,29 @@
   position: relative;
   margin: 0;
   touch-action: none;
+  /* Wide screens: the pile spreads over more area — the stickers stay the
+     same size, only the scatter grows. */
+  --pile-scatter: 1;
+}
+
+@media (min-width: 1680px) {
+  .sticker-pile {
+    --pile-scatter: 1.7;
+  }
+}
+
+@media (min-width: 2000px) {
+  .sticker-pile {
+    --pile-scatter: 2.4;
+  }
+}
+
+/* Cinema: footprint grows through scatter alone — scaling the pile made
+   stickers render larger than their true size, so they shrank on pickup. */
+@media (min-width: 2560px) {
+  .sticker-pile {
+    --pile-scatter: 3.6;
+  }
 }
 
 /* Full-stack hit target — always grabs deck[0], above fanned under-cards. */
@@ -991,8 +1014,8 @@
   pointer-events: none;
   touch-action: none;
   transform: translate(
-    calc(-50% + var(--stack-x, 0px)),
-    calc(-50% + var(--stack-y, 0px))
+    calc(-50% + var(--stack-x, 0px) * var(--pile-scatter, 1)),
+    calc(-50% + var(--stack-y, 0px) * var(--pile-scatter, 1))
   );
   transition: transform 0.18s ease, opacity 0.18s ease;
 }
@@ -1008,8 +1031,8 @@
 
 .sticker-pile:has(.sticker-pile__grab:hover) .sticker-pile__card--top {
   transform: translate(
-    calc(-50% + var(--stack-x, 0px)),
-    calc(-50% + var(--stack-y, 0px) - 6px)
+    calc(-50% + var(--stack-x, 0px) * var(--pile-scatter, 1)),
+    calc(-50% + var(--stack-y, 0px) * var(--pile-scatter, 1) - 6px)
   );
 }
 

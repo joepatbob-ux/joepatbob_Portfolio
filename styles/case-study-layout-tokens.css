@@ -24,10 +24,15 @@
   );
   --cs-copy-measure-max: min(96ch, 100%);
 
-  /* Usable width inside the content pane (sidebar → right pad) */
-  --cs-content-pane-max: calc(
-    100vw - var(--sidebar-width, 280px) - var(--content-pad-left, 0px) -
-      var(--content-pad-x, 32px)
+  /* Usable width inside the content pane (sidebar → right pad).
+     Capped for cinema displays — bands center via their auto margins. */
+  --cs-content-pane-cap: 1720px;
+  --cs-content-pane-max: min(
+    calc(
+      100vw - var(--sidebar-width, 280px) - var(--content-pad-left, 0px) -
+        var(--content-pad-x, 32px)
+    ),
+    var(--cs-content-pane-cap)
   );
 
   --cs-band-max-raw: calc(
@@ -170,10 +175,13 @@
     --cs-stage-col: minmax(0, 1fr);
     --cs-copy-col: minmax(0, 2fr);
     --cs-band-max: var(--cs-content-pane-max);
-    --cs-verdant-glyph-max-h: min(50dvh, 440px);
+    /* Artifact size band: every stage lands near the Touch 2 reference
+       (~45-55dvh tall). Tall artifacts cap height; wide ones cap width. */
+    --cs-verdant-glyph-max-h: min(30dvh, 280px);
     --cs-verdant-max-w: min(100%, var(--cs-stage-gallery-w));
     --cs-eim-stage-max-w: var(--cs-stage-gallery-w);
-    --cs-sensi-lite-stage-max-w: var(--cs-stage-gallery-w);
+    --cs-sensi-lite-stage-max-w: min(100%, 380px);
+    --cs-phone-viewbox-max-w: min(var(--cs-stage-max), 400px);
   }
 }
 

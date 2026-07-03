@@ -50,11 +50,13 @@ export const STICKER_ASSETS: StickerAsset[] = [
   }
 })
 
-export const STICKER_SIZE_PILE = 184
-export const STICKER_SIZE_PLACED = 216
-export const STICKER_SIZE_PILE_MOBILE = 128
-export const STICKER_SIZE_PLACED_MOBILE = 160
-export const STICKER_PILE_PAD = 48
+/* One size from pile to hand to placed — any size change on pickup or
+ * stick-down reads as a glitch. */
+export const STICKER_SIZE_PILE = 143
+export const STICKER_SIZE_PLACED = 143
+export const STICKER_SIZE_PILE_MOBILE = 90
+export const STICKER_SIZE_PLACED_MOBILE = 90
+export const STICKER_PILE_PAD = 56
 export const STICKER_PILE_PAD_MOBILE = 28
 
 export type StickerHeights = {
@@ -89,34 +91,36 @@ export function stickerHeight(base: number, id: string): number {
   return Math.round(base * stickerScaleFor(id))
 }
 
-/** Fan offset for a card in the pile (0 = top, total - 1 = bottom). */
-export function pileStackOffset(
-  indexFromTop: number,
-  total: number,
+/** Deterministic 0..1 from a sticker id — stable pile positions across
+ * selections and reloads (index-based offsets made the whole pile shift
+ * whenever the top card was taken). */
+function hash01(id: string, salt: number): number {
+  let h = 2166136261 ^ salt
+  for (let i = 0; i < id.length; i++) {
+    h ^= id.charCodeAt(i)
+    h = Math.imul(h, 16777619)
+  }
+  return ((h >>> 0) % 10000) / 10000
+}
+
+/** Scatter offset for a card, keyed to the sticker itself — never its stack
+ * index. Base px; CSS scales via --pile-scatter so the pile spreads on wide
+ * screens without the stickers growing. */
+export function pileScatterOffsetForId(
+  id: string,
   mobile = false,
 ): { x: number; y: number } {
-  if (total <= 1) return { x: 0, y: 0 }
-  const depth = indexFromTop / (total - 1)
-  if (mobile) {
-    const layer = indexFromTop + 1
-    return {
-      x: Math.round(
-        22 * depth + Math.sin(layer * 1.9) * 9 + (layer % 3) * 4,
-      ),
-      y: Math.round(
-        18 * depth + Math.cos(layer * 2.35) * 7 + (layer % 2) * 5,
-      ),
-    }
-  }
+  const ax = mobile ? 20 : 32
+  const ay = mobile ? 16 : 26
   return {
-    x: Math.round(14 * depth),
-    y: Math.round(11 * depth),
+    x: Math.round((hash01(id, 1) * 2 - 1) * ax),
+    y: Math.round((hash01(id, 2) * 2 - 1) * ay),
   }
 }
 
-export function randomPileRotation(mobile = false): number {
-  const spread = mobile ? 26 : 15
-  return Math.round((Math.random() * spread * 2 - spread) * 10) / 10
+export function pileRotationForId(id: string, mobile = false): number {
+  const spread = mobile ? 26 : 22
+  return Math.round((hash01(id, 3) * 2 - 1) * spread * 10) / 10
 }
 
 export function uniqueStickerDeck(assets: StickerAsset[]): StickerAsset[] {

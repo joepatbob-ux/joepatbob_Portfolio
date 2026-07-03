@@ -26,7 +26,9 @@ function baseHeightForSize(
   size: StickerSize,
   heights: { pile: number; placed: number },
 ): number {
-  return size === 'pile' ? heights.pile : heights.placed
+  // The drag ghost keeps the pile size — growing mid-air on pickup reads as
+  // a glitch. It settles to the placed size when actually stuck down.
+  return size === 'placed' ? heights.placed : heights.pile
 }
 
 function stickerClassName(

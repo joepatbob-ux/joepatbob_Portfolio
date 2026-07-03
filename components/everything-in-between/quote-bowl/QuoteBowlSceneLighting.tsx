@@ -2,17 +2,38 @@
 
 import { QuoteBowlCameraRig } from '@/components/everything-in-between/quote-bowl/QuoteBowlCameraRig'
 import { QUOTE_BOWL } from '@/lib/everything-in-between/quoteBowl/constants'
-import { Environment } from '@react-three/drei'
 import { useThree } from '@react-three/fiber'
-import { useLayoutEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef } from 'react'
+import { PMREMGenerator } from 'three'
+import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
 import type { AmbientLight, DirectionalLight, HemisphereLight, PointLight } from 'three'
 
 type Props = {
   darkSurface: boolean
 }
 
-/** Single stable env map — avoids HDR reload flash when the page theme toggles. */
-const BOWL_ENV_PRESET = 'studio' as const
+/** Procedural studio env map, generated on-device. The old drei
+ * `<Environment preset>` downloaded an HDR from a third-party CDN inside the
+ * scene's Suspense — slow networks stalled the bowl on "Loading…" forever. */
+function BowlRoomEnvironment() {
+  const gl = useThree((s) => s.gl)
+  const scene = useThree((s) => s.scene)
+  const invalidate = useThree((s) => s.invalidate)
+
+  useEffect(() => {
+    const pmrem = new PMREMGenerator(gl)
+    const envTexture = pmrem.fromScene(new RoomEnvironment(), 0.04).texture
+    scene.environment = envTexture
+    invalidate()
+    return () => {
+      if (scene.environment === envTexture) scene.environment = null
+      envTexture.dispose()
+      pmrem.dispose()
+    }
+  }, [gl, scene, invalidate])
+
+  return null
+}
 
 export function QuoteBowlSceneLighting({ darkSurface }: Props) {
   const scene = useThree((s) => s.scene)
@@ -113,11 +134,7 @@ export function QuoteBowlSceneLighting({ darkSurface }: Props) {
         ref={hemiRef}
         args={[light.hemisphere.sky, light.hemisphere.ground, light.hemisphere.intensity]}
       />
-      <Environment
-        preset={BOWL_ENV_PRESET}
-        environmentIntensity={QUOTE_BOWL.lightSurface.environment.intensity}
-        resolution={QUOTE_BOWL.environment.resolution}
-      />
+      <BowlRoomEnvironment />
     </>
   )
 }

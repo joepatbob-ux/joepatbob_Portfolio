@@ -28,31 +28,35 @@
   }
 
   /* ── Scrim ─────────────────────────────────────────────────────────────── */
+  /* Chromium/Android drops backdrop-filter on elements whose own opacity
+     animates — fade the scrim color and blur radius instead; opacity
+     stays 1 throughout. */
   .sidebar-mobile-backdrop {
     position: fixed;
     inset: 0;
     z-index: var(--z-mobile-nav-backdrop);
-    background: var(--tablet-backdrop-scrim);
-    backdrop-filter: blur(var(--tablet-backdrop-blur));
-    -webkit-backdrop-filter: blur(var(--tablet-backdrop-blur));
+    background: transparent;
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
     cursor: pointer;
-    opacity: 0;
     visibility: hidden;
     pointer-events: none;
     box-shadow: none;
     transition:
-      opacity var(--mobile-backdrop-duration) var(--mobile-sidebar-ease),
+      background-color var(--mobile-backdrop-duration) var(--mobile-sidebar-ease),
       visibility 0s linear var(--mobile-backdrop-duration),
       backdrop-filter var(--mobile-backdrop-duration) var(--mobile-sidebar-ease),
       -webkit-backdrop-filter var(--mobile-backdrop-duration) var(--mobile-sidebar-ease);
   }
 
   .sidebar-mobile-backdrop--visible {
-    opacity: 1;
+    background: var(--tablet-backdrop-scrim);
+    backdrop-filter: blur(var(--tablet-backdrop-blur));
+    -webkit-backdrop-filter: blur(var(--tablet-backdrop-blur));
     visibility: visible;
     pointer-events: auto;
     transition:
-      opacity var(--mobile-backdrop-duration) var(--mobile-sidebar-ease),
+      background-color var(--mobile-backdrop-duration) var(--mobile-sidebar-ease),
       visibility 0s linear 0s,
       backdrop-filter var(--mobile-backdrop-duration) var(--mobile-sidebar-ease),
       -webkit-backdrop-filter var(--mobile-backdrop-duration) var(--mobile-sidebar-ease);

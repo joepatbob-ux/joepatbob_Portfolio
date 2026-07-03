@@ -119,6 +119,10 @@
     .chapter-slide__inner {
     max-height: none !important;
     height: auto;
+    /* Cinema displays: the slideshow shell forces max-width 100%, which lets
+       the band span the whole pane — re-apply the band cap and center it. */
+    max-width: min(var(--cs-band-max), 100%) !important;
+    margin-inline: auto !important;
   }
 
   /* Sticky stage: only the active chapter pins; copy crossfades independently */
@@ -211,6 +215,15 @@
     .portfolio-chapter-slot--fill.hardware-slideshow
     .chapter-stage-align:has(.formation-lego) {
     width: 100%;
+  }
+
+  /* EIM: same fit-content/width:100% cycle as Sensi Lite — without a definite
+     align width it collapses to the SVG's intrinsic 300px and reads small
+     next to the gallery-width artifacts. */
+  html.continuous-chapters
+    .portfolio-chapter-slot--fill.hardware-slideshow
+    .chapter-stage-align:has(.eim-path-art) {
+    width: min(100%, var(--cs-eim-stage-max-w, var(--cs-stage-gallery-w)));
   }
 
   html.continuous-chapters
