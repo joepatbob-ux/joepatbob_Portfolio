@@ -19,6 +19,10 @@ export default defineConfig({
     // The three/fiber/drei chunk is ~860KB by design: lazy-loaded, never on
     // the critical path, idle-prefetched. Warn only if it grows past this.
     chunkSizeWarningLimit: 1000,
+    // The default CSS minifier merges `backdrop-filter` with its -webkit-
+    // twin and keeps only the prefixed form — which modern Chrome (incl.
+    // Android) does not implement. esbuild preserves both declarations.
+    cssMinify: 'esbuild',
   },
   server: {
     port: 3000,
