@@ -27,24 +27,8 @@
 }
 ---
 
-Four products were built by separate internal teams over time, each solving their own users' problems without coordination.
+Four products were built by separate internal teams over time, each solving its own users' problems without coordination. Each worked well enough to keep running — which was also the problem.
 
-Each worked well enough to keep running.
+When software is generating revenue, the case for improving its UX consistently loses to the case for new capabilities. The cost of inaction is invisible; the cost of change is obvious, especially when users have regulatory SOPs that reference specific interface flows. Changing a screen in TempTrak is not just a UX decision — it can require documented retraining and SOP revision. So features got added through the path of least resistance, year over year. In TempTrak, that produced multiple ways to complete the same task, each a remnant of a different team's solution, preserved because removing any of them might break someone's workflow. The interface accumulated complexity the way infrastructure does: each decision made local sense, and the aggregate made navigation unreasonable.
 
-That was also the problem.
-
-When software is generating revenue, the case for improving its UX consistently loses to the case for new capabilities. The cost of inaction is invisible. The cost of change is obvious, especially when users have regulatory SOPs that reference specific interface flows.
-
-Changing a screen in TempTrak is not just a UX decision. It can require documented retraining and SOP revision.
-
-So features got added through the path of least resistance, year over year.
-
-In TempTrak, that produced multiple ways to complete the same task, each one a remnant of a different team's solution, preserved because removing any of them might break someone's workflow.
-
-The interface accumulated complexity the way infrastructure does: each decision made local sense, and the aggregate made navigation unreasonable.
-
-Kelvin was the answer to that accumulation.
-
-Not a redesign.
-
-A shared language that lets four products evolve toward coherence without requiring any of them to stop working in the meantime.
+Kelvin was the answer to that accumulation. Not a redesign — a shared language that lets four products evolve toward coherence without requiring any of them to stop working in the meantime.
