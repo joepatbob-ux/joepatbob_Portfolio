@@ -12,7 +12,6 @@
 @import './kelvin-scratch.css';
 @import './formation-lego-board.css';
 @import './eib-chapter.css';
-@import './concept-quote-bowl.css';
 @import './stage-spinner.css';
 @import './phone-swap.css';
 @import './chapter/index.css';
@@ -254,8 +253,7 @@
     .chapter-slide__copy,
     .mobile-learn-more-sheet__body,
     .phone-swap__tune-panel,
-    .formation-lego__stage,
-    .flow-chapter-slide--concepts .quote-bowl__stack {
+    .formation-lego__stage {
       touch-action: pan-y;
       -webkit-overflow-scrolling: touch;
     }

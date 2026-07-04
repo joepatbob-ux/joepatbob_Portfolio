@@ -11,10 +11,6 @@ const PREFETCH_ASSETS = [
   '/draco/draco_wasm_wrapper.js',
   '/draco/draco_decoder.wasm',
   '/models/iphone16-pro.glb',
-  '/models/paper-crumpled/paper_crumpled.glb',
-  '/textures/lines-handwriting-crumpled/lines_handwriting_crumpled_basecolor.webp',
-  '/textures/lines-handwriting-crumpled/lines_handwriting_crumpled_normal.webp',
-  '/textures/lines-handwriting-crumpled/lines_handwriting_crumpled_roughness.webp',
 ]
 
 let started = false
@@ -45,9 +41,6 @@ function warmLazyChunks(): void {
     () => {},
   )
   void import('@/components/PhoneSwap').catch(() => {})
-  void import('@/components/everything-in-between/ConceptQuoteBowlCanvas').catch(
-    () => {},
-  )
 }
 
 export function startIdlePrefetch(): void {

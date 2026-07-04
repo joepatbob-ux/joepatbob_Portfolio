@@ -1,8 +1,0 @@
-- If it's worth buying, it sells itself.
-- Value flows from the user up, not the boardroom down.
-- Our job is to do the hard work so users don't have to.
-- It's okay to move the cheese, as long as you put it somewhere better.
-- Patterns, not prescriptions.
-- Design the container, not the content.
-- Simplicity isn't simple.
-- Design is the negotiation between what users need and what the business wants.
