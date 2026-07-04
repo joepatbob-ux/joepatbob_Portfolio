@@ -27,7 +27,7 @@ Sensi partners with utility companies on energy demand-response programs — enr
 
 Spotlight is a named, dedicated section on the home screen — partner offers, product news, savings opportunities — clearly separated from the thermostat controls. The content is not mine: copy comes from Copeland's marketing team with energy partners, so I do not control headline length, offer framing, or partner branding. The card has one shot to inform and motivate before handing off to a partner-owned enrollment flow, and it cannot rely on what comes next.
 
-And it cannot feel like an ad. Sensi users trust the app as a neutral utility tool, and a content surface that reads as promotional undercuts that directly. The decisions followed from that constraint: a named section rather than injected content, explicit partner attribution, consistent CTA position, and a soft badge rather than a push alert.
+And it cannot feel like an ad. Sensi users trust the app as a neutral utility tool, and a content surface that reads as promotional undercuts that directly. Every decision that follows comes from that one constraint.
 
 ---
 

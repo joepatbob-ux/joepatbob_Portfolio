@@ -25,8 +25,6 @@
 }
 ---
 
-The legacy app used full-screen color to communicate HVAC mode: orange for heat, blue for cool, neutral for off. The intent was right — mode state matters, and making it ambient is a good instinct.
+The legacy app used full-screen color to communicate HVAC mode: orange for heat, blue for cool, neutral for off. The intent was right — mode state matters, and making it ambient is a good instinct. But the execution broke down three ways, and the thermostat display already modeled the fix: color on the temperature number, not the whole screen. The app and the device were telling two different stories about the same system state.
 
-But the execution created three problems that could not be solved independently: saturated full-bleed backgrounds broke contrast ratios for overlaid UI, there was no workable dark mode equivalent, and the thermostat display already used a better pattern — the temperature number changing color rather than the whole screen. The app and the device were telling two different stories about the same system state.
-
-Moving the color from the background to the temperature number closed all three at once. Contrast ratios became predictable, dark mode worked without special casing, and the app adopted the same visual language the hardware already used. A user glancing at the thermostat and then opening the app now sees the same information expressed the same way.
+Moving the color from the background to the number closed all three at once — predictable contrast, dark mode without special casing, and the app finally speaking the hardware's visual language. Glance at the thermostat, open the app, and you see the same information expressed the same way.
