@@ -34,7 +34,7 @@ The discipline is the same: understand the moment, understand the person, and ma
 
 AI compresses the distance between decision and artifact.
 
-I use AI to move faster between decision and artifact: building working prototypes from Figma, assembling documentation, exploring interface behavior, and creating stakeholder-facing material without the usual lag between design completion and communication.
+I use AI to close that gap: building working prototypes from Figma, assembling documentation, exploring interface behavior, and creating stakeholder-facing material without the usual lag between design completion and communication.
 
 The speed matters when alignment needs to happen before a decision is made rather than after.
 

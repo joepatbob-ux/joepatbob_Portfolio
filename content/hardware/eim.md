@@ -14,7 +14,7 @@ The Equipment Interface Module bridges thermostats to HVAC equipment in installa
 
 In homes with four wires or fewer, heat pump installations may require six. Where competitors shipped three separate modules to cover the same range of use cases, the Sensi EIM handled all of them with one.
 
-The design problem was not the hardware. It was configuration.
+The design problem was configuration — specifically, where it had to happen.
 
 The obvious approach would have been configuring the EIM at the unit. But in a typical installation, that means traveling between the thermostat and the equipment, often through tight mechanical spaces or up and down stairs.
 

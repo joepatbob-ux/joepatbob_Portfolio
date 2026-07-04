@@ -22,7 +22,6 @@
 @import './verdant-character-selector.css';
 @import './sidebar-layout.css';
 @import './sidebar-mobile.css';
-@import './contact-dialog.css';
 
 @tailwind base;
 @tailwind components;

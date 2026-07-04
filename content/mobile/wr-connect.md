@@ -22,7 +22,7 @@ A bad interaction does not mean frustration.
 
 It means damaged components and a return visit the contractor does not get paid for.
 
-Traditional configuration runs through dip switches and cryptic 3-digit codes on the board itself, requiring the technician to be physically at the unit with documentation written for engineers.
+Traditional configuration runs through DIP switches and cryptic 3-digit codes on the board itself, requiring the technician to be physically at the unit with documentation written for engineers.
 
 An incorrect setting can damage components before the system comes on for the first time.
 
@@ -34,7 +34,7 @@ Any configuration method requiring a powered board was eliminated, which ruled o
 
 The flow itself is straightforward by design: the app presents a prominent Read button to pull the current configuration off the board, settings appear as a simple list to configure, and a Write button transfers the updated configuration back over NFC.
 
-No power required. No dip switches. No cryptic codes.
+No power required. No DIP switches. No cryptic codes.
 
 The complexity that lived on the physical board moved into the app, where it could be managed correctly before anything touched hardware.
 
@@ -56,7 +56,7 @@ Once the system powered on, Bluetooth opened a diagnostic channel. The same app 
 
 One tool across two distinct phases of the technician's workflow, with a different protocol suited to each.
 
-WR Connect received a Gold Dealer Design Award from ACHR News.
+WR Connect won Gold for Most Valuable App at the 2023 ACHR News Dealer Design Awards.
 
 More telling: the core functionality was absorbed into Copeland Mobile, a broader platform serving the full product portfolio.
 

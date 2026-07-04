@@ -13,7 +13,7 @@ const SCROLL_TRAP_SELECTOR = '.chapter-copy-scroller'
 
 /** Regions that keep native wheel behavior (sidebar, overlays, etc.). */
 const WHEEL_IGNORE_SELECTOR =
-  '.sidebar-shell, .sidebar-desktop-shell, .sidebar-desktop-subnav, .contact-dialog, .phone-swap__tune-panel, .phone-swap__devtools, .phone-swap__viewbox, .phone-swap__scene, .quote-bowl__stage, .quote-bowl__canvas, .fortune-teller, .formation-lego__stage'
+  '.sidebar-shell, .sidebar-desktop-shell, .sidebar-desktop-subnav, .phone-swap__tune-panel, .phone-swap__devtools, .phone-swap__viewbox, .phone-swap__scene, .quote-bowl__stage, .quote-bowl__canvas, .fortune-teller, .formation-lego__stage'
 
 const HANDOFF_COOLDOWN_MS = 240
 const EDGE_EPSILON_PX = 4
