@@ -2,7 +2,9 @@ import { parseScopeEntry } from '@/lib/case-study/parseScopeEntry'
 import type {
   OverviewAwardBlock,
   OverviewBlock,
+  OverviewHighlightBlock,
   OverviewPatentEntry,
+  OverviewQuoteBlock,
 } from '@/lib/types'
 
 function OverviewScopeBlock({ items }: { items: readonly string[] }) {
@@ -73,6 +75,31 @@ function OverviewAwardBlock({ product, headline, detail }: OverviewAwardBlock) {
   )
 }
 
+function OverviewHighlightBlock({ label, headline, detail }: OverviewHighlightBlock) {
+  return (
+    <section className="case-study-overview-block case-study-overview-block--highlight">
+      <h3 className="case-study-overview-block__label">{label}</h3>
+      <aside className="case-study-overview-highlight">
+        <p className="case-study-overview-highlight__headline">{headline}</p>
+        {detail ? <p className="case-study-overview-highlight__detail">{detail}</p> : null}
+      </aside>
+    </section>
+  )
+}
+
+function OverviewQuoteBlock({ quote, attribution }: OverviewQuoteBlock) {
+  return (
+    <section className="case-study-overview-block case-study-overview-block--quote">
+      <blockquote className="case-study-overview-quote">
+        <p className="case-study-overview-quote__text">{quote}</p>
+        {attribution ? (
+          <footer className="case-study-overview-quote__attr">{attribution}</footer>
+        ) : null}
+      </blockquote>
+    </section>
+  )
+}
+
 interface Props {
   blocks: readonly OverviewBlock[]
 }
@@ -91,6 +118,10 @@ export function CaseStudyOverviewBlocks({ blocks }: Props) {
             return <OverviewPatentsBlock key={`patents-${index}`} items={block.items} />
           case 'award':
             return <OverviewAwardBlock key={`award-${index}`} {...block} />
+          case 'highlight':
+            return <OverviewHighlightBlock key={`highlight-${index}`} {...block} />
+          case 'quote':
+            return <OverviewQuoteBlock key={`quote-${index}`} {...block} />
           default:
             return null
         }

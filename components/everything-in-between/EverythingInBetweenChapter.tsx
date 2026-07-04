@@ -1,7 +1,6 @@
 'use client'
 
 import { CaseStudyFlowOverview } from '@/components/case-study/CaseStudyFlowOverview'
-import { EibConceptsSection } from '@/components/everything-in-between/EibConceptsSection'
 import { EibFormationSection } from '@/components/everything-in-between/EibFormationSection'
 import { EibPracticeSection } from '@/components/everything-in-between/EibPracticeSection'
 import { EibStagePreloads } from '@/components/everything-in-between/EibStagePreloads'
@@ -20,7 +19,6 @@ export function EverythingInBetweenChapter() {
         blocks={everythingElse.overviewBlocks}
         className="mobile-chapter-slot--overview"
       />
-      <EibConceptsSection />
       <EibFormationSection />
       <EibPracticeSection />
     </div>

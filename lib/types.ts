@@ -44,10 +44,25 @@ export interface OverviewAwardBlock {
   detail?: string
 }
 
+export interface OverviewHighlightBlock {
+  kind: 'highlight'
+  label: string
+  headline: string
+  detail?: string
+}
+
+export interface OverviewQuoteBlock {
+  kind: 'quote'
+  quote: string
+  attribution?: string
+}
+
 export type OverviewBlock =
   | OverviewScopeBlock
   | OverviewPatentsBlock
   | OverviewAwardBlock
+  | OverviewHighlightBlock
+  | OverviewQuoteBlock
 
 export interface Section {
   id: string

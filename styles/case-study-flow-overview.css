@@ -221,6 +221,69 @@
   color: var(--cs-body-color);
 }
 
+/* Highlight — same callout weight as the award box */
+.case-study-overview-highlight {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cs-block-gap);
+  margin: 0;
+  padding: var(--cs-emphasis-pad);
+  background: var(--cs-callout-bg);
+  border: none;
+  border-radius: var(--cs-block-radius);
+}
+
+.case-study-overview-highlight__headline {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 1.35;
+  color: var(--cs-body-color);
+}
+
+.case-study-overview-highlight__detail {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--cs-block-body-size);
+  line-height: var(--cs-block-body-leading);
+  color: var(--cs-body-color);
+}
+
+/* Signature quote — section landing statement */
+.case-study-overview-block--quote {
+  gap: 0;
+}
+
+.case-study-overview-quote {
+  margin: 0;
+  padding: var(--cs-emphasis-pad);
+  background: var(--cs-callout-bg);
+  border: none;
+  border-radius: var(--cs-block-radius);
+}
+
+.case-study-overview-quote__text {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: clamp(17px, 1.7vw, 21px);
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  color: var(--color-ink);
+  text-wrap: balance;
+}
+
+.case-study-overview-quote__attr {
+  margin: var(--cs-block-gap) 0 0;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
 @media (min-width: 640px) {
   .case-study-overview-scope {
     grid-template-columns: repeat(2, minmax(0, 1fr));

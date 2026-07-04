@@ -6,14 +6,10 @@
   "headline": "Software shows how it was built.",
   "overviewBlocks": [
     {
-      "kind": "scope",
-      "items": [
-        "Kelvin design system",
-        "Sensi MTM",
-        "Verdant Thermostat Manager",
-        "Copeland Connect+",
-        "Copeland TempTrak 6"
-      ]
+      "kind": "highlight",
+      "label": "Scale",
+      "headline": "4 products · 2 regulated domains · 1 system",
+      "detail": "Medical, cold-chain, hospitality, and SMB HVAC"
     }
   ],
   "lessonTitle": "",

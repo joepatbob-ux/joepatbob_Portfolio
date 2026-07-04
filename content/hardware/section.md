@@ -6,16 +6,6 @@
   "headline": "Hardware is where constraints become visible.",
   "overviewBlocks": [
     {
-      "kind": "scope",
-      "items": [
-        "Sensi Touch 2",
-        "Sensi EIM",
-        "Sensi Lite",
-        "Verdant VX4",
-        "Verdant Line Voltage"
-      ]
-    },
-    {
       "kind": "patents",
       "items": [
         {
