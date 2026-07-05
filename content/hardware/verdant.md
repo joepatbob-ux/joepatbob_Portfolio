@@ -26,4 +26,4 @@ The finalists went to A/B testing on PCB prototypes from our supplier, in a room
 
 **Knowledge should not stay trapped in one product line.**
 
-The wireless protocol we built for Verdant's hardware later turned up in Sensi's room-sensor architecture. Not because the two products share an ecosystem, but because the underlying problem was identical and the work already existed. When the same problem surfaces in two places, expertise from one is worth reaching for, and walling it off by product line carries a real cost.
+The wireless sensor protocol we built for Verdant's hardware later turned up in Sensi's room-sensor network. Not because the two products share an ecosystem, but because the underlying problem was identical and the work already existed. When the same problem surfaces in two places, expertise from one is worth reaching for, and walling it off by product line carries a real cost.

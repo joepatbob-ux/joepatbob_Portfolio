@@ -26,7 +26,7 @@ When navigation is flat, the order of the settings does real work; it is not jus
 
 **Testing had to include the whole product.**
 
-In usability testing, 23% of users stalled at the three-dot menu button because it did not read as something you could press, and auto mode made 30% hesitate — a sign the conditional sequencing was pulling its weight. Icon testing ran through five variants and settled on a square inside a circle, lifted from the media stop symbol; that one carried into later products. I also sat in on physical installs, watching people tuck wires, snap the unit onto its baseplate, and fight with the clips, and I fed what I saw back into the hardware. On a product this small, UI and physical design stop being separate problems.
+In usability testing, 23% of users stalled at the three-dot menu button because it did not read as something you could press, and auto mode made 30% hesitate — a sign the conditional sequencing was pulling its weight. Icon testing ran through five variants and settled on a square inside a circle, lifted from the media stop symbol; that one carried into later products. I also sat in on physical installs, watching people tuck wires, snap the unit onto its baseplate, and fight with the clips, and I turned what I saw into hardware requirements, from clip resistance and baseplate fit to where the controls sat. On a product this small, UI and physical design stop being separate problems.
 
 **When the display goes dark, the system still has to communicate.**
 

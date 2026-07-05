@@ -26,6 +26,6 @@ The less visible decision was building the interface architecture to carry featu
 
 **Physical and digital decisions were connected from the start.**
 
-I came in during the industrial design evaluation phase, running usability testing and feeding back on how each form-factor concept changed the UI. On a touchscreen the two sides are tied together at every level. Thickness moves the reach targets. Bezel width changes how much screen you feel you have. Screen size sets how dense an interaction can get before it feels cramped. I was the person sitting between those conversations.
+I came in during the industrial design evaluation phase, running usability testing and feeding back on how each form-factor concept changed the UI. On a touchscreen the two sides are tied together at every level. Thickness moves the reach targets. Bezel width changes how much screen you feel you have. Screen size sets how dense an interaction can get before it feels cramped. I was the person sitting between those conversations, and it ran in both directions. The form factor shaped the interface, and what the interface needed turned into requirements I handed back to industrial design and engineering: where a control sat, how a component had to behave, what the hardware had to leave room for.
 
 Touch 2 shipped at 0.77 inches, the thinnest smart thermostat in its category at launch. The interaction model later fed into consulting work with Trane's internal design team on their premium touchscreen thermostat, which was a good sign it held up outside our own product line.
