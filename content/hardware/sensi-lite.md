@@ -30,7 +30,7 @@ Usability testing showed 23% of users stalling at the three-dot menu button beca
 
 **When the display goes dark, the system still has to communicate.**
 
-Sensi Lite relies on power stealing from the HVAC system. When that power is lost or insufficient, the display cannot function — so the question becomes how the device reports its state when the screen a user would normally check has gone dark. I was part of the team that worked through what shuts down, in what order, and how state gets communicated when the hardware cannot show it: a prioritized shutdown sequence and a notification flow that surfaces device state through the cloud to the mobile app. The phone becomes the display when the thermostat cannot be. That work is the subject of US Patent 12,608,066, awarded April 2026.
+Sensi Lite relies on power stealing from the HVAC system. When that power is lost or insufficient, the display cannot function — so the question becomes how the device reports its state when the screen a user would normally check has gone dark. I was part of the team that worked through what shuts down, in what order, and how state gets communicated when the hardware cannot show it: a prioritized shutdown sequence and a notification flow that surfaces device state through the cloud to the mobile app, so the phone becomes the display when the thermostat cannot be. The low-power detection method behind that shutdown sequence is the subject of US Patent 12,608,066, awarded April 2026.
 
 **The decisions I lost changed how I work.**
 
