@@ -6,14 +6,14 @@
 }
 ---
 
-The standard design system playbook — freeze features, migrate everything, relaunch — does not work when users have regulatory SOPs tied to specific UI flows. The risk is too high, and the organizational appetite for that disruption does not exist.
+The usual design-system playbook — freeze the features, migrate everything, relaunch — falls apart the moment users have regulatory SOPs tied to specific screens. The risk is too high, and nobody in the organization has the appetite for that kind of disruption anyway.
 
-So Kelvin rolls out through a parallel track: new, non-critical features built in Kelvin run alongside the existing interface, where users can try them, give feedback, and keep using what they know. No forced migration, no retraining before the new experience has proven itself. This generates something a big-bang approach cannot — cross-product validation: a component proven in MTM, a lower-stakes HVAC context, informs how the same component gets calibrated for TempTrak's higher-stakes environment. Shared patterns, validated at different risk levels, in sequence.
-
----
-
-Alignment needed artifacts before the system was finished. Stakeholders investing in design infrastructure need to see it working before it is done, so I used AI to produce component documentation and stakeholder-facing artifacts fast enough that alignment happened while the work was still in progress. The speed mattered — but the judgment still came from the design work: what needed to exist, how it should behave, and where risk had to be managed.
+So Kelvin ships on a parallel track. New, non-critical features get built in Kelvin and run next to the existing interface, where users can try them, tell us what they think, and otherwise keep working the way they always have. Nothing is forced, and nobody has to retrain before the new thing has earned it. That approach buys something a big-bang rewrite never could: a component that proves out in MTM, a lower-stakes HVAC context, tells us how to tune the same component for the higher stakes of TempTrak. The same patterns get validated at rising levels of risk, one step at a time.
 
 ---
 
-The signal changed from resistance to demand. Users are not asking why things changed; they are asking for more, faster. Alarm acknowledgment, defrost cycle scheduling, sensor status management — tasks that once required navigating overlapping legacy paths now have a direct route. The before and after is not a visual comparison. It is the difference between users who resisted change and users asking when the next piece ships.
+Alignment needed something to look at before the system was actually finished. People being asked to invest in design infrastructure want to see it working first, so I used AI to turn out component documentation and stakeholder-facing artifacts quickly enough that the alignment conversations happened while the work was still underway. The speed helped, but the judgment was still mine to supply: what needed to exist, how it ought to behave, and where the risk had to be held.
+
+---
+
+The signal flipped from resistance to demand. People stopped asking why things had changed and started asking for more of it, faster. Alarm acknowledgment, defrost-cycle scheduling, sensor status management — tasks that used to mean threading through overlapping legacy paths now have one clear route. The real before-and-after here is not a screenshot. It is the shift from users who dug in against change to users asking when the next piece ships.

@@ -10,22 +10,22 @@
 }
 ---
 
-Sensi Touch 1 was designed to mirror the Sensi Smart, the Wi-Fi-connected fixed-segment thermostat next to it in the product line. That was a reasonable instinct for a first-generation touchscreen — but a touchscreen is not a fixed-segment display with more pixels. It is a different surface with a different contract.
+Sensi Touch 1 was built to mirror the Sensi Smart, the Wi-Fi fixed-segment thermostat sitting next to it in the product line. For a first-generation touchscreen, that was a reasonable instinct. But treating a touchscreen like a fixed-segment display with more pixels left most of what the hardware could do on the table.
 
-Touch 2 was the chance to correct that. Touch 1's menu structure was solid and I was not going to change navigation users already understood, but the visual language, interaction model, and interface architecture all had to change so the product could use the capabilities it already had.
+Touch 2 was the chance to fix that. The menu structure from Touch 1 was solid, and I had no interest in making users relearn navigation they already knew. What needed to change was the visual language, the interaction model, and the interface architecture underneath.
 
-Before design work began, I analyzed Touch 1's strengths and weaknesses, mapped the competitive landscape, and interviewed utility partners, contractors, and homeowners — each with different failure modes to surface. The breadth was not research for its own sake; it was the only way to know which problems were real.
+Before any design work, I went through Touch 1's strengths and weaknesses, mapped the competitive field, and interviewed utility partners, contractors, and homeowners. Each group ran into different problems, and hearing all three was the only way to tell which ones were worth solving.
 
 **One button, one job.**
 
-The most consequential change was not visual. Every screen has a primary action, and in Touch 1 that action was buried or inconsistent depending on where the user was. I introduced a persistent contextual action button — the most important next step, always in the same place, always relevant to the current screen. Users learn the pattern once and it works everywhere. That kind of consistency is invisible when it holds and expensive when it does not.
+The change that mattered most was not a visual one. Every screen has a primary action, and on Touch 1 that action moved around or hid depending on where you were. I gave it a fixed home: a contextual action button in the same spot on every screen, always set to the most important next step. Users learn it once, and after that it holds everywhere. Nobody notices consistency like that until it breaks.
 
 **The architecture had to outlive the first release.**
 
-The less visible decision was building the interface architecture to be extensible. Remote sensors and the Equipment Interface Module were not in scope at the time, but I built the UI framework so they could be added later without breaking what existed. They were added later, and they fit. That is what happens when architecture is treated as a design decision rather than an engineering detail.
+The less visible decision was building the interface architecture to carry features that were not scoped yet. Remote sensors and the Equipment Interface Module were nowhere on the roadmap when I laid out the framework, but I left room for them. When they arrived later, they slotted in without a rewrite. I treated the architecture as a design decision, not an engineering afterthought.
 
 **Physical and digital decisions were connected from the start.**
 
-I was involved from the industrial design evaluation phase, running testing and feeding back on how form-factor concepts affected the UI. On a touchscreen product, physical and digital decisions interact at every level: thickness affects reach targets, bezel width affects perceived screen space, screen size changes what interaction density feels acceptable. I was the connection between those conversations.
+I came in during the industrial design evaluation phase, running usability testing and feeding back on how each form-factor concept changed the UI. On a touchscreen the two sides are tied together at every level. Thickness moves the reach targets. Bezel width changes how much screen you feel you have. Screen size sets how dense an interaction can get before it feels cramped. I was the person sitting between those conversations.
 
-Touch 2 shipped at 0.77 inches, the thinnest smart thermostat in the category at launch. The interaction model later informed consulting work with Trane's internal design team on their premium touchscreen thermostat — confirming the work held up outside our own product line.
+Touch 2 shipped at 0.77 inches, the thinnest smart thermostat in its category at launch. The interaction model later fed into consulting work with Trane's internal design team on their premium touchscreen thermostat, which was a good sign it held up outside our own product line.

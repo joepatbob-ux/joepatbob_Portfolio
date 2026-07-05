@@ -10,30 +10,30 @@
 }
 ---
 
-Sensi Lite was the most constrained product I have worked on: thirty-two display segments and three buttons — up, down, and menu/action. The mandate was a complete thermostat experience for a budget-tier product that still had to feel considered.
+Sensi Lite was the most constrained product I have worked on: thirty-two display segments and three buttons — up, down, and menu/action. The brief was a complete thermostat experience for a budget-tier product that still had to feel considered.
 
-At this level of constraint, design becomes editorial. Every character has to earn its place, every button press has to count, and every hidden layer has to be hidden for a reason.
+With that little to work with, most of the design is deciding what to cut. A segment that is not doing real work, a button press that goes nowhere, a setting hidden out of habit rather than reason — none of it survives.
 
 **Navigation stayed flat because hierarchy was too expensive.**
 
-Hierarchy is expensive when you have three buttons — the same constraint as designing for a remote, where every state has to be reachable through a tiny, fixed input vocabulary. I kept navigation flat and cyclical — users move through settings in a loop rather than drilling into nested menus — and let the menu/action button change roles by press: a standard press advances the flow, a long press enters homeowner settings, and a second long press reaches contractor configuration.
+Three buttons make hierarchy expensive. It is the same problem as designing for a remote: every state has to be reachable through a tiny, fixed set of inputs. So I kept navigation flat and cyclical. Rather than drilling into nested menus, users loop through the settings, and the menu/action button does different jobs depending on how it is pressed. A normal press moves through the flow. A long press opens homeowner settings. A second long press reaches contractor configuration.
 
-That last layer matters. Contractor settings can break an HVAC configuration if a homeowner stumbles into them; the long-press-to-long-press pattern keeps them reachable for installers and out of sight for everyone else, without removing DIY capability.
+That last layer earns its obscurity. Contractor settings can break an HVAC configuration if a homeowner wanders into them, so the long-press-to-long-press gesture keeps them within reach for installers and out of the way for everyone else. Owners who want to get there still can.
 
 **With flat navigation, order becomes logic.**
 
-When navigation is flat, the sequence of settings is functional, not just organizational. Some settings are conditional — configure a heat pump, and reversing valve direction has to follow immediately. So I sequenced settings by dependency logic, defaulting the most common equipment configuration to the top to cut installation time.
+When navigation is flat, the order of the settings does real work; it is not just a filing system. Some settings depend on earlier ones — set up a heat pump, and reversing-valve direction has to come right after. So I ordered everything by those dependencies and put the most common equipment configuration first, which shaves time off the install.
 
 **Testing had to include the whole product.**
 
-Usability testing showed 23% of users stalling at the three-dot menu button because it did not read as interactive, and auto mode causing hesitation in 30% — confirming the conditional sequencing was doing real work. Icon testing across five variants landed on a square inside a circle, borrowed from the media stop symbol and carried into later products. I also watched physical installation — wire tucking, snap-to-baseplate behavior, clip resistance — and fed those observations back into the hardware. On a product this constrained, the line between UI and physical design is thin.
+In usability testing, 23% of users stalled at the three-dot menu button because it did not read as something you could press, and auto mode made 30% hesitate — a sign the conditional sequencing was pulling its weight. Icon testing ran through five variants and settled on a square inside a circle, lifted from the media stop symbol; that one carried into later products. I also sat in on physical installs, watching people tuck wires, snap the unit onto its baseplate, and fight with the clips, and I fed what I saw back into the hardware. On a product this small, UI and physical design stop being separate problems.
 
 **When the display goes dark, the system still has to communicate.**
 
-Sensi Lite relies on power stealing from the HVAC system. When that power is lost or insufficient, the display cannot function — so the question becomes how the device reports its state when the screen a user would normally check has gone dark. I was part of the team that worked through what shuts down, in what order, and how state gets communicated when the hardware cannot show it: a prioritized shutdown sequence and a notification flow that surfaces device state through the cloud to the mobile app, so the phone becomes the display when the thermostat cannot be. The low-power detection method behind that shutdown sequence is the subject of US Patent 12,608,066, awarded April 2026.
+Sensi Lite runs on power stolen from the HVAC system, and when that power drops too low the display cannot run. That raises an odd question: how does the device tell you what it is doing once the screen you would normally check has gone dark? I was part of the team that worked out the answer — what shuts down, in what order, and how the device reports its state when it cannot show anything itself. What we landed on was a prioritized shutdown sequence plus a notification flow that pushes device state through the cloud to the mobile app, so the phone stands in for the display when the thermostat cannot. The low-power detection method behind that shutdown sequence is the subject of US Patent 12,608,066, awarded April 2026.
 
 **The decisions I lost changed how I work.**
 
-Two positions did not survive stakeholder review, and post-launch data proved them right. I wanted fan circulation runtime surfaced higher for homeowners; it was pushed down for a mobile-first vision and became a recurring support issue. I proposed moving the menu/action button to the opposite side of the display to reduce accidental capacitive taps; hardware engineering preferred in-line alignment, and the taps became a post-launch issue that needed a firmware patch.
+Two of my positions did not survive stakeholder review, and the post-launch data proved both of them right. I wanted fan-circulation runtime surfaced higher for homeowners; it got pushed down in favor of a mobile-first vision and turned into a recurring support call. I argued for moving the menu/action button to the far side of the display to cut down on accidental capacitive taps; hardware engineering preferred keeping it in line, and those taps became a post-launch problem that needed a firmware patch.
 
-I do not tell those stories to relitigate them. I tell them because they taught me to document the testing rationale — if you are going to lose an argument, lose it with evidence, so when the data comes in the record is already there.
+I keep those two around for one reason: they taught me to write down the reasoning behind every test. If you are going to lose an argument, lose it on the record — then the evidence is already there when the data comes in and settles it.

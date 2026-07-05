@@ -8,14 +8,14 @@
 }
 ---
 
-Great design lives at the intersection of form and function — not a controversial position, but in practice a broader one than it seems, because form and function do not stop at the screen. The contractor installing the thermostat, the developer building the feature, the sales rep demoing it, the marketing team figuring out how to talk about it, the support team answering the call — they are all having an experience of what was designed. If those experiences are not considered, the design is not finished.
+Good design sits where form and function meet. That is not a bold claim on its own, but it stretches further than people usually take it, because form and function do not stop at the screen. The contractor mounting the thermostat, the developer building the feature, the sales rep demoing it, the marketer trying to explain it, the support agent taking the call — every one of them is having an experience of something that was designed. Leave those experiences out and the design simply is not finished.
 
-A product users love but sales cannot explain is leaving value on the table. A feature that tests well but developers dread building is not done. A workflow that works in the app but fails during installation is not a good experience. All of those touchpoints feed back into what the product becomes.
+A product users love but sales cannot explain is leaving money on the table. A feature that tests well but developers dread maintaining is not really done. A flow that works in the app but falls apart during installation is not a good experience, whatever the screens look like. All of it feeds back into what the product becomes.
 
-This is why I do not draw a hard line between UX and brand: a label on a package and a push notification on a phone are both moments where the product meets a person. The discipline is the same — understand the moment, understand the person, and make the interaction clear and honest.
+It is the same reason I do not draw a hard line between UX and brand. A label on a box and a push notification on a phone are both moments where a product meets a person, and the job is the same either way: read the moment, read the person, and make the exchange clear and honest.
 
 ---
 
-AI compresses the distance between decision and artifact. I use it to close that gap — building working prototypes from Figma, assembling documentation, exploring interface behavior, and creating stakeholder-facing material without the usual lag between design completion and communication. The speed matters when alignment needs to happen before a decision is made rather than after.
+AI has collapsed the distance between making a decision and having something to show for it. I lean on it to move through that gap fast: building working prototypes from Figma, drafting documentation, poking at how an interface behaves, putting together the material stakeholders need to see. The lag between finishing a design and being able to communicate it mostly disappears, which matters most when alignment has to happen before a decision is locked rather than after.
 
-What AI does not replace is judgment. It does not decide what is worth building, does not understand which constraint matters most, does not know when a familiar workflow carries regulatory risk, when a contractor will reject an interaction, or when a product surface is about to become too crowded to scale. That part does not compress. That is the work.
+What it does not do is make the calls. It will not tell you what is worth building, or which constraint outranks the others, or when a familiar workflow is quietly carrying regulatory risk, or when a contractor is going to reject an interaction outright, or when a surface is one feature away from being too crowded to hold together. That part does not compress. That part is the job.

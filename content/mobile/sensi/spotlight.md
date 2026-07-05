@@ -23,12 +23,12 @@
 }
 ---
 
-Sensi partners with utility companies on energy demand-response programs — enroll and save during peak hours. Good programs, but low enrollment, because there was no natural moment inside the app where users encountered them. There was also no clean way to surface new features without touching the thermostat card, the one screen users actually open the app for.
+Sensi runs demand-response programs with utility companies: enroll, and you save during peak hours. The programs are genuinely good, but enrollment was low, because nothing in the app ever put them in front of people at a natural moment. There was also no clean way to introduce a new feature without disturbing the thermostat card, which is the one screen people actually open the app to see.
 
-Spotlight is a named, dedicated section on the home screen — partner offers, product news, savings opportunities — clearly separated from the thermostat controls. The content is not mine: copy comes from Copeland's marketing team with energy partners, so I do not control headline length, offer framing, or partner branding. The card has one shot to inform and motivate before handing off to a partner-owned enrollment flow, and it cannot rely on what comes next.
+Spotlight is a named section on the home screen — partner offers, product news, savings — set apart from the thermostat controls. The content is not mine. It comes from Copeland's marketing team working with the energy partners, so I do not get to control headline length, how an offer is framed, or partner branding. Each card gets one shot to inform and motivate before it hands off to a partner's own enrollment flow, with no second screen to lean on.
 
-And it cannot feel like an ad. Sensi users trust the app as a neutral utility tool, and a content surface that reads as promotional undercuts that directly. But the bar is higher than not-an-ad: the card has to earn its tap — feel like a small, welcome discovery, something a user is glad surfaced rather than an interruption to scroll past. The decisions that follow hold both at once.
+And it cannot read like an ad. People trust Sensi as a straight utility tool, and a surface that feels promotional chips away at that fast. But not-an-ad is only the floor. A good card has to earn the tap: it should feel like a small, welcome find, something a user is glad turned up rather than something to scroll past. Every decision on the card came from trying to hold both of those at once.
 
 ---
 
-App Store ratings held flat: 4.7 iOS, 4.4 Android. For a content surface added to a utility app, no regression is the win. Enrollment increased measurably, and the integration path is reusable for future partners without redesign.
+App Store ratings held flat: 4.7 on iOS, 4.4 on Android. For a content surface bolted onto a utility app, holding flat is a win. Enrollment went up measurably, and the same integration can carry future partners without a redesign.

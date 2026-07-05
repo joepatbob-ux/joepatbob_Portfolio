@@ -2,4 +2,4 @@
 {}
 ---
 
-Eight years as the sole designer across five thermostat products — fixed-segment to touchscreen, DIY homeowner to hotel guest — each with its own failure modes, all of them one family. Not a visual-style problem; a decision-making one.
+Eight years as the sole designer across five thermostat products, from fixed-segment to touchscreen, DIY homeowner to hotel guest. Each had its own ways of failing, and all of them had to feel like one family. Keeping them coherent was never really a styling job; it came down to judgment, one call at a time.

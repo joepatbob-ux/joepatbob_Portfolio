@@ -27,10 +27,4 @@
 }
 ---
 
-Kelvin is named for Lord Kelvin, whose work on temperature measurement is foundational to the domains these products operate in.
-
-The system is built on a themed shadcn foundation with custom components developed for the interaction patterns that appear consistently across the portfolio: alarm management, schedule configuration, sensor and device status.
-
-The goal is not visual homogeneity.
-
-It is a shared language that makes each product feel like it belongs to the same family while serving its own context and user.
+Kelvin is named for Lord Kelvin, whose work on temperature measurement sits under every domain these products touch. It runs on a themed shadcn foundation, with custom components built for the patterns that keep recurring across the portfolio: alarm management, schedule configuration, sensor and device status. The aim was never to make the four products look identical. It was to give them a shared vocabulary, so each one feels like part of the same family while still serving its own users and its own context.

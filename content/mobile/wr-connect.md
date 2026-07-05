@@ -10,20 +10,20 @@
 }
 ---
 
-WR Connect was a blank canvas — no legacy to inherit, no existing users to protect, no accumulated design debt. The problem was hard enough on its own.
+WR Connect started from nothing: no legacy to inherit, no existing users to keep happy, no design debt. The problem was hard enough without any of that.
 
-The audience: contractors configuring ignition control boards under time pressure, often in tight mechanical spaces, with equipment that cannot be powered on if the configuration is wrong. A bad interaction does not mean frustration — it means damaged components and a return visit the contractor does not get paid for. Traditionally, configuration runs through DIP switches and cryptic 3-digit codes on the board itself, requiring the technician to be physically at the unit with documentation written for engineers, where an incorrect setting can damage components before the system ever comes on.
+Its users are contractors setting up ignition control boards under time pressure, usually in a cramped mechanical space, on equipment that cannot even be powered up until the configuration is right. A bad interaction here does not just annoy someone; it can damage components and send the contractor back for an unpaid return visit. The traditional way to configure these boards is DIP switches and cryptic three-digit codes printed on the board, documentation written for engineers, and the technician standing at the unit, where one wrong setting can fry something before the system ever runs.
 
 **The installation state defined the interaction model.**
 
-HVAC systems are off during installation, so any method requiring a powered board was eliminated — which ruled out Bluetooth for initial setup and pointed directly to NFC. The flow is straightforward by design: a prominent Read button pulls the current configuration off the board, settings appear as a simple list to change, and a Write button transfers the updated configuration back over NFC. No power required, no DIP switches, no cryptic codes. The complexity that lived on the physical board moved into the app, where it could be managed correctly before anything touched hardware.
+Because HVAC systems sit unpowered during installation, anything that needed a live board was off the table. That ruled out Bluetooth for initial setup and pointed straight at NFC. The flow ended up simple: a big Read button pulls the current configuration off the board, the settings show up as a plain list you can edit, and a Write button pushes the new configuration back over NFC. No power, no DIP switches, no three-digit codes. All the complexity that used to live on the board moved into the app, where a contractor can get it right before anything touches hardware.
 
 **Not every contractor needs the beginner path.**
 
-For repeat jobs, the app supports saved profiles — both predefined by Copeland and user-created — so a contractor who does the same board type regularly can skip the Read and write a known configuration directly. Experienced technicians who already know what needs changing can do the same. All three workflows are supported without forcing anyone through the one designed for the least experienced user.
+For repeat jobs, the app keeps saved profiles, some shipped by Copeland and some the contractor builds. Someone who installs the same board all week can skip the Read entirely and write a known configuration straight to it. A technician who already knows exactly what to change can do the same. The app carries all three paths without pushing everyone through the one built for a first-timer.
 
 **One tool across configuration and diagnostics.**
 
-The boards cover a meaningful range of the market: Copeland produces replacement boards for most competitor models a contractor would encounter, and WR Connect is the common configuration interface across all of them — one tool regardless of what is being replaced. Once the system powered on, Bluetooth opened a diagnostic channel, so the same app that configured the board could now monitor it in real time: live fault codes, system status, operational data. One tool across two distinct phases of the technician's workflow, with a different protocol suited to each.
+Copeland makes replacement boards for most of the competitor models a contractor runs into, and WR Connect drives all of them, so it is the same tool no matter what is being swapped in. Once the system powers on, Bluetooth opens a diagnostic channel, and the app that just configured the board can watch it run: live fault codes, system status, operating data. The board gets one tool for setup and another mode for diagnostics, each on the protocol that fits the moment.
 
-WR Connect won Gold for Most Valuable App at the 2023 ACHR News Dealer Design Awards. More telling: the core functionality was absorbed into Copeland Mobile, a broader platform serving the full product portfolio. The standalone app did not survive. The work did.
+WR Connect won Gold for Most Valuable App at the 2023 ACHR News Dealer Design Awards. The better signal came later: the core functionality was folded into Copeland Mobile, the broader platform for the whole product line. The standalone app was retired, but the work it proved out kept going.

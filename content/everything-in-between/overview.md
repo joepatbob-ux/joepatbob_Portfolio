@@ -2,4 +2,4 @@
 {}
 ---
 
-The thinking underneath the other sections — a portable demo kit, self-serve export tooling, packaging advocacy, consulting for Trane's design team — the work with no finished screen to point to, where the scope of design is as wide as you're willing to make it.
+The thinking underneath the other three sections: a portable demo kit, self-serve export tooling, packaging advocacy, a stint consulting for Trane's design team. None of it resolves into a screen you can point at, and how far design reaches turns out to depend mostly on how far you are willing to push it.

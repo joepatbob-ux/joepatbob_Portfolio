@@ -10,36 +10,20 @@
 }
 ---
 
-The Equipment Interface Module bridges thermostats to HVAC equipment in installations where standard wiring falls short.
+The Equipment Interface Module bridges thermostats to HVAC equipment in installations where the existing wiring cannot carry everything the system needs. Plenty of older homes have four wires or fewer, and a heat pump can require six. Competitors covered that range with three separate modules; the Sensi EIM covered it with one.
 
-In homes with four wires or fewer, heat pump installations may require six. Where competitors shipped three separate modules to cover the same range of use cases, the Sensi EIM handled all of them with one.
+The hard part was configuration, or really where the configuration had to happen.
 
-The design problem was configuration — specifically, where it had to happen.
-
-The obvious approach would have been configuring the EIM at the unit. But in a typical installation, that means traveling between the thermostat and the equipment, often through tight mechanical spaces or up and down stairs.
-
-Each trip is time a contractor is not billing for.
+The default assumption was that you would set the EIM up at the equipment. In a typical install, that means going back and forth between the thermostat and the unit, often through a cramped mechanical space or up and down stairs. Every one of those trips is time the contractor cannot bill for.
 
 **Move configuration to where the contractor already is.**
 
-I moved configuration to the thermostat.
+So I moved it to the thermostat. The contractor pairs the two devices, sets the equipment type and location once, and the EIM takes that information and configures itself. No return trips to the unit.
 
-Through a pairing and configuration flow built into the thermostat interface, the contractor sets equipment location and type once, without leaving. The EIM receives that information and configures itself.
-
-A workflow that used to require back-and-forth movement between two physical locations happens in one place.
-
-That is the kind of design work that does not look dramatic on a screen. The value is in removing movement, uncertainty, and lost time from the job.
+It is not the sort of work that photographs well; the value is in what it takes off the job, the walking and the uncertainty and the lost time.
 
 **Contractors noticed the part that mattered.**
 
-The field response made the value clear.
+In training sessions after launch, two separate distributor groups brought up the pairing process on their own — being able to configure from one place, without moving between the thermostat and the equipment. The launch webinar drew more than 180 contractors.
 
-In training sessions following launch, two separate distributor groups independently called out the pairing process as what they noticed most: configuring from one location without physically moving between the thermostat and equipment.
-
-The launch webinar drew more than 180 contractors.
-
-When the people the product was built for call out the workflow unprompted, that is validation.
-
-With contractors, silence is also data. They are vocal when something does not work. The pairing flow generated no iteration requests after launch.
-
-It just worked.
+Contractors tend to be vocal when something does not work, so silence carries information too. The pairing flow generated no iteration requests after launch. It did what it was supposed to.
