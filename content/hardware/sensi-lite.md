@@ -16,7 +16,7 @@ At this level of constraint, design becomes editorial. Every character has to ea
 
 **Navigation stayed flat because hierarchy was too expensive.**
 
-Hierarchy is expensive when you have three buttons. I kept navigation flat and cyclical — users move through settings in a loop rather than drilling into nested menus — and let the menu/action button change roles by press: a standard press advances the flow, a long press enters homeowner settings, and a second long press reaches contractor configuration.
+Hierarchy is expensive when you have three buttons — the same constraint as designing for a remote, where every state has to be reachable through a tiny, fixed input vocabulary. I kept navigation flat and cyclical — users move through settings in a loop rather than drilling into nested menus — and let the menu/action button change roles by press: a standard press advances the flow, a long press enters homeowner settings, and a second long press reaches contractor configuration.
 
 That last layer matters. Contractor settings can break an HVAC configuration if a homeowner stumbles into them; the long-press-to-long-press pattern keeps them reachable for installers and out of sight for everyone else, without removing DIY capability.
 

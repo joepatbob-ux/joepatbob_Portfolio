@@ -10,7 +10,7 @@
 }
 ---
 
-The Verdant VX4 and Line Voltage thermostats serve the hospitality market — a fundamentally different context than residential. Hotel guests speak different languages, arrive with different levels of technical familiarity, and interact with the thermostat once rather than over years. There is no onboarding, no help text a guest will read, no learning curve. The interface has to communicate immediately, to anyone, or it fails.
+The Verdant VX4 and Line Voltage thermostats serve the hospitality market — a fundamentally different context than residential. Hotel guests speak different languages, arrive with different levels of technical familiarity, and interact with the thermostat once rather than over years. There is no onboarding, no help text a guest will read, no learning curve. The interface has to communicate immediately, to anyone, or it fails. It is a lean-back interface in the truest sense: read from across the room, understood in a glance, driven without instruction.
 
 **Text was not a reliable tool.**
 
