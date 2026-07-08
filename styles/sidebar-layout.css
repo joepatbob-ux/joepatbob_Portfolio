@@ -167,9 +167,49 @@
   min-height: 44px;
 }
 
+/* Shared pill — chapter subnav + mobile contact links */
+.sidebar-nav-pill {
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  min-height: 44px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 9999px;
+  background: transparent;
+  box-shadow: none;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  line-height: 1.5;
+  color: var(--color-nav-faded-selection);
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    color 180ms ease,
+    background 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.sidebar-nav-pill:hover,
+.sidebar-nav-pill:focus-visible {
+  color: var(--color-accent);
+  box-shadow: 0 0 0 1px var(--color-accent);
+}
+
+.sidebar-nav-pill:focus-visible,
 .sidebar-subnav__chapter:focus-visible {
   outline: 2px solid var(--color-nav-pill-outline);
   outline-offset: 3px;
+}
+
+.sidebar-nav-pill[aria-current='true'] {
+  color: var(--color-accent);
+  background: var(--color-nav-pill-muted-accent-1);
 }
 
 /* Tablet: vertical collapsed rail → expands to desktop sidebar overlay */

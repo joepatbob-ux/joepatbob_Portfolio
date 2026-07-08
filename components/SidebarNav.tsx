@@ -832,7 +832,7 @@ export function SidebarNav() {
           <div className="sidebar-mobile-shell-footer" data-sidebar-nav-hit>
             <div className="sidebar-mobile-shell-footer__contact">
               <div ref={contactRef} className="sidebar-contact">
-                <ContactButton />
+                <ContactButton variant="panel" />
               </div>
             </div>
             <div

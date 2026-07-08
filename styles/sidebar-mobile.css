@@ -273,44 +273,11 @@
     pointer-events: auto;
   }
 
-  /* Contact — always expanded, stacked links (no hover-only reveal on touch). */
-  .sidebar-mobile-shell-footer .contact-liquid {
-    width: 100%;
-    height: auto;
-    display: block;
-  }
-
-  .sidebar-mobile-shell-footer .contact-liquid__surface {
-    width: 100% !important;
-    height: auto;
-    border-radius: 22px;
-    background: var(--color-nav-pill-muted-accent-1);
-    padding: 4px;
-  }
-
-  .sidebar-mobile-shell-footer .contact-liquid__label {
-    display: none;
-  }
-
-  .sidebar-mobile-shell-footer .contact-liquid__split {
+  .sidebar-contact-panel {
+    display: flex;
     flex-direction: column;
-    height: auto;
     gap: 6px;
-    padding: 0;
-  }
-
-  .sidebar-mobile-shell-footer .contact-liquid__btn {
-    flex: none;
     width: 100%;
-    min-height: 44px;
-    opacity: 1;
-    transform: none;
-    color: var(--color-accent);
-  }
-
-  .sidebar-mobile-shell-footer .contact-liquid__btn--email,
-  .sidebar-mobile-shell-footer .contact-liquid__btn--linkedin {
-    transform: none;
   }
 
   .sidebar-desktop-shell.sidebar-mobile-expanded .sidebar-shell__divider--horizontal {

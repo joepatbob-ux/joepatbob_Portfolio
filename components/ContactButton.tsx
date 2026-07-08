@@ -5,7 +5,33 @@ import {
   CONTACT_LINKEDIN_URL,
 } from '@/lib/contact'
 
-export function ContactButton() {
+interface Props {
+  /** `liquid` — desktop sidebar hover split; `panel` — mobile drawer chapter pills */
+  variant?: 'liquid' | 'panel'
+}
+
+export function ContactButton({ variant = 'liquid' }: Props) {
+  if (variant === 'panel') {
+    return (
+      <nav className="sidebar-contact-panel" aria-label="Contact">
+        <a
+          className="sidebar-nav-pill sidebar-subnav__chapter"
+          href={CONTACT_EMAIL_MAILTO}
+        >
+          Email
+        </a>
+        <a
+          className="sidebar-nav-pill sidebar-subnav__chapter"
+          href={CONTACT_LINKEDIN_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          LinkedIn
+        </a>
+      </nav>
+    )
+  }
+
   return (
     <div className="contact-liquid" aria-label="Contact — email or LinkedIn">
       <div className="contact-liquid__surface">
