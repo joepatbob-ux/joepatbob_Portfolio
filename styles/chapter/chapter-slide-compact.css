@@ -9,7 +9,7 @@
  */
 
 .chapter-slide__inner--compact-expand {
-  --ce-duration: 420ms;
+  --ce-duration: 520ms;
   --ce-ease: cubic-bezier(0.22, 1, 0.36, 1);
   position: relative;
   justify-content: center;
@@ -34,7 +34,8 @@
   pointer-events: none;
   transition:
     grid-template-rows var(--ce-duration) var(--ce-ease),
-    opacity var(--ce-duration) var(--ce-ease),
+    opacity calc(var(--ce-duration) * 0.55) var(--ce-ease)
+      calc(var(--ce-duration) * 0.45),
     flex var(--ce-duration) var(--ce-ease),
     max-height var(--ce-duration) var(--ce-ease);
 }
@@ -47,6 +48,12 @@
   min-height: 0 !important;
   opacity: 0;
   pointer-events: none;
+  transition:
+    grid-template-rows var(--ce-duration) var(--ce-ease),
+    opacity calc(var(--ce-duration) * 0.45) var(--ce-ease)
+      calc(var(--ce-duration) * 0.12),
+    flex var(--ce-duration) var(--ce-ease),
+    max-height var(--ce-duration) var(--ce-ease);
 }
 
 .chapter-compact-view__stage-fill {
@@ -120,7 +127,8 @@
   overflow: hidden;
   transition:
     grid-template-rows var(--ce-duration) var(--ce-ease),
-    opacity var(--ce-duration) var(--ce-ease);
+    opacity calc(var(--ce-duration) * 0.55) var(--ce-ease)
+      calc(var(--ce-duration) * 0.45);
 }
 
 .chapter-compact-view__story-scroll {
@@ -132,6 +140,10 @@
   .chapter-compact-view__story {
   grid-template-rows: 1fr;
   opacity: 1;
+  transition:
+    grid-template-rows var(--ce-duration) var(--ce-ease),
+    opacity calc(var(--ce-duration) * 0.45) var(--ce-ease)
+      calc(var(--ce-duration) * 0.12);
 }
 
 .chapter-slide__inner--compact-expand[data-chapter-expanded='true']

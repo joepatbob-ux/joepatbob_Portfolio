@@ -186,12 +186,14 @@
   .sidebar-desktop-subnav.sidebar-mobile-expanded {
     visibility: visible;
     pointer-events: auto;
+    transition: visibility 0s;
   }
 
   .sidebar-desktop-shell:not(.sidebar-mobile-expanded),
   .sidebar-desktop-subnav:not(.sidebar-mobile-expanded) {
     visibility: hidden;
     pointer-events: none;
+    transition: visibility 0s linear var(--mobile-sidebar-duration);
   }
 
   .sidebar-desktop-shell .sidebar-shell--fixed {
@@ -236,11 +238,6 @@
     transform: translate3d(0, -50%, 0) !important;
     pointer-events: auto;
     transition-delay: 0.08s !important;
-  }
-
-  .sidebar-desktop-shell:not(.sidebar-mobile-expanded) .sidebar-shell--fixed {
-    opacity: 0 !important;
-    filter: none !important;
   }
 
   .sidebar-overlay-close--mobile-panel {

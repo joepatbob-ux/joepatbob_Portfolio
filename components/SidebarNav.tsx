@@ -42,6 +42,7 @@ const NAV_FADED   = 'var(--color-nav-faded-selection)'
 const NAV_PILL_1  = 'var(--color-nav-pill-muted-accent-1)'
 const STAGGER_MS      = 60
 const TRANSITION_MS   = 320
+const MOBILE_SIDEBAR_MS = 420
 const SUBNAV_DELAY_MS = 280
 const BLUR_PX         = 6
 const NAV_TOP_PX      = 24
@@ -332,13 +333,16 @@ export function SidebarNav() {
       return
     }
     if (!prevStuck.current) {
-      setSubNavVisible(false)
-      syncSidebarDivider(isInHeroScrollZone())
-      setDimActive(false)
-      setNavIsStuck(false)
-      setChapterItemsVisible([])
-      staggerTimers.current.forEach(clearTimeout)
-      staggerTimers.current = []
+      const t = window.setTimeout(() => {
+        setSubNavVisible(false)
+        syncSidebarDivider(isInHeroScrollZone())
+        setDimActive(false)
+        setNavIsStuck(false)
+        setChapterItemsVisible([])
+        staggerTimers.current.forEach(clearTimeout)
+        staggerTimers.current = []
+      }, MOBILE_SIDEBAR_MS)
+      return () => window.clearTimeout(t)
     }
   }, [usesTopBarNav, mobileDrawerOpen, staggerIn, syncSidebarDivider])
 

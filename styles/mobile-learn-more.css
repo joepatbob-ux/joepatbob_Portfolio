@@ -6,6 +6,8 @@
 
 /* Portal root (document.body) — height synced to visualViewport in JS */
 .mobile-learn-more-sheet {
+  --mobile-sheet-duration: 0.42s;
+  --mobile-sheet-ease: cubic-bezier(0.32, 0.72, 0, 1);
   --mobile-sheet-pad-left: max(clamp(16px, 4vw, 24px), env(safe-area-inset-left, 0px));
   --mobile-sheet-pad-right: max(clamp(16px, 4vw, 24px), env(safe-area-inset-right, 0px));
 
@@ -31,6 +33,12 @@
   cursor: pointer;
   pointer-events: auto;
   touch-action: none;
+  opacity: 0;
+  transition: opacity var(--mobile-sheet-duration) var(--mobile-sheet-ease);
+}
+
+.mobile-learn-more-sheet[data-state='open'] .mobile-learn-more-sheet__scrim {
+  opacity: 1;
 }
 
 .mobile-learn-more-sheet__panel {
@@ -46,6 +54,16 @@
   color: var(--color-ink);
   box-shadow: none;
   pointer-events: auto;
+  opacity: 0;
+  transform: translate3d(0, 12px, 0);
+  transition:
+    opacity var(--mobile-sheet-duration) var(--mobile-sheet-ease),
+    transform var(--mobile-sheet-duration) var(--mobile-sheet-ease);
+}
+
+.mobile-learn-more-sheet[data-state='open'] .mobile-learn-more-sheet__panel {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
 }
 
 .mobile-learn-more-sheet__header {
@@ -152,9 +170,25 @@
   }
 }
 
+.mobile-learn-more-sheet[data-state='open'] {
+  visibility: visible;
+  pointer-events: none;
+  transition: visibility 0s;
+}
+
 .mobile-learn-more-sheet[data-state='closed'] {
   visibility: hidden;
   pointer-events: none;
   z-index: -1;
   overflow: hidden;
+  transition: visibility 0s linear var(--mobile-sheet-duration);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobile-learn-more-sheet__scrim,
+  .mobile-learn-more-sheet__panel,
+  .mobile-learn-more-sheet[data-state='closed'] {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
 }
