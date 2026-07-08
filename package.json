@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "rebuild": "npm run build && npm run preview",
     "lint": "tsc --noEmit",
-    "audit:assets": "node scripts/audit-assets.mjs"
+    "audit:assets": "node scripts/audit-assets.mjs",
+    "generate:og-share": "node scripts/generate-og-share.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^9.122.0",

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>OG share card</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      @font-face {
+        font-family: 'Alte Haas Grotesk Bold';
+        src: url('../public/fonts/AlteHaasGroteskBold.woff2') format('woff2');
+        font-weight: 700;
+        font-style: normal;
+      }
+
+      @font-face {
+        font-family: 'Alte Haas Grotesk';
+        src: url('../public/fonts/AlteHaasGroteskRegular.woff2') format('woff2');
+        font-weight: 400;
+        font-style: normal;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html,
+      body {
+        width: 1200px;
+        height: 630px;
+        overflow: hidden;
+        background: #040404;
+      }
+
+      .card {
+        display: flex;
+        flex-direction: row;
+        width: 1200px;
+        height: 630px;
+        background: #040404;
+        overflow: hidden;
+      }
+
+      .copy {
+        flex: 0 0 620px;
+        padding: 80px 40px 0 96px;
+      }
+
+      .rule {
+        width: 48px;
+        height: 3px;
+        background: #de3e18;
+        margin-bottom: 22px;
+      }
+
+      .name {
+        font-family: 'Alte Haas Grotesk Bold', sans-serif;
+        font-weight: 700;
+        font-size: 72px;
+        line-height: 0.92;
+        letter-spacing: -0.02em;
+        text-transform: uppercase;
+        color: #f0eeea;
+        margin-bottom: 22px;
+      }
+
+      .name__line {
+        display: block;
+      }
+
+      .name__period {
+        color: #de3e18;
+      }
+
+      .role {
+        font-family: 'Alte Haas Grotesk Bold', sans-serif;
+        font-weight: 700;
+        font-size: 22px;
+        line-height: 1.15;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: #f0eeea;
+        margin-bottom: 28px;
+      }
+
+      .positioning {
+        font-family: 'Alte Haas Grotesk', sans-serif;
+        font-weight: 400;
+        font-size: 24px;
+        line-height: 1.35;
+        color: rgba(240, 238, 234, 0.78);
+        max-width: 520px;
+        margin-bottom: 36px;
+      }
+
+      .url {
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: 700;
+        font-size: 15px;
+        letter-spacing: 0.04em;
+        text-transform: lowercase;
+        color: #de3e18;
+      }
+
+      .portrait-wrap {
+        flex: 1;
+        min-width: 0;
+        height: 630px;
+        overflow: hidden;
+      }
+
+      .portrait {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        /* Focal point right of center — fills frame, clips empty bg on the left not the body */
+        object-position: 68% 6%;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="copy">
+        <div class="name">
+          <span class="name__line">Joseph Patrick</span>
+          <span class="name__line"
+            >Roberts<span class="name__period">.</span></span
+          >
+        </div>
+        <div class="rule" aria-hidden="true"></div>
+        <div class="role">Principal Product Designer</div>
+        <p class="positioning">
+          I design product systems across hardware, mobile, web apps, and everything in
+          between.
+        </p>
+        <div class="url">joepatbob.com</div>
+      </div>
+      <div class="portrait-wrap">
+        <img
+          class="portrait"
+          src="../public/images/PortraitDark_MG_3490-optimized.jpg"
+          alt=""
+        />
+      </div>
+    </div>
+  </body>
+</html>
