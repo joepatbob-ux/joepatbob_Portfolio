@@ -62,7 +62,6 @@
 
 .mobile-sub-story {
   padding: clamp(28px, 4vh, 40px) 0;
-  border-top: 1px solid rgba(26, 26, 26, 0.12);
 }
 
 .mobile-sub-story:first-child {

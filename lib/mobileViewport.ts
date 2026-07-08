@@ -17,7 +17,8 @@ export function syncElementToVisualViewport(el: HTMLElement): void {
   const vv = window.visualViewport
   if (!vv) return
 
-  el.style.top = `${Math.round(vv.offsetTop)}px`
+  const scrollLocked = document.body.style.position === 'fixed'
+  el.style.top = scrollLocked ? '0px' : `${Math.round(vv.offsetTop)}px`
   el.style.height = `${Math.round(vv.height)}px`
   el.style.bottom = 'auto'
 }

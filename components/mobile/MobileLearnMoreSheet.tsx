@@ -3,6 +3,7 @@
 import { useBodyScrollLock } from '@/lib/hooks/useBodyScrollLock'
 import { useDialogFocusTrap } from '@/lib/hooks/useDialogFocusTrap'
 import { useVisualViewportOverlay } from '@/lib/hooks/useVisualViewportOverlay'
+import { syncElementToVisualViewport } from '@/lib/mobileViewport'
 import { OverlayActionPill } from '@/components/ui/OverlayActionPill'
 import { useEffect, useId, useRef } from 'react'
 import { createPortal } from 'react-dom'
@@ -18,10 +19,22 @@ export function MobileLearnMoreSheet({ open, onClose, title, children }: Props) 
   const titleId = useId()
   const rootRef = useRef<HTMLDivElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
+  const bodyRef = useRef<HTMLDivElement>(null)
 
   useVisualViewportOverlay(rootRef, open)
   useDialogFocusTrap(panelRef, open)
   useBodyScrollLock(open)
+
+  useEffect(() => {
+    if (!open) return
+    bodyRef.current?.scrollTo(0, 0)
+    const syncRoot = () => {
+      if (rootRef.current) syncElementToVisualViewport(rootRef.current)
+    }
+    // Body scroll lock applies in useEffect — resync after that pass.
+    syncRoot()
+    requestAnimationFrame(syncRoot)
+  }, [open])
 
   useEffect(() => {
     if (!open) return
@@ -64,7 +77,7 @@ export function MobileLearnMoreSheet({ open, onClose, title, children }: Props) 
             aria-hidden
           />
         </div>
-        <div className="mobile-learn-more-sheet__body">{children}</div>
+        <div ref={bodyRef} className="mobile-learn-more-sheet__body">{children}</div>
         <div className="mobile-learn-more-sheet__footer overlay-action-footer">
           <OverlayActionPill variant="primary" onClick={onClose}>
             Close

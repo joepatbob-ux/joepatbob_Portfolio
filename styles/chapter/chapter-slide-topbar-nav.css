@@ -91,6 +91,26 @@
     gap: var(--cs-mobile-section-gap, var(--cs-section-gap));
   }
 
+  /* Compact More/Less expand — anchor story to top instead of floating mid-screen */
+  .portfolio-chapter-slot--fill.hardware-slideshow
+    .portfolio-chapter-panel:has(
+      .chapter-slide__inner--compact-expand[data-chapter-expanded='true']
+    ) {
+    justify-content: flex-start;
+  }
+
+  .hardware-slideshow
+    .chapter-slide__viewport:has(
+      .chapter-slide__inner--compact-expand[data-chapter-expanded='true']
+    ) {
+    justify-content: flex-start;
+  }
+
+  .hardware-slideshow
+    .chapter-slide__inner--compact-expand[data-chapter-expanded='true'] {
+    padding-top: var(--mobile-nav-overlay-height);
+  }
+
   .hardware-slideshow
     .chapter-slide__stage:not(:has(.flow-chapter-slide__stage--empty)) {
     margin-top: 0;

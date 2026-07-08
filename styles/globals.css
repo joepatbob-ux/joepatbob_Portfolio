@@ -1547,11 +1547,6 @@ html {
   width: 100%;
   max-width: var(--cs-copy-measure-max, 70ch);
   margin-top: 0.25em;
-  border-bottom: 1px solid var(--cs-hairline);
-}
-
-.chapter-fact {
-  border-top: 1px solid var(--cs-hairline);
 }
 
 .chapter-fact__trigger {
