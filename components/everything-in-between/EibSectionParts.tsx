@@ -1,4 +1,3 @@
-import type { ReactNode } from 'react'
 import {
   CONTACT_EMAIL,
   CONTACT_EMAIL_MAILTO,
@@ -85,8 +84,4 @@ export function EibPracticeClose({ statement }: { statement: string }) {
       </p>
     </footer>
   )
-}
-
-export function EibSubSectionIntro({ children }: { children: ReactNode }) {
-  return <div className="eib-sub-intro mobile-prose">{children}</div>
 }

@@ -21,54 +21,6 @@ type WrConnectMeta = {
   imageAlt: string
 }
 
-function loadColorModeStory(raw: string) {
-  const { meta, body } = parseMarkdownFile<{
-    heading: string
-    problems: readonly { label: string; text: string }[]
-    scrubber: {
-      beforeSrc: string
-      afterSrc: string
-      beforeAlt: string
-      afterAlt: string
-      caption: string
-    }
-  }>(raw)
-
-  return {
-    heading: meta.heading,
-    body,
-    problems: meta.problems,
-    scrubber: meta.scrubber,
-  }
-}
-
-function loadInstallFlowStory(raw: string) {
-  const { meta, body } = parseMarkdownFile<{ heading: string }>(raw)
-  return { heading: meta.heading, body }
-}
-
-function loadSpotlightStory(raw: string) {
-  const { meta, body } = parseMarkdownFile<{
-    heading: string
-    decisions: readonly { label: string; text: string }[]
-    testingHeading: string
-  }>(raw)
-  const parts = body.split(/\n---\n/).map((part) => part.trim())
-  const intro = parts[0] ?? ''
-  // Two sections: intro + close. Three sections: intro + testing + close.
-  const testingBody = parts.length >= 3 ? (parts[1] ?? '') : ''
-  const closeBody = parts.length >= 3 ? (parts[2] ?? '') : (parts[1] ?? '')
-
-  return {
-    heading: meta.heading,
-    intro,
-    decisions: meta.decisions,
-    testingHeading: meta.testingHeading,
-    testingBody,
-    closeBody,
-  }
-}
-
 const SENSI_FOLDER = 'mobile/sensi'
 const sensiIntro = parseMarkdownFile<SensiIntroMeta>(
   requireContentRaw(`${SENSI_FOLDER}/intro`),
@@ -77,11 +29,6 @@ const sensiIntro = parseMarkdownFile<SensiIntroMeta>(
 export const MOBILE_SENSI = {
   headline: sensiIntro.meta.headline,
   intro: sensiIntro.body,
-  subStories: [
-    loadColorModeStory(requireContentRaw(`${SENSI_FOLDER}/color-mode`)),
-    loadInstallFlowStory(requireContentRaw(`${SENSI_FOLDER}/install-flow`)),
-    loadSpotlightStory(requireContentRaw(`${SENSI_FOLDER}/spotlight`)),
-  ],
 } as const
 
 const wrConnect = parseMarkdownFile<WrConnectMeta>(

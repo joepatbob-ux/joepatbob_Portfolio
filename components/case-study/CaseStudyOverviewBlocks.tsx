@@ -90,12 +90,28 @@ function OverviewHighlightBlock({ label, headline, detail }: OverviewHighlightBl
 function OverviewQuoteBlock({ quote, attribution }: OverviewQuoteBlock) {
   return (
     <section className="case-study-overview-block case-study-overview-block--quote">
-      <blockquote className="case-study-overview-quote">
-        <p className="case-study-overview-quote__text">{quote}</p>
+      <figure className="case-study-overview-quote">
+        <span
+          className="case-study-overview-quote__mark case-study-overview-quote__mark--open"
+          aria-hidden
+        >
+          &ldquo;
+        </span>
+        <blockquote className="case-study-overview-quote__text">
+          <p>{quote}</p>
+        </blockquote>
+        <span
+          className="case-study-overview-quote__mark case-study-overview-quote__mark--close"
+          aria-hidden
+        >
+          &rdquo;
+        </span>
         {attribution ? (
-          <footer className="case-study-overview-quote__attr">{attribution}</footer>
+          <figcaption className="case-study-overview-quote__attr">
+            {attribution}
+          </figcaption>
         ) : null}
-      </blockquote>
+      </figure>
     </section>
   )
 }

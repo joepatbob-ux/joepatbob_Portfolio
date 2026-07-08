@@ -126,17 +126,10 @@
   justify-items: start;
 }
 
-@media (min-width: 1200px) {
-  .chapter-slide__copy:not(.chapter-slide__copy--lessons) .chapter-slide__body {
-    grid-template-columns: 1fr 1fr;
-    column-gap: clamp(1.25rem, 3vw, 2rem);
-  }
-}
-
 .chapter-slide__copy:not(.chapter-slide__copy--lessons) .chapter-copy__body {
   max-width: var(--cs-copy-measure-max);
-  font-size: 14px;
-  line-height: 1.65;
+  font-size: var(--cs-body-size, 16px);
+  line-height: var(--cs-body-leading, 1.6);
   margin: 0;
 }
 

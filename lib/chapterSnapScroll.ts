@@ -2,6 +2,7 @@ import {
   resetAllChapterCopyScrollers,
   resetChapterCopyScrollersAfterSnap,
 } from '@/lib/chapterCopyScrollReset'
+import { isContinuousChapters } from '@/lib/continuousChapters'
 
 const CHAPTER_SLOT_SELECTOR = '.portfolio-chapter-slot[data-chapter-id]'
 
@@ -13,9 +14,23 @@ export function elementDocumentTop(el: HTMLElement): number {
 /**
  * Document scroll Y that aligns a chapter snap slot to the viewport top.
  * Uses getBoundingClientRect (not offsetTop) and honors scroll-margin-top.
+ *
+ * Overview slides are the exception: in continuous mode they carry a
+ * symmetric scroll buffer above and below copy that is centered in the band,
+ * so top-aligning the band leaves the copy sitting low. Align band center to
+ * viewport center instead so navigation lands with the copy centered.
  */
 export function chapterSlotScrollTop(slot: HTMLElement): number {
   let top = elementDocumentTop(slot)
+  const slotHeight = slot.getBoundingClientRect().height
+  const viewportHeight = window.innerHeight
+  if (
+    isContinuousChapters() &&
+    slot.classList.contains('case-study-flow-overview') &&
+    slotHeight > viewportHeight
+  ) {
+    top += (slotHeight - viewportHeight) / 2
+  }
   const marginTop = parseFloat(getComputedStyle(slot).scrollMarginTop)
   if (Number.isFinite(marginTop) && marginTop > 0) {
     top -= marginTop

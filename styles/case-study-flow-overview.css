@@ -10,9 +10,12 @@
   .mobile-section-header__headline {
   font-family: var(--font-body);
   font-weight: 600;
-  font-size: clamp(28px, 3.2vw, 40px);
-  line-height: 1.15;
-  letter-spacing: -0.02em;
+  font-size: clamp(32px, 4.4vw, 58px);
+  line-height: 1.06;
+  letter-spacing: -0.025em;
+  max-width: 20ch;
+  margin-inline: auto;
+  text-wrap: balance;
 }
 
 .case-study-flow-overview .case-study-flow-overview__prose,
@@ -80,22 +83,61 @@
 }
 
 .case-study-flow-overview__inner--center .case-study-flow-overview__prose {
+  text-align: center;
+}
+
+/* Blocks sit in the same centered column but read left-aligned (spec rows, accent bars) */
+.case-study-flow-overview__inner--center .case-study-overview-blocks {
+  text-align: left;
+}
+
+.case-study-flow-overview__inner--center .case-study-overview-block--quote {
+  text-align: center;
+}
+
+.case-study-flow-overview__inner--center .chapter-facts {
   text-align: left;
 }
 
 .case-study-flow-overview__prose {
   margin-bottom: 0;
   width: 100%;
+  max-width: var(--cs-copy-measure-max, 70ch);
+  margin-inline: auto;
+}
+
+/* chapter-slide-hardware.css narrows .mobile-prose__p to a reading measure
+   for left-aligned chapter copy but never centers it (correct there — body
+   text hangs left under a left-aligned headline). Its selector has more
+   classes than the rule above, so it wins the cascade here too and leaves
+   overview paragraphs narrowed but hugging the left edge under a centered
+   headline. Force the center back with !important rather than chase
+   specificity. */
+.case-study-flow-overview .case-study-flow-overview__prose,
+.case-study-flow-overview .case-study-flow-overview__prose .mobile-prose__p {
+  max-width: var(--cs-copy-measure-max, 70ch) !important;
+  margin-inline: auto !important;
+}
+
+/* Editorial lede — the opening paragraph reads at display size */
+.case-study-flow-overview__prose .mobile-prose__p:first-child,
+.case-study-flow-overview .mobile-prose__p:first-child {
+  font-size: clamp(17px, 1.5vw, 21px);
+  line-height: 1.5;
+  letter-spacing: -0.01em;
+  color: var(--color-ink);
 }
 
 /* ── Overview blocks — scope grid, patents, award ── */
 
 .case-study-overview-blocks {
   width: 100%;
-  margin-top: clamp(24px, 4vh, 40px);
+  max-width: var(--cs-copy-measure-max, 70ch);
+  margin-inline: auto;
+  margin-top: clamp(20px, 3vh, 32px);
   display: flex;
   flex-direction: column;
-  gap: clamp(20px, 3vh, 28px);
+  gap: clamp(16px, 2.5vh, 24px);
 }
 
 .case-study-overview-block {
@@ -114,6 +156,7 @@
   text-transform: uppercase;
   color: var(--color-accent);
   line-height: 1.35;
+  text-align: left;
 }
 
 .case-study-overview-scope {
@@ -122,6 +165,7 @@
   gap: 10px;
   margin: 0;
   padding: 0;
+  text-align: left;
 }
 
 .case-study-overview-scope__name {
@@ -149,10 +193,11 @@
   gap: var(--cs-block-gap);
   min-width: 0;
   margin: 0;
-  padding: var(--cs-block-pad);
-  background: var(--cs-block-bg);
+  padding: 12px 0 0;
+  background: none;
   border: none;
-  border-radius: var(--cs-block-radius);
+  border-top: 1px solid var(--cs-hairline);
+  text-align: left;
 }
 
 .case-study-overview-patent__number {
@@ -187,10 +232,11 @@
   flex-direction: column;
   gap: var(--cs-block-gap);
   margin: 0;
-  padding: var(--cs-emphasis-pad);
-  background: var(--cs-callout-bg);
+  padding: 2px 0 2px 18px;
+  background: none;
   border: none;
-  border-radius: var(--cs-block-radius);
+  border-left: 2px solid var(--color-accent);
+  text-align: left;
 }
 
 .case-study-overview-award__product {
@@ -221,16 +267,17 @@
   color: var(--cs-body-color);
 }
 
-/* Highlight — same callout weight as the award box */
+/* Highlight — same accent-bar weight as the award */
 .case-study-overview-highlight {
   display: flex;
   flex-direction: column;
   gap: var(--cs-block-gap);
   margin: 0;
-  padding: var(--cs-emphasis-pad);
-  background: var(--cs-callout-bg);
+  padding: 2px 0 2px 18px;
+  background: none;
   border: none;
-  border-radius: var(--cs-block-radius);
+  border-left: 2px solid var(--color-accent);
+  text-align: left;
 }
 
 .case-study-overview-highlight__headline {
@@ -250,32 +297,57 @@
   color: var(--cs-body-color);
 }
 
-/* Signature quote — section landing statement */
+/* Signature quote — section landing statement with oversized accent marks */
 .case-study-overview-block--quote {
   gap: 0;
 }
 
 .case-study-overview-quote {
-  margin: 0;
-  padding: var(--cs-emphasis-pad);
-  background: var(--cs-callout-bg);
-  border: none;
-  border-radius: var(--cs-block-radius);
+  margin: clamp(8px, 1.5vh, 16px) auto 0;
+  padding: 0 clamp(8px, 2vw, 24px);
+  max-width: min(52ch, 100%);
+  text-align: center;
+}
+
+.case-study-overview-quote__mark {
+  display: block;
+  font-family: var(--font-ahg);
+  font-weight: 700;
+  color: var(--color-accent);
+  user-select: none;
+  letter-spacing: -0.02em;
+  line-height: 0.85;
+}
+
+.case-study-overview-quote__mark--open {
+  font-size: clamp(56px, 7vw, 96px);
+  margin-bottom: clamp(-8px, -1vw, -4px);
+}
+
+.case-study-overview-quote__mark--close {
+  font-size: clamp(40px, 5vw, 72px);
+  margin-top: clamp(4px, 1vh, 12px);
 }
 
 .case-study-overview-quote__text {
   margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.case-study-overview-quote__text p {
+  margin: 0;
   font-family: var(--font-body);
   font-weight: 600;
-  font-size: clamp(17px, 1.7vw, 21px);
-  line-height: 1.4;
+  font-size: clamp(18px, 1.9vw, 24px);
+  line-height: 1.45;
   letter-spacing: -0.01em;
   color: var(--color-ink);
   text-wrap: balance;
 }
 
 .case-study-overview-quote__attr {
-  margin: var(--cs-block-gap) 0 0;
+  margin: clamp(12px, 2vh, 18px) 0 0;
   font-family: var(--font-mono);
   font-weight: 700;
   font-size: 11px;
@@ -305,10 +377,6 @@
   .case-study-overview-blocks {
     margin-top: clamp(20px, 3.5vh, 32px);
   }
-}
-
-.case-study-flow-overview__inner--center .case-study-overview-blocks {
-  text-align: left;
 }
 
 /* Tablet/desktop — centered band, no inner copy scroll */

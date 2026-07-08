@@ -7,8 +7,11 @@ import { ChapterSlideCopy } from '@/components/chapter-slide/ChapterSlideCopy'
 import { ChapterSlideShell } from '@/components/chapter-slide/ChapterSlideShell'
 import { InteractiveStageCursor } from '@/components/chapter-slide/InteractiveStageCursor'
 import { ChapterCopyReveal } from '@/components/chapter-slide/ChapterCopyReveal'
-import { formatChapterInline } from '@/lib/chapter-slide/formatChapterInline'
-import { parseChapterBody } from '@/lib/chapter-slide/parseChapterBody'
+import { ChapterBodyGroups } from '@/components/chapter-slide/ChapterBodyGroups'
+import {
+  groupChapterBody,
+  parseChapterBody,
+} from '@/lib/chapter-slide/parseChapterBody'
 import { getChapterCopyColumnClasses } from '@/lib/chapter-slide/layoutMode'
 import { useChapterStageReady } from '@/lib/chapterStageMountContext'
 import { useChapterLayoutMode } from '@/lib/hooks/useChapterLayoutMode'
@@ -43,6 +46,7 @@ export function ChapterSlideLayout({
   const stageReady = useChapterStageReady()
   const copyScrollActive = useCopyScrollActive(chapterId)
   const bodyParagraphs = parseChapterBody(chapter.body)
+  const bodyGroups = groupChapterBody(bodyParagraphs)
 
   const stageInner = interactiveCursor ? (
     <InteractiveStageCursor ringOverSelector="button[data-lite-hit]">
@@ -86,11 +90,7 @@ export function ChapterSlideLayout({
       <div className={getChapterCopyColumnClasses({ mode })}>
         <ChapterCopyReveal headline={chapter.subtitle} headerVariant="chapter">
           <div className="chapter-slide__body">
-            {bodyParagraphs.map((paragraph, index) => (
-              <p key={index} className="chapter-copy__body">
-                {formatChapterInline(paragraph)}
-              </p>
-            ))}
+            <ChapterBodyGroups groups={bodyGroups} />
           </div>
         </ChapterCopyReveal>
       </div>

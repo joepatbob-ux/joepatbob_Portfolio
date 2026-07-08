@@ -3,7 +3,7 @@
 import { CaseStudyOverviewBlocks } from '@/components/case-study/CaseStudyOverviewBlocks'
 import { CaseStudySectionHeader } from '@/components/case-study/CaseStudySectionHeader'
 import { ChapterSlideBand } from '@/components/chapter-slide/ChapterSlideBand'
-import { formatChapterInline } from '@/lib/chapter-slide/formatChapterInline'
+import { MobileProse } from '@/components/mobile/MobileSectionParts'
 import { parseChapterBody } from '@/lib/chapter-slide/parseChapterBody'
 import type { OverviewBlock } from '@/lib/types'
 
@@ -56,13 +56,10 @@ export function CaseStudyFlowOverview({
             align={align}
           />
           {paragraphs.length > 0 ? (
-            <div className="mobile-prose case-study-flow-overview__prose">
-              {paragraphs.map((p, i) => (
-                <p key={i} className="mobile-prose__p">
-                  {formatChapterInline(p)}
-                </p>
-              ))}
-            </div>
+            <MobileProse
+              paragraphs={paragraphs}
+              className="case-study-flow-overview__prose"
+            />
           ) : null}
           {blocks && blocks.length > 0 ? (
             <CaseStudyOverviewBlocks blocks={blocks} />

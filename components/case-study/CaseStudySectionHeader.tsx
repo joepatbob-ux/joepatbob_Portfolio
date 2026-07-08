@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { formatHeadlinePeriod } from '@/lib/chapter-slide/formatHeadlinePeriod'
 
 interface Props {
   headline: string
@@ -29,9 +30,9 @@ export function CaseStudySectionHeader({
   return (
     <header className={rootClass}>
       <h2 className="mobile-section-header__headline case-study-section-header__headline">
-        {headline.split('\n').map((line, i) => (
+        {headline.split('\n').map((line, i, lines) => (
           <span key={i} className="mobile-section-header__headline-line">
-            {line}
+            {i === lines.length - 1 ? formatHeadlinePeriod(line) : line}
           </span>
         ))}
       </h2>

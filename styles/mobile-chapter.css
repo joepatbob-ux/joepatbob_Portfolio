@@ -223,7 +223,7 @@
 .mobile-blockquote p {
   margin: 0;
   font-family: var(--font-body);
-  font-size: 15px;
+  font-size: var(--cs-body-size);
   font-style: italic;
   line-height: 1.6;
   color: var(--color-ink);
@@ -248,7 +248,7 @@
 .mobile-thesis-close p {
   margin: 0;
   font-family: var(--font-body);
-  font-size: 15px;
+  font-size: var(--cs-body-size);
   font-weight: 500;
   line-height: 1.6;
   color: var(--color-ink);
@@ -282,7 +282,7 @@
 .mobile-award-callout p {
   margin: 0;
   font-family: var(--font-body);
-  font-size: 15px;
+  font-size: var(--cs-body-size);
   line-height: 1.6;
   color: var(--color-ink);
 }

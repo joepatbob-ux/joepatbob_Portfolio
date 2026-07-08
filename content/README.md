@@ -11,17 +11,17 @@ Each section folder contains:
 | `section.md` | Section nav label, overview headline, overview blocks, `chapterOrder` |
 | `overview.md` | Overview chapter body (the `{section}-overview` slide) |
 | `{chapter-id}.md` | Single-file chapter (hardware products, WR Connect) |
-| `{chapter-id}/chapter.md` | Multi-part chapter nav manifest |
-| `{chapter-id}/*.md` | Sub-stories and chapter-specific data for that chapter |
+| `{chapter-id}/chapter.md` | Chapter nav manifest (folder-based chapters) |
+| `{chapter-id}/intro.md` | Chapter headline + body for folder-based chapters |
 
 ### Section folders
 
 | Folder | Chapters |
 |--------|----------|
 | `hardware/` | `touch-2`, `eim`, `sensi-lite`, `verdant` (one `.md` each) |
-| `mobile/` | `sensi/` (intro + sub-stories), `wr-connect.md` |
-| `web-apps/` | `kelvin-ds/` (intro + four sub-stories) |
-| `everything-in-between/` | `concepts/` (+ `bowl-quotes.md`), `formation/`, `practice/` |
+| `mobile/` | `sensi/` (chapter + intro), `wr-connect.md` |
+| `web-apps/` | `kelvin-ds/` (chapter + intro) |
+| `everything-in-between/` | `formation/`, `practice/` |
 
 Chapter order in the sidebar comes from `chapterOrder` in `section.md`.
 
@@ -41,43 +41,37 @@ Each file uses **JSON frontmatter** between `---` fences, then the body in markd
 
 First paragraph of body copy.
 
-**Bold** via markdown asterisks (rendered on hardware chapters).
+**Bold** via markdown asterisks works inside paragraphs.
 ```
 
-### Multi-part chapter folders
+### Expandable facts
 
-For chapters with sub-stories (Sensi, Kelvin DS), `chapter.md` holds nav metadata and `subStoryOrder`:
+A paragraph that is *entirely* bold becomes a collapsed accordion trigger, and the
+paragraphs under it become the detail revealed on expand (one fact open at a time
+per chapter — see `components/chapter-slide/ExpandableFacts.tsx`):
 
 ```markdown
----
-{
-  "id": "sensi",
-  "title": "Sensi",
-  "imageAlt": "...",
-  "subStoryOrder": ["color-mode", "install-flow", "spotlight"]
-}
----
+Visible intro paragraph(s)...
+
+**Collapsed fact header**
+
+Detail paragraph revealed on expand.
 ```
-
-Sibling files in the same folder hold the copy:
-
-- `intro.md` — chapter headline + opening prose
-- `color-mode.md`, `install-flow.md`, … — sub-stories (each with its own frontmatter)
 
 ### Multi-part bodies
 
-Use a horizontal rule on its own line to split body sections where loaders expect multiple blocks (e.g. Sensi Spotlight intro / testing / close, Kelvin stakes intro / callout / close):
+Use a horizontal rule on its own line to split body sections where a loader expects
+multiple blocks (e.g. Kelvin DS: visible prose, then facts, with the always-visible
+NDA note from frontmatter rendered between them):
 
 ```markdown
-Intro paragraphs...
+Visible paragraphs...
 
 ---
 
-Middle section...
+**Fact header**
 
----
-
-Closing section...
+Fact detail...
 ```
 
 ## After editing

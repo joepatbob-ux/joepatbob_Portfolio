@@ -1,9 +1,13 @@
 'use client'
 
 import { ChapterCopyScroller } from '@/components/ChapterCopyScroller'
+import { ChapterBodyGroups } from '@/components/chapter-slide/ChapterBodyGroups'
 import { isContinuousChapters } from '@/lib/continuousChapters'
-import { formatChapterInline } from '@/lib/chapter-slide/formatChapterInline'
-import { parseChapterBody } from '@/lib/chapter-slide/parseChapterBody'
+import { formatHeadlinePeriod } from '@/lib/chapter-slide/formatHeadlinePeriod'
+import {
+  groupChapterBody,
+  parseChapterBody,
+} from '@/lib/chapter-slide/parseChapterBody'
 
 export type ChapterSlideCopyLayout = 'chapter' | 'lessons'
 
@@ -15,7 +19,8 @@ interface Props {
   layout?: ChapterSlideCopyLayout
 }
 
-/** Headline, accent rule, and scrollable body — shared across case study slides. */
+/** Headline, accent rule, and scrollable body — shared across case study slides.
+    Subhead sections render as expandable folds so long copy scans as headlines. */
 export function ChapterSlideCopy({
   active,
   headline,
@@ -23,22 +28,21 @@ export function ChapterSlideCopy({
   className,
   layout = 'chapter',
 }: Props) {
-  const paragraphs = parseChapterBody(body)
+  const groups = groupChapterBody(parseChapterBody(body))
   const showHeader = headline.trim().length > 0
+
   const copyBody = (
     <>
       {showHeader ? (
         <>
-          <h3 className="chapter-copy__headline">{headline}</h3>
+          <h3 className="chapter-copy__headline">
+            {formatHeadlinePeriod(headline)}
+          </h3>
           <div className="chapter-copy__rule" aria-hidden />
         </>
       ) : null}
       <div className="chapter-slide__body">
-        {paragraphs.map((paragraph, index) => (
-          <p key={index} className="chapter-copy__body">
-            {formatChapterInline(paragraph)}
-          </p>
-        ))}
+        <ChapterBodyGroups groups={groups} />
       </div>
     </>
   )

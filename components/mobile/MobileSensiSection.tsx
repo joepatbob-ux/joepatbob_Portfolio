@@ -4,13 +4,7 @@ import dynamic from 'next/dynamic'
 import { FlowChapterSlideLayout } from '@/components/chapter-slide/FlowChapterSlideLayout'
 import { PhoneSwapBoundary } from '@/components/phone-swap/PhoneSwapBoundary'
 import { ChapterCopyReveal } from '@/components/chapter-slide/ChapterCopyReveal'
-import {
-  MobileLabelGrid,
-  MobileProse,
-  MobileSubStory,
-  MobileSubStoryHeading,
-  splitParagraphs,
-} from '@/components/mobile/MobileSectionParts'
+import { MobileProse, splitParagraphs } from '@/components/mobile/MobileSectionParts'
 import { useHydrated } from '@/lib/hooks/useHydrated'
 import { useChapterStageReady } from '@/lib/chapterStageMountContext'
 import { MOBILE_SENSI, mobileChapterId } from '@/lib/mobile/content'
@@ -41,7 +35,6 @@ function MobileSensiStage() {
 
 export function MobileSensiSection() {
   const chapterId = mobileChapterId('sensi')
-  const [color, install, spotlight] = MOBILE_SENSI.subStories
   const intro = splitParagraphs(MOBILE_SENSI.intro)
 
   return (
@@ -54,28 +47,6 @@ export function MobileSensiSection() {
       copy={
         <ChapterCopyReveal headline={MOBILE_SENSI.headline}>
           <MobileProse paragraphs={intro} />
-          <div className="mobile-sub-stories">
-            <MobileSubStory heading={color.heading}>
-              <MobileProse paragraphs={splitParagraphs(color.body)} />
-              <MobileLabelGrid items={color.problems} />
-            </MobileSubStory>
-            <MobileSubStory heading={install.heading}>
-              <MobileProse paragraphs={splitParagraphs(install.body)} />
-            </MobileSubStory>
-            <MobileSubStory heading={spotlight.heading}>
-              <MobileProse paragraphs={splitParagraphs(spotlight.intro)} />
-              <MobileLabelGrid items={spotlight.decisions} />
-              {spotlight.testingBody ? (
-                <>
-                  <MobileSubStoryHeading heading={spotlight.testingHeading} />
-                  <MobileProse paragraphs={splitParagraphs(spotlight.testingBody)} />
-                </>
-              ) : null}
-              {spotlight.closeBody ? (
-                <MobileProse paragraphs={splitParagraphs(spotlight.closeBody)} />
-              ) : null}
-            </MobileSubStory>
-          </div>
         </ChapterCopyReveal>
       }
     />

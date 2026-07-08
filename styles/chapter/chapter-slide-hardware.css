@@ -270,16 +270,20 @@
   .hardware-slideshow
     .chapter-slide__copy:not(.chapter-slide__copy--lessons)
     .chapter-copy__body {
+    max-width: var(--cs-copy-measure-max, 70ch);
+  }
+
+  /* Structural containers span the column; running text keeps a reading measure */
+  .flow-chapter-slide.hardware-slideshow .chapter-slide__copy .mobile-prose,
+  .flow-chapter-slide.hardware-slideshow .chapter-slide__copy .mobile-section-header,
+  .flow-chapter-slide.hardware-slideshow .chapter-slide__copy .mobile-sub-story,
+  .flow-chapter-slide.hardware-slideshow .chapter-slide__copy .web-apps-numbered-list {
     max-width: 100%;
   }
 
-  .flow-chapter-slide.hardware-slideshow .chapter-slide__copy .mobile-prose,
   .flow-chapter-slide.hardware-slideshow .chapter-slide__copy .mobile-prose__p,
-  .flow-chapter-slide.hardware-slideshow .chapter-slide__copy .mobile-section-header,
-  .flow-chapter-slide.hardware-slideshow .chapter-slide__copy .mobile-sub-story,
-  .flow-chapter-slide.hardware-slideshow .chapter-slide__copy .eib-sub-intro,
-  .flow-chapter-slide.hardware-slideshow .chapter-slide__copy .web-apps-numbered-list {
-    max-width: 100%;
+  .flow-chapter-slide.hardware-slideshow .chapter-slide__copy .eib-sub-intro {
+    max-width: var(--cs-copy-measure-max, 70ch);
   }
 
   .section-lessons.hardware-slideshow .portfolio-chapter-panel {

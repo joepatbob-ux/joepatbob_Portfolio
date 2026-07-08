@@ -3,11 +3,8 @@
 import { FlowChapterSlideLayout } from '@/components/chapter-slide/FlowChapterSlideLayout'
 import { ChapterCopyReveal } from '@/components/chapter-slide/ChapterCopyReveal'
 import { FormationLegoBoard } from '@/components/formation/FormationLegoBoard'
-import {
-  EibPatentRow,
-  EibSubSectionIntro,
-  splitParagraphs,
-} from '@/components/everything-in-between/EibSectionParts'
+import { EibPatentRow } from '@/components/everything-in-between/EibSectionParts'
+import { MobileProse, splitParagraphs } from '@/components/mobile/MobileSectionParts'
 import {
   EIB_FORMATION,
   eibChapterId,
@@ -31,11 +28,10 @@ export function EibFormationSection() {
       stage={<FormationLegoBoard chapterId={chapterId} />}
       copy={
         <ChapterCopyReveal headline={EIB_FORMATION.headline}>
-          <EibSubSectionIntro>
-            {splitParagraphs(EIB_FORMATION.intro).map((p, i) => (
-              <p key={i}>{p}</p>
-            ))}
-          </EibSubSectionIntro>
+          <MobileProse
+            className="eib-sub-intro"
+            paragraphs={splitParagraphs(EIB_FORMATION.intro)}
+          />
           <EibPatentRow patents={patents} />
         </ChapterCopyReveal>
       }

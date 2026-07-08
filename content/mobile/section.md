@@ -3,7 +3,7 @@
   "id": "mobile",
   "label": "Mobile",
   "eyebrow": "",
-  "headline": "The app has to outlive the launch.",
+  "headline": "The Launch is the starting line, not the finish.",
   "overviewBlocks": [
     {
       "kind": "award",

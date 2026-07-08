@@ -1,23 +1,27 @@
 /* Shared case study text rhythm (mobile chapter + hardware slideshow) */
 
 :root {
-  --cs-eyebrow-size: 10px;
-  --cs-eyebrow-tracking: 0.12em;
+  --cs-eyebrow-size: 11px;
+  --cs-eyebrow-tracking: 0.1em;
   --cs-rule-width: 48px;
   --cs-rule-height: 3px;
-  --cs-body-size: 15px;
-  --cs-body-leading: 1.65;
+  --cs-body-size: 16px;
+  --cs-body-leading: 1.6;
   --cs-body-color: var(--color-ink);
   --cs-subhead-size: clamp(20px, 2.4vw, 26px);
   --cs-subhead-leading: 1.2;
-  --cs-label-size: 10px;
-  --cs-label-tracking: 0.08em;
+  --cs-label-size: 11px;
+  --cs-label-tracking: 0.07em;
+  /* Secondary micro-label state — e.g. an expanded fact trigger receding
+     behind its detail text. Primary stays var(--color-accent). */
+  --cs-label-color-secondary: var(--color-muted);
   --cs-grid-cell-bg: rgba(26, 26, 26, 0.04);
+  --cs-hairline: color-mix(in srgb, var(--color-ink) 16%, transparent);
   --cs-block-bg: var(--cs-grid-cell-bg);
   --cs-block-radius: 8px;
   --cs-block-pad: 14px 16px;
   --cs-block-gap: 7px;
-  --cs-block-body-size: 13px;
+  --cs-block-body-size: 14px;
   --cs-block-body-leading: 1.55;
   --cs-overview-meta-bg: var(--cs-block-bg);
   --cs-callout-bg: rgba(245, 67, 27, 0.05);
@@ -25,7 +29,7 @@
   --cs-emphasis-pad: 16px 20px;
 }
 
-/* ── Shared content blocks (meta tiles, label grids, product cells) ──────── */
+/* ── Shared content blocks — hairline spec rows, not grey cards ──────────── */
 
 .case-study-overview-meta__tile,
 .case-study-overview-meta__band,
@@ -40,12 +44,17 @@
   gap: var(--cs-block-gap);
   min-width: 0;
   margin: 0;
-  padding: var(--cs-block-pad);
-  background: var(--cs-block-bg);
+  padding: 12px 0 0;
+  background: none;
   border: none;
-  border-radius: var(--cs-block-radius);
+  border-top: 1px solid var(--cs-hairline);
+  border-radius: 0;
 }
 
+/* Reusable micro-label — the orange all-caps treatment shared by patent,
+   decision, and fact-accordion trigger labels. Apply `.cs-microlabel` to new
+   uses instead of re-listing selectors here. */
+.cs-microlabel,
 .case-study-overview-meta__key,
 .cs-label-grid__label,
 .mobile-label-grid__label,
@@ -74,7 +83,7 @@
   color: var(--cs-body-color);
 }
 
-/* Emphasis blocks — quote, callout, thesis (borderless) */
+/* Emphasis blocks — accent sidebar, no tinted pill */
 .chapter-copy__body--quote,
 .cs-blockquote,
 .cs-callout,
@@ -82,16 +91,16 @@
 .mobile-thesis-close,
 .mobile-award-callout,
 .web-apps-compliance-callout {
-  margin: 0.5em 0 1em;
-  padding: var(--cs-emphasis-pad);
-  background: var(--cs-quote-bg);
+  margin: 0.75em 0 1.25em;
+  padding: 2px 0 2px 18px;
+  background: none;
   border: none;
-  border-radius: var(--cs-block-radius);
+  border-left: 2px solid var(--color-accent);
+  border-radius: 0;
 }
 
 .cs-callout,
 .mobile-thesis-close {
-  background: var(--cs-callout-bg);
   font-weight: 500;
 }
 
@@ -99,11 +108,6 @@
 .chapter-copy__body--quote,
 .cs-blockquote {
   font-style: italic;
-}
-
-.mobile-award-callout,
-.web-apps-compliance-callout {
-  background: var(--cs-block-bg);
 }
 
 /* ── Hardware: chapter copy ──────────────────────────────────────────────── */

@@ -1,20 +1,8 @@
 import type { ReactNode } from 'react'
 import { CaseStudySectionHeader } from '@/components/case-study/CaseStudySectionHeader'
-import {
-  MobileLabelGrid,
-  MobileProse,
-  MobileSubStory,
-  MobileSubStoryHeading,
-  splitParagraphs,
-} from '@/components/mobile/MobileSectionParts'
+import { MobileProse, splitParagraphs } from '@/components/mobile/MobileSectionParts'
 
-export {
-  splitParagraphs,
-  MobileProse,
-  MobileSubStory,
-  MobileSubStoryHeading,
-  MobileLabelGrid,
-}
+export { splitParagraphs, MobileProse }
 
 export function WebAppsSectionHeader({
   headline,
@@ -32,62 +20,6 @@ export function WebAppsSectionHeader({
   )
 }
 
-export function WebAppsProductGrid({
-  products,
-}: {
-  products: readonly {
-    name: string
-    domain: string
-    description: string
-  }[]
-}) {
-  return (
-    <dl className="web-apps-product-grid">
-      {products.map((product) => (
-        <div key={product.name} className="web-apps-product-grid__cell">
-          <dt className="web-apps-product-grid__domain">{product.domain}</dt>
-          <dd className="web-apps-product-grid__name">{product.name}</dd>
-          <dd className="web-apps-product-grid__desc">{product.description}</dd>
-        </div>
-      ))}
-    </dl>
-  )
-}
-
-export function WebAppsNumberedList({
-  items,
-}: {
-  items: readonly { num: string; label: string; text: string }[]
-}) {
-  return (
-    <ol className="web-apps-numbered-list">
-      {items.map((item) => (
-        <li key={item.num} className="web-apps-numbered-list__item">
-          <span className="web-apps-numbered-list__num" aria-hidden>
-            {item.num}
-          </span>
-          <div className="web-apps-numbered-list__content">
-            <p className="web-apps-numbered-list__label">{item.label}</p>
-            <p className="web-apps-numbered-list__text">{item.text}</p>
-          </div>
-        </li>
-      ))}
-    </ol>
-  )
-}
-
-export function WebAppsComplianceCallout({ children }: { children: ReactNode }) {
-  return <aside className="web-apps-compliance-callout">{children}</aside>
-}
-
 export function WebAppsNdaNote({ children }: { children: ReactNode }) {
   return <p className="web-apps-nda-note">{children}</p>
-}
-
-export function WebAppsThesisClose({ children }: { children: ReactNode }) {
-  return (
-    <aside className="mobile-thesis-close web-apps-thesis-close">
-      <p>{children}</p>
-    </aside>
-  )
 }
