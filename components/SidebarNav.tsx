@@ -26,7 +26,7 @@ import { getLayoutViewportHeight } from '@/lib/mobileViewport'
 import { NAV_SECTIONS, sectionIdForChapter } from '@/lib/nav'
 import { SidebarMainNavSentence } from '@/components/SidebarMainNavSentence'
 import { sectionEntryChapterId } from '@/lib/sectionEntryChapter'
-import { OverlayActionPill } from '@/components/ui/OverlayActionPill'
+import { OverlayPanelClose } from '@/components/ui/OverlayPanelClose'
 import { LAYOUT_MQ } from '@/lib/layout/breakpoints'
 import { scheduleScrollFrame } from '@/lib/scrollFrame'
 import { ContactButton } from '@/components/ContactButton'
@@ -75,23 +75,15 @@ function SidebarOverlayClose({
   variant: 'tablet' | 'mobile-panel'
 }) {
   return (
-    <OverlayActionPill
-      variant="secondary"
-      className={[
-        'sidebar-overlay-close',
-        `sidebar-overlay-close--${variant}`,
-      ]
-        .filter(Boolean)
-        .join(' ')}
+    <OverlayPanelClose
+      className={`sidebar-overlay-close--${variant}`}
       aria-label="Close navigation"
       data-sidebar-nav-hit
       onClick={(e) => {
         e.stopPropagation()
         onClose()
       }}
-    >
-      Close
-    </OverlayActionPill>
+    />
   )
 }
 
@@ -838,10 +830,15 @@ export function SidebarNav() {
         {/* Contact — liquid split; mobile overlay stacks divider + close below */}
         {usesTopBarNav && mobileDrawerOpen ? (
           <div className="sidebar-mobile-shell-footer" data-sidebar-nav-hit>
-            <div ref={contactRef} className="sidebar-contact">
-              <ContactButton />
+            <div className="sidebar-mobile-shell-footer__contact">
+              <div ref={contactRef} className="sidebar-contact">
+                <ContactButton />
+              </div>
             </div>
-            <div aria-hidden className="sidebar-shell__divider sidebar-shell__divider--horizontal" />
+            <div
+              aria-hidden
+              className="sidebar-shell__divider sidebar-shell__divider--horizontal"
+            />
             <SidebarOverlayClose onClose={closeOverlays} variant="mobile-panel" />
           </div>
         ) : (

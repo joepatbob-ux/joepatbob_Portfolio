@@ -9,8 +9,7 @@
 .case-study-section-header--center .overlay-action-slot,
 .case-study-section-header--center .overlay-action-footer,
 .mobile-learn-more__teaser--center .overlay-action-slot,
-.hardware-slideshow .mobile-learn-more__teaser .overlay-action-slot,
-.mobile-learn-more-sheet__footer.overlay-action-footer {
+.hardware-slideshow .mobile-learn-more__teaser .overlay-action-slot {
   justify-content: center;
 }
 
@@ -71,6 +70,12 @@
 .overlay-action-pill--secondary:focus-visible {
   outline: 2px solid var(--color-nav-pill-outline);
   outline-offset: 3px;
+}
+
+.overlay-action-pill--full-width {
+  display: flex;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .overlay-action-footer {

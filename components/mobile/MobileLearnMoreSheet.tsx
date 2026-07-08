@@ -4,7 +4,7 @@ import { useBodyScrollLock } from '@/lib/hooks/useBodyScrollLock'
 import { useDialogFocusTrap } from '@/lib/hooks/useDialogFocusTrap'
 import { useVisualViewportOverlay } from '@/lib/hooks/useVisualViewportOverlay'
 import { syncElementToVisualViewport } from '@/lib/mobileViewport'
-import { OverlayActionPill } from '@/components/ui/OverlayActionPill'
+import { OverlayPanelClose } from '@/components/ui/OverlayPanelClose'
 import { useEffect, useId, useRef } from 'react'
 import { createPortal } from 'react-dom'
 
@@ -78,10 +78,16 @@ export function MobileLearnMoreSheet({ open, onClose, title, children }: Props) 
           />
         </div>
         <div ref={bodyRef} className="mobile-learn-more-sheet__body">{children}</div>
-        <div className="mobile-learn-more-sheet__footer overlay-action-footer">
-          <OverlayActionPill variant="primary" onClick={onClose}>
-            Close
-          </OverlayActionPill>
+        <div className="mobile-learn-more-sheet__footer">
+          <div
+            className="sidebar-shell__divider sidebar-shell__divider--horizontal"
+            aria-hidden
+          />
+          <OverlayPanelClose
+            className="sidebar-overlay-close--mobile-panel mobile-learn-more-sheet__close"
+            onClick={onClose}
+            aria-label="Close panel"
+          />
         </div>
       </div>
     </div>,

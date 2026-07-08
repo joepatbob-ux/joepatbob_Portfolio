@@ -71,10 +71,26 @@
 .mobile-learn-more-sheet__footer {
   flex-shrink: 0;
   z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 14px;
   padding: clamp(12px, 2vh, 20px) var(--mobile-sheet-pad-right)
     max(clamp(16px, 2.5vh, 24px), env(safe-area-inset-bottom, 0px))
     var(--mobile-sheet-pad-left);
   background: var(--color-paper);
+}
+
+.mobile-learn-more-sheet__footer .sidebar-shell__divider--horizontal {
+  position: static;
+  width: 100%;
+  height: 1px;
+  opacity: 1;
+  filter: none;
+}
+
+.mobile-learn-more-sheet__close {
+  width: 100%;
 }
 
 .mobile-learn-more-sheet__body {
