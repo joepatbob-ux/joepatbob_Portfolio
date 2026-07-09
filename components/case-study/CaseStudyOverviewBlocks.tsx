@@ -83,10 +83,14 @@ function OverviewHighlightBlock({ label, headline, detail }: OverviewHighlightBl
   return (
     <section className="case-study-overview-block case-study-overview-block--highlight">
       <h3 className="case-study-overview-block__label">{label}</h3>
-      <aside className="case-study-overview-highlight">
-        <p className="case-study-overview-highlight__headline">{headline}</p>
-        {detail ? <p className="case-study-overview-highlight__detail">{detail}</p> : null}
-      </aside>
+      <div className="case-study-overview-highlights">
+        <div className="case-study-overview-highlight">
+          <p className="case-study-overview-highlight__headline">{headline}</p>
+          {detail ? (
+            <p className="case-study-overview-highlight__detail">{detail}</p>
+          ) : null}
+        </div>
+      </div>
     </section>
   )
 }

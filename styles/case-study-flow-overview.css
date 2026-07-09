@@ -118,7 +118,7 @@
   color: var(--color-ink);
 }
 
-/* ── Overview blocks — scope grid, patents, award ── */
+/* ── Overview blocks — scope grid, patents, award, highlight ── */
 
 .case-study-overview-blocks {
   width: 100%;
@@ -172,14 +172,16 @@
 }
 
 .case-study-overview-patents,
-.case-study-overview-awards {
+.case-study-overview-awards,
+.case-study-overview-highlights {
   display: grid;
   grid-template-columns: 1fr;
   gap: 10px;
 }
 
 .case-study-overview-patent,
-.case-study-overview-award {
+.case-study-overview-award,
+.case-study-overview-highlight {
   display: flex;
   flex-direction: column;
   gap: var(--cs-block-gap);
@@ -193,7 +195,8 @@
 }
 
 .case-study-overview-patent__number,
-.case-study-overview-award__product {
+.case-study-overview-award__product,
+.case-study-overview-highlight__headline {
   margin: 0;
   font-family: var(--font-body);
   font-weight: 600;
@@ -212,7 +215,8 @@
 }
 
 .case-study-overview-patent__status,
-.case-study-overview-award__detail {
+.case-study-overview-award__detail,
+.case-study-overview-highlight__detail {
   margin: 0;
   font-family: var(--font-mono);
   font-size: 11px;
@@ -220,36 +224,6 @@
   letter-spacing: 0.02em;
   color: var(--color-ink);
   opacity: 0.72;
-}
-
-/* Highlight — accent-bar callout */
-.case-study-overview-highlight {
-  display: flex;
-  flex-direction: column;
-  gap: var(--cs-block-gap);
-  margin: 0;
-  padding: 2px 0 2px 18px;
-  background: none;
-  border: none;
-  border-left: 2px solid var(--color-accent);
-  text-align: left;
-}
-
-.case-study-overview-highlight__headline {
-  margin: 0;
-  font-family: var(--font-body);
-  font-weight: 600;
-  font-size: 15px;
-  line-height: 1.35;
-  color: var(--cs-body-color);
-}
-
-.case-study-overview-highlight__detail {
-  margin: 0;
-  font-family: var(--font-body);
-  font-size: var(--cs-block-body-size);
-  line-height: var(--cs-block-body-leading);
-  color: var(--cs-body-color);
 }
 
 /* Signature quote — section landing statement with oversized accent marks */
@@ -323,7 +297,8 @@
   }
 
   .case-study-overview-patents,
-  .case-study-overview-awards {
+  .case-study-overview-awards,
+  .case-study-overview-highlights {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
   }
