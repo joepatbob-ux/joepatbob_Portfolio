@@ -22,11 +22,6 @@ function readGlyphColor(node: HTMLElement): string {
   return accent || '#DE3E18'
 }
 
-function readFieldColor(node: HTMLElement): string {
-  const field = getComputedStyle(node).getPropertyValue('--atomize-field-bg').trim()
-  return field || '#0a0a0a'
-}
-
 function readMonoFont(): string {
   const root = document.documentElement
   const fromVar = getComputedStyle(root).getPropertyValue('--font-mono').trim()
@@ -74,7 +69,6 @@ export function useAtomizeImage(src: string) {
       particles: particlesRef.current,
       progress: progressRef.current,
       glyphColor: readGlyphColor(root),
-      fieldColor: readFieldColor(root),
       fontFamily: readMonoFont(),
       sampleGap: PARTICLE_SAMPLE_GAP,
     })

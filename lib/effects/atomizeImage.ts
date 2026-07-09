@@ -164,20 +164,11 @@ export function drawAtomizeFrame(options: {
   particles: readonly AsciiParticle[]
   progress: number
   glyphColor: string
-  fieldColor: string
   fontFamily: string
   sampleGap: number
 }) {
-  const {
-    ctx,
-    image,
-    particles,
-    progress,
-    glyphColor,
-    fieldColor,
-    fontFamily,
-    sampleGap,
-  } = options
+  const { ctx, image, particles, progress, glyphColor, fontFamily, sampleGap } =
+    options
   const displayW =
     Number(ctx.canvas.style.width.replace('px', '')) || ctx.canvas.width
   const displayH =
@@ -186,14 +177,6 @@ export function drawAtomizeFrame(options: {
   ctx.clearRect(0, 0, displayW, displayH)
 
   const photoOpacity = photoOpacityFromProgress(progress)
-  const fieldAlpha = 1 - photoOpacity
-
-  if (fieldAlpha > 0.01) {
-    ctx.fillStyle = fieldColor
-    ctx.globalAlpha = fieldAlpha
-    ctx.fillRect(0, 0, displayW, displayH)
-    ctx.globalAlpha = 1
-  }
 
   if (photoOpacity > 0.02) {
     ctx.save()
