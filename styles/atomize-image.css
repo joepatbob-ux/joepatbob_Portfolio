@@ -11,6 +11,8 @@
   font-variant-numeric: tabular-nums;
   letter-spacing: 0;
   --atomize-glyph-color: var(--color-accent);
+  /* Reserve stage height before the raster source finishes loading. */
+  aspect-ratio: 2044 / 1476;
 }
 
 .atomize-image__canvas {
@@ -43,6 +45,12 @@
   justify-content: center;
   width: 100%;
   min-width: 0;
+}
+
+/* Break fit-content/width:100% collapse on the stage align wrapper. */
+.chapter-stage-align:has(.wr-connect-board-stage) {
+  width: min(100%, var(--cs-stage-gallery-w, 520px));
+  max-width: 100%;
 }
 
 .wr-connect-board-stage__atomize {

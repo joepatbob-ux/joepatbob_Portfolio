@@ -58,10 +58,10 @@ export function useAtomizeImage(src: string) {
     const canvas = canvasRef.current
     const source = sourceRef.current
     const fit = fitRef.current
-    if (!root || !canvas || !source || !fit || cellsRef.current.length === 0) return
+    if (!root || !canvas || !source || !fit) return false
 
     const ctx = canvas.getContext('2d')
-    if (!ctx) return
+    if (!ctx) return false
 
     drawBoardFrame({
       ctx,
@@ -73,25 +73,26 @@ export function useAtomizeImage(src: string) {
       glyphColor: readGlyphColor(root),
       fontFamily: readMonoFont(),
     })
+    return true
   }, [])
 
   const layout = useCallback(() => {
     const root = rootRef.current
     const canvas = canvasRef.current
     const source = sourceRef.current
-    if (!root || !canvas || !source) return
+    if (!root || !canvas || !source) return false
 
     const rect = root.getBoundingClientRect()
     const displayW = Math.round(rect.width)
     const displayH = Math.round(rect.height)
-    if (displayW < 8 || displayH < 8) return
+    if (displayW < 8 || displayH < 8) return false
 
     const dpr = Math.min(window.devicePixelRatio || 1, 3)
     canvas.width = Math.round(displayW * dpr)
     canvas.height = Math.round(displayH * dpr)
 
     const ctx = canvas.getContext('2d')
-    if (!ctx) return
+    if (!ctx) return false
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
 
     const fit = containRect(displayW, displayH, source.width, source.height)
@@ -101,15 +102,20 @@ export function useAtomizeImage(src: string) {
     sample.width = displayW
     sample.height = displayH
     const sampleCtx = sample.getContext('2d')
-    if (!sampleCtx) return
+    if (!sampleCtx) return false
 
     sampleCtx.drawImage(source.canvas, fit.x, fit.y, fit.w, fit.h)
     const { data } = sampleCtx.getImageData(0, 0, displayW, displayH)
     cellsRef.current = buildGlyphGrid(data, displayW, displayH, GLYPH_GAP)
 
-    paint()
+    if (!paint()) return false
     setReady(true)
+    return true
   }, [paint])
+
+  const tryLayout = useCallback(() => {
+    layout()
+  }, [layout])
 
   useEffect(() => {
     let cancelled = false
@@ -137,17 +143,27 @@ export function useAtomizeImage(src: string) {
 
   useLayoutEffect(() => {
     if (!sourceRef.current || !aspectRatio) return
-    layout()
+
+    let frame = 0
+    let attempts = 0
+    const run = () => {
+      if (layout()) return
+      attempts += 1
+      if (attempts < 6) frame = requestAnimationFrame(run)
+    }
+
+    run()
+    return () => cancelAnimationFrame(frame)
   }, [aspectRatio, layout])
 
   useEffect(() => {
     const root = rootRef.current
-    if (!root || !ready) return
+    if (!root || !aspectRatio) return
 
-    const observer = new ResizeObserver(() => layout())
+    const observer = new ResizeObserver(() => tryLayout())
     observer.observe(root)
     return () => observer.disconnect()
-  }, [layout, ready])
+  }, [aspectRatio, tryLayout])
 
   const onPointerEnter = useCallback(() => {
     if (!ready || prefersReducedMotion()) return

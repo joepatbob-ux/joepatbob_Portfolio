@@ -40,5 +40,5 @@ export const MOBILE_WR_CONNECT = {
   headline: wrConnect.meta.headline,
   body: wrConnect.body,
   imageAlt: wrConnect.meta.imageAlt,
-  imageSrc: wrConnect.meta.imageSrc ?? '/images/board.pdf',
+  imageSrc: wrConnect.meta.imageSrc ?? '/images/board.png',
 } as const

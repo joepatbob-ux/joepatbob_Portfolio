@@ -31,8 +31,29 @@ function loadImageSource(src: string): Promise<RasterSource | null> {
   })
 }
 
+const PDF_LOAD_TIMEOUT_MS = 8_000
+
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timer = window.setTimeout(() => reject(new Error('pdf timeout')), ms)
+    promise
+      .then((value) => {
+        window.clearTimeout(timer)
+        resolve(value)
+      })
+      .catch((error: unknown) => {
+        window.clearTimeout(timer)
+        reject(error instanceof Error ? error : new Error(String(error)))
+      })
+  })
+}
+
 async function loadPdfSource(src: string): Promise<RasterSource | null> {
   try {
+    const head = await fetch(src, { method: 'HEAD' })
+    const type = head.headers.get('content-type') ?? ''
+    if (!head.ok || !type.includes('pdf')) return null
+
     const [pdfjs, worker] = await Promise.all([
       import('pdfjs-dist'),
       import('pdfjs-dist/build/pdf.worker.min.mjs?url'),
@@ -40,7 +61,7 @@ async function loadPdfSource(src: string): Promise<RasterSource | null> {
     pdfjs.GlobalWorkerOptions.workerSrc = worker.default
 
     const task = pdfjs.getDocument(src)
-    const pdf = await task.promise
+    const pdf = await withTimeout(task.promise, PDF_LOAD_TIMEOUT_MS)
     const page = await pdf.getPage(1)
     const base = page.getViewport({ scale: 1 })
     const dpr = Math.min(window.devicePixelRatio || 1, 3)
@@ -74,7 +95,10 @@ export function loadRasterSource(src: string): Promise<RasterSource | null> {
   const cached = cache.get(src)
   if (cached) return cached
 
-  const pending = loadRasterSourceInner(src)
+  const pending = loadRasterSourceInner(src).then((result) => {
+    if (!result) cache.delete(src)
+    return result
+  })
   cache.set(src, pending)
   return pending
 }
