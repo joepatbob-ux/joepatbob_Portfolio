@@ -26,14 +26,13 @@ export function VerdantCharacterSvg({ code, className, alt }: Props) {
     }
 
     let cancelled = false
-    setMarkup(null)
 
     fetchThemedVerdantCharacterSvg(code)
       .then((svg) => {
         if (!cancelled) setMarkup(svg)
       })
       .catch(() => {
-        if (!cancelled) setMarkup(null)
+        /* Keep the previous glyph visible while the next character loads. */
       })
 
     return () => {

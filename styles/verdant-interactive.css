@@ -37,6 +37,7 @@
   margin-inline: auto;
   min-width: 0;
   align-items: start;
+  pointer-events: auto;
 }
 
 /* Shared preview frame — segments, sketch, prototype, and product */

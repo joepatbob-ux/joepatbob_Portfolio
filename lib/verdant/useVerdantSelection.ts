@@ -5,9 +5,9 @@ import {
   type VerdantSelection,
   type VerdantViewKind,
 } from '@/lib/verdant/characterSelector'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 
-export function useVerdantSelection(isActive = true) {
+export function useVerdantSelection() {
   const [selection, setSelection] = useState<VerdantSelection>(
     VERDANT_DEFAULT_SELECTION,
   )
@@ -15,10 +15,6 @@ export function useVerdantSelection(isActive = true) {
   const reset = useCallback(() => {
     setSelection(VERDANT_DEFAULT_SELECTION)
   }, [])
-
-  useEffect(() => {
-    if (!isActive) reset()
-  }, [isActive, reset])
 
   const selectCharacter = useCallback((code: string) => {
     setSelection({ kind: 'character', code })

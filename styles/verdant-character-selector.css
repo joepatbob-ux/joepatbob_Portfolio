@@ -9,6 +9,7 @@
   gap: var(--verdant-key-gap);
   width: 100%;
   min-width: 0;
+  pointer-events: auto;
 }
 
 .verdant-selector__matrix {

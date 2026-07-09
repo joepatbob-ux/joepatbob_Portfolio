@@ -12,6 +12,17 @@ const STAGE_PIN_REVEAL = CHAPTER_STAGE_PAINT_VISIBILITY
 const PIN_HYSTERESIS = 0.12
 const STAGE_INTERACTIVE_OPACITY = 0.38
 const STAGE_CLEAR_THRESHOLD = 0.004
+const VERDANT_INTERACTIVE_SELECTOR = '.verdant-interactive'
+
+function stagePointerEvents(
+  stage: HTMLElement,
+  stageOpacity: number,
+): 'auto' | 'none' {
+  if (stage.querySelector(VERDANT_INTERACTIVE_SELECTOR)) {
+    return stageOpacity > STAGE_CLEAR_THRESHOLD ? 'auto' : 'none'
+  }
+  return stageOpacity >= STAGE_INTERACTIVE_OPACITY ? 'auto' : 'none'
+}
 const STAGE_EXIT_TRAVEL_PX = 140
 const ALIGN_HEIGHT_MIN_PX = 48
 
@@ -411,8 +422,10 @@ function writeStage(m: StageMeasure): void {
     stage.dataset.stageOpacity = opacityKey
     stage.style.opacity = opacityKey
     stage.style.visibility = 'visible'
-    stage.style.pointerEvents =
-      m.stageOpacity >= STAGE_INTERACTIVE_OPACITY ? 'auto' : 'none'
+    const pointerEvents = stagePointerEvents(stage, m.stageOpacity)
+    if (stage.style.pointerEvents !== pointerEvents) {
+      stage.style.pointerEvents = pointerEvents
+    }
   }
 
   if (stage.dataset.stagePinned !== 'true') {

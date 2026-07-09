@@ -13,7 +13,7 @@ type Props = {
 }
 
 export function VerdantInteractive({ isActive = true }: Props) {
-  const { selection, selectCharacter, selectView } = useVerdantSelection(isActive)
+  const { selection, selectCharacter, selectView } = useVerdantSelection()
 
   useEffect(() => {
     if (!isActive) return

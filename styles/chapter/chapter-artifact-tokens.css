@@ -274,10 +274,29 @@
 
 @media (min-width: 768px) and (max-width: 1023px) {
   .hardware-slideshow.chapter-slide--verdant
+    .chapter-slide__inner--compact-expand
+    .chapter-slide__stage {
+    pointer-events: auto;
+  }
+
+  .hardware-slideshow.chapter-slide--verdant
     .chapter-slide__inner--compact-expand[data-chapter-expanded='false']
     .chapter-slide__stage {
     min-height: 0;
     max-height: none;
+    overflow: visible;
+  }
+
+  /* Verdant is fully interactive — keep the keypad visible when story expands. */
+  .hardware-slideshow.chapter-slide--verdant
+    .chapter-slide__inner--compact-expand[data-chapter-expanded='true']
+    .chapter-slide__stage {
+    grid-template-rows: 1fr;
+    flex: 0 0 auto;
+    max-height: none !important;
+    min-height: 0;
+    opacity: 1;
+    pointer-events: auto;
     overflow: visible;
   }
 
