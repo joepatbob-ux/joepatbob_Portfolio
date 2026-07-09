@@ -2,6 +2,7 @@
 
 import {
   buildAsciiParticles,
+  containRect,
   drawAtomizeFrame,
   isParticleInteractive,
   PARTICLE_SAMPLE_GAP,
@@ -44,6 +45,7 @@ export function useAtomizeImage(src: string) {
   const [hovered, setHovered] = useState(false)
   const [animating, setAnimating] = useState(false)
   const [progress, setProgress] = useState(0)
+  const [aspectRatio, setAspectRatio] = useState('4 / 3')
 
   hoveredRef.current = hovered
 
@@ -135,8 +137,16 @@ export function useAtomizeImage(src: string) {
     const offCtx = offscreen.getContext('2d')
     if (!offCtx) return
 
-    offCtx.drawImage(image, 0, 0, displayW, displayH)
+    offCtx.clearRect(0, 0, displayW, displayH)
+    const fit = containRect(
+      displayW,
+      displayH,
+      image.naturalWidth,
+      image.naturalHeight,
+    )
+    offCtx.drawImage(image, fit.x, fit.y, fit.w, fit.h)
     snapshotRef.current = offscreen
+    setAspectRatio(`${image.naturalWidth} / ${image.naturalHeight}`)
     const { data } = offCtx.getImageData(0, 0, displayW, displayH)
     particlesRef.current = buildAsciiParticles(
       data,
@@ -227,6 +237,7 @@ export function useAtomizeImage(src: string) {
     ready,
     live,
     progress,
+    aspectRatio,
     photoOpacity,
     onPointerEnter,
     onPointerMove,

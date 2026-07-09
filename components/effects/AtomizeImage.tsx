@@ -15,6 +15,7 @@ export function AtomizeImage({ src, alt, className }: Props) {
     canvasRef,
     ready,
     live,
+    aspectRatio,
     photoOpacity,
     onPointerEnter,
     onPointerMove,
@@ -33,6 +34,7 @@ export function AtomizeImage({ src, alt, className }: Props) {
       ]
         .filter(Boolean)
         .join(' ')}
+      style={{ aspectRatio }}
       onPointerEnter={onPointerEnter}
       onPointerMove={onPointerMove}
       onPointerLeave={onPointerLeave}

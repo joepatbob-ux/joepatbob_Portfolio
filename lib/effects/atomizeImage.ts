@@ -17,6 +17,36 @@ export const PARTICLE_SAMPLE_GAP = 4
 export const PARTICLE_MOUSE_RADIUS = 96
 export const PARTICLE_RETURN_SPEED = 0.06
 
+export type ContainRect = {
+  x: number
+  y: number
+  w: number
+  h: number
+}
+
+/** Letterbox content inside a container — matches CSS object-fit: contain. */
+export function containRect(
+  containerW: number,
+  containerH: number,
+  contentW: number,
+  contentH: number,
+): ContainRect {
+  if (contentW <= 0 || contentH <= 0) {
+    return { x: 0, y: 0, w: containerW, h: containerH }
+  }
+
+  const scale = Math.min(containerW / contentW, containerH / contentH)
+  const w = contentW * scale
+  const h = contentH * scale
+
+  return {
+    x: (containerW - w) / 2,
+    y: (containerH - h) / 2,
+    w,
+    h,
+  }
+}
+
 export function hashCell(x: number, y: number): number {
   let h = x * 374761393 + y * 668265263
   h = (h ^ (h >> 13)) * 1274126177

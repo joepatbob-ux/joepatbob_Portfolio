@@ -259,7 +259,7 @@
     .portfolio-chapter-slot--fill.hardware-slideshow
     .chapter-stage-align:has(.wr-connect-board-stage) {
     width: min(100%, var(--cs-stage-gallery-w, 520px));
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 2044 / 1476;
   }
 
   html.continuous-chapters
