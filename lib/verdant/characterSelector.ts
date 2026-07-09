@@ -72,26 +72,30 @@ export const VERDANT_VIEW_TOGGLES = [
   {
     kind: 'sketch',
     label: 'Sketch',
-    src: '/images/Segment_Drawing.jpeg',
+    src: '/images/verdant-sketch-frame.webp',
     alt: 'Verdant custom segment character set sketch',
+    objectPosition: 'center',
   },
   {
     kind: 'prototype',
     label: 'Prototype',
-    src: '/images/hw-verdant.jpg',
+    src: '/images/verdant-prototype-frame.webp',
     alt: 'Verdant segment display on PCB prototype',
+    objectPosition: 'center',
   },
   {
     kind: 'product',
     label: 'Product',
     src: '/images/verdant-product.webp',
     alt: 'Finished Verdant thermostat product',
+    objectPosition: 'center',
   },
 ] as const satisfies ReadonlyArray<{
   kind: VerdantViewKind
   label: string
   src: string
   alt: string
+  objectPosition: string
 }>
 
 export const VERDANT_DEFAULT_SELECTION: VerdantSelection = {
