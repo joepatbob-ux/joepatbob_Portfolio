@@ -22,7 +22,6 @@
   object-fit: contain;
   pointer-events: none;
   user-select: none;
-  transition: opacity 180ms ease;
 }
 
 .wr-connect-board__canvas {
@@ -63,11 +62,5 @@
 @media (hover: none) {
   .wr-connect-board--canvas-ready {
     cursor: default;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .wr-connect-board__photo {
-    transition: none;
   }
 }

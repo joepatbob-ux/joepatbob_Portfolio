@@ -6,12 +6,14 @@ import {
   buildBoardParticles,
   containRect,
   drawWrConnectBoardFrame,
-  isParticleInteractive,
+  isTransitionComplete,
   loadBoardImage,
+  physicsStrength,
+  progressFromTransition,
   resetParticles,
   stepBoardParticles,
-  stepBoardProgress,
   type BoardParticle,
+  type BoardTransition,
   type FitRect,
 } from '@/lib/wrConnectBoard'
 import {
@@ -24,6 +26,7 @@ import {
 } from 'react'
 
 const OFFSCREEN = { x: -1000, y: -1000 }
+const PROGRESS_DONE = 0.004
 
 function readGlyphColor(node: HTMLElement): string {
   return (
@@ -52,6 +55,7 @@ export function useWrConnectBoard(src: string) {
   const particlesRef = useRef<BoardParticle[]>([])
   const progressRef = useRef(0)
   const targetRef = useRef(0)
+  const transitionRef = useRef<BoardTransition>({ from: 0, to: 0, startedAt: 0 })
   const hoverRef = useRef(false)
   const mouseRef = useRef(OFFSCREEN)
   const rafRef = useRef<number | null>(null)
@@ -63,6 +67,15 @@ export function useWrConnectBoard(src: string) {
   const [progress, setProgress] = useState(0)
 
   hoverRef.current = hovering
+
+  const beginTransition = useCallback((to: number) => {
+    targetRef.current = to
+    transitionRef.current = {
+      from: progressRef.current,
+      to,
+      startedAt: performance.now(),
+    }
+  }, [])
 
   const stopLoop = useCallback(() => {
     if (rafRef.current != null) {
@@ -138,26 +151,27 @@ export function useWrConnectBoard(src: string) {
     paint()
 
     const tick = () => {
-      const prev = progressRef.current
-      const next = stepBoardProgress(prev, targetRef.current)
+      const now = performance.now()
+      const transition = transitionRef.current
+      const next = progressFromTransition(transition, now)
       progressRef.current = next
       setProgress(next)
 
-      const entering = next > prev
-      const leaving = next < prev
-      const interactive = isParticleInteractive(next, hoverRef.current)
+      const physics = physicsStrength(next, hoverRef.current)
+      const settle = targetRef.current === 0 ? 1 - next : 0
       const settling = stepBoardParticles(
         particlesRef.current,
         mouseRef.current,
-        interactive,
-        leaving,
+        physics,
+        settle,
       )
 
       paint()
 
-      const progressMoving = Math.abs(next - targetRef.current) > 0.006
+      const transitionDone = isTransitionComplete(transition, now)
+      const progressMoving = !transitionDone
       const stillLive =
-        hoverRef.current || progressMoving || settling || next > 0.006
+        hoverRef.current || progressMoving || settling || next > PROGRESS_DONE
 
       setAnimating(progressMoving || settling)
 
@@ -180,6 +194,7 @@ export function useWrConnectBoard(src: string) {
     setProgress(0)
     progressRef.current = 0
     targetRef.current = 0
+    transitionRef.current = { from: 0, to: 0, startedAt: performance.now() }
     imageRef.current = null
     fitRef.current = null
     particlesRef.current = []
@@ -225,18 +240,15 @@ export function useWrConnectBoard(src: string) {
     return () => observer.disconnect()
   }, [imageLoaded, layout, paint])
 
-  useEffect(() => {
-    targetRef.current = hovering ? 1 : 0
-    runLoop()
-  }, [hovering, runLoop])
-
   useEffect(() => () => stopLoop(), [stopLoop])
 
   const onPointerEnter = useCallback(() => {
     if (!canvasReady || prefersReducedMotion()) return
+    hoverRef.current = true
     setHovering(true)
+    beginTransition(1)
     runLoop()
-  }, [canvasReady, runLoop])
+  }, [canvasReady, beginTransition, runLoop])
 
   const onPointerMove = useCallback(
     (event: PointerEvent<HTMLElement>) => {
@@ -254,12 +266,14 @@ export function useWrConnectBoard(src: string) {
   )
 
   const onPointerLeave = useCallback(() => {
+    hoverRef.current = false
     setHovering(false)
     mouseRef.current = OFFSCREEN
+    beginTransition(0)
     runLoop()
-  }, [runLoop])
+  }, [beginTransition, runLoop])
 
-  const live = hovering || animating || progress > 0.006
+  const live = hovering || animating || progress > PROGRESS_DONE
 
   return {
     rootRef,
