@@ -43,7 +43,8 @@ async function loadPdfSource(src: string): Promise<RasterSource | null> {
     const pdf = await task.promise
     const page = await pdf.getPage(1)
     const base = page.getViewport({ scale: 1 })
-    const scale = Math.max(2, 2044 / base.width)
+    const dpr = Math.min(window.devicePixelRatio || 1, 3)
+    const scale = Math.max(dpr * 2, 2400 / base.width)
     const viewport = page.getViewport({ scale })
 
     const canvas = document.createElement('canvas')

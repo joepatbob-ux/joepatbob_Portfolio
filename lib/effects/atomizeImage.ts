@@ -192,14 +192,23 @@ export function stepAsciiParticles(
 export function drawAtomizeFrame(options: {
   ctx: CanvasRenderingContext2D
   image: CanvasImageSource
+  imageFit: ContainRect
   particles: readonly AsciiParticle[]
   progress: number
   glyphColor: string
   fontFamily: string
   sampleGap: number
 }) {
-  const { ctx, image, particles, progress, glyphColor, fontFamily, sampleGap } =
-    options
+  const {
+    ctx,
+    image,
+    imageFit,
+    particles,
+    progress,
+    glyphColor,
+    fontFamily,
+    sampleGap,
+  } = options
   const rect = ctx.canvas.getBoundingClientRect()
   const displayW = rect.width
   const displayH = rect.height
@@ -213,7 +222,9 @@ export function drawAtomizeFrame(options: {
   if (photoOpacity > 0.02) {
     ctx.save()
     ctx.globalAlpha = photoOpacity
-    ctx.drawImage(image, 0, 0, displayW, displayH)
+    ctx.imageSmoothingEnabled = true
+    ctx.imageSmoothingQuality = 'high'
+    ctx.drawImage(image, imageFit.x, imageFit.y, imageFit.w, imageFit.h)
     ctx.restore()
   }
 

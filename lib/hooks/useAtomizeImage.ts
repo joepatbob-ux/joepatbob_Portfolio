@@ -10,6 +10,7 @@ import {
   stepAsciiParticles,
   stepAtomizeProgress,
   type AsciiParticle,
+  type ContainRect,
 } from '@/lib/effects/atomizeImage'
 import {
   loadRasterSource,
@@ -44,6 +45,7 @@ export function useAtomizeImage(src: string) {
   const rootRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const sourceRef = useRef<RasterSource | null>(null)
+  const imageFitRef = useRef<ContainRect | null>(null)
   const snapshotRef = useRef<HTMLCanvasElement | null>(null)
   const particlesRef = useRef<AsciiParticle[]>([])
   const progressRef = useRef(0)
@@ -69,15 +71,25 @@ export function useAtomizeImage(src: string) {
   const paint = useCallback(() => {
     const root = rootRef.current
     const canvas = canvasRef.current
-    const snapshot = snapshotRef.current
-    if (!root || !canvas || !snapshot || particlesRef.current.length === 0) return
+    const source = sourceRef.current
+    const imageFit = imageFitRef.current
+    if (
+      !root ||
+      !canvas ||
+      !source ||
+      !imageFit ||
+      particlesRef.current.length === 0
+    ) {
+      return
+    }
 
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
     drawAtomizeFrame({
       ctx,
-      image: snapshot,
+      image: source.canvas,
+      imageFit,
       particles: particlesRef.current,
       progress: progressRef.current,
       glyphColor: readGlyphColor(root),
@@ -132,7 +144,7 @@ export function useAtomizeImage(src: string) {
     const displayW = Math.round(rect.width)
     const displayH = Math.round(rect.height)
     if (displayW < 8 || displayH < 8) return
-    const dpr = Math.min(window.devicePixelRatio || 1, 2)
+    const dpr = Math.min(window.devicePixelRatio || 1, 3)
 
     canvas.width = Math.round(displayW * dpr)
     canvas.height = Math.round(displayH * dpr)
@@ -154,6 +166,7 @@ export function useAtomizeImage(src: string) {
       source.width,
       source.height,
     )
+    imageFitRef.current = fit
     offCtx.drawImage(source.canvas, fit.x, fit.y, fit.w, fit.h)
     snapshotRef.current = offscreen
     const { data } = offCtx.getImageData(0, 0, displayW, displayH)
@@ -173,6 +186,7 @@ export function useAtomizeImage(src: string) {
     let cancelled = false
     setReady(false)
     sourceRef.current = null
+    imageFitRef.current = null
     snapshotRef.current = null
 
     void loadRasterSource(src).then((source) => {
@@ -190,6 +204,7 @@ export function useAtomizeImage(src: string) {
     return () => {
       cancelled = true
       sourceRef.current = null
+      imageFitRef.current = null
       snapshotRef.current = null
     }
   }, [src])
