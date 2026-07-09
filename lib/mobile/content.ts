@@ -19,6 +19,7 @@ type SensiIntroMeta = { headline: string }
 type WrConnectMeta = {
   headline: string
   imageAlt: string
+  imageSrc?: string
 }
 
 const SENSI_FOLDER = 'mobile/sensi'
@@ -39,4 +40,5 @@ export const MOBILE_WR_CONNECT = {
   headline: wrConnect.meta.headline,
   body: wrConnect.body,
   imageAlt: wrConnect.meta.imageAlt,
+  imageSrc: wrConnect.meta.imageSrc ?? '/images/wr-connect/board.png',
 } as const
