@@ -199,10 +199,11 @@ export function drawAtomizeFrame(options: {
 }) {
   const { ctx, image, particles, progress, glyphColor, fontFamily, sampleGap } =
     options
-  const displayW =
-    Number(ctx.canvas.style.width.replace('px', '')) || ctx.canvas.width
-  const displayH =
-    Number(ctx.canvas.style.height.replace('px', '')) || ctx.canvas.height
+  const rect = ctx.canvas.getBoundingClientRect()
+  const displayW = rect.width
+  const displayH = rect.height
+
+  if (displayW < 1 || displayH < 1) return
 
   ctx.clearRect(0, 0, displayW, displayH)
 

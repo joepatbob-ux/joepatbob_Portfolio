@@ -16,7 +16,6 @@ export function AtomizeImage({ src, alt, className }: Props) {
     ready,
     live,
     aspectRatio,
-    photoOpacity,
     onPointerEnter,
     onPointerMove,
     onPointerLeave,
@@ -34,7 +33,7 @@ export function AtomizeImage({ src, alt, className }: Props) {
       ]
         .filter(Boolean)
         .join(' ')}
-      style={{ aspectRatio }}
+      style={aspectRatio ? { aspectRatio } : undefined}
       onPointerEnter={onPointerEnter}
       onPointerMove={onPointerMove}
       onPointerLeave={onPointerLeave}
@@ -47,8 +46,8 @@ export function AtomizeImage({ src, alt, className }: Props) {
         loading="eager"
         fetchPriority="high"
         style={{
-          opacity: live ? photoOpacity : 1,
-          visibility: live && photoOpacity < 0.02 ? 'hidden' : 'visible',
+          opacity: live ? 0 : 1,
+          visibility: live ? 'hidden' : 'visible',
         }}
       />
       <canvas

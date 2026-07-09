@@ -6,13 +6,19 @@ import {
   drawAtomizeFrame,
   isParticleInteractive,
   PARTICLE_SAMPLE_GAP,
-  photoOpacityFromProgress,
   resetParticles,
   stepAsciiParticles,
   stepAtomizeProgress,
   type AsciiParticle,
 } from '@/lib/effects/atomizeImage'
-import { useCallback, useEffect, useRef, useState, type PointerEvent } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type PointerEvent,
+} from 'react'
 
 const OFFSCREEN_MOUSE = { x: -1000, y: -1000 }
 
@@ -45,7 +51,7 @@ export function useAtomizeImage(src: string) {
   const [hovered, setHovered] = useState(false)
   const [animating, setAnimating] = useState(false)
   const [progress, setProgress] = useState(0)
-  const [aspectRatio, setAspectRatio] = useState('4 / 3')
+  const [aspectRatio, setAspectRatio] = useState<string | null>(null)
 
   hoveredRef.current = hovered
 
@@ -78,6 +84,8 @@ export function useAtomizeImage(src: string) {
 
   const runLoop = useCallback(() => {
     if (rafRef.current != null) return
+
+    paint()
 
     const tick = () => {
       const next = stepAtomizeProgress(progressRef.current, targetRef.current)
@@ -124,8 +132,6 @@ export function useAtomizeImage(src: string) {
 
     canvas.width = Math.round(displayW * dpr)
     canvas.height = Math.round(displayH * dpr)
-    canvas.style.width = `${displayW}px`
-    canvas.style.height = `${displayH}px`
 
     const ctx = canvas.getContext('2d')
     if (!ctx) return
@@ -146,7 +152,6 @@ export function useAtomizeImage(src: string) {
     )
     offCtx.drawImage(image, fit.x, fit.y, fit.w, fit.h)
     snapshotRef.current = offscreen
-    setAspectRatio(`${image.naturalWidth} / ${image.naturalHeight}`)
     const { data } = offCtx.getImageData(0, 0, displayW, displayH)
     particlesRef.current = buildAsciiParticles(
       data,
@@ -169,12 +174,13 @@ export function useAtomizeImage(src: string) {
 
     image.onload = () => {
       imageRef.current = image
-      layoutCanvas()
+      setAspectRatio(`${image.naturalWidth} / ${image.naturalHeight}`)
     }
 
     image.onerror = () => {
       imageRef.current = null
       snapshotRef.current = null
+      setAspectRatio(null)
       setReady(false)
     }
 
@@ -182,12 +188,19 @@ export function useAtomizeImage(src: string) {
       imageRef.current = null
       snapshotRef.current = null
     }
-  }, [layoutCanvas, src])
+  }, [src])
 
-  useEffect(() => {
-    if (!ready) return
+  useLayoutEffect(() => {
+    if (!imageRef.current || !aspectRatio) return
     layoutCanvas()
-  }, [layoutCanvas, ready])
+  }, [aspectRatio, layoutCanvas])
+
+  useLayoutEffect(() => {
+    if (!ready) return
+    if (hovered || progressRef.current > 0.008) {
+      paint()
+    }
+  }, [hovered, ready, paint])
 
   useEffect(() => {
     const root = rootRef.current
@@ -229,7 +242,6 @@ export function useAtomizeImage(src: string) {
   }, [runLoop])
 
   const live = hovered || animating || progress > 0.008
-  const photoOpacity = live ? photoOpacityFromProgress(progress) : 1
 
   return {
     rootRef,
@@ -238,7 +250,6 @@ export function useAtomizeImage(src: string) {
     live,
     progress,
     aspectRatio,
-    photoOpacity,
     onPointerEnter,
     onPointerMove,
     onPointerLeave,
