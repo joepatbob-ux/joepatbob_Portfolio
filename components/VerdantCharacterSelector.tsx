@@ -90,7 +90,7 @@ function ViewToggle({
   )
 }
 
-/** 4×10 character grid + Sketch / Board / Product view toggles. */
+/** 4×10 character grid + Sketch / Prototype / Product view toggles. */
 export function VerdantCharacterSelector({
   selection,
   onSelectCharacter,

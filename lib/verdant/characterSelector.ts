@@ -1,6 +1,6 @@
 /** Character selector — keys map to `verdant-character-{CODE}.svg` in `/images/verdant-segment/`. */
 
-export type VerdantViewKind = 'sketch' | 'board' | 'product'
+export type VerdantViewKind = 'sketch' | 'prototype' | 'product'
 
 export type VerdantSelection =
   | { kind: 'character'; code: string }
@@ -76,8 +76,8 @@ export const VERDANT_VIEW_TOGGLES = [
     alt: 'Verdant custom segment character set sketch',
   },
   {
-    kind: 'board',
-    label: 'Board',
+    kind: 'prototype',
+    label: 'Prototype',
     src: '/images/hw-verdant.jpg',
     alt: 'Verdant segment display on PCB prototype',
   },
