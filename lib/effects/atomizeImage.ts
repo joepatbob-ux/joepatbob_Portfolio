@@ -6,12 +6,20 @@ export type AsciiParticle = {
   vx: number
   vy: number
   char: '0' | '1'
+  /** 0 = embedded in the board image, 1 = fully pulled free as a glyph. */
+  pull: number
 }
 
 export const PARTICLE_SAMPLE_GAP = 2
-export const PARTICLE_REVEAL_RADIUS = 76
-export const PARTICLE_MOUSE_RADIUS = 88
-export const PARTICLE_RETURN_SPEED = 0.06
+/** Cursor reach for waking particles embedded in the board. */
+export const PARTICLE_ACTIVATION_RADIUS = 108
+export const PARTICLE_PULL_RADIUS = 112
+export const PARTICLE_SCATTER_RADIUS = 96
+export const PARTICLE_PULL_RATE = 0.14
+export const PARTICLE_RELEASE_RATE = 0.1
+export const PARTICLE_EJECT_FORCE = 0.55
+export const PARTICLE_SCATTER_FORCE = 2.4
+export const PARTICLE_RETURN_SPEED = 0.075
 
 export type ContainRect = {
   x: number
@@ -74,7 +82,7 @@ function sampleLuminance(
   return count === 0 ? 0 : (r + g + b) / count
 }
 
-/** Sample board pixels into mono 1/0 glyphs revealed on cursor hover. */
+/** Sample board pixels into mono 1/0 glyphs embedded in the PDF surface. */
 export function buildAsciiParticles(
   data: Uint8ClampedArray,
   width: number,
@@ -100,6 +108,7 @@ export function buildAsciiParticles(
         vx: 0,
         vy: 0,
         char: luminance > 108 ? '1' : '0',
+        pull: 0,
       })
     }
   }
@@ -112,15 +121,16 @@ export function easeOutCubic(t: number): number {
   return 1 - Math.pow(1 - x, 3)
 }
 
-function cursorRevealStrength(
+/** How strongly the cursor is disturbing a particle still seated on the board. */
+export function activationAtBase(
   mouse: { x: number; y: number },
   particle: AsciiParticle,
   radius: number,
   active: boolean,
 ): number {
   if (!active) return 0
-  const dx = mouse.x - particle.x
-  const dy = mouse.y - particle.y
+  const dx = mouse.x - particle.baseX
+  const dy = mouse.y - particle.baseY
   const dist = Math.sqrt(dx * dx + dy * dy)
   if (dist >= radius) return 0
   const t = 1 - dist / radius
@@ -133,38 +143,62 @@ export function stepAsciiParticles(
   active: boolean,
 ): boolean {
   let settling = false
-  const revealRadius = PARTICLE_REVEAL_RADIUS
-  const scatterRadius = PARTICLE_MOUSE_RADIUS
-  const returnSpeed = PARTICLE_RETURN_SPEED
+  const activationRadius = PARTICLE_ACTIVATION_RADIUS
+  const pullRadius = PARTICLE_PULL_RADIUS
+  const scatterRadius = PARTICLE_SCATTER_RADIUS
 
   for (const p of particles) {
-    const revealed = cursorRevealStrength(mouse, p, revealRadius, active)
+    const influence = activationAtBase(mouse, p, activationRadius, active)
 
-    if (active && revealed > 0.12) {
-      const dx = mouse.x - p.x
-      const dy = mouse.y - p.y
-      const dist = Math.sqrt(dx * dx + dy * dy)
+    if (active && influence > 0.02) {
+      const ejectDx = p.baseX - mouse.x
+      const ejectDy = p.baseY - mouse.y
+      const ejectDist = Math.sqrt(ejectDx * ejectDx + ejectDy * ejectDy)
 
-      if (dist < scatterRadius && dist > 0.5) {
-        const force = (scatterRadius - dist) / scatterRadius
-        const angle = Math.atan2(dy, dx)
-        p.vx -= Math.cos(angle) * force * 2.2
-        p.vy -= Math.sin(angle) * force * 2.2
+      if (ejectDist > 0.5) {
+        const eject = influence * PARTICLE_EJECT_FORCE
+        p.vx += (ejectDx / ejectDist) * eject
+        p.vy += (ejectDy / ejectDist) * eject
       }
+
+      p.pull = Math.min(1, p.pull + influence * PARTICLE_PULL_RATE)
+
+      if (p.pull > 0.2) {
+        const scatterDx = mouse.x - p.x
+        const scatterDy = mouse.y - p.y
+        const scatterDist = Math.sqrt(scatterDx * scatterDx + scatterDy * scatterDy)
+
+        if (scatterDist < pullRadius && scatterDist > 0.5) {
+          const force =
+            ((pullRadius - scatterDist) / pullRadius) *
+            influence *
+            PARTICLE_SCATTER_FORCE
+          const angle = Math.atan2(scatterDy, scatterDx)
+          p.vx -= Math.cos(angle) * force
+          p.vy -= Math.sin(angle) * force
+        }
+      }
+    } else {
+      p.pull = Math.max(0, p.pull - PARTICLE_RELEASE_RATE)
     }
 
-    p.vx += (p.baseX - p.x) * returnSpeed
-    p.vy += (p.baseY - p.y) * returnSpeed
-    p.vx *= 0.94
-    p.vy *= 0.94
+    const homePull = 1 - p.pull
+    if (homePull > 0.02) {
+      p.vx += (p.baseX - p.x) * PARTICLE_RETURN_SPEED * homePull
+      p.vy += (p.baseY - p.y) * PARTICLE_RETURN_SPEED * homePull
+    }
+
+    p.vx *= 0.9
+    p.vy *= 0.9
     p.x += p.vx
     p.y += p.vy
 
     if (
-      Math.abs(p.x - p.baseX) > 0.4 ||
-      Math.abs(p.y - p.baseY) > 0.4 ||
-      Math.abs(p.vx) > 0.05 ||
-      Math.abs(p.vy) > 0.05
+      p.pull > 0.02 ||
+      Math.abs(p.x - p.baseX) > 0.35 ||
+      Math.abs(p.y - p.baseY) > 0.35 ||
+      Math.abs(p.vx) > 0.04 ||
+      Math.abs(p.vy) > 0.04
     ) {
       settling = true
     }
@@ -173,12 +207,18 @@ export function stepAsciiParticles(
   return settling
 }
 
+export function hasActivePull(particles: readonly AsciiParticle[]): boolean {
+  for (const p of particles) {
+    if (p.pull > 0.02) return true
+  }
+  return false
+}
+
 export function drawAtomizeFrame(options: {
   ctx: CanvasRenderingContext2D
   image: CanvasImageSource
   imageFit: ContainRect
   particles: readonly AsciiParticle[]
-  mouse: { x: number; y: number }
   hovered: boolean
   glyphColor: string
   fontFamily: string
@@ -189,7 +229,6 @@ export function drawAtomizeFrame(options: {
     image,
     imageFit,
     particles,
-    mouse,
     hovered,
     glyphColor,
     fontFamily,
@@ -209,24 +248,25 @@ export function drawAtomizeFrame(options: {
   ctx.drawImage(image, imageFit.x, imageFit.y, imageFit.w, imageFit.h)
   ctx.restore()
 
-  if (!hovered) return
-
   const fontSize = Math.max(3, sampleGap + 1)
-  const revealRadius = PARTICLE_REVEAL_RADIUS
-  const glyphRadius = fontSize * 0.58
+  const holeRadius = fontSize * 0.62
+  const anyPulled = hovered || hasActivePull(particles)
 
-  ctx.save()
-  ctx.globalCompositeOperation = 'destination-out'
-  for (const particle of particles) {
-    const reveal = cursorRevealStrength(mouse, particle, revealRadius, true)
-    if (reveal <= 0.04) continue
+  if (anyPulled) {
+    ctx.save()
+    ctx.globalCompositeOperation = 'destination-out'
+    for (const particle of particles) {
+      if (particle.pull <= 0.03) continue
 
-    ctx.globalAlpha = reveal
-    ctx.beginPath()
-    ctx.arc(particle.x, particle.y, glyphRadius, 0, Math.PI * 2)
-    ctx.fill()
+      ctx.globalAlpha = easeOutCubic(particle.pull)
+      ctx.beginPath()
+      ctx.arc(particle.baseX, particle.baseY, holeRadius, 0, Math.PI * 2)
+      ctx.fill()
+    }
+    ctx.restore()
   }
-  ctx.restore()
+
+  if (!anyPulled) return
 
   ctx.font = `500 ${fontSize}px ${fontFamily}`
   ctx.fillStyle = glyphColor
@@ -234,12 +274,14 @@ export function drawAtomizeFrame(options: {
   ctx.textBaseline = 'middle'
 
   for (const particle of particles) {
-    const reveal = cursorRevealStrength(mouse, particle, revealRadius, true)
-    if (reveal <= 0.04) continue
+    if (particle.pull <= 0.04) continue
+
+    const alpha = easeOutCubic(particle.pull)
+    const lift = easeOutCubic(Math.min(1, particle.pull * 1.15))
 
     ctx.save()
-    ctx.globalAlpha = reveal
-    ctx.fillText(particle.char, particle.x, particle.y)
+    ctx.globalAlpha = alpha
+    ctx.fillText(particle.char, particle.x, particle.y - lift * 0.6)
     ctx.restore()
   }
 }
@@ -250,5 +292,6 @@ export function resetParticles(particles: AsciiParticle[]): void {
     p.y = p.baseY
     p.vx = 0
     p.vy = 0
+    p.pull = 0
   }
 }

@@ -4,6 +4,7 @@ import {
   buildAsciiParticles,
   containRect,
   drawAtomizeFrame,
+  hasActivePull,
   PARTICLE_SAMPLE_GAP,
   resetParticles,
   stepAsciiParticles,
@@ -86,7 +87,6 @@ export function useAtomizeImage(src: string) {
       image: source.canvas,
       imageFit,
       particles: particlesRef.current,
-      mouse: mouseRef.current,
       hovered: hoveredRef.current,
       glyphColor: readGlyphColor(root),
       fontFamily: readMonoFont(),
@@ -100,20 +100,21 @@ export function useAtomizeImage(src: string) {
     paint()
 
     const tick = () => {
+      const particles = particlesRef.current
       const settling = stepAsciiParticles(
-        particlesRef.current,
+        particles,
         mouseRef.current,
         hoveredRef.current,
       )
 
       paint()
-      setAnimating(settling)
+      setAnimating(settling || hasActivePull(particles))
 
-      if (hoveredRef.current || settling) {
+      if (hoveredRef.current || settling || hasActivePull(particles)) {
         rafRef.current = requestAnimationFrame(tick)
       } else {
         rafRef.current = null
-        resetParticles(particlesRef.current)
+        resetParticles(particles)
       }
     }
 

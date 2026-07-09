@@ -8,7 +8,7 @@ interface Props {
   className?: string
 }
 
-/** Board PDF at rest; hover reveals 1/0 digits in a brush around the cursor. */
+/** Board PDF at rest; hover pulls 1/0 digits out of the surface around the cursor. */
 export function AtomizeImage({ src, alt, className }: Props) {
   const {
     rootRef,
