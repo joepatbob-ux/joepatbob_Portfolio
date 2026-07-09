@@ -13,7 +13,6 @@ export type ContainRect = {
 
 export const GLYPH_GAP = 2
 export const HOVER_RADIUS = 80
-export const SETTLE_STEP = 0.045
 
 export function containRect(
   containerW: number,
@@ -103,11 +102,6 @@ export function easeOutCubic(t: number): number {
   return 1 - (1 - x) ** 3
 }
 
-export function stepToward(current: number, target: number, step: number): number {
-  if (Math.abs(target - current) < 0.004) return target
-  return current + (target - current) * step
-}
-
 function hoverStrength(
   mouse: { x: number; y: number },
   cell: GlyphCell,
@@ -126,57 +120,57 @@ export function drawBoardFrame(options: {
   imageFit: ContainRect
   cells: readonly GlyphCell[]
   mouse: { x: number; y: number }
-  glyphBlend: number
   hover: boolean
   glyphColor: string
   fontFamily: string
 }) {
-  const { ctx, image, imageFit, cells, mouse, glyphBlend, hover, glyphColor, fontFamily } =
-    options
+  const { ctx, image, imageFit, cells, mouse, hover, glyphColor, fontFamily } = options
   const { width: displayW, height: displayH } = ctx.canvas.getBoundingClientRect()
 
   if (displayW < 1 || displayH < 1) return
 
   ctx.clearRect(0, 0, displayW, displayH)
 
-  const glyphs = easeOutCubic(glyphBlend)
-  const photoOpacity = 1 - glyphs
+  ctx.save()
+  ctx.imageSmoothingEnabled = true
+  ctx.imageSmoothingQuality = 'high'
+  ctx.drawImage(image, imageFit.x, imageFit.y, imageFit.w, imageFit.h)
+  ctx.restore()
 
-  if (photoOpacity > 0.01) {
-    ctx.save()
-    ctx.globalAlpha = photoOpacity
-    ctx.imageSmoothingEnabled = true
-    ctx.imageSmoothingQuality = 'high'
-    ctx.drawImage(image, imageFit.x, imageFit.y, imageFit.w, imageFit.h)
-    ctx.restore()
-  }
-
-  if (glyphs < 0.01 && !hover) return
+  if (!hover) return
 
   const fontSize = Math.max(3, GLYPH_GAP + 1)
+  const holeRadius = fontSize * 0.55
+  const hovered: { cell: GlyphCell; strength: number }[] = []
+
+  for (const cell of cells) {
+    const strength = hoverStrength(mouse, cell, HOVER_RADIUS)
+    if (strength > 0.03) hovered.push({ cell, strength })
+  }
+
+  if (hovered.length === 0) return
+
+  ctx.save()
+  ctx.globalCompositeOperation = 'destination-out'
+  for (const { cell, strength } of hovered) {
+    ctx.globalAlpha = strength * cell.weight
+    ctx.beginPath()
+    ctx.arc(cell.x, cell.y, holeRadius, 0, Math.PI * 2)
+    ctx.fill()
+  }
+  ctx.restore()
+
   ctx.font = `500 ${fontSize}px ${fontFamily}`
   ctx.fillStyle = glyphColor
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
 
-  for (const cell of cells) {
-    const distort = hover ? hoverStrength(mouse, cell, HOVER_RADIUS) : 0
-
-    if (glyphs > 0.01 && distort < 1) {
-      const zeroAlpha = cell.weight * glyphs * (1 - distort)
-      if (zeroAlpha > 0.02) {
-        ctx.save()
-        ctx.globalAlpha = zeroAlpha
-        ctx.fillText('0', cell.x, cell.y)
-        ctx.restore()
-      }
-    }
-
-    if (distort > 0.03) {
-      ctx.save()
-      ctx.globalAlpha = distort
-      ctx.fillText('1', cell.x, cell.y)
-      ctx.restore()
-    }
+  for (const { cell, strength } of hovered) {
+    const alpha = strength * cell.weight
+    if (alpha <= 0.02) continue
+    ctx.save()
+    ctx.globalAlpha = alpha
+    ctx.fillText('0', cell.x, cell.y)
+    ctx.restore()
   }
 }

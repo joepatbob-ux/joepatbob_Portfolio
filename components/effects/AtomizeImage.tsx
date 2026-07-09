@@ -8,13 +8,12 @@ interface Props {
   className?: string
 }
 
-/** PDF on load → weighted 0s → hover distorts to 1s around the cursor. */
+/** PDF at rest; hover reveals weighted 0s in a cursor brush. */
 export function AtomizeImage({ src, alt, className }: Props) {
   const {
     rootRef,
     canvasRef,
     ready,
-    settled,
     hovered,
     aspectRatio,
     onPointerEnter,
@@ -31,7 +30,6 @@ export function AtomizeImage({ src, alt, className }: Props) {
         'atomize-image',
         'font-mono',
         ready ? 'atomize-image--ready' : '',
-        settled ? 'atomize-image--settled' : '',
         hovered ? 'atomize-image--hovered' : '',
         className,
       ]

@@ -5,8 +5,6 @@ import {
   containRect,
   drawBoardFrame,
   GLYPH_GAP,
-  SETTLE_STEP,
-  stepToward,
   type ContainRect,
   type GlyphCell,
 } from '@/lib/effects/atomizeImage'
@@ -21,7 +19,6 @@ import {
 } from 'react'
 
 const OFFSCREEN_MOUSE = { x: -1000, y: -1000 }
-const SETTLE_DELAY_MS = 520
 
 function readGlyphColor(node: HTMLElement): string {
   return (
@@ -48,28 +45,13 @@ export function useAtomizeImage(src: string) {
   const sourceRef = useRef<RasterSource | null>(null)
   const fitRef = useRef<ContainRect | null>(null)
   const cellsRef = useRef<GlyphCell[]>([])
-  const glyphBlendRef = useRef(0)
   const hoveredRef = useRef(false)
   const mouseRef = useRef(OFFSCREEN_MOUSE)
-  const settleRafRef = useRef<number | null>(null)
-  const settleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [ready, setReady] = useState(false)
-  const [settled, setSettled] = useState(false)
   const [hovered, setHovered] = useState(false)
   const [aspectRatio, setAspectRatio] = useState<string | null>(null)
 
   hoveredRef.current = hovered
-
-  const stopSettle = useCallback(() => {
-    if (settleRafRef.current != null) {
-      cancelAnimationFrame(settleRafRef.current)
-      settleRafRef.current = null
-    }
-    if (settleTimerRef.current != null) {
-      clearTimeout(settleTimerRef.current)
-      settleTimerRef.current = null
-    }
-  }, [])
 
   const paint = useCallback(() => {
     const root = rootRef.current
@@ -87,54 +69,11 @@ export function useAtomizeImage(src: string) {
       imageFit: fit,
       cells: cellsRef.current,
       mouse: mouseRef.current,
-      glyphBlend: glyphBlendRef.current,
-      hover: hoveredRef.current && glyphBlendRef.current > 0.98,
+      hover: hoveredRef.current,
       glyphColor: readGlyphColor(root),
       fontFamily: readMonoFont(),
     })
   }, [])
-
-  const runSettle = useCallback(() => {
-    stopSettle()
-
-    if (prefersReducedMotion()) {
-      glyphBlendRef.current = 1
-      setSettled(true)
-      paint()
-      return
-    }
-
-    const tick = () => {
-      glyphBlendRef.current = stepToward(glyphBlendRef.current, 1, SETTLE_STEP)
-      paint()
-
-      if (glyphBlendRef.current < 0.995) {
-        settleRafRef.current = requestAnimationFrame(tick)
-      } else {
-        glyphBlendRef.current = 1
-        settleRafRef.current = null
-        setSettled(true)
-        paint()
-      }
-    }
-
-    settleRafRef.current = requestAnimationFrame(tick)
-  }, [paint, stopSettle])
-
-  const scheduleSettle = useCallback(() => {
-    stopSettle()
-    glyphBlendRef.current = 0
-    setSettled(false)
-
-    if (prefersReducedMotion()) {
-      glyphBlendRef.current = 1
-      setSettled(true)
-      paint()
-      return
-    }
-
-    settleTimerRef.current = setTimeout(runSettle, SETTLE_DELAY_MS)
-  }, [paint, runSettle, stopSettle])
 
   const layout = useCallback(() => {
     const root = rootRef.current
@@ -170,17 +109,13 @@ export function useAtomizeImage(src: string) {
 
     paint()
     setReady(true)
-    scheduleSettle()
-  }, [paint, scheduleSettle])
+  }, [paint])
 
   useEffect(() => {
     let cancelled = false
     setReady(false)
-    setSettled(false)
-    stopSettle()
     sourceRef.current = null
     fitRef.current = null
-    glyphBlendRef.current = 0
 
     void loadRasterSource(src).then((source) => {
       if (cancelled) return
@@ -195,11 +130,10 @@ export function useAtomizeImage(src: string) {
 
     return () => {
       cancelled = true
-      stopSettle()
       sourceRef.current = null
       fitRef.current = null
     }
-  }, [src, stopSettle])
+  }, [src])
 
   useLayoutEffect(() => {
     if (!sourceRef.current || !aspectRatio) return
@@ -215,16 +149,14 @@ export function useAtomizeImage(src: string) {
     return () => observer.disconnect()
   }, [layout, ready])
 
-  useEffect(() => stopSettle, [stopSettle])
-
   const onPointerEnter = useCallback(() => {
-    if (!settled || prefersReducedMotion()) return
+    if (!ready || prefersReducedMotion()) return
     setHovered(true)
     paint()
-  }, [paint, settled])
+  }, [paint, ready])
 
   const onPointerMove = useCallback((event: PointerEvent<HTMLElement>) => {
-    if (!settled) return
+    if (!ready) return
     const root = rootRef.current
     if (!root) return
     const rect = root.getBoundingClientRect()
@@ -233,7 +165,7 @@ export function useAtomizeImage(src: string) {
       y: event.clientY - rect.top,
     }
     if (hoveredRef.current) paint()
-  }, [paint, settled])
+  }, [paint, ready])
 
   const onPointerLeave = useCallback(() => {
     setHovered(false)
@@ -245,7 +177,6 @@ export function useAtomizeImage(src: string) {
     rootRef,
     canvasRef,
     ready,
-    settled,
     hovered,
     aspectRatio,
     onPointerEnter,

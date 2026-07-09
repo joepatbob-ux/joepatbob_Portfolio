@@ -24,15 +24,16 @@
   z-index: 0;
 }
 
-.atomize-image--ready .atomize-image__canvas {
-  opacity: 1;
-}
-
-.atomize-image--settled {
+.atomize-image--ready {
   cursor: crosshair;
 }
 
-.atomize-image--settled .atomize-image__canvas {
+.atomize-image--ready .atomize-image__canvas {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.atomize-image--hovered .atomize-image__canvas {
   pointer-events: auto;
 }
 
@@ -50,7 +51,7 @@
 }
 
 @media (hover: none) {
-  .atomize-image--settled {
+  .atomize-image--ready {
     cursor: default;
   }
 }
