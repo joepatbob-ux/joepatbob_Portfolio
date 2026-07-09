@@ -42,7 +42,8 @@
   --cs-band-max: min(var(--cs-band-max-raw), var(--cs-content-pane-max));
 
   /* Section overview — one centered column; rhythm tokens below */
-  --cs-overview-measure-max: min(68ch, 100%);
+  --cs-overview-inset-x: clamp(20px, 4vw, 40px);
+  --cs-overview-measure-max: min(60ch, 100%);
   --cs-overview-inner-max: min(var(--cs-band-max), 100%);
   --cs-overview-copy-measure-max: var(--cs-overview-measure-max);
   --cs-overview-headline-measure: var(--cs-overview-measure-max);
@@ -129,6 +130,7 @@
 @media (max-width: 767px) {
   :root {
     --cs-inner-max: min(var(--cs-mobile-inner-max), 100%);
+    --cs-overview-inset-x: clamp(16px, 5vw, 28px);
     --cs-overview-inner-max: 100%;
     --cs-overview-measure-max: 100%;
     --cs-overview-copy-measure-max: var(--cs-overview-measure-max);
