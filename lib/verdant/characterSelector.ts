@@ -1,6 +1,6 @@
 /** Character selector — keys map to `verdant-character-{CODE}.svg` in `/images/verdant-segment/`. */
 
-export type VerdantViewKind = 'sketch' | 'prototype' | 'product'
+export type VerdantViewKind = 'sketch' | 'prototype' | 'final'
 
 export type VerdantSelection =
   | { kind: 'character'; code: string }
@@ -84,10 +84,10 @@ export const VERDANT_VIEW_TOGGLES = [
     objectPosition: 'center',
   },
   {
-    kind: 'product',
-    label: 'Product',
+    kind: 'final',
+    label: 'Final',
     src: '/images/verdant-product.webp',
-    alt: 'Finished Verdant thermostat product',
+    alt: 'Finished Verdant thermostat',
     objectPosition: 'center',
   },
 ] as const satisfies ReadonlyArray<{

@@ -40,7 +40,7 @@
   pointer-events: auto;
 }
 
-/* Shared preview frame — segments, sketch, prototype, and product */
+/* Shared preview frame — segments, sketch, prototype, and final */
 .verdant-interactive__glyph-stage {
   grid-area: glyph;
   box-sizing: border-box;
@@ -64,7 +64,7 @@
 
 .verdant-interactive__glyph-stage[data-preview='sketch'],
 .verdant-interactive__glyph-stage[data-preview='prototype'],
-.verdant-interactive__glyph-stage[data-preview='product'] {
+.verdant-interactive__glyph-stage[data-preview='final'] {
   background: var(--color-paper);
 }
 
