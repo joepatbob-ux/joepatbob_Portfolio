@@ -117,6 +117,7 @@ async function processTouch2(inputDirRel) {
     const base = name.replace(/\.jpe?g$/i, '')
     const outputPath = path.join(inputDir, `${base}-optimized.webp`)
     const pipeline = sharp(inputPath)
+      .rotate()
       .resize({ width: 1200, height: 1200, fit: 'inside', withoutEnlargement: true })
       .webp({ quality: 82 })
     if (await writeOutput(inputPath, outputPath, pipeline)) processed += 1
