@@ -253,7 +253,7 @@
   opacity: 0.72;
 }
 
-/* Signature quote — section landing statement with oversized accent marks */
+/* Signature quote — flanking straight quotes beside the text */
 .case-study-overview-block--quote {
   gap: 0;
 }
@@ -268,39 +268,25 @@
 .case-study-overview-quote__body {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: stretch;
-  column-gap: clamp(8px, 1.2vw, 14px);
+  align-items: center;
+  column-gap: clamp(6px, 1vw, 10px);
   font-size: clamp(18px, 1.9vw, 24px);
   line-height: 1.45;
 }
 
 .case-study-overview-quote__mark {
-  container-type: size;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 0.45em;
   font-family: var(--font-ahg);
   font-weight: 700;
   color: var(--color-accent);
   line-height: 1;
-  /* Match mark height to the quote text block (2–3 lines) */
-  font-size: calc(1.45em * 2.75);
+  font-size: 1.25em;
   user-select: none;
-}
-
-@supports (font-size: 1cqh) {
-  .case-study-overview-quote__mark {
-    font-size: 88cqh;
-  }
 }
 
 .case-study-overview-quote__text {
   margin: 0;
   padding: 0;
   border: none;
-  display: flex;
-  align-items: center;
 }
 
 .case-study-overview-quote__text p {
