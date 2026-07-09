@@ -2,4 +2,4 @@
 {}
 ---
 
-Eight years as the sole designer across five thermostat products, from fixed-segment to touchscreen, serving contractors, DIY homeowners, and hotel guests. Each had its own way of failing; keeping them coherent was a judgment call, one at a time, not a styling job.
+Hardware is where constraints stop being abstract. A touchscreen is not a fixed-segment display with more pixels. A three-button thermostat is not a cheaper touchscreen. Each product fails in its own way; keeping them coherent was judgment, one call at a time—not a styling job.
