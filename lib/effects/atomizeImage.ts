@@ -13,17 +13,22 @@ export type AsciiParticle = {
 }
 
 export const PARTICLE_SAMPLE_GAP = 2
-/** Tight core — only digits near the pointer start pulling. */
-export const PARTICLE_ACTIVATION_RADIUS = 58
-export const PARTICLE_PULL_RADIUS = 72
-export const PARTICLE_SCATTER_RADIUS = 80
-export const PARTICLE_PULL_RATE = 0.052
-export const PARTICLE_RELEASE_RATE = 0.085
-export const PARTICLE_EJECT_FORCE = 0.42
-export const PARTICLE_SCATTER_FORCE = 2.1
-export const PARTICLE_RETURN_SPEED = 0.08
+/** Wide progressive extraction zone around the pointer. */
+export const PARTICLE_ACTIVATION_RADIUS = 104
+export const PARTICLE_PULL_RATE = 0.048
+export const PARTICLE_RELEASE_RATE = 0.07
+export const PARTICLE_EJECT_FORCE = 0.2
+export const PARTICLE_DRIFT_FORCE = 0.038
+export const PARTICLE_RETURN_SPEED = 0.065
+export const PARTICLE_FRICTION = 0.965
+export const PARTICLE_MAX_SPEED = 1.35
 /** Minimum influence before a cell can begin pulling (avoids soft-edge mass erase). */
-export const PARTICLE_PULL_THRESHOLD = 0.38
+export const PARTICLE_PULL_THRESHOLD = 0.26
+
+export type ViewportBounds = {
+  width: number
+  height: number
+}
 
 export type ContainRect = {
   x: number
@@ -149,20 +154,51 @@ export function activationAtBase(
   const dist = Math.sqrt(dx * dx + dy * dy)
   if (dist >= radius) return 0
   const t = 1 - dist / radius
-  const core = Math.pow(t, 3.2)
-  const gate = particle.stagger * 0.35
+  const core = Math.pow(t, 2.35)
+  const gate = particle.stagger * 0.28
   if (core <= gate) return 0
   return (core - gate) / (1 - gate)
+}
+
+function driftAngle(particle: AsciiParticle): number {
+  return ((hashCell(particle.baseX, particle.baseY) % 360) * Math.PI) / 180
+}
+
+function clampSpeed(p: AsciiParticle): void {
+  const speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy)
+  if (speed > PARTICLE_MAX_SPEED) {
+    p.vx = (p.vx / speed) * PARTICLE_MAX_SPEED
+    p.vy = (p.vy / speed) * PARTICLE_MAX_SPEED
+  }
+}
+
+function keepInViewport(p: AsciiParticle, bounds: ViewportBounds, margin: number): void {
+  if (p.x < margin) {
+    p.x = margin
+    p.vx = Math.abs(p.vx) * 0.35
+  } else if (p.x > bounds.width - margin) {
+    p.x = bounds.width - margin
+    p.vx = -Math.abs(p.vx) * 0.35
+  }
+
+  if (p.y < margin) {
+    p.y = margin
+    p.vy = Math.abs(p.vy) * 0.35
+  } else if (p.y > bounds.height - margin) {
+    p.y = bounds.height - margin
+    p.vy = -Math.abs(p.vy) * 0.35
+  }
 }
 
 export function stepAsciiParticles(
   particles: AsciiParticle[],
   mouse: { x: number; y: number },
   active: boolean,
+  bounds: ViewportBounds,
 ): boolean {
   let settling = false
   const activationRadius = PARTICLE_ACTIVATION_RADIUS
-  const scatterRadius = PARTICLE_SCATTER_RADIUS
+  const margin = 4
 
   for (const p of particles) {
     const influence = activationAtBase(mouse, p, activationRadius, active)
@@ -175,50 +211,48 @@ export function stepAsciiParticles(
       const ejectDy = p.baseY - mouse.y
       const ejectDist = Math.sqrt(ejectDx * ejectDx + ejectDy * ejectDy)
 
-      if (ejectDist > 0.5) {
-        const eject = pullDrive * PARTICLE_EJECT_FORCE
+      if (ejectDist > 0.5 && p.pull < 0.72) {
+        const eject = pullDrive * PARTICLE_EJECT_FORCE * (1 - p.pull)
         p.vx += (ejectDx / ejectDist) * eject
         p.vy += (ejectDy / ejectDist) * eject
       }
 
       p.pull = Math.min(1, p.pull + pullDrive * PARTICLE_PULL_RATE)
 
-      if (p.pull > 0.35) {
-        const scatterDx = mouse.x - p.x
-        const scatterDy = mouse.y - p.y
-        const scatterDist = Math.sqrt(scatterDx * scatterDx + scatterDy * scatterDy)
-
-        if (scatterDist < scatterRadius && scatterDist > 0.5) {
-          const force =
-            ((scatterRadius - scatterDist) / scatterRadius) *
-            pullDrive *
-            PARTICLE_SCATTER_FORCE
-          const angle = Math.atan2(scatterDy, scatterDx)
-          p.vx -= Math.cos(angle) * force
-          p.vy -= Math.sin(angle) * force
-        }
+      if (p.pull > 0.38) {
+        const angle = driftAngle(p)
+        const drift = PARTICLE_DRIFT_FORCE * p.pull * pullDrive
+        p.vx += Math.cos(angle) * drift
+        p.vy += Math.sin(angle) * drift
       }
-    } else if (!active || influence < PARTICLE_PULL_THRESHOLD * 0.5) {
+    } else if (!active) {
       p.pull = Math.max(0, p.pull - PARTICLE_RELEASE_RATE)
+    } else if (p.pull < 0.5) {
+      p.pull = Math.max(0, p.pull - PARTICLE_RELEASE_RATE * 0.45)
     }
 
     const homePull = 1 - p.pull
-    if (homePull > 0.02) {
+    if (homePull > 0.04 && (!active || p.pull < 0.62)) {
       p.vx += (p.baseX - p.x) * PARTICLE_RETURN_SPEED * homePull
       p.vy += (p.baseY - p.y) * PARTICLE_RETURN_SPEED * homePull
     }
 
-    p.vx *= 0.9
-    p.vy *= 0.9
+    p.vx *= PARTICLE_FRICTION
+    p.vy *= PARTICLE_FRICTION
+    clampSpeed(p)
     p.x += p.vx
     p.y += p.vy
+
+    if (p.pull > 0.45) {
+      keepInViewport(p, bounds, margin)
+    }
 
     if (
       p.pull > 0.02 ||
       Math.abs(p.x - p.baseX) > 0.35 ||
       Math.abs(p.y - p.baseY) > 0.35 ||
-      Math.abs(p.vx) > 0.04 ||
-      Math.abs(p.vy) > 0.04
+      Math.abs(p.vx) > 0.03 ||
+      Math.abs(p.vy) > 0.03
     ) {
       settling = true
     }

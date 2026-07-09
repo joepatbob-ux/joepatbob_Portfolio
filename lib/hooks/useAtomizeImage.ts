@@ -101,10 +101,16 @@ export function useAtomizeImage(src: string) {
 
     const tick = () => {
       const particles = particlesRef.current
+      const root = rootRef.current
+      const bounds = root?.getBoundingClientRect()
       const settling = stepAsciiParticles(
         particles,
         mouseRef.current,
         hoveredRef.current,
+        {
+          width: bounds?.width ?? 0,
+          height: bounds?.height ?? 0,
+        },
       )
 
       paint()
