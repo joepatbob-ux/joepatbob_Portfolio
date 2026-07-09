@@ -89,12 +89,22 @@ export function drawAtomizeFrame(options: {
   image: CanvasImageSource
   cells: readonly AtomizeCell[]
   progress: number
+  /** 0 = photo visible, 1 = photo fully hidden */
+  photoHide: number
   glyphColor: string
   fieldColor: string
   fontFamily: string
 }) {
-  const { ctx, image, cells, progress, glyphColor, fieldColor, fontFamily } =
-    options
+  const {
+    ctx,
+    image,
+    cells,
+    progress,
+    photoHide,
+    glyphColor,
+    fieldColor,
+    fontFamily,
+  } = options
   const displayW =
     Number(ctx.canvas.style.width.replace('px', '')) || ctx.canvas.width
   const displayH =
@@ -102,7 +112,8 @@ export function drawAtomizeFrame(options: {
 
   ctx.clearRect(0, 0, displayW, displayH)
 
-  const fieldAlpha = Math.min(1, progress * 1.15)
+  const photoOpacity = photoOpacityFromHide(photoHide)
+  const fieldAlpha = Math.max(photoHide, Math.min(1, progress * 1.15))
   if (fieldAlpha > 0.01) {
     ctx.fillStyle = fieldColor
     ctx.globalAlpha = fieldAlpha
@@ -116,12 +127,14 @@ export function drawAtomizeFrame(options: {
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
 
+  const drawPhoto = photoOpacity > 0.02
+
   for (const cell of cells) {
     const dissolve = cellDissolve(progress, cell.order)
 
-    if (dissolve < 1) {
+    if (drawPhoto && dissolve < 1) {
       ctx.save()
-      ctx.globalAlpha = 1 - dissolve
+      ctx.globalAlpha = (1 - dissolve) * photoOpacity
       ctx.drawImage(
         image,
         cell.x,
@@ -154,8 +167,12 @@ export function stepAtomizeProgress(
   return current + (target - current) * step
 }
 
-/** Ease photo fade so the board vanishes into the ASCII field. */
-export function photoFadeFromProgress(progress: number): number {
-  const t = Math.max(0, Math.min(1, progress))
-  return 1 - t * t * (3 - 2 * t)
+export function easeOutCubic(t: number): number {
+  const x = Math.max(0, Math.min(1, t))
+  return 1 - Math.pow(1 - x, 3)
+}
+
+/** Photo layer — quick ease-out hide on hover, slower ease-in on leave. */
+export function photoOpacityFromHide(photoHide: number): number {
+  return 1 - easeOutCubic(photoHide)
 }

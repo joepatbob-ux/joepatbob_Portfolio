@@ -40,7 +40,10 @@ export function AtomizeImage({ src, alt, className }: Props) {
         decoding="async"
         loading="eager"
         fetchPriority="high"
-        style={{ opacity: photoOpacity }}
+        style={{
+          opacity: photoOpacity,
+          visibility: photoOpacity < 0.02 ? 'hidden' : 'visible',
+        }}
       />
       <canvas
         ref={canvasRef}

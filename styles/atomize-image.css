@@ -26,7 +26,6 @@
   opacity: 1;
   pointer-events: none;
   z-index: 0;
-  transition: opacity 120ms linear;
 }
 
 .atomize-image__canvas {

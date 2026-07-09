@@ -3,7 +3,7 @@
 import {
   buildAtomizeCells,
   drawAtomizeFrame,
-  photoFadeFromProgress,
+  photoOpacityFromHide,
   stepAtomizeProgress,
   type AtomizeCell,
 } from '@/lib/effects/atomizeImage'
@@ -39,6 +39,7 @@ export function useAtomizeImage(src: string) {
   const snapshotRef = useRef<HTMLCanvasElement | null>(null)
   const cellsRef = useRef<AtomizeCell[]>([])
   const progressRef = useRef(0)
+  const photoHideRef = useRef(0)
   const targetRef = useRef(0)
   const hoveredRef = useRef(false)
   const rafRef = useRef<number | null>(null)
@@ -46,6 +47,7 @@ export function useAtomizeImage(src: string) {
   const [hovered, setHovered] = useState(false)
   const [active, setActive] = useState(false)
   const [progress, setProgress] = useState(0)
+  const [photoHide, setPhotoHide] = useState(0)
 
   hoveredRef.current = hovered
 
@@ -70,6 +72,7 @@ export function useAtomizeImage(src: string) {
       image: snapshot,
       cells: cellsRef.current,
       progress: progressRef.current,
+      photoHide: photoHideRef.current,
       glyphColor: readGlyphColor(root),
       fieldColor: readFieldColor(root),
       fontFamily: readMonoFont(),
@@ -80,12 +83,24 @@ export function useAtomizeImage(src: string) {
     if (rafRef.current != null) return
 
     const tick = () => {
+      const photoTarget = hoveredRef.current ? 1 : 0
+      const photoStep = hoveredRef.current ? 0.38 : 0.12
+      const nextPhotoHide = stepAtomizeProgress(
+        photoHideRef.current,
+        photoTarget,
+        photoStep,
+      )
+      photoHideRef.current = nextPhotoHide
+      setPhotoHide(nextPhotoHide)
+
       const next = stepAtomizeProgress(progressRef.current, targetRef.current)
       progressRef.current = next
       setProgress(next)
       paint()
 
-      const moving = Math.abs(next - targetRef.current) > 0.008
+      const moving =
+        Math.abs(next - targetRef.current) > 0.008 ||
+        Math.abs(nextPhotoHide - photoTarget) > 0.008
       setActive(
         hoveredRef.current ||
           moving ||
@@ -203,7 +218,8 @@ export function useAtomizeImage(src: string) {
     ready,
     active,
     progress,
-    photoOpacity: active ? photoFadeFromProgress(progress) : 1,
+    photoHide,
+    photoOpacity: photoOpacityFromHide(photoHide),
     onPointerEnter,
     onPointerLeave,
   }
