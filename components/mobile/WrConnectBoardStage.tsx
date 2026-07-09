@@ -7,13 +7,13 @@ interface Props {
   alt: string
 }
 
-/** Board image at rest; hover reveals weighted 0s in a soft cursor brush. */
+/** Board photo at rest; hover dissolves into 0/1 particles with physics. */
 export function WrConnectBoardStage({ src, alt }: Props) {
   const {
     rootRef,
     canvasRef,
     canvasReady,
-    hovering,
+    live,
     aspectRatio,
     onPointerEnter,
     onPointerMove,
@@ -28,7 +28,7 @@ export function WrConnectBoardStage({ src, alt }: Props) {
       className={[
         'wr-connect-board',
         canvasReady ? 'wr-connect-board--canvas-ready' : '',
-        hovering ? 'wr-connect-board--hovering' : '',
+        live ? 'wr-connect-board--live' : '',
       ]
         .filter(Boolean)
         .join(' ')}

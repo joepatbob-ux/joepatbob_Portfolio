@@ -2,12 +2,16 @@
 
 import {
   BOARD_ASPECT,
-  BOARD_GLYPH_GAP,
-  buildGlyphGrid,
+  PARTICLE_GAP,
+  buildBoardParticles,
   containRect,
-  drawWrConnectBoard,
+  drawWrConnectBoardFrame,
+  isParticleInteractive,
   loadBoardImage,
-  type BoardGlyph,
+  resetParticles,
+  stepBoardParticles,
+  stepBoardProgress,
+  type BoardParticle,
   type FitRect,
 } from '@/lib/wrConnectBoard'
 import {
@@ -36,19 +40,36 @@ function readMonoFont(): string {
   return fromVar || 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace'
 }
 
+function prefersReducedMotion(): boolean {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches
+}
+
 export function useWrConnectBoard(src: string) {
   const rootRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const imageRef = useRef<HTMLImageElement | null>(null)
   const fitRef = useRef<FitRect | null>(null)
-  const cellsRef = useRef<BoardGlyph[]>([])
+  const particlesRef = useRef<BoardParticle[]>([])
+  const progressRef = useRef(0)
+  const targetRef = useRef(0)
   const hoverRef = useRef(false)
   const mouseRef = useRef(OFFSCREEN)
+  const rafRef = useRef<number | null>(null)
+
   const [imageLoaded, setImageLoaded] = useState(false)
   const [canvasReady, setCanvasReady] = useState(false)
   const [hovering, setHovering] = useState(false)
+  const [animating, setAnimating] = useState(false)
+  const [progress, setProgress] = useState(0)
 
   hoverRef.current = hovering
+
+  const stopLoop = useCallback(() => {
+    if (rafRef.current != null) {
+      cancelAnimationFrame(rafRef.current)
+      rafRef.current = null
+    }
+  }, [])
 
   const paint = useCallback(() => {
     const root = rootRef.current
@@ -60,15 +81,15 @@ export function useWrConnectBoard(src: string) {
     const ctx = canvas.getContext('2d')
     if (!ctx) return false
 
-    drawWrConnectBoard({
+    drawWrConnectBoardFrame({
       ctx,
       image,
       imageFit: fit,
-      cells: cellsRef.current,
-      mouse: mouseRef.current,
-      hover: hoverRef.current,
+      particles: particlesRef.current,
+      progress: progressRef.current,
       glyphColor: readGlyphColor(root),
       fontFamily: readMonoFont(),
+      sampleGap: PARTICLE_GAP,
     })
     return true
   }, [])
@@ -103,20 +124,65 @@ export function useWrConnectBoard(src: string) {
     const fit = fitRef.current
     sampleCtx.drawImage(image, fit.x, fit.y, fit.w, fit.h)
     const { data } = sampleCtx.getImageData(0, 0, displayW, displayH)
-    cellsRef.current = buildGlyphGrid(data, displayW, displayH, BOARD_GLYPH_GAP)
+    particlesRef.current = buildBoardParticles(data, displayW, displayH, PARTICLE_GAP)
+    resetParticles(particlesRef.current)
 
     if (!paint()) return false
     setCanvasReady(true)
     return true
   }, [paint])
 
+  const runLoop = useCallback(() => {
+    if (rafRef.current != null) return
+
+    paint()
+
+    const tick = () => {
+      const prev = progressRef.current
+      const next = stepBoardProgress(prev, targetRef.current)
+      progressRef.current = next
+      setProgress(next)
+
+      const entering = next > prev
+      const leaving = next < prev
+      const interactive = isParticleInteractive(next, hoverRef.current)
+      const settling = stepBoardParticles(
+        particlesRef.current,
+        mouseRef.current,
+        interactive,
+        leaving,
+      )
+
+      paint()
+
+      const progressMoving = Math.abs(next - targetRef.current) > 0.006
+      const stillLive =
+        hoverRef.current || progressMoving || settling || next > 0.006
+
+      setAnimating(progressMoving || settling)
+
+      if (stillLive) {
+        rafRef.current = requestAnimationFrame(tick)
+      } else {
+        rafRef.current = null
+        resetParticles(particlesRef.current)
+        paint()
+      }
+    }
+
+    rafRef.current = requestAnimationFrame(tick)
+  }, [paint])
+
   useEffect(() => {
     let cancelled = false
     setImageLoaded(false)
     setCanvasReady(false)
+    setProgress(0)
+    progressRef.current = 0
+    targetRef.current = 0
     imageRef.current = null
     fitRef.current = null
-    cellsRef.current = []
+    particlesRef.current = []
 
     void loadBoardImage(src).then((image) => {
       if (cancelled || !image) return
@@ -126,10 +192,11 @@ export function useWrConnectBoard(src: string) {
 
     return () => {
       cancelled = true
+      stopLoop()
       imageRef.current = null
       fitRef.current = null
     }
-  }, [src])
+  }, [src, stopLoop])
 
   useLayoutEffect(() => {
     if (!imageLoaded || !imageRef.current) return
@@ -150,18 +217,26 @@ export function useWrConnectBoard(src: string) {
     const root = rootRef.current
     if (!root || !imageLoaded) return
 
-    const observer = new ResizeObserver(() => layout())
+    const observer = new ResizeObserver(() => {
+      layout()
+      paint()
+    })
     observer.observe(root)
     return () => observer.disconnect()
-  }, [imageLoaded, layout])
+  }, [imageLoaded, layout, paint])
+
+  useEffect(() => {
+    targetRef.current = hovering ? 1 : 0
+    runLoop()
+  }, [hovering, runLoop])
+
+  useEffect(() => () => stopLoop(), [stopLoop])
 
   const onPointerEnter = useCallback(() => {
-    if (!canvasReady || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      return
-    }
+    if (!canvasReady || prefersReducedMotion()) return
     setHovering(true)
-    paint()
-  }, [canvasReady, paint])
+    runLoop()
+  }, [canvasReady, runLoop])
 
   const onPointerMove = useCallback(
     (event: PointerEvent<HTMLElement>) => {
@@ -173,22 +248,24 @@ export function useWrConnectBoard(src: string) {
         x: event.clientX - rect.left,
         y: event.clientY - rect.top,
       }
-      if (hoverRef.current) paint()
+      if (hoverRef.current) runLoop()
     },
-    [canvasReady, paint],
+    [canvasReady, runLoop],
   )
 
   const onPointerLeave = useCallback(() => {
     setHovering(false)
     mouseRef.current = OFFSCREEN
-    paint()
-  }, [paint])
+    runLoop()
+  }, [runLoop])
+
+  const live = hovering || animating || progress > 0.006
 
   return {
     rootRef,
     canvasRef,
     canvasReady,
-    hovering,
+    live,
     aspectRatio: BOARD_ASPECT,
     onPointerEnter,
     onPointerMove,

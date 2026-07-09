@@ -1,4 +1,4 @@
-/* WR Connect board — crisp photo at rest, 0 brush on hover */
+/* WR Connect board — photo at rest, particle dissolve on hover */
 
 .wr-connect-board {
   position: relative;
@@ -22,6 +22,7 @@
   object-fit: contain;
   pointer-events: none;
   user-select: none;
+  transition: opacity 180ms ease;
 }
 
 .wr-connect-board__canvas {
@@ -43,7 +44,13 @@
   pointer-events: auto;
 }
 
-.wr-connect-board--canvas-ready .wr-connect-board__photo {
+/* Hide the photo once canvas is live — canvas draws the board at rest too. */
+.wr-connect-board--canvas-ready:not(.wr-connect-board--live) .wr-connect-board__photo {
+  opacity: 0;
+}
+
+/* During dissolve, soften the img/canvas swap so neither layer pops. */
+.wr-connect-board--live .wr-connect-board__photo {
   opacity: 0;
 }
 
@@ -56,5 +63,11 @@
 @media (hover: none) {
   .wr-connect-board--canvas-ready {
     cursor: default;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wr-connect-board__photo {
+    transition: none;
   }
 }
