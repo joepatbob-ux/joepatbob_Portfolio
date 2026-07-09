@@ -5,12 +5,9 @@ export type AtomizeCell = {
   h: number
   char: '0' | '1'
   order: number
-  /** Sampled brightness — drives glyph opacity once atomized. */
-  luminance: number
 }
 
 const CELL_BLEND = 0.14
-const CHAR_LUMINANCE_MIN = 16
 
 export function hashCell(x: number, y: number): number {
   let h = x * 374761393 + y * 668265263
@@ -22,14 +19,14 @@ export function cellOrder(x: number, y: number): number {
   return (hashCell(x, y) % 1000) / 1000
 }
 
-export function sampleCell(
+export function sampleCellChar(
   data: Uint8ClampedArray,
   width: number,
   x: number,
   y: number,
   w: number,
   h: number,
-): { char: '0' | '1'; luminance: number } {
+): '0' | '1' {
   let r = 0
   let g = 0
   let b = 0
@@ -50,13 +47,10 @@ export function sampleCell(
     }
   }
 
-  if (count === 0) return { char: '0', luminance: 0 }
+  if (count === 0) return '0'
 
   const luminance = (r + g + b) / count
-  return {
-    char: luminance > 112 ? '1' : '0',
-    luminance,
-  }
+  return luminance > 108 ? '1' : '0'
 }
 
 export function buildAtomizeCells(
@@ -72,14 +66,12 @@ export function buildAtomizeCells(
     const h = Math.min(cellH, height - y)
     for (let x = 0; x < width; x += cellW) {
       const w = Math.min(cellW, width - x)
-      const sample = sampleCell(data, width, x, y, w, h)
       cells.push({
         x,
         y,
         w,
         h,
-        char: sample.char,
-        luminance: sample.luminance,
+        char: sampleCellChar(data, width, x, y, w, h),
         order: cellOrder(x, y),
       })
     }
@@ -97,16 +89,32 @@ export function drawAtomizeFrame(options: {
   image: CanvasImageSource
   cells: readonly AtomizeCell[]
   progress: number
-  accentColor: string
+  glyphColor: string
+  fieldColor: string
   fontFamily: string
 }) {
-  const { ctx, image, cells, progress, accentColor, fontFamily } = options
+  const { ctx, image, cells, progress, glyphColor, fieldColor, fontFamily } =
+    options
   const displayW =
     Number(ctx.canvas.style.width.replace('px', '')) || ctx.canvas.width
   const displayH =
     Number(ctx.canvas.style.height.replace('px', '')) || ctx.canvas.height
 
   ctx.clearRect(0, 0, displayW, displayH)
+
+  const fieldAlpha = Math.min(1, progress * 1.15)
+  if (fieldAlpha > 0.01) {
+    ctx.fillStyle = fieldColor
+    ctx.globalAlpha = fieldAlpha
+    ctx.fillRect(0, 0, displayW, displayH)
+    ctx.globalAlpha = 1
+  }
+
+  const fontSize = Math.max(5, Math.floor((cells[0]?.h ?? 7) - 1))
+  ctx.font = `400 ${fontSize}px ${fontFamily}`
+  ctx.fillStyle = glyphColor
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
 
   for (const cell of cells) {
     const dissolve = cellDissolve(progress, cell.order)
@@ -128,23 +136,11 @@ export function drawAtomizeFrame(options: {
       ctx.restore()
     }
 
-    if (dissolve <= 0 || cell.luminance < CHAR_LUMINANCE_MIN) continue
-
-    const glyphStrength = 0.35 + (cell.luminance / 255) * 0.65
-    const fontSize = Math.max(4, Math.floor(cell.h * 0.68))
-    const cx = cell.x + cell.w / 2
-    const cy = cell.y + cell.h / 2 + fontSize * 0.02
+    if (dissolve <= 0) continue
 
     ctx.save()
-    ctx.globalAlpha = dissolve * glyphStrength
-    ctx.font = `700 ${fontSize}px ${fontFamily}`
-    ctx.fillStyle = accentColor
-    ctx.textAlign = 'center'
-    ctx.textBaseline = 'middle'
-    // Tighter horizontal packing — width of the glyph field carries the silhouette.
-    ctx.translate(cx, cy)
-    ctx.scale(0.68, 0.92)
-    ctx.fillText(cell.char, 0, 0)
+    ctx.globalAlpha = dissolve
+    ctx.fillText(cell.char, cell.x + cell.w / 2, cell.y + cell.h / 2)
     ctx.restore()
   }
 }
@@ -158,7 +154,7 @@ export function stepAtomizeProgress(
   return current + (target - current) * step
 }
 
-/** Ease photo fade so the board vanishes into the glyph field. */
+/** Ease photo fade so the board vanishes into the ASCII field. */
 export function photoFadeFromProgress(progress: number): number {
   const t = Math.max(0, Math.min(1, progress))
   return 1 - t * t * (3 - 2 * t)

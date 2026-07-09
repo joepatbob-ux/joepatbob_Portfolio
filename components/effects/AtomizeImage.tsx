@@ -22,7 +22,12 @@ export function AtomizeImage({ src, alt, className }: Props) {
   return (
     <div
       ref={rootRef}
-      className={['atomize-image', active ? 'atomize-image--active' : '', className]
+      className={[
+        'atomize-image',
+        'font-mono',
+        active ? 'atomize-image--active' : '',
+        className,
+      ]
         .filter(Boolean)
         .join(' ')}
       onPointerEnter={onPointerEnter}

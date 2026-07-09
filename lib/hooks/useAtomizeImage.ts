@@ -13,14 +13,23 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 const CELL_W = 5
 const CELL_H = 7
 
-function readAccentColor(node: HTMLElement): string {
+function readGlyphColor(node: HTMLElement): string {
+  const glyph = getComputedStyle(node).getPropertyValue('--atomize-glyph-color').trim()
+  if (glyph) return glyph
   const accent = getComputedStyle(node).getPropertyValue('--color-accent').trim()
   return accent || '#DE3E18'
 }
 
-function readMonoFont(node: HTMLElement): string {
-  const mono = getComputedStyle(node).fontFamily
-  return mono || 'ui-monospace, monospace'
+function readFieldColor(node: HTMLElement): string {
+  const field = getComputedStyle(node).getPropertyValue('--atomize-field-bg').trim()
+  return field || '#0a0a0a'
+}
+
+function readMonoFont(): string {
+  const root = document.documentElement
+  const fromVar = getComputedStyle(root).getPropertyValue('--font-mono').trim()
+  if (fromVar) return fromVar
+  return 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace'
 }
 
 export function useAtomizeImage(src: string) {
@@ -61,8 +70,9 @@ export function useAtomizeImage(src: string) {
       image: snapshot,
       cells: cellsRef.current,
       progress: progressRef.current,
-      accentColor: readAccentColor(root),
-      fontFamily: readMonoFont(root),
+      glyphColor: readGlyphColor(root),
+      fieldColor: readFieldColor(root),
+      fontFamily: readMonoFont(),
     })
   }, [])
 
