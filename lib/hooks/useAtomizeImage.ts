@@ -24,6 +24,7 @@ export function useAtomizeImage(src: string) {
   const rootRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const imageRef = useRef<HTMLImageElement | null>(null)
+  const snapshotRef = useRef<HTMLCanvasElement | null>(null)
   const cellsRef = useRef<AtomizeCell[]>([])
   const progressRef = useRef(0)
   const targetRef = useRef(0)
@@ -41,15 +42,15 @@ export function useAtomizeImage(src: string) {
   const paint = useCallback(() => {
     const root = rootRef.current
     const canvas = canvasRef.current
-    const image = imageRef.current
-    if (!root || !canvas || !image || cellsRef.current.length === 0) return
+    const snapshot = snapshotRef.current
+    if (!root || !canvas || !snapshot || cellsRef.current.length === 0) return
 
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
     drawAtomizeFrame({
       ctx,
-      image,
+      image: snapshot,
       cells: cellsRef.current,
       progress: progressRef.current,
       accentColor: readAccentColor(root),
@@ -82,8 +83,9 @@ export function useAtomizeImage(src: string) {
     if (!root || !canvas || !image) return
 
     const rect = root.getBoundingClientRect()
-    const displayW = Math.max(1, Math.round(rect.width))
-    const displayH = Math.max(1, Math.round(rect.height))
+    const displayW = Math.round(rect.width)
+    const displayH = Math.round(rect.height)
+    if (displayW < 8 || displayH < 8) return
     const dpr = Math.min(window.devicePixelRatio || 1, 2)
 
     canvas.width = Math.round(displayW * dpr)
@@ -102,9 +104,11 @@ export function useAtomizeImage(src: string) {
     if (!offCtx) return
 
     offCtx.drawImage(image, 0, 0, displayW, displayH)
+    snapshotRef.current = offscreen
     const { data } = offCtx.getImageData(0, 0, displayW, displayH)
     cellsRef.current = buildAtomizeCells(data, displayW, displayH, CELL_SIZE)
     paint()
+    setReady(true)
   }, [paint])
 
   useEffect(() => {
@@ -114,17 +118,18 @@ export function useAtomizeImage(src: string) {
 
     image.onload = () => {
       imageRef.current = image
-      setReady(true)
       layoutCanvas()
     }
 
     image.onerror = () => {
       imageRef.current = null
+      snapshotRef.current = null
       setReady(false)
     }
 
     return () => {
       imageRef.current = null
+      snapshotRef.current = null
     }
   }, [layoutCanvas, src])
 

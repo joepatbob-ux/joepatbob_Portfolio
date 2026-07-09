@@ -82,9 +82,10 @@ export function drawAtomizeFrame(options: {
   fontFamily: string
 }) {
   const { ctx, image, cells, progress, accentColor, fontFamily } = options
-  const { width, height } = ctx.canvas
+  const displayW = Number(ctx.canvas.style.width.replace('px', '')) || ctx.canvas.width
+  const displayH = Number(ctx.canvas.style.height.replace('px', '')) || ctx.canvas.height
 
-  ctx.clearRect(0, 0, width, height)
+  ctx.clearRect(0, 0, displayW, displayH)
 
   for (const cell of cells) {
     const atomized = progress >= cell.order
