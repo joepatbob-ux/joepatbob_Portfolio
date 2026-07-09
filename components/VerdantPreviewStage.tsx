@@ -29,14 +29,14 @@ export function VerdantPreviewStage({ selection }: Props) {
           code={selection.code}
           className="verdant-interactive__glyph"
         />
-      ) : (
+      ) : view ? (
         <img
           src={view.src}
           alt={view.alt}
           className="verdant-interactive__stage-photo"
           decoding="async"
         />
-      )}
+      ) : null}
     </div>
   )
 }
