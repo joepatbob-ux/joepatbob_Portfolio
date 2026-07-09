@@ -32,7 +32,8 @@ export function AtomizeImage({ src, alt, className }: Props) {
         alt={alt}
         className="atomize-image__fallback"
         decoding="async"
-        loading="lazy"
+        loading="eager"
+        fetchPriority="high"
       />
       <canvas
         ref={canvasRef}

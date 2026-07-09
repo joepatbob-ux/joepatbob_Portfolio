@@ -69,4 +69,11 @@
   margin-inline: auto;
 }
 
+.flow-chapter-slide .chapter-slide__stage .wr-connect-board-stage,
+.flow-chapter-slide .chapter-slide__stage .atomize-image {
+  width: 100%;
+  max-width: min(520px, 100%);
+  margin-inline: auto;
+}
+
 /* Mobile viewport layout — styles/chapter/chapter-slide-mobile.css */
