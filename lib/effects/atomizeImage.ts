@@ -212,12 +212,26 @@ export function drawAtomizeFrame(options: {
   if (!hovered) return
 
   const fontSize = Math.max(3, sampleGap + 1)
+  const revealRadius = PARTICLE_REVEAL_RADIUS
+  const glyphRadius = fontSize * 0.58
+
+  ctx.save()
+  ctx.globalCompositeOperation = 'destination-out'
+  for (const particle of particles) {
+    const reveal = cursorRevealStrength(mouse, particle, revealRadius, true)
+    if (reveal <= 0.04) continue
+
+    ctx.globalAlpha = reveal
+    ctx.beginPath()
+    ctx.arc(particle.x, particle.y, glyphRadius, 0, Math.PI * 2)
+    ctx.fill()
+  }
+  ctx.restore()
+
   ctx.font = `500 ${fontSize}px ${fontFamily}`
   ctx.fillStyle = glyphColor
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
-
-  const revealRadius = PARTICLE_REVEAL_RADIUS
 
   for (const particle of particles) {
     const reveal = cursorRevealStrength(mouse, particle, revealRadius, true)
