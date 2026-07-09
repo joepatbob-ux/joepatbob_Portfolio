@@ -261,7 +261,8 @@
 .case-study-overview-quote {
   margin: clamp(8px, 1.5vh, 16px) auto 0;
   padding: 0;
-  max-width: min(52ch, 100%);
+  width: 100%;
+  max-width: 100%;
   text-align: center;
 }
 
