@@ -1,8 +1,19 @@
-/* Section overview — full band width; wider measure than stage | copy chapters */
+/* Section overview — one centered column, tight vertical rhythm */
 
 .case-study-flow-overview {
   --cs-inner-max: var(--cs-overview-inner-max);
   --cs-copy-measure-max: var(--cs-overview-copy-measure-max);
+}
+
+.case-study-flow-overview .case-study-flow-overview__header,
+.case-study-flow-overview .case-study-section-header,
+.case-study-flow-overview .mobile-section-header {
+  margin-bottom: 0;
+}
+
+.case-study-flow-overview .case-study-flow-overview__header .mobile-section-header__rule,
+.case-study-flow-overview .case-study-flow-overview__header .case-study-section-header__rule {
+  margin: 10px 0 0;
 }
 
 .case-study-flow-overview .case-study-section-header__headline,
@@ -15,11 +26,11 @@
   .mobile-section-header__headline {
   font-family: var(--font-body);
   font-weight: 600;
-  font-size: clamp(32px, 4.4vw, 58px);
-  line-height: 1.06;
+  font-size: clamp(28px, 3.6vw, 50px);
+  line-height: 1.08;
   letter-spacing: -0.025em;
-  max-width: var(--cs-overview-headline-measure, 34ch);
-  margin-inline: auto;
+  max-width: 100%;
+  margin-inline: 0;
   text-wrap: balance;
 }
 
@@ -80,8 +91,9 @@
   flex-direction: column;
   align-items: stretch;
   width: 100%;
-  max-width: var(--cs-overview-inner-max, var(--cs-band-max));
+  max-width: var(--cs-overview-measure-max, min(68ch, 100%));
   margin-inline: auto;
+  gap: var(--cs-overview-stack-gap, clamp(12px, 1.8vh, 18px));
   box-sizing: border-box;
 }
 
@@ -104,16 +116,15 @@
 
 .case-study-flow-overview .chapter-slide__copy--overview .mobile-prose__p {
   width: 100%;
-  max-width: var(--cs-overview-copy-measure-max, var(--cs-copy-measure-max)) !important;
-  margin-inline: auto !important;
+  max-width: none !important;
+  margin-inline: 0 !important;
+  margin-bottom: 0;
 }
 
-/* chapter-slide-hardware.css narrows .mobile-prose__p for left-aligned chapter copy.
-   Overview paragraphs are centered under the headline — force measure + centering. */
-/* Editorial lede — the opening paragraph reads at display size */
+/* Editorial lede — opening paragraph at display size */
 .case-study-flow-overview .chapter-slide__copy--overview .mobile-prose__p:first-of-type {
-  font-size: clamp(17px, 1.5vw, 21px);
-  line-height: 1.5;
+  font-size: clamp(16px, 1.35vw, 19px);
+  line-height: 1.45;
   letter-spacing: -0.01em;
   color: var(--color-ink);
 }
@@ -122,18 +133,17 @@
 
 .case-study-overview-blocks {
   width: 100%;
-  max-width: var(--cs-overview-copy-measure-max, var(--cs-copy-measure-max));
-  margin-inline: auto;
-  margin-top: clamp(20px, 3vh, 32px);
+  max-width: none;
+  margin-top: 0;
   display: flex;
   flex-direction: column;
-  gap: clamp(16px, 2.5vh, 24px);
+  gap: var(--cs-overview-metadata-gap, clamp(10px, 1.5vh, 14px));
 }
 
 .case-study-overview-block {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
   min-width: 0;
 }
 
@@ -187,11 +197,27 @@
   gap: var(--cs-block-gap);
   min-width: 0;
   margin: 0;
-  padding: 12px 0 0;
+  padding: 8px 0 0;
   background: none;
   border: none;
   border-top: 1px solid var(--cs-hairline);
   text-align: left;
+}
+
+/* Overview metadata stays a single tight column */
+.case-study-flow-overview .case-study-overview-patents,
+.case-study-flow-overview .case-study-overview-awards,
+.case-study-flow-overview .case-study-overview-highlights,
+.case-study-flow-overview .case-study-overview-scope {
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.case-study-flow-overview .case-study-overview-patent,
+.case-study-flow-overview .case-study-overview-award,
+.case-study-flow-overview .case-study-overview-highlight,
+.case-study-flow-overview .case-study-overview-scope__cell {
+  padding-top: 8px;
 }
 
 .case-study-overview-patent__number,
@@ -305,8 +331,8 @@
 }
 
 @media (max-width: 767px) {
-  .case-study-overview-blocks {
-    margin-top: clamp(20px, 3.5vh, 32px);
+  .case-study-flow-overview .chapter-slide__copy--overview .mobile-prose__p {
+    text-align: left;
   }
 }
 
@@ -314,7 +340,7 @@
 @media (min-width: 768px) {
   .case-study-flow-overview.portfolio-chapter-slot--fill .chapter-slide__viewport,
   .hardware-slideshow.case-study-flow-overview .chapter-slide__viewport {
-    padding-block: var(--cs-hw-pad, clamp(28px, 3vw, 56px));
+    padding-block: var(--cs-overview-pad-block, clamp(12px, 1.5vh, 24px));
     padding-inline: 0;
   }
 

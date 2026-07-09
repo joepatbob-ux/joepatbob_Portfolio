@@ -54,6 +54,7 @@ export function CaseStudyFlowOverview({
             headline={headline}
             subhead={subhead}
             align={align}
+            className="case-study-flow-overview__header"
           />
           {paragraphs.length > 0 ? (
             <ChapterBodyGroups

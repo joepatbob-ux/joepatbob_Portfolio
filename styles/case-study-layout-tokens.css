@@ -41,15 +41,18 @@
   );
   --cs-band-max: min(var(--cs-band-max-raw), var(--cs-content-pane-max));
 
-  /* Section overview — full band width; body can run wider than chapter copy */
-  --cs-overview-measure: 100%;
+  /* Section overview — one centered column; rhythm tokens below */
+  --cs-overview-measure-max: min(68ch, 100%);
   --cs-overview-inner-max: min(var(--cs-band-max), 100%);
-  --cs-overview-copy-measure-max: min(92ch, 100%);
-  --cs-overview-headline-measure: 34ch;
+  --cs-overview-copy-measure-max: var(--cs-overview-measure-max);
+  --cs-overview-headline-measure: var(--cs-overview-measure-max);
+  --cs-overview-stack-gap: clamp(12px, 1.8vh, 18px);
+  --cs-overview-metadata-gap: clamp(10px, 1.5vh, 14px);
+  --cs-overview-pad-block: clamp(12px, 1.5vh, 24px);
 
   /* Continuous scroll: runway above/below copy for stage load (desktop ≥1024) */
   --cs-continuous-chapter-buffer: clamp(12vh, 16vh, 20vh);
-  --cs-continuous-overview-buffer: clamp(20vh, 26vh, 32vh);
+  --cs-continuous-overview-buffer: clamp(14vh, 18vh, 24vh);
   --cs-continuous-hero-exit-buffer: clamp(14vh, 18vh, 22vh);
   --cs-continuous-copy-lead: clamp(5vh, 8vh, 11vh);
   --cs-continuous-grid-gap: clamp(28px, 3.5vw, 56px);
@@ -127,7 +130,9 @@
   :root {
     --cs-inner-max: min(var(--cs-mobile-inner-max), 100%);
     --cs-overview-inner-max: 100%;
-    --cs-overview-copy-measure-max: 100%;
+    --cs-overview-measure-max: 100%;
+    --cs-overview-copy-measure-max: var(--cs-overview-measure-max);
+    --cs-overview-headline-measure: var(--cs-overview-measure-max);
     --cs-copy-column-max: 100%;
     --cs-band-max: 100%;
     --cs-stage-artifact-w: min(
