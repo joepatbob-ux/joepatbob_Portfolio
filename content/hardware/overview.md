@@ -2,4 +2,4 @@
 {}
 ---
 
-Hardware is where constraints stop being abstract. A touchscreen is not a fixed-segment display with more pixels. A three-button thermostat is not a cheaper touchscreen. Each product fails in its own way; keeping them coherent was judgment, one call at a time—not a styling job.
+Eight years across five thermostat products and connected sensing devices—from fixed-segment displays to touchscreens, serving contractors, DIY homeowners, and hotel guests. Each had its own way of failing, yet all of them had to feel like one family. What hardware taught me is that coherence is never styling—it is judgment, one call at a time.
