@@ -1,15 +1,21 @@
-export type AtomizeCell = {
+export type AsciiParticle = {
+  baseX: number
+  baseY: number
   x: number
   y: number
-  w: number
-  h: number
+  vx: number
+  vy: number
   char: '0' | '1'
   order: number
 }
 
-const CELL_BLEND = 0.14
-/** Photo fully hidden once atomize progress crosses this (ease-out within). */
+const DISSOLVE_BLEND = 0.14
 const PHOTO_HIDE_PROGRESS = 0.32
+const INTERACTIVE_PROGRESS = 0.92
+
+export const PARTICLE_SAMPLE_GAP = 4
+export const PARTICLE_MOUSE_RADIUS = 96
+export const PARTICLE_RETURN_SPEED = 0.06
 
 export function hashCell(x: number, y: number): number {
   let h = x * 374761393 + y * 668265263
@@ -21,21 +27,21 @@ export function cellOrder(x: number, y: number): number {
   return (hashCell(x, y) % 1000) / 1000
 }
 
-export function sampleCellChar(
+function sampleLuminance(
   data: Uint8ClampedArray,
   width: number,
+  height: number,
   x: number,
   y: number,
   w: number,
   h: number,
-): '0' | '1' {
+): number {
   let r = 0
   let g = 0
   let b = 0
   let count = 0
-
   const xEnd = Math.min(x + w, width)
-  const yEnd = y + h
+  const yEnd = Math.min(y + h, height)
 
   for (let py = y; py < yEnd; py += 1) {
     for (let px = x; px < xEnd; px += 1) {
@@ -49,41 +55,45 @@ export function sampleCellChar(
     }
   }
 
-  if (count === 0) return '0'
-
-  const luminance = (r + g + b) / count
-  return luminance > 108 ? '1' : '0'
+  return count === 0 ? 0 : (r + g + b) / count
 }
 
-export function buildAtomizeCells(
+/** Sample board pixels into mono ASCII particles (Framer ParticleText pattern). */
+export function buildAsciiParticles(
   data: Uint8ClampedArray,
   width: number,
   height: number,
-  cellW: number,
-  cellH: number,
-): AtomizeCell[] {
-  const cells: AtomizeCell[] = []
+  gap: number,
+): AsciiParticle[] {
+  const particles: AsciiParticle[] = []
 
-  for (let y = 0; y < height; y += cellH) {
-    const h = Math.min(cellH, height - y)
-    for (let x = 0; x < width; x += cellW) {
-      const w = Math.min(cellW, width - x)
-      cells.push({
-        x,
-        y,
-        w,
-        h,
-        char: sampleCellChar(data, width, x, y, w, h),
+  for (let y = 0; y < height; y += gap) {
+    const h = Math.min(gap, height - y)
+    for (let x = 0; x < width; x += gap) {
+      const w = Math.min(gap, width - x)
+      const luminance = sampleLuminance(data, width, height, x, y, w, h)
+      if (luminance < 14) continue
+
+      const cx = x + w / 2
+      const cy = y + h / 2
+      particles.push({
+        baseX: cx,
+        baseY: cy,
+        x: cx,
+        y: cy,
+        vx: 0,
+        vy: 0,
+        char: luminance > 108 ? '1' : '0',
         order: cellOrder(x, y),
       })
     }
   }
 
-  return cells
+  return particles
 }
 
-function cellDissolve(progress: number, order: number): number {
-  return Math.max(0, Math.min(1, (progress - order) / CELL_BLEND))
+function particleDissolve(progress: number, order: number): number {
+  return Math.max(0, Math.min(1, (progress - order) / DISSOLVE_BLEND))
 }
 
 export function easeOutCubic(t: number): number {
@@ -91,23 +101,83 @@ export function easeOutCubic(t: number): number {
   return 1 - Math.pow(1 - x, 3)
 }
 
-/** Photo fades out quickly in the first ~32% of atomize progress. */
 export function photoOpacityFromProgress(progress: number): number {
   const t = Math.min(1, Math.max(0, progress) / PHOTO_HIDE_PROGRESS)
   return 1 - easeOutCubic(t)
 }
 
+export function isParticleInteractive(
+  progress: number,
+  hovered: boolean,
+): boolean {
+  return hovered && progress >= INTERACTIVE_PROGRESS
+}
+
+export function stepAsciiParticles(
+  particles: AsciiParticle[],
+  mouse: { x: number; y: number },
+  interactive: boolean,
+): boolean {
+  let settling = false
+  const { mouseRadius, returnSpeed } = {
+    mouseRadius: PARTICLE_MOUSE_RADIUS,
+    returnSpeed: PARTICLE_RETURN_SPEED,
+  }
+
+  for (const p of particles) {
+    if (interactive) {
+      const dx = mouse.x - p.x
+      const dy = mouse.y - p.y
+      const dist = Math.sqrt(dx * dx + dy * dy)
+
+      if (dist < mouseRadius && dist > 0.5) {
+        const force = (mouseRadius - dist) / mouseRadius
+        const angle = Math.atan2(dy, dx)
+        p.vx -= Math.cos(angle) * force * 2.2
+        p.vy -= Math.sin(angle) * force * 2.2
+      }
+    }
+
+    p.vx += (p.baseX - p.x) * returnSpeed
+    p.vy += (p.baseY - p.y) * returnSpeed
+    p.vx *= 0.94
+    p.vy *= 0.94
+    p.x += p.vx
+    p.y += p.vy
+
+    if (
+      Math.abs(p.x - p.baseX) > 0.4 ||
+      Math.abs(p.y - p.baseY) > 0.4 ||
+      Math.abs(p.vx) > 0.05 ||
+      Math.abs(p.vy) > 0.05
+    ) {
+      settling = true
+    }
+  }
+
+  return settling
+}
+
 export function drawAtomizeFrame(options: {
   ctx: CanvasRenderingContext2D
   image: CanvasImageSource
-  cells: readonly AtomizeCell[]
+  particles: readonly AsciiParticle[]
   progress: number
   glyphColor: string
   fieldColor: string
   fontFamily: string
+  sampleGap: number
 }) {
-  const { ctx, image, cells, progress, glyphColor, fieldColor, fontFamily } =
-    options
+  const {
+    ctx,
+    image,
+    particles,
+    progress,
+    glyphColor,
+    fieldColor,
+    fontFamily,
+    sampleGap,
+  } = options
   const displayW =
     Number(ctx.canvas.style.width.replace('px', '')) || ctx.canvas.width
   const displayH =
@@ -125,39 +195,26 @@ export function drawAtomizeFrame(options: {
     ctx.globalAlpha = 1
   }
 
-  const fontSize = Math.max(5, Math.floor((cells[0]?.h ?? 7) - 1))
+  if (photoOpacity > 0.02) {
+    ctx.save()
+    ctx.globalAlpha = photoOpacity
+    ctx.drawImage(image, 0, 0, displayW, displayH)
+    ctx.restore()
+  }
+
+  const fontSize = Math.max(4, sampleGap - 1)
   ctx.font = `400 ${fontSize}px ${fontFamily}`
   ctx.fillStyle = glyphColor
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
 
-  const drawPhoto = photoOpacity > 0.02
-
-  for (const cell of cells) {
-    const dissolve = cellDissolve(progress, cell.order)
-
-    if (drawPhoto && dissolve < 1) {
-      ctx.save()
-      ctx.globalAlpha = (1 - dissolve) * photoOpacity
-      ctx.drawImage(
-        image,
-        cell.x,
-        cell.y,
-        cell.w,
-        cell.h,
-        cell.x,
-        cell.y,
-        cell.w,
-        cell.h,
-      )
-      ctx.restore()
-    }
-
+  for (const particle of particles) {
+    const dissolve = particleDissolve(progress, particle.order)
     if (dissolve <= 0) continue
 
     ctx.save()
     ctx.globalAlpha = dissolve
-    ctx.fillText(cell.char, cell.x + cell.w / 2, cell.y + cell.h / 2)
+    ctx.fillText(particle.char, particle.x, particle.y)
     ctx.restore()
   }
 }
@@ -169,4 +226,13 @@ export function stepAtomizeProgress(
 ): number {
   if (Math.abs(target - current) < 0.008) return target
   return current + (target - current) * step
+}
+
+export function resetParticles(particles: AsciiParticle[]): void {
+  for (const p of particles) {
+    p.x = p.baseX
+    p.y = p.baseY
+    p.vx = 0
+    p.vy = 0
+  }
 }

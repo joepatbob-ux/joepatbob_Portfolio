@@ -17,6 +17,7 @@ export function AtomizeImage({ src, alt, className }: Props) {
     live,
     photoOpacity,
     onPointerEnter,
+    onPointerMove,
     onPointerLeave,
   } = useAtomizeImage(src)
 
@@ -33,6 +34,7 @@ export function AtomizeImage({ src, alt, className }: Props) {
         .filter(Boolean)
         .join(' ')}
       onPointerEnter={onPointerEnter}
+      onPointerMove={onPointerMove}
       onPointerLeave={onPointerLeave}
     >
       <img

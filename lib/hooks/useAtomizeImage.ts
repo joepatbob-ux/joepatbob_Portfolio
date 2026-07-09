@@ -1,17 +1,19 @@
 'use client'
 
 import {
-  buildAtomizeCells,
+  buildAsciiParticles,
   drawAtomizeFrame,
+  isParticleInteractive,
+  PARTICLE_SAMPLE_GAP,
   photoOpacityFromProgress,
+  resetParticles,
+  stepAsciiParticles,
   stepAtomizeProgress,
-  type AtomizeCell,
+  type AsciiParticle,
 } from '@/lib/effects/atomizeImage'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState, type PointerEvent } from 'react'
 
-/** Dense glyph grid — narrow columns read as board width. */
-const CELL_W = 5
-const CELL_H = 7
+const OFFSCREEN_MOUSE = { x: -1000, y: -1000 }
 
 function readGlyphColor(node: HTMLElement): string {
   const glyph = getComputedStyle(node).getPropertyValue('--atomize-glyph-color').trim()
@@ -37,10 +39,11 @@ export function useAtomizeImage(src: string) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const imageRef = useRef<HTMLImageElement | null>(null)
   const snapshotRef = useRef<HTMLCanvasElement | null>(null)
-  const cellsRef = useRef<AtomizeCell[]>([])
+  const particlesRef = useRef<AsciiParticle[]>([])
   const progressRef = useRef(0)
   const targetRef = useRef(0)
   const hoveredRef = useRef(false)
+  const mouseRef = useRef(OFFSCREEN_MOUSE)
   const rafRef = useRef<number | null>(null)
   const [ready, setReady] = useState(false)
   const [hovered, setHovered] = useState(false)
@@ -60,7 +63,7 @@ export function useAtomizeImage(src: string) {
     const root = rootRef.current
     const canvas = canvasRef.current
     const snapshot = snapshotRef.current
-    if (!root || !canvas || !snapshot || cellsRef.current.length === 0) return
+    if (!root || !canvas || !snapshot || particlesRef.current.length === 0) return
 
     const ctx = canvas.getContext('2d')
     if (!ctx) return
@@ -68,30 +71,43 @@ export function useAtomizeImage(src: string) {
     drawAtomizeFrame({
       ctx,
       image: snapshot,
-      cells: cellsRef.current,
+      particles: particlesRef.current,
       progress: progressRef.current,
       glyphColor: readGlyphColor(root),
       fieldColor: readFieldColor(root),
       fontFamily: readMonoFont(),
+      sampleGap: PARTICLE_SAMPLE_GAP,
     })
   }, [])
 
-  const startLoop = useCallback(() => {
+  const runLoop = useCallback(() => {
     if (rafRef.current != null) return
 
     const tick = () => {
       const next = stepAtomizeProgress(progressRef.current, targetRef.current)
       progressRef.current = next
       setProgress(next)
+
+      const interactive = isParticleInteractive(next, hoveredRef.current)
+      const settling = stepAsciiParticles(
+        particlesRef.current,
+        mouseRef.current,
+        interactive,
+      )
+
       paint()
 
-      const moving = Math.abs(next - targetRef.current) > 0.008
-      setAnimating(moving)
+      const progressMoving = Math.abs(next - targetRef.current) > 0.008
+      const stillLive =
+        hoveredRef.current || progressMoving || settling || next > 0.008
 
-      if (moving) {
+      setAnimating(progressMoving || settling)
+
+      if (stillLive) {
         rafRef.current = requestAnimationFrame(tick)
       } else {
         rafRef.current = null
+        resetParticles(particlesRef.current)
       }
     }
 
@@ -128,13 +144,14 @@ export function useAtomizeImage(src: string) {
     offCtx.drawImage(image, 0, 0, displayW, displayH)
     snapshotRef.current = offscreen
     const { data } = offCtx.getImageData(0, 0, displayW, displayH)
-    cellsRef.current = buildAtomizeCells(
+    particlesRef.current = buildAsciiParticles(
       data,
       displayW,
       displayH,
-      CELL_W,
-      CELL_H,
+      PARTICLE_SAMPLE_GAP,
     )
+    resetParticles(particlesRef.current)
+
     if (hoveredRef.current || progressRef.current > 0.008) {
       paint()
     }
@@ -179,20 +196,33 @@ export function useAtomizeImage(src: string) {
 
   useEffect(() => {
     targetRef.current = hovered ? 1 : 0
-    startLoop()
-  }, [hovered, startLoop])
+    runLoop()
+  }, [hovered, runLoop])
 
   useEffect(() => stopLoop, [stopLoop])
 
   const onPointerEnter = useCallback(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     setHovered(true)
-    paint()
-  }, [paint])
+    runLoop()
+  }, [runLoop])
+
+  const onPointerMove = useCallback((event: PointerEvent<HTMLElement>) => {
+    const root = rootRef.current
+    if (!root) return
+    const rect = root.getBoundingClientRect()
+    mouseRef.current = {
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top,
+    }
+    if (hoveredRef.current) runLoop()
+  }, [runLoop])
 
   const onPointerLeave = useCallback(() => {
     setHovered(false)
-  }, [])
+    mouseRef.current = OFFSCREEN_MOUSE
+    runLoop()
+  }, [runLoop])
 
   const live = hovered || animating || progress > 0.008
   const photoOpacity = live ? photoOpacityFromProgress(progress) : 1
@@ -205,6 +235,7 @@ export function useAtomizeImage(src: string) {
     progress,
     photoOpacity,
     onPointerEnter,
+    onPointerMove,
     onPointerLeave,
   }
 }
