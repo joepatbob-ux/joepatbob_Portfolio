@@ -66,13 +66,25 @@ export function useAtomizeImage(src: string) {
   const paint = useCallback(() => {
     const root = rootRef.current
     const canvas = canvasRef.current
-    if (!root || !canvas || particlesRef.current.length === 0) return
+    const source = sourceRef.current
+    const imageFit = imageFitRef.current
+    if (
+      !root ||
+      !canvas ||
+      !source ||
+      !imageFit ||
+      particlesRef.current.length === 0
+    ) {
+      return
+    }
 
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
     drawAtomizeFrame({
       ctx,
+      image: source.canvas,
+      imageFit,
       particles: particlesRef.current,
       mouse: mouseRef.current,
       hovered: hoveredRef.current,

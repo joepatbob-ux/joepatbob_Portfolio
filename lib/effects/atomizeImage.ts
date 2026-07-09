@@ -5,8 +5,7 @@ export type AsciiParticle = {
   y: number
   vx: number
   vy: number
-  /** Rest-state opacity for the 0 glyph — maps board luminance to weight. */
-  weight: number
+  char: '0' | '1'
 }
 
 export const PARTICLE_SAMPLE_GAP = 2
@@ -75,14 +74,7 @@ function sampleLuminance(
   return count === 0 ? 0 : (r + g + b) / count
 }
 
-/** Steep curve so logo/type (e.g. Copeland) reads clearly in the all-0 rest field. */
-export function luminanceToWeight(luminance: number): number {
-  const t = Math.min(1, Math.max(0, (luminance - 6) / 145))
-  const curved = Math.pow(t, 1.65)
-  return 0.07 + curved * 0.93
-}
-
-/** Sample board pixels into weighted 0 glyphs that silhouette the board at rest. */
+/** Sample board pixels into mono 1/0 glyphs revealed on cursor hover. */
 export function buildAsciiParticles(
   data: Uint8ClampedArray,
   width: number,
@@ -96,7 +88,7 @@ export function buildAsciiParticles(
     for (let x = 0; x < width; x += gap) {
       const w = Math.min(gap, width - x)
       const luminance = sampleLuminance(data, width, height, x, y, w, h)
-      if (luminance < 6) continue
+      if (luminance < 8) continue
 
       const cx = x + w / 2
       const cy = y + h / 2
@@ -107,7 +99,7 @@ export function buildAsciiParticles(
         y: cy,
         vx: 0,
         vy: 0,
-        weight: luminanceToWeight(luminance),
+        char: luminance > 108 ? '1' : '0',
       })
     }
   }
@@ -183,6 +175,8 @@ export function stepAsciiParticles(
 
 export function drawAtomizeFrame(options: {
   ctx: CanvasRenderingContext2D
+  image: CanvasImageSource
+  imageFit: ContainRect
   particles: readonly AsciiParticle[]
   mouse: { x: number; y: number }
   hovered: boolean
@@ -190,8 +184,17 @@ export function drawAtomizeFrame(options: {
   fontFamily: string
   sampleGap: number
 }) {
-  const { ctx, particles, mouse, hovered, glyphColor, fontFamily, sampleGap } =
-    options
+  const {
+    ctx,
+    image,
+    imageFit,
+    particles,
+    mouse,
+    hovered,
+    glyphColor,
+    fontFamily,
+    sampleGap,
+  } = options
   const rect = ctx.canvas.getBoundingClientRect()
   const displayW = rect.width
   const displayH = rect.height
@@ -199,6 +202,14 @@ export function drawAtomizeFrame(options: {
   if (displayW < 1 || displayH < 1) return
 
   ctx.clearRect(0, 0, displayW, displayH)
+
+  ctx.save()
+  ctx.imageSmoothingEnabled = true
+  ctx.imageSmoothingQuality = 'high'
+  ctx.drawImage(image, imageFit.x, imageFit.y, imageFit.w, imageFit.h)
+  ctx.restore()
+
+  if (!hovered) return
 
   const fontSize = Math.max(3, sampleGap + 1)
   ctx.font = `500 ${fontSize}px ${fontFamily}`
@@ -209,24 +220,13 @@ export function drawAtomizeFrame(options: {
   const revealRadius = PARTICLE_REVEAL_RADIUS
 
   for (const particle of particles) {
-    const reveal = cursorRevealStrength(mouse, particle, revealRadius, hovered)
+    const reveal = cursorRevealStrength(mouse, particle, revealRadius, true)
+    if (reveal <= 0.04) continue
 
-    if (reveal < 1) {
-      const restAlpha = particle.weight * (1 - reveal)
-      if (restAlpha > 0.02) {
-        ctx.save()
-        ctx.globalAlpha = restAlpha
-        ctx.fillText('0', particle.x, particle.y)
-        ctx.restore()
-      }
-    }
-
-    if (reveal > 0.04) {
-      ctx.save()
-      ctx.globalAlpha = reveal
-      ctx.fillText('1', particle.x, particle.y)
-      ctx.restore()
-    }
+    ctx.save()
+    ctx.globalAlpha = reveal
+    ctx.fillText(particle.char, particle.x, particle.y)
+    ctx.restore()
   }
 }
 
