@@ -14,6 +14,18 @@ export const TOUCH2_CAROUSEL_IMAGES = [
     alt: 'Touch 2 field session portrait orientation',
   },
   {
+    src: '/images/touch-2/touch2-icon-testing-session-1-optimized.webp',
+    alt: 'Icon testing — which icon says system off',
+  },
+  {
+    src: '/images/touch-2/touch2-icon-testing-session-2-optimized.webp',
+    alt: 'Icon testing — aux heat screen comparison',
+  },
+  {
+    src: '/images/touch-2/touch2-icon-testing-session-3-optimized.webp',
+    alt: 'Icon testing — system off icon vote',
+  },
+  {
     src: '/images/touch-2/eim-installer-wiring-optimized.webp',
     alt: 'EIM installer training session with wiring board',
   },
