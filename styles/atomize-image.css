@@ -2,7 +2,7 @@
 
 .atomize-image {
   position: relative;
-  width: 100%;
+  width: min(100%, var(--cs-stage-gallery-w, 520px));
   max-width: min(520px, 100%);
   margin-inline: auto;
   aspect-ratio: 4 / 3;
@@ -20,11 +20,7 @@
   object-position: center;
   opacity: 1;
   pointer-events: none;
-  transition: opacity 180ms ease;
-}
-
-.atomize-image--ready .atomize-image__fallback {
-  opacity: 0;
+  z-index: 0;
 }
 
 .atomize-image__canvas {
@@ -34,11 +30,14 @@
   height: 100%;
   display: block;
   opacity: 0;
+  pointer-events: none;
+  z-index: 1;
   transition: opacity 180ms ease;
 }
 
-.atomize-image--ready .atomize-image__canvas {
+.atomize-image--active .atomize-image__canvas {
   opacity: 1;
+  pointer-events: auto;
 }
 
 .wr-connect-board-stage {
@@ -50,6 +49,7 @@
 }
 
 .wr-connect-board-stage__atomize {
+  width: min(100%, var(--cs-stage-gallery-w, 520px));
   max-width: min(100%, var(--cs-stage-gallery-w, 520px));
 }
 

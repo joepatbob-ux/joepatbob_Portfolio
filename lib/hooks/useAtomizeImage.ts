@@ -31,6 +31,7 @@ export function useAtomizeImage(src: string) {
   const rafRef = useRef<number | null>(null)
   const [ready, setReady] = useState(false)
   const [hovered, setHovered] = useState(false)
+  const [active, setActive] = useState(false)
 
   const stopLoop = useCallback(() => {
     if (rafRef.current != null) {
@@ -65,11 +66,18 @@ export function useAtomizeImage(src: string) {
       const next = stepAtomizeProgress(progressRef.current, targetRef.current)
       progressRef.current = next
       paint()
+      setActive(
+        hovered ||
+          Math.abs(next - targetRef.current) > 0.01 ||
+          (targetRef.current > 0 && next > 0.01) ||
+          (targetRef.current === 0 && next > 0.01),
+      )
 
       if (Math.abs(next - targetRef.current) > 0.01) {
         rafRef.current = requestAnimationFrame(tick)
       } else {
         rafRef.current = null
+        setActive(hovered)
       }
     }
 
@@ -167,6 +175,7 @@ export function useAtomizeImage(src: string) {
     rootRef,
     canvasRef,
     ready,
+    active,
     hovered,
     onPointerEnter,
     onPointerLeave,

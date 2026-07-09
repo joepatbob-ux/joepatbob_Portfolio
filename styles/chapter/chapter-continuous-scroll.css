@@ -251,6 +251,17 @@
     aspect-ratio: 240 / 147;
   }
 
+  /* WR Connect board — same fit-content/width:100% collapse as Sensi Lite */
+  html.continuous-chapters
+    .portfolio-chapter-slot--fill.hardware-slideshow.mobile-chapter-slot--wr-connect
+    .chapter-stage-align,
+  html.continuous-chapters
+    .portfolio-chapter-slot--fill.hardware-slideshow
+    .chapter-stage-align:has(.wr-connect-board-stage) {
+    width: min(100%, var(--cs-stage-gallery-w, 520px));
+    aspect-ratio: 4 / 3;
+  }
+
   html.continuous-chapters
     .portfolio-chapter-slot--fill.hardware-slideshow
     .chapter-slide__copy {

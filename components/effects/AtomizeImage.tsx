@@ -13,7 +13,7 @@ export function AtomizeImage({ src, alt, className }: Props) {
   const {
     rootRef,
     canvasRef,
-    ready,
+    active,
     onPointerEnter,
     onPointerLeave,
   } = useAtomizeImage(src)
@@ -21,7 +21,7 @@ export function AtomizeImage({ src, alt, className }: Props) {
   return (
     <div
       ref={rootRef}
-      className={['atomize-image', ready ? 'atomize-image--ready' : '', className]
+      className={['atomize-image', active ? 'atomize-image--active' : '', className]
         .filter(Boolean)
         .join(' ')}
       onPointerEnter={onPointerEnter}
@@ -38,7 +38,7 @@ export function AtomizeImage({ src, alt, className }: Props) {
       <canvas
         ref={canvasRef}
         className="atomize-image__canvas"
-        aria-hidden={!ready}
+        aria-hidden={!active}
       />
     </div>
   )
