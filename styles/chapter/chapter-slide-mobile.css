@@ -77,8 +77,7 @@
     text-align: center;
   }
 
-  .hardware-slideshow.case-study-flow-overview .case-study-flow-overview__prose,
-  .hardware-slideshow.case-study-flow-overview .mobile-prose {
+  .hardware-slideshow.case-study-flow-overview .chapter-slide__copy--overview .mobile-prose__p {
     text-align: left;
   }
 

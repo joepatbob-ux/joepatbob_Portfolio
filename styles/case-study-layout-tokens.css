@@ -41,8 +41,11 @@
   );
   --cs-band-max: min(var(--cs-band-max-raw), var(--cs-content-pane-max));
 
-  /* Section overview — same width as stage | copy band */
+  /* Section overview — full band width; body can run wider than chapter copy */
   --cs-overview-measure: 100%;
+  --cs-overview-inner-max: min(var(--cs-band-max), 100%);
+  --cs-overview-copy-measure-max: min(92ch, 100%);
+  --cs-overview-headline-measure: 34ch;
 
   /* Continuous scroll: runway above/below copy for stage load (desktop ≥1024) */
   --cs-continuous-chapter-buffer: clamp(12vh, 16vh, 20vh);
@@ -123,6 +126,8 @@
 @media (max-width: 767px) {
   :root {
     --cs-inner-max: min(var(--cs-mobile-inner-max), 100%);
+    --cs-overview-inner-max: 100%;
+    --cs-overview-copy-measure-max: 100%;
     --cs-copy-column-max: 100%;
     --cs-band-max: 100%;
     --cs-stage-artifact-w: min(

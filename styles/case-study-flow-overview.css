@@ -1,4 +1,9 @@
-/* Section overview — shared band width with stage | copy chapters */
+/* Section overview — full band width; wider measure than stage | copy chapters */
+
+.case-study-flow-overview {
+  --cs-inner-max: var(--cs-overview-inner-max);
+  --cs-copy-measure-max: var(--cs-overview-copy-measure-max);
+}
 
 .case-study-flow-overview .case-study-section-header__headline,
 .case-study-flow-overview .mobile-section-header__headline,
@@ -13,13 +18,12 @@
   font-size: clamp(32px, 4.4vw, 58px);
   line-height: 1.06;
   letter-spacing: -0.025em;
-  max-width: 20ch;
+  max-width: var(--cs-overview-headline-measure, 34ch);
   margin-inline: auto;
   text-wrap: balance;
 }
 
-.case-study-flow-overview .case-study-flow-overview__prose,
-.case-study-flow-overview .mobile-prose__p {
+.case-study-flow-overview .chapter-slide__copy--overview .mobile-prose__p {
   font-size: var(--cs-body-size);
   line-height: var(--cs-body-leading);
   color: var(--cs-body-color);
@@ -71,57 +75,43 @@
   overflow: visible;
 }
 
-.case-study-flow-overview__inner {
+.case-study-flow-overview .chapter-slide__copy--overview {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
   width: 100%;
-  max-width: 100%;
+  max-width: var(--cs-overview-inner-max, var(--cs-band-max));
   margin-inline: auto;
   box-sizing: border-box;
 }
 
-.case-study-flow-overview__inner--center {
+.case-study-flow-overview .chapter-slide__copy--overview-center {
   text-align: center;
 }
 
-.case-study-flow-overview__inner--center .case-study-flow-overview__prose {
-  text-align: center;
-}
-
-/* Blocks sit in the same centered column but read left-aligned (spec rows, accent bars) */
-.case-study-flow-overview__inner--center .case-study-overview-blocks {
+/* Blocks sit in the same column but read left-aligned (spec rows, accent bars) */
+.case-study-flow-overview .chapter-slide__copy--overview-center .case-study-overview-blocks {
   text-align: left;
 }
 
-.case-study-flow-overview__inner--center .case-study-overview-block--quote {
+.case-study-flow-overview .chapter-slide__copy--overview-center .case-study-overview-block--quote {
   text-align: center;
 }
 
-.case-study-flow-overview__inner--center .chapter-facts {
+.case-study-flow-overview .chapter-slide__copy--overview-center .chapter-facts {
   text-align: left;
 }
 
-.case-study-flow-overview__prose {
-  margin-bottom: 0;
+.case-study-flow-overview .chapter-slide__copy--overview .mobile-prose__p {
   width: 100%;
-  max-width: var(--cs-copy-measure-max, 70ch);
-  margin-inline: auto;
-}
-
-/* chapter-slide-hardware.css narrows .mobile-prose__p to a reading measure
-   for left-aligned chapter copy but never centers it (correct there — body
-   text hangs left under a left-aligned headline). Its selector has more
-   classes than the rule above, so it wins the cascade here too and leaves
-   overview paragraphs narrowed but hugging the left edge under a centered
-   headline. Force the center back with !important rather than chase
-   specificity. */
-.case-study-flow-overview .case-study-flow-overview__prose,
-.case-study-flow-overview .case-study-flow-overview__prose .mobile-prose__p {
-  max-width: var(--cs-copy-measure-max, 70ch) !important;
+  max-width: var(--cs-overview-copy-measure-max, var(--cs-copy-measure-max)) !important;
   margin-inline: auto !important;
 }
 
+/* chapter-slide-hardware.css narrows .mobile-prose__p for left-aligned chapter copy.
+   Overview paragraphs are centered under the headline — force measure + centering. */
 /* Editorial lede — the opening paragraph reads at display size */
-.case-study-flow-overview__prose .mobile-prose__p:first-child,
-.case-study-flow-overview .mobile-prose__p:first-child {
+.case-study-flow-overview .chapter-slide__copy--overview .mobile-prose__p:first-of-type {
   font-size: clamp(17px, 1.5vw, 21px);
   line-height: 1.5;
   letter-spacing: -0.01em;
@@ -132,7 +122,7 @@
 
 .case-study-overview-blocks {
   width: 100%;
-  max-width: var(--cs-copy-measure-max, 70ch);
+  max-width: var(--cs-overview-copy-measure-max, var(--cs-copy-measure-max));
   margin-inline: auto;
   margin-top: clamp(20px, 3vh, 32px);
   display: flex;
@@ -432,11 +422,11 @@
 
   .case-study-flow-overview.portfolio-chapter-slot--fill .chapter-slide__inner--copy-only,
   .hardware-slideshow.case-study-flow-overview .chapter-slide__inner--copy-only {
-    max-width: min(var(--cs-inner-max), 100%) !important;
+    max-width: min(var(--cs-overview-inner-max, var(--cs-inner-max)), 100%) !important;
   }
 
-  .case-study-flow-overview.portfolio-chapter-slot--fill .case-study-flow-overview__inner,
-  .hardware-slideshow.case-study-flow-overview .case-study-flow-overview__inner {
+  .case-study-flow-overview.portfolio-chapter-slot--fill .chapter-slide__copy--overview,
+  .hardware-slideshow.case-study-flow-overview .chapter-slide__copy--overview {
     width: 100%;
     max-width: 100%;
   }

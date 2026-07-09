@@ -2,9 +2,12 @@
 
 import { CaseStudyOverviewBlocks } from '@/components/case-study/CaseStudyOverviewBlocks'
 import { CaseStudySectionHeader } from '@/components/case-study/CaseStudySectionHeader'
+import { ChapterBodyGroups } from '@/components/chapter-slide/ChapterBodyGroups'
 import { ChapterSlideBand } from '@/components/chapter-slide/ChapterSlideBand'
-import { MobileProse } from '@/components/mobile/MobileSectionParts'
-import { parseChapterBody } from '@/lib/chapter-slide/parseChapterBody'
+import {
+  groupChapterBody,
+  parseChapterBody,
+} from '@/lib/chapter-slide/parseChapterBody'
 import type { OverviewBlock } from '@/lib/types'
 
 interface Props {
@@ -34,6 +37,9 @@ export function CaseStudyFlowOverview({
       chapterId={chapterId}
       fillViewport
       copyOnly
+      copyClassName={
+        align === 'center' ? 'chapter-slide__copy--overview-center' : ''
+      }
       className={[
         'mobile-chapter-slot',
         'flow-chapter-slide',
@@ -43,28 +49,22 @@ export function CaseStudyFlowOverview({
         .filter(Boolean)
         .join(' ')}
       copy={
-        <div
-          className={
-            align === 'center'
-              ? 'case-study-flow-overview__inner case-study-flow-overview__inner--center'
-              : 'case-study-flow-overview__inner'
-          }
-        >
+        <>
           <CaseStudySectionHeader
             headline={headline}
             subhead={subhead}
             align={align}
           />
           {paragraphs.length > 0 ? (
-            <MobileProse
-              paragraphs={paragraphs}
-              className="case-study-flow-overview__prose"
+            <ChapterBodyGroups
+              groups={groupChapterBody(paragraphs)}
+              paragraphClass="mobile-prose__p"
             />
           ) : null}
           {blocks && blocks.length > 0 ? (
             <CaseStudyOverviewBlocks blocks={blocks} />
           ) : null}
-        </div>
+        </>
       }
     />
   )

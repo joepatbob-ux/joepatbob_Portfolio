@@ -16,6 +16,7 @@ interface Props {
   copyOnly?: boolean
   stage?: ReactNode
   stageAriaLabel?: string
+  copyClassName?: string
   copy: ReactNode
 }
 
@@ -31,6 +32,7 @@ export function ChapterSlideBand({
   copyOnly = false,
   stage,
   stageAriaLabel,
+  copyClassName,
   copy,
 }: Props) {
   const mode = useChapterLayoutMode()
@@ -59,6 +61,7 @@ export function ChapterSlideBand({
         copyScrollActive={copyScrollActive}
         stage={stage}
         stageAriaLabel={stageAriaLabel}
+        copyClassName={copyClassName}
         copy={copy}
       />
     </ChapterViewport>
