@@ -1,6 +1,6 @@
-/** Warm the WR Connect board photo once the chapter nears the viewport. */
+import { preloadRasterSource } from '@/lib/effects/loadRasterSource'
+
+/** Warm the WR Connect board source (PDF or PNG) once the chapter nears the viewport. */
 export function preloadWrConnectBoard(src: string): void {
-  const image = new Image()
-  image.decoding = 'async'
-  image.src = src
+  preloadRasterSource(src)
 }

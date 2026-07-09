@@ -12,6 +12,10 @@ import {
   type AsciiParticle,
 } from '@/lib/effects/atomizeImage'
 import {
+  loadRasterSource,
+  type RasterSource,
+} from '@/lib/effects/loadRasterSource'
+import {
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -39,7 +43,7 @@ function readMonoFont(): string {
 export function useAtomizeImage(src: string) {
   const rootRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const imageRef = useRef<HTMLImageElement | null>(null)
+  const sourceRef = useRef<RasterSource | null>(null)
   const snapshotRef = useRef<HTMLCanvasElement | null>(null)
   const particlesRef = useRef<AsciiParticle[]>([])
   const progressRef = useRef(0)
@@ -121,8 +125,8 @@ export function useAtomizeImage(src: string) {
   const layoutCanvas = useCallback(() => {
     const root = rootRef.current
     const canvas = canvasRef.current
-    const image = imageRef.current
-    if (!root || !canvas || !image) return
+    const source = sourceRef.current
+    if (!root || !canvas || !source) return
 
     const rect = root.getBoundingClientRect()
     const displayW = Math.round(rect.width)
@@ -147,10 +151,10 @@ export function useAtomizeImage(src: string) {
     const fit = containRect(
       displayW,
       displayH,
-      image.naturalWidth,
-      image.naturalHeight,
+      source.width,
+      source.height,
     )
-    offCtx.drawImage(image, fit.x, fit.y, fit.w, fit.h)
+    offCtx.drawImage(source.canvas, fit.x, fit.y, fit.w, fit.h)
     snapshotRef.current = offscreen
     const { data } = offCtx.getImageData(0, 0, displayW, displayH)
     particlesRef.current = buildAsciiParticles(
@@ -166,30 +170,32 @@ export function useAtomizeImage(src: string) {
   }, [paint])
 
   useEffect(() => {
-    const image = new Image()
-    image.decoding = 'async'
-    image.src = src
+    let cancelled = false
+    setReady(false)
+    sourceRef.current = null
+    snapshotRef.current = null
 
-    image.onload = () => {
-      imageRef.current = image
-      setAspectRatio(`${image.naturalWidth} / ${image.naturalHeight}`)
-    }
-
-    image.onerror = () => {
-      imageRef.current = null
-      snapshotRef.current = null
-      setAspectRatio(null)
-      setReady(false)
-    }
+    void loadRasterSource(src).then((source) => {
+      if (cancelled) return
+      if (!source) {
+        sourceRef.current = null
+        setAspectRatio(null)
+        setReady(false)
+        return
+      }
+      sourceRef.current = source
+      setAspectRatio(`${source.width} / ${source.height}`)
+    })
 
     return () => {
-      imageRef.current = null
+      cancelled = true
+      sourceRef.current = null
       snapshotRef.current = null
     }
   }, [src])
 
   useLayoutEffect(() => {
-    if (!imageRef.current || !aspectRatio) return
+    if (!sourceRef.current || !aspectRatio) return
     layoutCanvas()
   }, [aspectRatio, layoutCanvas])
 

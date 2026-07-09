@@ -5,7 +5,7 @@
   "subtitle": "The right protocol for the moment.",
   "headline": "Greenfield design for a high-stakes technical audience.",
   "imageAlt": "WR Connect app — NFC configuration flow for ignition control board",
-  "imageSrc": "/images/board.png",
+  "imageSrc": "/images/board.pdf",
   "imageLayout": "full-width",
   "imagePosition": "left"
 }
