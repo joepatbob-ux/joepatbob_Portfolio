@@ -10,11 +10,11 @@ export type AsciiParticle = {
   order: number
 }
 
-const DISSOLVE_BLEND = 0.14
+const DISSOLVE_BLEND = 0.12
 const INTERACTIVE_PROGRESS = 0.92
 
-export const PARTICLE_SAMPLE_GAP = 4
-export const PARTICLE_MOUSE_RADIUS = 96
+export const PARTICLE_SAMPLE_GAP = 2
+export const PARTICLE_MOUSE_RADIUS = 88
 export const PARTICLE_RETURN_SPEED = 0.06
 
 export type ContainRect = {
@@ -90,8 +90,9 @@ function sampleLuminance(
 
 /** Map sampled luminance to a rest-state glyph weight (all 0s at varying opacity). */
 export function luminanceToWeight(luminance: number): number {
-  const t = Math.min(1, Math.max(0, (luminance - 14) / 200))
-  return 0.16 + t * 0.84
+  const t = Math.min(1, Math.max(0, (luminance - 8) / 165))
+  const curved = Math.pow(t, 2.1)
+  return 0.04 + curved * 0.96
 }
 
 /** Sample board pixels into weighted 0 glyphs that silhouette the board at rest. */
@@ -108,7 +109,7 @@ export function buildAsciiParticles(
     for (let x = 0; x < width; x += gap) {
       const w = Math.min(gap, width - x)
       const luminance = sampleLuminance(data, width, height, x, y, w, h)
-      if (luminance < 14) continue
+      if (luminance < 8) continue
 
       const cx = x + w / 2
       const cy = y + h / 2
@@ -207,8 +208,8 @@ export function drawAtomizeFrame(options: {
 
   ctx.clearRect(0, 0, displayW, displayH)
 
-  const fontSize = Math.max(4, sampleGap - 1)
-  ctx.font = `400 ${fontSize}px ${fontFamily}`
+  const fontSize = Math.max(3, sampleGap + 1)
+  ctx.font = `500 ${fontSize}px ${fontFamily}`
   ctx.fillStyle = glyphColor
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
