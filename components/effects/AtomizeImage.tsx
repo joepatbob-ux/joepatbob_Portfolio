@@ -8,7 +8,7 @@ interface Props {
   className?: string
 }
 
-/** Board rendered as weighted 0s at rest; hover flips them to 1s with particle scatter. */
+/** Board photo dissolves into 1/0 digits on hover; canvas-only (no img handoff). */
 export function AtomizeImage({ src, alt, className }: Props) {
   const {
     rootRef,

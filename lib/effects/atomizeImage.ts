@@ -5,13 +5,14 @@ export type AsciiParticle = {
   y: number
   vx: number
   vy: number
-  /** Rest-state opacity for the 0 glyph — maps board luminance to weight. */
-  weight: number
+  char: '0' | '1'
   order: number
 }
 
-const DISSOLVE_BLEND = 0.12
-const INTERACTIVE_PROGRESS = 0.92
+const DISSOLVE_BLEND = 0.08
+const PHOTO_HIDE_PROGRESS = 0.26
+const INTERACTIVE_PROGRESS = 0.86
+const PROGRESS_STEP = 0.17
 
 export const PARTICLE_SAMPLE_GAP = 2
 export const PARTICLE_MOUSE_RADIUS = 88
@@ -88,14 +89,7 @@ function sampleLuminance(
   return count === 0 ? 0 : (r + g + b) / count
 }
 
-/** Map sampled luminance to a rest-state glyph weight (all 0s at varying opacity). */
-export function luminanceToWeight(luminance: number): number {
-  const t = Math.min(1, Math.max(0, (luminance - 8) / 165))
-  const curved = Math.pow(t, 2.1)
-  return 0.04 + curved * 0.96
-}
-
-/** Sample board pixels into weighted 0 glyphs that silhouette the board at rest. */
+/** Sample board pixels into mono 1/0 glyphs (Framer ParticleText pattern). */
 export function buildAsciiParticles(
   data: Uint8ClampedArray,
   width: number,
@@ -120,7 +114,7 @@ export function buildAsciiParticles(
         y: cy,
         vx: 0,
         vy: 0,
-        weight: luminanceToWeight(luminance),
+        char: luminance > 108 ? '1' : '0',
         order: cellOrder(x, y),
       })
     }
@@ -129,13 +123,18 @@ export function buildAsciiParticles(
   return particles
 }
 
-function particleFlip(progress: number, order: number): number {
+function particleDissolve(progress: number, order: number): number {
   return Math.max(0, Math.min(1, (progress - order) / DISSOLVE_BLEND))
 }
 
 export function easeOutCubic(t: number): number {
   const x = Math.max(0, Math.min(1, t))
   return 1 - Math.pow(1 - x, 3)
+}
+
+export function photoOpacityFromProgress(progress: number): number {
+  const t = Math.min(1, Math.max(0, progress) / PHOTO_HIDE_PROGRESS)
+  return 1 - easeOutCubic(t)
 }
 
 export function isParticleInteractive(
@@ -192,13 +191,14 @@ export function stepAsciiParticles(
 
 export function drawAtomizeFrame(options: {
   ctx: CanvasRenderingContext2D
+  image: CanvasImageSource
   particles: readonly AsciiParticle[]
   progress: number
   glyphColor: string
   fontFamily: string
   sampleGap: number
 }) {
-  const { ctx, particles, progress, glyphColor, fontFamily, sampleGap } =
+  const { ctx, image, particles, progress, glyphColor, fontFamily, sampleGap } =
     options
   const rect = ctx.canvas.getBoundingClientRect()
   const displayW = rect.width
@@ -208,6 +208,15 @@ export function drawAtomizeFrame(options: {
 
   ctx.clearRect(0, 0, displayW, displayH)
 
+  const photoOpacity = photoOpacityFromProgress(progress)
+
+  if (photoOpacity > 0.02) {
+    ctx.save()
+    ctx.globalAlpha = photoOpacity
+    ctx.drawImage(image, 0, 0, displayW, displayH)
+    ctx.restore()
+  }
+
   const fontSize = Math.max(3, sampleGap + 1)
   ctx.font = `500 ${fontSize}px ${fontFamily}`
   ctx.fillStyle = glyphColor
@@ -215,31 +224,20 @@ export function drawAtomizeFrame(options: {
   ctx.textBaseline = 'middle'
 
   for (const particle of particles) {
-    const flip = easeOutCubic(particleFlip(progress, particle.order))
+    const dissolve = particleDissolve(progress, particle.order)
+    if (dissolve <= 0) continue
 
-    if (flip < 1) {
-      const restAlpha = particle.weight * (1 - flip)
-      if (restAlpha > 0.02) {
-        ctx.save()
-        ctx.globalAlpha = restAlpha
-        ctx.fillText('0', particle.x, particle.y)
-        ctx.restore()
-      }
-    }
-
-    if (flip > 0) {
-      ctx.save()
-      ctx.globalAlpha = flip
-      ctx.fillText('1', particle.x, particle.y)
-      ctx.restore()
-    }
+    ctx.save()
+    ctx.globalAlpha = dissolve
+    ctx.fillText(particle.char, particle.x, particle.y)
+    ctx.restore()
   }
 }
 
 export function stepAtomizeProgress(
   current: number,
   target: number,
-  step = 0.085,
+  step = PROGRESS_STEP,
 ): number {
   if (Math.abs(target - current) < 0.008) return target
   return current + (target - current) * step

@@ -65,13 +65,15 @@ export function useAtomizeImage(src: string) {
   const paint = useCallback(() => {
     const root = rootRef.current
     const canvas = canvasRef.current
-    if (!root || !canvas || particlesRef.current.length === 0) return
+    const snapshot = snapshotRef.current
+    if (!root || !canvas || !snapshot || particlesRef.current.length === 0) return
 
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
     drawAtomizeFrame({
       ctx,
+      image: snapshot,
       particles: particlesRef.current,
       progress: progressRef.current,
       glyphColor: readGlyphColor(root),
