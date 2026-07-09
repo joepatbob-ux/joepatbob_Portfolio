@@ -1,4 +1,4 @@
-/* Atomize image — mono ASCII 1/0 dissolve on hover */
+/* Atomize image — weighted 0s at rest, flip to 1s on hover */
 
 .atomize-image {
   position: relative;
@@ -14,19 +14,6 @@
   --atomize-glyph-color: var(--color-accent);
 }
 
-.atomize-image__fallback {
-  position: absolute;
-  inset: 0;
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  object-position: center;
-  opacity: 1;
-  pointer-events: none;
-  z-index: 0;
-}
-
 .atomize-image__canvas {
   position: absolute;
   inset: 0;
@@ -35,11 +22,14 @@
   display: block;
   opacity: 0;
   pointer-events: none;
-  z-index: 1;
+  z-index: 0;
+}
+
+.atomize-image--ready .atomize-image__canvas {
+  opacity: 1;
 }
 
 .atomize-image--live .atomize-image__canvas {
-  opacity: 1;
   pointer-events: auto;
 }
 

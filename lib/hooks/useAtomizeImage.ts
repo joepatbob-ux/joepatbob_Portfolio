@@ -65,15 +65,13 @@ export function useAtomizeImage(src: string) {
   const paint = useCallback(() => {
     const root = rootRef.current
     const canvas = canvasRef.current
-    const snapshot = snapshotRef.current
-    if (!root || !canvas || !snapshot || particlesRef.current.length === 0) return
+    if (!root || !canvas || particlesRef.current.length === 0) return
 
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
     drawAtomizeFrame({
       ctx,
-      image: snapshot,
       particles: particlesRef.current,
       progress: progressRef.current,
       glyphColor: readGlyphColor(root),
@@ -161,9 +159,7 @@ export function useAtomizeImage(src: string) {
     )
     resetParticles(particlesRef.current)
 
-    if (hoveredRef.current || progressRef.current > 0.008) {
-      paint()
-    }
+    paint()
     setReady(true)
   }, [paint])
 
@@ -194,6 +190,11 @@ export function useAtomizeImage(src: string) {
     if (!imageRef.current || !aspectRatio) return
     layoutCanvas()
   }, [aspectRatio, layoutCanvas])
+
+  useLayoutEffect(() => {
+    if (!ready) return
+    paint()
+  }, [ready, paint])
 
   useLayoutEffect(() => {
     if (!ready) return
