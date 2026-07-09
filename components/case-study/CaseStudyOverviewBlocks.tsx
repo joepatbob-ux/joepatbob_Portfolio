@@ -66,11 +66,15 @@ function OverviewAwardBlock({ product, headline, detail }: OverviewAwardBlock) {
   return (
     <section className="case-study-overview-block case-study-overview-block--award">
       <h3 className="case-study-overview-block__label">Award</h3>
-      <aside className="case-study-overview-award">
-        <p className="case-study-overview-award__product">{product}</p>
-        <p className="case-study-overview-award__headline">{headline}</p>
-        {detail ? <p className="case-study-overview-award__detail">{detail}</p> : null}
-      </aside>
+      <div className="case-study-overview-awards">
+        <div className="case-study-overview-award">
+          <p className="case-study-overview-award__product">{product}</p>
+          <p className="case-study-overview-award__headline">{headline}</p>
+          {detail ? (
+            <p className="case-study-overview-award__detail">{detail}</p>
+          ) : null}
+        </div>
+      </div>
     </section>
   )
 }

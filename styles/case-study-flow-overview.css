@@ -171,13 +171,15 @@
   margin-inline-start: 0;
 }
 
-.case-study-overview-patents {
+.case-study-overview-patents,
+.case-study-overview-awards {
   display: grid;
   grid-template-columns: 1fr;
   gap: 10px;
 }
 
-.case-study-overview-patent {
+.case-study-overview-patent,
+.case-study-overview-award {
   display: flex;
   flex-direction: column;
   gap: var(--cs-block-gap);
@@ -190,7 +192,8 @@
   text-align: left;
 }
 
-.case-study-overview-patent__number {
+.case-study-overview-patent__number,
+.case-study-overview-award__product {
   margin: 0;
   font-family: var(--font-body);
   font-weight: 600;
@@ -199,7 +202,8 @@
   color: var(--cs-body-color);
 }
 
-.case-study-overview-patent__title {
+.case-study-overview-patent__title,
+.case-study-overview-award__headline {
   margin: 0;
   font-family: var(--font-body);
   font-size: var(--cs-block-body-size);
@@ -207,7 +211,8 @@
   color: var(--cs-body-color);
 }
 
-.case-study-overview-patent__status {
+.case-study-overview-patent__status,
+.case-study-overview-award__detail {
   margin: 0;
   font-family: var(--font-mono);
   font-size: 11px;
@@ -217,47 +222,7 @@
   opacity: 0.72;
 }
 
-.case-study-overview-award {
-  display: flex;
-  flex-direction: column;
-  gap: var(--cs-block-gap);
-  margin: 0;
-  padding: 2px 0 2px 18px;
-  background: none;
-  border: none;
-  border-left: 2px solid var(--color-accent);
-  text-align: left;
-}
-
-.case-study-overview-award__product {
-  margin: 0;
-  font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: var(--cs-label-size);
-  letter-spacing: var(--cs-label-tracking);
-  text-transform: uppercase;
-  color: var(--color-accent);
-  line-height: 1.35;
-}
-
-.case-study-overview-award__headline {
-  margin: 0;
-  font-family: var(--font-body);
-  font-weight: 600;
-  font-size: 15px;
-  line-height: 1.35;
-  color: var(--cs-body-color);
-}
-
-.case-study-overview-award__detail {
-  margin: 0;
-  font-family: var(--font-body);
-  font-size: var(--cs-block-body-size);
-  line-height: var(--cs-block-body-leading);
-  color: var(--cs-body-color);
-}
-
-/* Highlight — same accent-bar weight as the award */
+/* Highlight — accent-bar callout */
 .case-study-overview-highlight {
   display: flex;
   flex-direction: column;
@@ -357,7 +322,8 @@
     grid-column: 1 / -1;
   }
 
-  .case-study-overview-patents {
+  .case-study-overview-patents,
+  .case-study-overview-awards {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
   }
