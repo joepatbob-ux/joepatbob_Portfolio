@@ -5,16 +5,12 @@ export type AsciiParticle = {
   y: number
   vx: number
   vy: number
-  char: '0' | '1'
-  order: number
+  /** Rest-state opacity for the 0 glyph — maps board luminance to weight. */
+  weight: number
 }
 
-const DISSOLVE_BLEND = 0.08
-const PHOTO_HIDE_PROGRESS = 0.26
-const INTERACTIVE_PROGRESS = 0.86
-const PROGRESS_STEP = 0.17
-
 export const PARTICLE_SAMPLE_GAP = 2
+export const PARTICLE_REVEAL_RADIUS = 76
 export const PARTICLE_MOUSE_RADIUS = 88
 export const PARTICLE_RETURN_SPEED = 0.06
 
@@ -48,16 +44,6 @@ export function containRect(
   }
 }
 
-export function hashCell(x: number, y: number): number {
-  let h = x * 374761393 + y * 668265263
-  h = (h ^ (h >> 13)) * 1274126177
-  return (h ^ (h >> 16)) >>> 0
-}
-
-export function cellOrder(x: number, y: number): number {
-  return (hashCell(x, y) % 1000) / 1000
-}
-
 function sampleLuminance(
   data: Uint8ClampedArray,
   width: number,
@@ -89,7 +75,14 @@ function sampleLuminance(
   return count === 0 ? 0 : (r + g + b) / count
 }
 
-/** Sample board pixels into mono 1/0 glyphs (Framer ParticleText pattern). */
+/** Steep curve so logo/type (e.g. Copeland) reads clearly in the all-0 rest field. */
+export function luminanceToWeight(luminance: number): number {
+  const t = Math.min(1, Math.max(0, (luminance - 6) / 145))
+  const curved = Math.pow(t, 1.65)
+  return 0.07 + curved * 0.93
+}
+
+/** Sample board pixels into weighted 0 glyphs that silhouette the board at rest. */
 export function buildAsciiParticles(
   data: Uint8ClampedArray,
   width: number,
@@ -103,7 +96,7 @@ export function buildAsciiParticles(
     for (let x = 0; x < width; x += gap) {
       const w = Math.min(gap, width - x)
       const luminance = sampleLuminance(data, width, height, x, y, w, h)
-      if (luminance < 8) continue
+      if (luminance < 6) continue
 
       const cx = x + w / 2
       const cy = y + h / 2
@@ -114,8 +107,7 @@ export function buildAsciiParticles(
         y: cy,
         vx: 0,
         vy: 0,
-        char: luminance > 108 ? '1' : '0',
-        order: cellOrder(x, y),
+        weight: luminanceToWeight(luminance),
       })
     }
   }
@@ -123,46 +115,46 @@ export function buildAsciiParticles(
   return particles
 }
 
-function particleDissolve(progress: number, order: number): number {
-  return Math.max(0, Math.min(1, (progress - order) / DISSOLVE_BLEND))
-}
-
 export function easeOutCubic(t: number): number {
   const x = Math.max(0, Math.min(1, t))
   return 1 - Math.pow(1 - x, 3)
 }
 
-export function photoOpacityFromProgress(progress: number): number {
-  const t = Math.min(1, Math.max(0, progress) / PHOTO_HIDE_PROGRESS)
-  return 1 - easeOutCubic(t)
-}
-
-export function isParticleInteractive(
-  progress: number,
-  hovered: boolean,
-): boolean {
-  return hovered && progress >= INTERACTIVE_PROGRESS
+function cursorRevealStrength(
+  mouse: { x: number; y: number },
+  particle: AsciiParticle,
+  radius: number,
+  active: boolean,
+): number {
+  if (!active) return 0
+  const dx = mouse.x - particle.x
+  const dy = mouse.y - particle.y
+  const dist = Math.sqrt(dx * dx + dy * dy)
+  if (dist >= radius) return 0
+  const t = 1 - dist / radius
+  return easeOutCubic(t)
 }
 
 export function stepAsciiParticles(
   particles: AsciiParticle[],
   mouse: { x: number; y: number },
-  interactive: boolean,
+  active: boolean,
 ): boolean {
   let settling = false
-  const { mouseRadius, returnSpeed } = {
-    mouseRadius: PARTICLE_MOUSE_RADIUS,
-    returnSpeed: PARTICLE_RETURN_SPEED,
-  }
+  const revealRadius = PARTICLE_REVEAL_RADIUS
+  const scatterRadius = PARTICLE_MOUSE_RADIUS
+  const returnSpeed = PARTICLE_RETURN_SPEED
 
   for (const p of particles) {
-    if (interactive) {
+    const revealed = cursorRevealStrength(mouse, p, revealRadius, active)
+
+    if (active && revealed > 0.12) {
       const dx = mouse.x - p.x
       const dy = mouse.y - p.y
       const dist = Math.sqrt(dx * dx + dy * dy)
 
-      if (dist < mouseRadius && dist > 0.5) {
-        const force = (mouseRadius - dist) / mouseRadius
+      if (dist < scatterRadius && dist > 0.5) {
+        const force = (scatterRadius - dist) / scatterRadius
         const angle = Math.atan2(dy, dx)
         p.vx -= Math.cos(angle) * force * 2.2
         p.vy -= Math.sin(angle) * force * 2.2
@@ -191,24 +183,15 @@ export function stepAsciiParticles(
 
 export function drawAtomizeFrame(options: {
   ctx: CanvasRenderingContext2D
-  image: CanvasImageSource
-  imageFit: ContainRect
   particles: readonly AsciiParticle[]
-  progress: number
+  mouse: { x: number; y: number }
+  hovered: boolean
   glyphColor: string
   fontFamily: string
   sampleGap: number
 }) {
-  const {
-    ctx,
-    image,
-    imageFit,
-    particles,
-    progress,
-    glyphColor,
-    fontFamily,
-    sampleGap,
-  } = options
+  const { ctx, particles, mouse, hovered, glyphColor, fontFamily, sampleGap } =
+    options
   const rect = ctx.canvas.getBoundingClientRect()
   const displayW = rect.width
   const displayH = rect.height
@@ -217,41 +200,34 @@ export function drawAtomizeFrame(options: {
 
   ctx.clearRect(0, 0, displayW, displayH)
 
-  const photoOpacity = photoOpacityFromProgress(progress)
-
-  if (photoOpacity > 0.02) {
-    ctx.save()
-    ctx.globalAlpha = photoOpacity
-    ctx.imageSmoothingEnabled = true
-    ctx.imageSmoothingQuality = 'high'
-    ctx.drawImage(image, imageFit.x, imageFit.y, imageFit.w, imageFit.h)
-    ctx.restore()
-  }
-
   const fontSize = Math.max(3, sampleGap + 1)
   ctx.font = `500 ${fontSize}px ${fontFamily}`
   ctx.fillStyle = glyphColor
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
 
+  const revealRadius = PARTICLE_REVEAL_RADIUS
+
   for (const particle of particles) {
-    const dissolve = particleDissolve(progress, particle.order)
-    if (dissolve <= 0) continue
+    const reveal = cursorRevealStrength(mouse, particle, revealRadius, hovered)
 
-    ctx.save()
-    ctx.globalAlpha = dissolve
-    ctx.fillText(particle.char, particle.x, particle.y)
-    ctx.restore()
+    if (reveal < 1) {
+      const restAlpha = particle.weight * (1 - reveal)
+      if (restAlpha > 0.02) {
+        ctx.save()
+        ctx.globalAlpha = restAlpha
+        ctx.fillText('0', particle.x, particle.y)
+        ctx.restore()
+      }
+    }
+
+    if (reveal > 0.04) {
+      ctx.save()
+      ctx.globalAlpha = reveal
+      ctx.fillText('1', particle.x, particle.y)
+      ctx.restore()
+    }
   }
-}
-
-export function stepAtomizeProgress(
-  current: number,
-  target: number,
-  step = PROGRESS_STEP,
-): number {
-  if (Math.abs(target - current) < 0.008) return target
-  return current + (target - current) * step
 }
 
 export function resetParticles(particles: AsciiParticle[]): void {

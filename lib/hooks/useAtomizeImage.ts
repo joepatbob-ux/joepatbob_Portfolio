@@ -4,11 +4,9 @@ import {
   buildAsciiParticles,
   containRect,
   drawAtomizeFrame,
-  isParticleInteractive,
   PARTICLE_SAMPLE_GAP,
   resetParticles,
   stepAsciiParticles,
-  stepAtomizeProgress,
   type AsciiParticle,
   type ContainRect,
 } from '@/lib/effects/atomizeImage'
@@ -48,15 +46,12 @@ export function useAtomizeImage(src: string) {
   const imageFitRef = useRef<ContainRect | null>(null)
   const snapshotRef = useRef<HTMLCanvasElement | null>(null)
   const particlesRef = useRef<AsciiParticle[]>([])
-  const progressRef = useRef(0)
-  const targetRef = useRef(0)
   const hoveredRef = useRef(false)
   const mouseRef = useRef(OFFSCREEN_MOUSE)
   const rafRef = useRef<number | null>(null)
   const [ready, setReady] = useState(false)
   const [hovered, setHovered] = useState(false)
   const [animating, setAnimating] = useState(false)
-  const [progress, setProgress] = useState(0)
   const [aspectRatio, setAspectRatio] = useState<string | null>(null)
 
   hoveredRef.current = hovered
@@ -71,27 +66,16 @@ export function useAtomizeImage(src: string) {
   const paint = useCallback(() => {
     const root = rootRef.current
     const canvas = canvasRef.current
-    const source = sourceRef.current
-    const imageFit = imageFitRef.current
-    if (
-      !root ||
-      !canvas ||
-      !source ||
-      !imageFit ||
-      particlesRef.current.length === 0
-    ) {
-      return
-    }
+    if (!root || !canvas || particlesRef.current.length === 0) return
 
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
     drawAtomizeFrame({
       ctx,
-      image: source.canvas,
-      imageFit,
       particles: particlesRef.current,
-      progress: progressRef.current,
+      mouse: mouseRef.current,
+      hovered: hoveredRef.current,
       glyphColor: readGlyphColor(root),
       fontFamily: readMonoFont(),
       sampleGap: PARTICLE_SAMPLE_GAP,
@@ -104,26 +88,16 @@ export function useAtomizeImage(src: string) {
     paint()
 
     const tick = () => {
-      const next = stepAtomizeProgress(progressRef.current, targetRef.current)
-      progressRef.current = next
-      setProgress(next)
-
-      const interactive = isParticleInteractive(next, hoveredRef.current)
       const settling = stepAsciiParticles(
         particlesRef.current,
         mouseRef.current,
-        interactive,
+        hoveredRef.current,
       )
 
       paint()
+      setAnimating(settling)
 
-      const progressMoving = Math.abs(next - targetRef.current) > 0.008
-      const stillLive =
-        hoveredRef.current || progressMoving || settling || next > 0.008
-
-      setAnimating(progressMoving || settling)
-
-      if (stillLive) {
+      if (hoveredRef.current || settling) {
         rafRef.current = requestAnimationFrame(tick)
       } else {
         rafRef.current = null
@@ -221,9 +195,7 @@ export function useAtomizeImage(src: string) {
 
   useLayoutEffect(() => {
     if (!ready) return
-    if (hovered || progressRef.current > 0.008) {
-      paint()
-    }
+    if (hovered) paint()
   }, [hovered, ready, paint])
 
   useEffect(() => {
@@ -234,11 +206,6 @@ export function useAtomizeImage(src: string) {
     observer.observe(root)
     return () => observer.disconnect()
   }, [layoutCanvas, ready])
-
-  useEffect(() => {
-    targetRef.current = hovered ? 1 : 0
-    runLoop()
-  }, [hovered, runLoop])
 
   useEffect(() => stopLoop, [stopLoop])
 
@@ -265,14 +232,13 @@ export function useAtomizeImage(src: string) {
     runLoop()
   }, [runLoop])
 
-  const live = hovered || animating || progress > 0.008
+  const live = hovered || animating
 
   return {
     rootRef,
     canvasRef,
     ready,
     live,
-    progress,
     aspectRatio,
     onPointerEnter,
     onPointerMove,

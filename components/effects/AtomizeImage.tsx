@@ -8,7 +8,7 @@ interface Props {
   className?: string
 }
 
-/** Board photo dissolves into 1/0 digits on hover; canvas-only (no img handoff). */
+/** Board as contrast-weighted 0s; hover reveals 1s in a brush around the cursor. */
 export function AtomizeImage({ src, alt, className }: Props) {
   const {
     rootRef,
