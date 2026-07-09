@@ -3,12 +3,15 @@
 import {
   buildAtomizeCells,
   drawAtomizeFrame,
+  photoFadeFromProgress,
   stepAtomizeProgress,
   type AtomizeCell,
 } from '@/lib/effects/atomizeImage'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-const CELL_SIZE = 12
+/** Dense glyph grid — narrow columns read as board width. */
+const CELL_W = 5
+const CELL_H = 7
 
 function readAccentColor(node: HTMLElement): string {
   const accent = getComputedStyle(node).getPropertyValue('--color-accent').trim()
@@ -28,10 +31,14 @@ export function useAtomizeImage(src: string) {
   const cellsRef = useRef<AtomizeCell[]>([])
   const progressRef = useRef(0)
   const targetRef = useRef(0)
+  const hoveredRef = useRef(false)
   const rafRef = useRef<number | null>(null)
   const [ready, setReady] = useState(false)
   const [hovered, setHovered] = useState(false)
   const [active, setActive] = useState(false)
+  const [progress, setProgress] = useState(0)
+
+  hoveredRef.current = hovered
 
   const stopLoop = useCallback(() => {
     if (rafRef.current != null) {
@@ -65,19 +72,22 @@ export function useAtomizeImage(src: string) {
     const tick = () => {
       const next = stepAtomizeProgress(progressRef.current, targetRef.current)
       progressRef.current = next
+      setProgress(next)
       paint()
+
+      const moving = Math.abs(next - targetRef.current) > 0.008
       setActive(
-        hovered ||
-          Math.abs(next - targetRef.current) > 0.01 ||
+        hoveredRef.current ||
+          moving ||
           (targetRef.current > 0 && next > 0.01) ||
           (targetRef.current === 0 && next > 0.01),
       )
 
-      if (Math.abs(next - targetRef.current) > 0.01) {
+      if (moving) {
         rafRef.current = requestAnimationFrame(tick)
       } else {
         rafRef.current = null
-        setActive(hovered)
+        setActive(hoveredRef.current || next > 0.01)
       }
     }
 
@@ -114,7 +124,13 @@ export function useAtomizeImage(src: string) {
     offCtx.drawImage(image, 0, 0, displayW, displayH)
     snapshotRef.current = offscreen
     const { data } = offCtx.getImageData(0, 0, displayW, displayH)
-    cellsRef.current = buildAtomizeCells(data, displayW, displayH, CELL_SIZE)
+    cellsRef.current = buildAtomizeCells(
+      data,
+      displayW,
+      displayH,
+      CELL_W,
+      CELL_H,
+    )
     paint()
     setReady(true)
   }, [paint])
@@ -176,7 +192,8 @@ export function useAtomizeImage(src: string) {
     canvasRef,
     ready,
     active,
-    hovered,
+    progress,
+    photoOpacity: active ? photoFadeFromProgress(progress) : 1,
     onPointerEnter,
     onPointerLeave,
   }

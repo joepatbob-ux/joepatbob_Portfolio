@@ -14,6 +14,7 @@ export function AtomizeImage({ src, alt, className }: Props) {
     rootRef,
     canvasRef,
     active,
+    photoOpacity,
     onPointerEnter,
     onPointerLeave,
   } = useAtomizeImage(src)
@@ -34,6 +35,7 @@ export function AtomizeImage({ src, alt, className }: Props) {
         decoding="async"
         loading="eager"
         fetchPriority="high"
+        style={{ opacity: photoOpacity }}
       />
       <canvas
         ref={canvasRef}
