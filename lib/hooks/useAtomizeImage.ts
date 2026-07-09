@@ -4,10 +4,10 @@ import {
   buildAsciiParticles,
   containRect,
   drawAtomizeFrame,
-  hasActivePull,
   PARTICLE_SAMPLE_GAP,
   resetParticles,
   stepAsciiParticles,
+  stepBoardSettle,
   type AsciiParticle,
   type ContainRect,
 } from '@/lib/effects/atomizeImage'
@@ -45,14 +45,15 @@ export function useAtomizeImage(src: string) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const sourceRef = useRef<RasterSource | null>(null)
   const imageFitRef = useRef<ContainRect | null>(null)
-  const snapshotRef = useRef<HTMLCanvasElement | null>(null)
   const particlesRef = useRef<AsciiParticle[]>([])
+  const boardBlendRef = useRef(0)
   const hoveredRef = useRef(false)
   const mouseRef = useRef(OFFSCREEN_MOUSE)
   const rafRef = useRef<number | null>(null)
   const [ready, setReady] = useState(false)
   const [hovered, setHovered] = useState(false)
   const [animating, setAnimating] = useState(false)
+  const [boardBlend, setBoardBlend] = useState(0)
   const [aspectRatio, setAspectRatio] = useState<string | null>(null)
 
   hoveredRef.current = hovered
@@ -87,7 +88,9 @@ export function useAtomizeImage(src: string) {
       image: source.canvas,
       imageFit,
       particles: particlesRef.current,
+      mouse: mouseRef.current,
       hovered: hoveredRef.current,
+      boardBlend: boardBlendRef.current,
       glyphColor: readGlyphColor(root),
       fontFamily: readMonoFont(),
       sampleGap: PARTICLE_SAMPLE_GAP,
@@ -100,27 +103,31 @@ export function useAtomizeImage(src: string) {
     paint()
 
     const tick = () => {
-      const particles = particlesRef.current
-      const root = rootRef.current
-      const bounds = root?.getBoundingClientRect()
-      const settling = stepAsciiParticles(
-        particles,
+      const settling = boardBlendRef.current < 0.995
+        ? (() => {
+            const next = stepBoardSettle(boardBlendRef.current)
+            boardBlendRef.current = next
+            setBoardBlend(next)
+            return next < 0.995
+          })()
+        : false
+
+      const scattering = stepAsciiParticles(
+        particlesRef.current,
         mouseRef.current,
         hoveredRef.current,
-        {
-          width: bounds?.width ?? 0,
-          height: bounds?.height ?? 0,
-        },
       )
 
       paint()
-      setAnimating(settling || hasActivePull(particles))
+      setAnimating(settling || scattering)
 
-      if (hoveredRef.current || settling || hasActivePull(particles)) {
+      if (hoveredRef.current || settling || scattering) {
         rafRef.current = requestAnimationFrame(tick)
       } else {
         rafRef.current = null
-        resetParticles(particles)
+        if (!hoveredRef.current) {
+          resetParticles(particlesRef.current)
+        }
       }
     }
 
@@ -161,7 +168,6 @@ export function useAtomizeImage(src: string) {
     )
     imageFitRef.current = fit
     offCtx.drawImage(source.canvas, fit.x, fit.y, fit.w, fit.h)
-    snapshotRef.current = offscreen
     const { data } = offCtx.getImageData(0, 0, displayW, displayH)
     particlesRef.current = buildAsciiParticles(
       data,
@@ -170,17 +176,27 @@ export function useAtomizeImage(src: string) {
       PARTICLE_SAMPLE_GAP,
     )
     resetParticles(particlesRef.current)
+    boardBlendRef.current = 0
+    setBoardBlend(0)
 
     paint()
     setReady(true)
-  }, [paint])
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      boardBlendRef.current = 1
+      setBoardBlend(1)
+    } else {
+      runLoop()
+    }
+  }, [paint, runLoop])
 
   useEffect(() => {
     let cancelled = false
     setReady(false)
     sourceRef.current = null
     imageFitRef.current = null
-    snapshotRef.current = null
+    boardBlendRef.current = 0
+    setBoardBlend(0)
 
     void loadRasterSource(src).then((source) => {
       if (cancelled) return
@@ -198,7 +214,6 @@ export function useAtomizeImage(src: string) {
       cancelled = true
       sourceRef.current = null
       imageFitRef.current = null
-      snapshotRef.current = null
     }
   }, [src])
 
@@ -251,7 +266,7 @@ export function useAtomizeImage(src: string) {
     runLoop()
   }, [runLoop])
 
-  const live = hovered || animating
+  const live = hovered || animating || boardBlend < 0.995
 
   return {
     rootRef,
