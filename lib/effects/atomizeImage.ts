@@ -8,18 +8,22 @@ export type AsciiParticle = {
   char: '0' | '1'
   /** 0 = embedded in the board image, 1 = fully pulled free as a glyph. */
   pull: number
+  /** Per-cell stagger so extraction ripples instead of opening one big hole. */
+  stagger: number
 }
 
 export const PARTICLE_SAMPLE_GAP = 2
-/** Cursor reach for waking particles embedded in the board. */
-export const PARTICLE_ACTIVATION_RADIUS = 108
-export const PARTICLE_PULL_RADIUS = 112
-export const PARTICLE_SCATTER_RADIUS = 96
-export const PARTICLE_PULL_RATE = 0.14
-export const PARTICLE_RELEASE_RATE = 0.1
-export const PARTICLE_EJECT_FORCE = 0.55
-export const PARTICLE_SCATTER_FORCE = 2.4
-export const PARTICLE_RETURN_SPEED = 0.075
+/** Tight core — only digits near the pointer start pulling. */
+export const PARTICLE_ACTIVATION_RADIUS = 58
+export const PARTICLE_PULL_RADIUS = 72
+export const PARTICLE_SCATTER_RADIUS = 80
+export const PARTICLE_PULL_RATE = 0.052
+export const PARTICLE_RELEASE_RATE = 0.085
+export const PARTICLE_EJECT_FORCE = 0.42
+export const PARTICLE_SCATTER_FORCE = 2.1
+export const PARTICLE_RETURN_SPEED = 0.08
+/** Minimum influence before a cell can begin pulling (avoids soft-edge mass erase). */
+export const PARTICLE_PULL_THRESHOLD = 0.38
 
 export type ContainRect = {
   x: number
@@ -49,6 +53,16 @@ export function containRect(
     w,
     h,
   }
+}
+
+export function hashCell(x: number, y: number): number {
+  let h = x * 374761393 + y * 668265263
+  h = (h ^ (h >> 13)) * 1274126177
+  return (h ^ (h >> 16)) >>> 0
+}
+
+function cellStagger(x: number, y: number): number {
+  return (hashCell(x, y) % 100) / 100
 }
 
 function sampleLuminance(
@@ -109,6 +123,7 @@ export function buildAsciiParticles(
         vy: 0,
         char: luminance > 108 ? '1' : '0',
         pull: 0,
+        stagger: cellStagger(cx, cy),
       })
     }
   }
@@ -134,7 +149,10 @@ export function activationAtBase(
   const dist = Math.sqrt(dx * dx + dy * dy)
   if (dist >= radius) return 0
   const t = 1 - dist / radius
-  return easeOutCubic(t)
+  const core = Math.pow(t, 3.2)
+  const gate = particle.stagger * 0.35
+  if (core <= gate) return 0
+  return (core - gate) / (1 - gate)
 }
 
 export function stepAsciiParticles(
@@ -144,41 +162,43 @@ export function stepAsciiParticles(
 ): boolean {
   let settling = false
   const activationRadius = PARTICLE_ACTIVATION_RADIUS
-  const pullRadius = PARTICLE_PULL_RADIUS
   const scatterRadius = PARTICLE_SCATTER_RADIUS
 
   for (const p of particles) {
     const influence = activationAtBase(mouse, p, activationRadius, active)
+    const canPull = influence >= PARTICLE_PULL_THRESHOLD
 
-    if (active && influence > 0.02) {
+    if (active && canPull) {
+      const pullDrive = (influence - PARTICLE_PULL_THRESHOLD) / (1 - PARTICLE_PULL_THRESHOLD)
+
       const ejectDx = p.baseX - mouse.x
       const ejectDy = p.baseY - mouse.y
       const ejectDist = Math.sqrt(ejectDx * ejectDx + ejectDy * ejectDy)
 
       if (ejectDist > 0.5) {
-        const eject = influence * PARTICLE_EJECT_FORCE
+        const eject = pullDrive * PARTICLE_EJECT_FORCE
         p.vx += (ejectDx / ejectDist) * eject
         p.vy += (ejectDy / ejectDist) * eject
       }
 
-      p.pull = Math.min(1, p.pull + influence * PARTICLE_PULL_RATE)
+      p.pull = Math.min(1, p.pull + pullDrive * PARTICLE_PULL_RATE)
 
-      if (p.pull > 0.2) {
+      if (p.pull > 0.35) {
         const scatterDx = mouse.x - p.x
         const scatterDy = mouse.y - p.y
         const scatterDist = Math.sqrt(scatterDx * scatterDx + scatterDy * scatterDy)
 
-        if (scatterDist < pullRadius && scatterDist > 0.5) {
+        if (scatterDist < scatterRadius && scatterDist > 0.5) {
           const force =
-            ((pullRadius - scatterDist) / pullRadius) *
-            influence *
+            ((scatterRadius - scatterDist) / scatterRadius) *
+            pullDrive *
             PARTICLE_SCATTER_FORCE
           const angle = Math.atan2(scatterDy, scatterDx)
           p.vx -= Math.cos(angle) * force
           p.vy -= Math.sin(angle) * force
         }
       }
-    } else {
+    } else if (!active || influence < PARTICLE_PULL_THRESHOLD * 0.5) {
       p.pull = Math.max(0, p.pull - PARTICLE_RELEASE_RATE)
     }
 
@@ -249,16 +269,20 @@ export function drawAtomizeFrame(options: {
   ctx.restore()
 
   const fontSize = Math.max(3, sampleGap + 1)
-  const holeRadius = fontSize * 0.62
-  const anyPulled = hovered || hasActivePull(particles)
+  const maxHoleRadius = fontSize * 0.55
+  const anyPulled = hasActivePull(particles)
 
   if (anyPulled) {
     ctx.save()
     ctx.globalCompositeOperation = 'destination-out'
     for (const particle of particles) {
-      if (particle.pull <= 0.03) continue
+      if (particle.pull <= 0.14) continue
 
-      ctx.globalAlpha = easeOutCubic(particle.pull)
+      const t = easeOutCubic((particle.pull - 0.14) / 0.86)
+      const holeRadius = maxHoleRadius * t
+      if (holeRadius < 0.35) continue
+
+      ctx.globalAlpha = t * 0.92
       ctx.beginPath()
       ctx.arc(particle.baseX, particle.baseY, holeRadius, 0, Math.PI * 2)
       ctx.fill()
@@ -274,14 +298,14 @@ export function drawAtomizeFrame(options: {
   ctx.textBaseline = 'middle'
 
   for (const particle of particles) {
-    if (particle.pull <= 0.04) continue
+    if (particle.pull <= 0.22) continue
 
-    const alpha = easeOutCubic(particle.pull)
-    const lift = easeOutCubic(Math.min(1, particle.pull * 1.15))
+    const alpha = easeOutCubic((particle.pull - 0.22) / 0.78)
+    const lift = easeOutCubic(Math.min(1, (particle.pull - 0.22) / 0.65))
 
     ctx.save()
     ctx.globalAlpha = alpha
-    ctx.fillText(particle.char, particle.x, particle.y - lift * 0.6)
+    ctx.fillText(particle.char, particle.x, particle.y - lift * 0.55)
     ctx.restore()
   }
 }
