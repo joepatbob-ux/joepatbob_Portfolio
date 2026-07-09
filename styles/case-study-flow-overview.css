@@ -266,23 +266,24 @@
 }
 
 .case-study-overview-quote__mark {
-  display: block;
   font-family: var(--font-ahg);
   font-weight: 700;
   color: var(--color-accent);
   user-select: none;
   letter-spacing: -0.02em;
-  line-height: 0.85;
+  line-height: 1;
 }
 
 .case-study-overview-quote__mark--open {
-  font-size: clamp(56px, 7vw, 96px);
-  margin-bottom: clamp(-8px, -1vw, -4px);
+  font-size: clamp(40px, 5vw, 64px);
+  margin-inline-end: 0.12em;
+  vertical-align: -0.2em;
 }
 
 .case-study-overview-quote__mark--close {
-  font-size: clamp(40px, 5vw, 72px);
-  margin-top: clamp(4px, 1vh, 12px);
+  font-size: clamp(40px, 5vw, 64px);
+  margin-inline-start: 0.08em;
+  vertical-align: -0.35em;
 }
 
 .case-study-overview-quote__text {

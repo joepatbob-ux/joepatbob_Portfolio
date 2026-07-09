@@ -99,21 +99,23 @@ function OverviewQuoteBlock({ quote, attribution }: OverviewQuoteBlock) {
   return (
     <section className="case-study-overview-block case-study-overview-block--quote">
       <figure className="case-study-overview-quote">
-        <span
-          className="case-study-overview-quote__mark case-study-overview-quote__mark--open"
-          aria-hidden
-        >
-          &ldquo;
-        </span>
         <blockquote className="case-study-overview-quote__text">
-          <p>{quote}</p>
+          <p>
+            <span
+              className="case-study-overview-quote__mark case-study-overview-quote__mark--open"
+              aria-hidden
+            >
+              "
+            </span>
+            {quote}
+            <span
+              className="case-study-overview-quote__mark case-study-overview-quote__mark--close"
+              aria-hidden
+            >
+              "
+            </span>
+          </p>
         </blockquote>
-        <span
-          className="case-study-overview-quote__mark case-study-overview-quote__mark--close"
-          aria-hidden
-        >
-          &rdquo;
-        </span>
         {attribution ? (
           <figcaption className="case-study-overview-quote__attr">
             {attribution}
