@@ -275,11 +275,12 @@
 }
 
 .case-study-overview-quote__mark {
-  font-family: var(--font-ahg);
-  font-weight: 700;
+  font-family: var(--font-body);
+  font-weight: 600;
   color: var(--color-accent);
   line-height: 1;
-  font-size: 1.25em;
+  font-size: clamp(1.75em, 2.8vw, 2.1em);
+  letter-spacing: -0.02em;
   user-select: none;
 }
 
