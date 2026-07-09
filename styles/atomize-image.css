@@ -1,12 +1,11 @@
-/* Atomize image — weighted 0s at rest, flip to 1s on hover */
+/* Atomize image — PDF → 0s → hover 1s distortion */
 
 .atomize-image {
   position: relative;
   width: min(100%, var(--cs-stage-gallery-w, 520px));
   max-width: min(520px, 100%);
   margin-inline: auto;
-  /* aspect-ratio set inline from board image natural dimensions */
-  cursor: crosshair;
+  cursor: default;
   touch-action: manipulation;
   font-family: var(--font-mono), ui-monospace, monospace;
   font-variant-numeric: tabular-nums;
@@ -29,7 +28,11 @@
   opacity: 1;
 }
 
-.atomize-image--live .atomize-image__canvas {
+.atomize-image--settled {
+  cursor: crosshair;
+}
+
+.atomize-image--settled .atomize-image__canvas {
   pointer-events: auto;
 }
 
@@ -47,7 +50,7 @@
 }
 
 @media (hover: none) {
-  .atomize-image {
+  .atomize-image--settled {
     cursor: default;
   }
 }

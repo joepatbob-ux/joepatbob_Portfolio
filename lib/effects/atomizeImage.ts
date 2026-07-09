@@ -1,19 +1,8 @@
-export type AsciiParticle = {
-  baseX: number
-  baseY: number
+export type GlyphCell = {
   x: number
   y: number
-  vx: number
-  vy: number
-  char: '0' | '1'
   weight: number
 }
-
-export const PARTICLE_SAMPLE_GAP = 2
-export const PARTICLE_HOVER_RADIUS = 88
-export const PARTICLE_MOUSE_RADIUS = 96
-export const PARTICLE_RETURN_SPEED = 0.06
-export const BOARD_SETTLE_STEP = 0.055
 
 export type ContainRect = {
   x: number
@@ -22,7 +11,10 @@ export type ContainRect = {
   h: number
 }
 
-/** Letterbox content inside a container — matches CSS object-fit: contain. */
+export const GLYPH_GAP = 2
+export const HOVER_RADIUS = 80
+export const SETTLE_STEP = 0.045
+
 export function containRect(
   containerW: number,
   containerH: number,
@@ -54,9 +46,7 @@ function sampleLuminance(
   w: number,
   h: number,
 ): number {
-  let r = 0
-  let g = 0
-  let b = 0
+  let sum = 0
   let count = 0
   const xEnd = Math.min(x + w, width)
   const yEnd = Math.min(y + h, height)
@@ -66,31 +56,29 @@ function sampleLuminance(
       const i = (py * width + px) * 4
       const alpha = (data[i + 3] ?? 255) / 255
       if (alpha < 0.04) continue
-      r += (data[i] ?? 0) * alpha
-      g += (data[i + 1] ?? 0) * alpha
-      b += (data[i + 2] ?? 0) * alpha
+      sum +=
+        (data[i] ?? 0) * alpha +
+        (data[i + 1] ?? 0) * alpha +
+        (data[i + 2] ?? 0) * alpha
       count += 1
     }
   }
 
-  return count === 0 ? 0 : (r + g + b) / count
+  return count === 0 ? 0 : sum / count
 }
 
-/** Steep curve so logo/type (e.g. Copeland) reads in the all-0 rest field. */
-export function luminanceToWeight(luminance: number): number {
+function luminanceToWeight(luminance: number): number {
   const t = Math.min(1, Math.max(0, (luminance - 6) / 145))
-  const curved = Math.pow(t, 1.65)
-  return 0.07 + curved * 0.93
+  return 0.08 + Math.pow(t, 1.6) * 0.92
 }
 
-/** Sample board pixels into weighted 0 glyphs; 1/0 assigned for hover reveal. */
-export function buildAsciiParticles(
+export function buildGlyphGrid(
   data: Uint8ClampedArray,
   width: number,
   height: number,
   gap: number,
-): AsciiParticle[] {
-  const particles: AsciiParticle[] = []
+): GlyphCell[] {
+  const cells: GlyphCell[] = []
 
   for (let y = 0; y < height; y += gap) {
     const h = Math.min(gap, height - y)
@@ -99,128 +87,62 @@ export function buildAsciiParticles(
       const luminance = sampleLuminance(data, width, height, x, y, w, h)
       if (luminance < 6) continue
 
-      const cx = x + w / 2
-      const cy = y + h / 2
-      particles.push({
-        baseX: cx,
-        baseY: cy,
-        x: cx,
-        y: cy,
-        vx: 0,
-        vy: 0,
-        char: luminance > 108 ? '1' : '0',
+      cells.push({
+        x: x + w / 2,
+        y: y + h / 2,
         weight: luminanceToWeight(luminance),
       })
     }
   }
 
-  return particles
+  return cells
 }
 
 export function easeOutCubic(t: number): number {
   const x = Math.max(0, Math.min(1, t))
-  return 1 - Math.pow(1 - x, 3)
+  return 1 - (1 - x) ** 3
 }
 
-export function stepBoardSettle(current: number, step = BOARD_SETTLE_STEP): number {
-  if (current >= 0.995) return 1
-  return Math.min(1, current + (1 - current) * step)
+export function stepToward(current: number, target: number, step: number): number {
+  if (Math.abs(target - current) < 0.004) return target
+  return current + (target - current) * step
 }
 
-function hoverRevealStrength(
+function hoverStrength(
   mouse: { x: number; y: number },
-  particle: AsciiParticle,
+  cell: GlyphCell,
   radius: number,
-  active: boolean,
 ): number {
-  if (!active) return 0
-  const dx = mouse.x - particle.x
-  const dy = mouse.y - particle.y
+  const dx = mouse.x - cell.x
+  const dy = mouse.y - cell.y
   const dist = Math.sqrt(dx * dx + dy * dy)
   if (dist >= radius) return 0
-  const t = 1 - dist / radius
-  return easeOutCubic(t)
+  return easeOutCubic(1 - dist / radius)
 }
 
-export function stepAsciiParticles(
-  particles: AsciiParticle[],
-  mouse: { x: number; y: number },
-  active: boolean,
-): boolean {
-  let settling = false
-
-  for (const p of particles) {
-    const reveal = hoverRevealStrength(mouse, p, PARTICLE_HOVER_RADIUS, active)
-
-    if (active && reveal > 0.15) {
-      const dx = mouse.x - p.x
-      const dy = mouse.y - p.y
-      const dist = Math.sqrt(dx * dx + dy * dy)
-
-      if (dist < PARTICLE_MOUSE_RADIUS && dist > 0.5) {
-        const force = (PARTICLE_MOUSE_RADIUS - dist) / PARTICLE_MOUSE_RADIUS
-        const angle = Math.atan2(dy, dx)
-        p.vx -= Math.cos(angle) * force * 1.8
-        p.vy -= Math.sin(angle) * force * 1.8
-      }
-    }
-
-    p.vx += (p.baseX - p.x) * PARTICLE_RETURN_SPEED
-    p.vy += (p.baseY - p.y) * PARTICLE_RETURN_SPEED
-    p.vx *= 0.94
-    p.vy *= 0.94
-    p.x += p.vx
-    p.y += p.vy
-
-    if (
-      Math.abs(p.x - p.baseX) > 0.35 ||
-      Math.abs(p.y - p.baseY) > 0.35 ||
-      Math.abs(p.vx) > 0.04 ||
-      Math.abs(p.vy) > 0.04
-    ) {
-      settling = true
-    }
-  }
-
-  return settling
-}
-
-export function drawAtomizeFrame(options: {
+export function drawBoardFrame(options: {
   ctx: CanvasRenderingContext2D
   image: CanvasImageSource
   imageFit: ContainRect
-  particles: readonly AsciiParticle[]
+  cells: readonly GlyphCell[]
   mouse: { x: number; y: number }
-  hovered: boolean
-  boardBlend: number
+  glyphBlend: number
+  hover: boolean
   glyphColor: string
   fontFamily: string
-  sampleGap: number
 }) {
-  const {
-    ctx,
-    image,
-    imageFit,
-    particles,
-    mouse,
-    hovered,
-    boardBlend,
-    glyphColor,
-    fontFamily,
-    sampleGap,
-  } = options
-  const rect = ctx.canvas.getBoundingClientRect()
-  const displayW = rect.width
-  const displayH = rect.height
+  const { ctx, image, imageFit, cells, mouse, glyphBlend, hover, glyphColor, fontFamily } =
+    options
+  const { width: displayW, height: displayH } = ctx.canvas.getBoundingClientRect()
 
   if (displayW < 1 || displayH < 1) return
 
   ctx.clearRect(0, 0, displayW, displayH)
 
-  const settle = easeOutCubic(boardBlend)
-  const photoOpacity = 1 - settle
+  const glyphs = easeOutCubic(glyphBlend)
+  const photoOpacity = 1 - glyphs
 
-  if (photoOpacity > 0.02) {
+  if (photoOpacity > 0.01) {
     ctx.save()
     ctx.globalAlpha = photoOpacity
     ctx.imageSmoothingEnabled = true
@@ -229,43 +151,32 @@ export function drawAtomizeFrame(options: {
     ctx.restore()
   }
 
-  if (settle <= 0.02 && !hovered) return
+  if (glyphs < 0.01 && !hover) return
 
-  const fontSize = Math.max(3, sampleGap + 1)
+  const fontSize = Math.max(3, GLYPH_GAP + 1)
   ctx.font = `500 ${fontSize}px ${fontFamily}`
   ctx.fillStyle = glyphColor
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
 
-  const hoverRadius = PARTICLE_HOVER_RADIUS
+  for (const cell of cells) {
+    const distort = hover ? hoverStrength(mouse, cell, HOVER_RADIUS) : 0
 
-  for (const particle of particles) {
-    const hover = hoverRevealStrength(mouse, particle, hoverRadius, hovered)
-
-    if (hover < 1) {
-      const restAlpha = particle.weight * settle * (1 - hover)
-      if (restAlpha > 0.02) {
+    if (glyphs > 0.01 && distort < 1) {
+      const zeroAlpha = cell.weight * glyphs * (1 - distort)
+      if (zeroAlpha > 0.02) {
         ctx.save()
-        ctx.globalAlpha = restAlpha
-        ctx.fillText('0', particle.x, particle.y)
+        ctx.globalAlpha = zeroAlpha
+        ctx.fillText('0', cell.x, cell.y)
         ctx.restore()
       }
     }
 
-    if (hover > 0.04) {
+    if (distort > 0.03) {
       ctx.save()
-      ctx.globalAlpha = hover
-      ctx.fillText(particle.char, particle.x, particle.y)
+      ctx.globalAlpha = distort
+      ctx.fillText('1', cell.x, cell.y)
       ctx.restore()
     }
-  }
-}
-
-export function resetParticles(particles: AsciiParticle[]): void {
-  for (const p of particles) {
-    p.x = p.baseX
-    p.y = p.baseY
-    p.vx = 0
-    p.vy = 0
   }
 }
