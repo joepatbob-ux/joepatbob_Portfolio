@@ -84,7 +84,7 @@ export const VERDANT_VIEW_TOGGLES = [
   {
     kind: 'product',
     label: 'Product',
-    src: '/images/verdant-product.jpg',
+    src: '/images/verdant-product.webp',
     alt: 'Finished Verdant thermostat product',
   },
 ] as const satisfies ReadonlyArray<{
