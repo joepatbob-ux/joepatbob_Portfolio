@@ -1,0 +1,60 @@
+/* WR Connect board — crisp photo at rest, 0 brush on hover */
+
+.wr-connect-board {
+  position: relative;
+  width: min(100%, var(--cs-stage-gallery-w, 520px));
+  max-width: min(520px, 100%);
+  margin-inline: auto;
+  cursor: default;
+  touch-action: manipulation;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  --wr-connect-board-glyph: var(--color-accent);
+  aspect-ratio: 2044 / 1476;
+}
+
+.wr-connect-board__photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+
+.wr-connect-board__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.wr-connect-board--canvas-ready {
+  cursor: crosshair;
+}
+
+.wr-connect-board--canvas-ready .wr-connect-board__canvas {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.wr-connect-board--canvas-ready .wr-connect-board__photo {
+  opacity: 0;
+}
+
+/* Break fit-content / width:100% collapse on the stage align wrapper. */
+.chapter-stage-align:has(.wr-connect-board) {
+  width: min(100%, var(--cs-stage-gallery-w, 520px));
+  max-width: 100%;
+}
+
+@media (hover: none) {
+  .wr-connect-board--canvas-ready {
+    cursor: default;
+  }
+}

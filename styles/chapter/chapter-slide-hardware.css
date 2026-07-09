@@ -181,8 +181,7 @@
   .hardware-slideshow .chapter-slide__stage .before-after-slider,
   .hardware-slideshow .chapter-slide__stage .sticker-pile-wrap,
   .hardware-slideshow .chapter-slide__stage .formation-lego,
-  .hardware-slideshow .chapter-slide__stage .wr-connect-board-stage,
-  .hardware-slideshow .chapter-slide__stage .atomize-image {
+  .hardware-slideshow .chapter-slide__stage .wr-connect-board {
     width: 100%;
     max-width: 100%;
     margin-inline: auto;

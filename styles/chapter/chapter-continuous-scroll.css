@@ -257,7 +257,7 @@
     .chapter-stage-align,
   html.continuous-chapters
     .portfolio-chapter-slot--fill.hardware-slideshow
-    .chapter-stage-align:has(.wr-connect-board-stage) {
+    .chapter-stage-align:has(.wr-connect-board) {
     width: min(100%, var(--cs-stage-gallery-w, 520px));
     aspect-ratio: 2044 / 1476;
   }

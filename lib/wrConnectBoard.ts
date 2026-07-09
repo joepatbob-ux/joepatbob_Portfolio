@@ -1,25 +1,26 @@
-export type GlyphCell = {
+export type BoardGlyph = {
   x: number
   y: number
   weight: number
 }
 
-export type ContainRect = {
+export type FitRect = {
   x: number
   y: number
   w: number
   h: number
 }
 
-export const GLYPH_GAP = 2
-export const HOVER_RADIUS = 80
+export const BOARD_ASPECT = '2044 / 1476'
+export const BOARD_GLYPH_GAP = 2
+export const BOARD_BRUSH_RADIUS = 80
 
 export function containRect(
   containerW: number,
   containerH: number,
   contentW: number,
   contentH: number,
-): ContainRect {
+): FitRect {
   if (contentW <= 0 || contentH <= 0) {
     return { x: 0, y: 0, w: containerW, h: containerH }
   }
@@ -75,9 +76,9 @@ export function buildGlyphGrid(
   data: Uint8ClampedArray,
   width: number,
   height: number,
-  gap: number,
-): GlyphCell[] {
-  const cells: GlyphCell[] = []
+  gap = BOARD_GLYPH_GAP,
+): BoardGlyph[] {
+  const cells: BoardGlyph[] = []
 
   for (let y = 0; y < height; y += gap) {
     const h = Math.min(gap, height - y)
@@ -97,28 +98,24 @@ export function buildGlyphGrid(
   return cells
 }
 
-export function easeOutCubic(t: number): number {
-  const x = Math.max(0, Math.min(1, t))
-  return 1 - (1 - x) ** 3
-}
-
-function hoverStrength(
+function brushStrength(
   mouse: { x: number; y: number },
-  cell: GlyphCell,
+  cell: BoardGlyph,
   radius: number,
 ): number {
   const dx = mouse.x - cell.x
   const dy = mouse.y - cell.y
   const dist = Math.sqrt(dx * dx + dy * dy)
   if (dist >= radius) return 0
-  return easeOutCubic(1 - dist / radius)
+  const t = 1 - dist / radius
+  return 1 - (1 - t) ** 3
 }
 
-export function drawBoardFrame(options: {
+export function drawWrConnectBoard(options: {
   ctx: CanvasRenderingContext2D
   image: CanvasImageSource
-  imageFit: ContainRect
-  cells: readonly GlyphCell[]
+  imageFit: FitRect
+  cells: readonly BoardGlyph[]
   mouse: { x: number; y: number }
   hover: boolean
   glyphColor: string
@@ -126,7 +123,6 @@ export function drawBoardFrame(options: {
 }) {
   const { ctx, image, imageFit, cells, mouse, hover, glyphColor, fontFamily } = options
   const { width: displayW, height: displayH } = ctx.canvas.getBoundingClientRect()
-
   if (displayW < 1 || displayH < 1) return
 
   ctx.clearRect(0, 0, displayW, displayH)
@@ -139,20 +135,20 @@ export function drawBoardFrame(options: {
 
   if (!hover) return
 
-  const fontSize = Math.max(3, GLYPH_GAP + 1)
+  const fontSize = Math.max(3, BOARD_GLYPH_GAP + 1)
   const holeRadius = fontSize * 0.55
-  const hovered: { cell: GlyphCell; strength: number }[] = []
+  const brushed: { cell: BoardGlyph; strength: number }[] = []
 
   for (const cell of cells) {
-    const strength = hoverStrength(mouse, cell, HOVER_RADIUS)
-    if (strength > 0.03) hovered.push({ cell, strength })
+    const strength = brushStrength(mouse, cell, BOARD_BRUSH_RADIUS)
+    if (strength > 0.03) brushed.push({ cell, strength })
   }
 
-  if (hovered.length === 0) return
+  if (brushed.length === 0) return
 
   ctx.save()
   ctx.globalCompositeOperation = 'destination-out'
-  for (const { cell, strength } of hovered) {
+  for (const { cell, strength } of brushed) {
     ctx.globalAlpha = strength * cell.weight
     ctx.beginPath()
     ctx.arc(cell.x, cell.y, holeRadius, 0, Math.PI * 2)
@@ -165,7 +161,7 @@ export function drawBoardFrame(options: {
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
 
-  for (const { cell, strength } of hovered) {
+  for (const { cell, strength } of brushed) {
     const alpha = strength * cell.weight
     if (alpha <= 0.02) continue
     ctx.save()
@@ -173,4 +169,18 @@ export function drawBoardFrame(options: {
     ctx.fillText('0', cell.x, cell.y)
     ctx.restore()
   }
+}
+
+export function loadBoardImage(src: string): Promise<HTMLImageElement | null> {
+  return new Promise((resolve) => {
+    const image = new Image()
+    image.decoding = 'async'
+    image.onload = () => resolve(image)
+    image.onerror = () => resolve(null)
+    image.src = src
+  })
+}
+
+export function preloadBoardImage(src: string): void {
+  void loadBoardImage(src)
 }
