@@ -13,12 +13,7 @@ type Props = {
 }
 
 export function VerdantInteractive({ isActive = true }: Props) {
-  const {
-    selection,
-    selectCharacter,
-    selectSketch,
-    selectBoard,
-  } = useVerdantSelection(isActive)
+  const { selection, selectCharacter, selectView } = useVerdantSelection(isActive)
 
   useEffect(() => {
     if (!isActive) return
@@ -33,8 +28,7 @@ export function VerdantInteractive({ isActive = true }: Props) {
       <VerdantCharacterSelector
         selection={selection}
         onSelectCharacter={selectCharacter}
-        onSelectSketch={selectSketch}
-        onSelectBoard={selectBoard}
+        onSelectView={selectView}
       />
     </div>
   )

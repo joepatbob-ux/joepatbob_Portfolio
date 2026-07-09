@@ -1,9 +1,10 @@
 /** Character selector — keys map to `verdant-character-{CODE}.svg` in `/images/verdant-segment/`. */
 
+export type VerdantViewKind = 'sketch' | 'board' | 'product'
+
 export type VerdantSelection =
   | { kind: 'character'; code: string }
-  | { kind: 'sketch' }
-  | { kind: 'board' }
+  | { kind: VerdantViewKind }
 
 export type CharacterKeyDef =
   | { kind: 'char'; label: string; code: string }
@@ -68,11 +69,29 @@ export const VERDANT_CHARACTER_KEYS: CharacterKeyDef[] =
   CHARACTER_ROWS.flat()
 
 export const VERDANT_VIEW_TOGGLES = [
-  { kind: 'sketch', label: 'Sketch' },
-  { kind: 'board', label: 'Board' },
+  {
+    kind: 'sketch',
+    label: 'Sketch',
+    src: '/images/Segment_Drawing.jpeg',
+    alt: 'Verdant custom segment character set sketch',
+  },
+  {
+    kind: 'board',
+    label: 'Board',
+    src: '/images/hw-verdant.jpg',
+    alt: 'Verdant segment display on PCB prototype',
+  },
+  {
+    kind: 'product',
+    label: 'Product',
+    src: '/images/verdant-product.webp',
+    alt: 'Finished Verdant thermostat product',
+  },
 ] as const satisfies ReadonlyArray<{
-  kind: Exclude<VerdantSelection['kind'], 'character'>
+  kind: VerdantViewKind
   label: string
+  src: string
+  alt: string
 }>
 
 export const VERDANT_DEFAULT_SELECTION: VerdantSelection = {
@@ -80,10 +99,18 @@ export const VERDANT_DEFAULT_SELECTION: VerdantSelection = {
   code: 'ALL',
 }
 
-/** Character-set drawing (Segment_Drawing.jpeg) */
-export const VERDANT_SKETCH_IMAGE = '/images/Segment_Drawing.jpeg'
-/** Verdant segment display on PCB prototype (hw-verdant.jpg) */
-export const VERDANT_BOARD_IMAGE = '/images/hw-verdant.jpg'
+/** @deprecated Use VERDANT_VIEW_TOGGLES */
+export const VERDANT_SKETCH_IMAGE = VERDANT_VIEW_TOGGLES[0].src
+/** @deprecated Use VERDANT_VIEW_TOGGLES */
+export const VERDANT_BOARD_IMAGE = VERDANT_VIEW_TOGGLES[1].src
+
+export function verdantViewToggle(
+  kind: VerdantViewKind,
+): (typeof VERDANT_VIEW_TOGGLES)[number] {
+  const toggle = VERDANT_VIEW_TOGGLES.find((entry) => entry.kind === kind)
+  if (!toggle) throw new Error(`Unknown Verdant view: ${kind}`)
+  return toggle
+}
 
 export function characterKeyCode(key: CharacterKeyDef): string {
   return key.code
@@ -110,19 +137,18 @@ export function isCharacterKeySelected(
 
 export function isViewSelected(
   selection: VerdantSelection,
-  kind: Exclude<VerdantSelection['kind'], 'character'>,
+  kind: VerdantViewKind,
 ): boolean {
   return selection.kind === kind
 }
 
 export function previewKind(
   selection: VerdantSelection,
-): 'segments' | 'sketch' | 'board' {
+): 'segments' | VerdantViewKind {
   return selection.kind === 'character' ? 'segments' : selection.kind
 }
 
 export function stageAriaLabel(selection: VerdantSelection): string {
   if (selection.kind === 'character') return `Character ${selection.code}`
-  if (selection.kind === 'sketch') return 'Sketch'
-  return 'Board'
+  return verdantViewToggle(selection.kind).label
 }

@@ -3,6 +3,7 @@
 import {
   VERDANT_DEFAULT_SELECTION,
   type VerdantSelection,
+  type VerdantViewKind,
 } from '@/lib/verdant/characterSelector'
 import { useCallback, useEffect, useState } from 'react'
 
@@ -23,19 +24,14 @@ export function useVerdantSelection(isActive = true) {
     setSelection({ kind: 'character', code })
   }, [])
 
-  const selectSketch = useCallback(() => {
-    setSelection({ kind: 'sketch' })
-  }, [])
-
-  const selectBoard = useCallback(() => {
-    setSelection({ kind: 'board' })
+  const selectView = useCallback((kind: VerdantViewKind) => {
+    setSelection({ kind })
   }, [])
 
   return {
     selection,
     selectCharacter,
-    selectSketch,
-    selectBoard,
+    selectView,
     reset,
   }
 }

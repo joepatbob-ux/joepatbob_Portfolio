@@ -9,13 +9,13 @@ import {
   isViewSelected,
   type CharacterKeyDef,
   type VerdantSelection,
+  type VerdantViewKind,
 } from '@/lib/verdant/characterSelector'
 
 type Props = {
   selection: VerdantSelection
   onSelectCharacter: (code: string) => void
-  onSelectSketch: () => void
-  onSelectBoard: () => void
+  onSelectView: (kind: VerdantViewKind) => void
 }
 
 function SegmentIcon({ kind }: { kind: 'solid' | 'outline' }) {
@@ -90,18 +90,12 @@ function ViewToggle({
   )
 }
 
-/** 4×10 character grid + Sketch / Board view toggles. */
+/** 4×10 character grid + Sketch / Board / Product view toggles. */
 export function VerdantCharacterSelector({
   selection,
   onSelectCharacter,
-  onSelectSketch,
-  onSelectBoard,
+  onSelectView,
 }: Props) {
-  const viewHandlers = {
-    sketch: onSelectSketch,
-    board: onSelectBoard,
-  } as const
-
   return (
     <div className="verdant-selector" role="group" aria-label="Character selector">
       <div className="verdant-selector__matrix">
@@ -123,7 +117,7 @@ export function VerdantCharacterSelector({
             key={kind}
             label={label}
             selected={isViewSelected(selection, kind)}
-            onSelect={viewHandlers[kind]}
+            onSelect={() => onSelectView(kind)}
           />
         ))}
       </div>
