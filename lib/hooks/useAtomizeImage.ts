@@ -3,7 +3,7 @@
 import {
   buildAtomizeCells,
   drawAtomizeFrame,
-  photoOpacityFromHide,
+  photoOpacityFromProgress,
   stepAtomizeProgress,
   type AtomizeCell,
 } from '@/lib/effects/atomizeImage'
@@ -39,15 +39,13 @@ export function useAtomizeImage(src: string) {
   const snapshotRef = useRef<HTMLCanvasElement | null>(null)
   const cellsRef = useRef<AtomizeCell[]>([])
   const progressRef = useRef(0)
-  const photoHideRef = useRef(0)
   const targetRef = useRef(0)
   const hoveredRef = useRef(false)
   const rafRef = useRef<number | null>(null)
   const [ready, setReady] = useState(false)
   const [hovered, setHovered] = useState(false)
-  const [active, setActive] = useState(false)
+  const [animating, setAnimating] = useState(false)
   const [progress, setProgress] = useState(0)
-  const [photoHide, setPhotoHide] = useState(0)
 
   hoveredRef.current = hovered
 
@@ -72,7 +70,6 @@ export function useAtomizeImage(src: string) {
       image: snapshot,
       cells: cellsRef.current,
       progress: progressRef.current,
-      photoHide: photoHideRef.current,
       glyphColor: readGlyphColor(root),
       fieldColor: readFieldColor(root),
       fontFamily: readMonoFont(),
@@ -83,36 +80,18 @@ export function useAtomizeImage(src: string) {
     if (rafRef.current != null) return
 
     const tick = () => {
-      const photoTarget = hoveredRef.current ? 1 : 0
-      const photoStep = hoveredRef.current ? 0.38 : 0.12
-      const nextPhotoHide = stepAtomizeProgress(
-        photoHideRef.current,
-        photoTarget,
-        photoStep,
-      )
-      photoHideRef.current = nextPhotoHide
-      setPhotoHide(nextPhotoHide)
-
       const next = stepAtomizeProgress(progressRef.current, targetRef.current)
       progressRef.current = next
       setProgress(next)
       paint()
 
-      const moving =
-        Math.abs(next - targetRef.current) > 0.008 ||
-        Math.abs(nextPhotoHide - photoTarget) > 0.008
-      setActive(
-        hoveredRef.current ||
-          moving ||
-          (targetRef.current > 0 && next > 0.01) ||
-          (targetRef.current === 0 && next > 0.01),
-      )
+      const moving = Math.abs(next - targetRef.current) > 0.008
+      setAnimating(moving)
 
       if (moving) {
         rafRef.current = requestAnimationFrame(tick)
       } else {
         rafRef.current = null
-        setActive(hoveredRef.current || next > 0.01)
       }
     }
 
@@ -156,7 +135,9 @@ export function useAtomizeImage(src: string) {
       CELL_W,
       CELL_H,
     )
-    paint()
+    if (hoveredRef.current || progressRef.current > 0.008) {
+      paint()
+    }
     setReady(true)
   }, [paint])
 
@@ -206,20 +187,23 @@ export function useAtomizeImage(src: string) {
   const onPointerEnter = useCallback(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     setHovered(true)
-  }, [])
+    paint()
+  }, [paint])
 
   const onPointerLeave = useCallback(() => {
     setHovered(false)
   }, [])
 
+  const live = hovered || animating || progress > 0.008
+  const photoOpacity = live ? photoOpacityFromProgress(progress) : 1
+
   return {
     rootRef,
     canvasRef,
     ready,
-    active,
+    live,
     progress,
-    photoHide,
-    photoOpacity: photoOpacityFromHide(photoHide),
+    photoOpacity,
     onPointerEnter,
     onPointerLeave,
   }

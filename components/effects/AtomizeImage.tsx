@@ -13,7 +13,8 @@ export function AtomizeImage({ src, alt, className }: Props) {
   const {
     rootRef,
     canvasRef,
-    active,
+    ready,
+    live,
     photoOpacity,
     onPointerEnter,
     onPointerLeave,
@@ -25,7 +26,8 @@ export function AtomizeImage({ src, alt, className }: Props) {
       className={[
         'atomize-image',
         'font-mono',
-        active ? 'atomize-image--active' : '',
+        ready ? 'atomize-image--ready' : '',
+        live ? 'atomize-image--live' : '',
         className,
       ]
         .filter(Boolean)
@@ -41,14 +43,14 @@ export function AtomizeImage({ src, alt, className }: Props) {
         loading="eager"
         fetchPriority="high"
         style={{
-          opacity: photoOpacity,
-          visibility: photoOpacity < 0.02 ? 'hidden' : 'visible',
+          opacity: live ? photoOpacity : 1,
+          visibility: live && photoOpacity < 0.02 ? 'hidden' : 'visible',
         }}
       />
       <canvas
         ref={canvasRef}
         className="atomize-image__canvas"
-        aria-hidden={!active}
+        aria-hidden={!live}
       />
     </div>
   )

@@ -8,6 +8,8 @@ export type AtomizeCell = {
 }
 
 const CELL_BLEND = 0.14
+/** Photo fully hidden once atomize progress crosses this (ease-out within). */
+const PHOTO_HIDE_PROGRESS = 0.32
 
 export function hashCell(x: number, y: number): number {
   let h = x * 374761393 + y * 668265263
@@ -84,27 +86,28 @@ function cellDissolve(progress: number, order: number): number {
   return Math.max(0, Math.min(1, (progress - order) / CELL_BLEND))
 }
 
+export function easeOutCubic(t: number): number {
+  const x = Math.max(0, Math.min(1, t))
+  return 1 - Math.pow(1 - x, 3)
+}
+
+/** Photo fades out quickly in the first ~32% of atomize progress. */
+export function photoOpacityFromProgress(progress: number): number {
+  const t = Math.min(1, Math.max(0, progress) / PHOTO_HIDE_PROGRESS)
+  return 1 - easeOutCubic(t)
+}
+
 export function drawAtomizeFrame(options: {
   ctx: CanvasRenderingContext2D
   image: CanvasImageSource
   cells: readonly AtomizeCell[]
   progress: number
-  /** 0 = photo visible, 1 = photo fully hidden */
-  photoHide: number
   glyphColor: string
   fieldColor: string
   fontFamily: string
 }) {
-  const {
-    ctx,
-    image,
-    cells,
-    progress,
-    photoHide,
-    glyphColor,
-    fieldColor,
-    fontFamily,
-  } = options
+  const { ctx, image, cells, progress, glyphColor, fieldColor, fontFamily } =
+    options
   const displayW =
     Number(ctx.canvas.style.width.replace('px', '')) || ctx.canvas.width
   const displayH =
@@ -112,8 +115,9 @@ export function drawAtomizeFrame(options: {
 
   ctx.clearRect(0, 0, displayW, displayH)
 
-  const photoOpacity = photoOpacityFromHide(photoHide)
-  const fieldAlpha = Math.max(photoHide, Math.min(1, progress * 1.15))
+  const photoOpacity = photoOpacityFromProgress(progress)
+  const fieldAlpha = 1 - photoOpacity
+
   if (fieldAlpha > 0.01) {
     ctx.fillStyle = fieldColor
     ctx.globalAlpha = fieldAlpha
@@ -165,14 +169,4 @@ export function stepAtomizeProgress(
 ): number {
   if (Math.abs(target - current) < 0.008) return target
   return current + (target - current) * step
-}
-
-export function easeOutCubic(t: number): number {
-  const x = Math.max(0, Math.min(1, t))
-  return 1 - Math.pow(1 - x, 3)
-}
-
-/** Photo layer — quick ease-out hide on hover, slower ease-in on leave. */
-export function photoOpacityFromHide(photoHide: number): number {
-  return 1 - easeOutCubic(photoHide)
 }

@@ -39,7 +39,7 @@
   z-index: 1;
 }
 
-.atomize-image--active .atomize-image__canvas {
+.atomize-image--live .atomize-image__canvas {
   opacity: 1;
   pointer-events: auto;
 }
