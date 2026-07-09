@@ -2,12 +2,12 @@
 
 import { VerdantCharacterSvg } from '@/components/VerdantCharacterSvg'
 import {
-  VERDANT_BOARD_IMAGE,
-  VERDANT_SKETCH_IMAGE,
   previewKind,
   stageAriaLabel,
+  verdantViewToggle,
   type VerdantSelection,
 } from '@/lib/verdant/characterSelector'
+import type { CSSProperties } from 'react'
 
 type Props = {
   selection: VerdantSelection
@@ -15,6 +15,14 @@ type Props = {
 
 export function VerdantPreviewStage({ selection }: Props) {
   const kind = previewKind(selection)
+  const view =
+    selection.kind === 'character' ? null : verdantViewToggle(selection.kind)
+
+  const photoStyle = view
+    ? ({
+        '--verdant-photo-position': view.objectPosition,
+      } as CSSProperties)
+    : undefined
 
   return (
     <div
@@ -22,28 +30,21 @@ export function VerdantPreviewStage({ selection }: Props) {
       aria-live="polite"
       aria-label={stageAriaLabel(selection)}
       data-preview={kind}
+      style={photoStyle}
     >
       {selection.kind === 'character' ? (
         <VerdantCharacterSvg
           code={selection.code}
           className="verdant-interactive__glyph"
         />
-      ) : (
+      ) : view ? (
         <img
-          src={
-            selection.kind === 'sketch'
-              ? VERDANT_SKETCH_IMAGE
-              : VERDANT_BOARD_IMAGE
-          }
-          alt={
-            selection.kind === 'sketch'
-              ? 'Verdant custom segment character set sketch'
-              : 'Verdant segment display on PCB prototype'
-          }
+          src={view.src}
+          alt={view.alt}
           className="verdant-interactive__stage-photo"
           decoding="async"
         />
-      )}
+      ) : null}
     </div>
   )
 }

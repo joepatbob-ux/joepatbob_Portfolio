@@ -9,6 +9,7 @@
   gap: var(--verdant-key-gap);
   width: 100%;
   min-width: 0;
+  pointer-events: auto;
 }
 
 .verdant-selector__matrix {
@@ -23,7 +24,7 @@
 
 .verdant-selector__views {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--verdant-key-gap);
   width: 100%;
   min-width: 0;

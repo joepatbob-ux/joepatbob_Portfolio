@@ -6,6 +6,7 @@ const listeners = new Map<string, Set<() => void>>()
 
 /** All hardware chapter slides — defer until near viewport or nav. */
 export function isDeferredChapter(chapterId: string): boolean {
+  if (chapterId === 'hardware-verdant') return false
   return chapterId.startsWith('hardware-')
 }
 

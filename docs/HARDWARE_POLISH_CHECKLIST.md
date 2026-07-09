@@ -64,9 +64,9 @@ Use this when auditing **Hardware** first, then copy pass/fail notes to Mobile, 
 - [x] Keyboard + character SVG (flex-wrap keypad; themed segment cache)
 - [x] Dark mode character/theme colors (`--verdant-label` on `.chapter-slide--verdant`)
 - [x] Container queries at 400px split / 340px & 399px stage scale (verify in browser)
-- [x] Sketch/Board photos in segment-aspect frame; assets `Segment_Drawing.jpeg`, `hw-verdant.jpg`
+- [x] Sketch/Prototype/Product photos in segment-aspect frame (350:582); framed assets `verdant-*-frame.webp`, `verdant-product.webp`
 - [x] Mobile: copy no longer overlaps keypad (`mobile-chapter-viewport.css` verdant rules)
-- [ ] Manual pass: side-by-side desktop, resize narrow→wide, Sketch/Board/character toggles
+- [ ] Manual pass: side-by-side desktop, resize narrow→wide, Sketch/Prototype/character toggles
 
 ## Sidebar / goto matrix
 

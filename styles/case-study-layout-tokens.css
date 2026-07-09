@@ -86,7 +86,7 @@
   --cs-touch2-dot-ring: 40px;
   --cs-touch2-dot-gap: 8px;
 
-  /* Touch 2 outer width = photo column + gap + dot controls (5 slides; sync Touch2Carousel.tsx) */
+  /* Touch 2 outer width = photo column + gap + dot controls (sync Touch2Carousel.tsx) */
   --cs-touch2-rail-h-ref: 432px;
   --cs-touch2-slide-w-ref: 387px;
   --cs-touch2-stage-outer-w: calc(
