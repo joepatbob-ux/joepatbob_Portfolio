@@ -14,11 +14,11 @@ export const TOUCH2_CAROUSEL_IMAGES = [
     alt: 'Touch 2 field session portrait orientation',
   },
   {
-    src: '/images/touch-2/eim-contractor-discussion-optimized.webp',
-    alt: 'Contractor reviewing the Sensi EIM module',
+    src: '/images/touch-2/eim-installer-wiring-optimized.webp',
+    alt: 'EIM installer training session with wiring board',
   },
   {
-    src: '/images/touch-2/eim-installer-wiring-optimized.webp',
-    alt: 'Installer wiring session with EIM training equipment',
+    src: '/images/touch-2/eim-wall-install-wiring-optimized.webp',
+    alt: 'Technician wiring the EIM at the wall during install',
   },
 ] as const
