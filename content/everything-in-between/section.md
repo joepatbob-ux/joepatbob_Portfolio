@@ -7,7 +7,7 @@
   "overviewBlocks": [
     {
       "kind": "quote",
-      "quote": "No matter where the user meets the product or brand, it is our job to do the hard work, so they don't have to."
+      "quote": "No matter where the user meets the product or brand, it's our job to do the hard work so they don't have to."
     }
   ],
   "lessonTitle": "",

@@ -18,6 +18,12 @@
           "title": "Segment display character set"
         }
       ]
+    },
+    {
+      "kind": "award",
+      "product": "Sensi Touch 2",
+      "headline": "Editor's Choice",
+      "detail": "Reviewed.com"
     }
   ],
   "lessonTitle": "",
