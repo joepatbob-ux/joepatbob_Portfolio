@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# Cancel superseded runs on the same ref.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    env:
+      # Skip Chromium download during npm ci; prerender runs on Vercel at deploy.
+      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+      PUPPETEER_SKIP_DOWNLOAD: '1'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Lint (tsc + eslint)
+        run: npm run lint
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Asset audit
+        run: npm run audit:assets
+
+      - name: Build client
+        run: npx vite build
+
+      - name: Bundle guard (3D stack stays lazy)
+        run: npm run check:bundle

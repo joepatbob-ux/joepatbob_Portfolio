@@ -43,7 +43,7 @@ function usePixel8ProTexMaps(): Pixel8MaterialMaps {
     const bodyAtlas = PIXEL8_BODY_ATLAS ? loaded[i++] : undefined
     const logoAlpha = loaded[i++]!
     const speakerGrilleAlpha = loaded[i++]!
-    const speakerAlpha = loaded[i++]!
+    const speakerAlpha = loaded[i]!
     return { logoAlpha, speakerGrilleAlpha, speakerAlpha, bodyAtlas }
   }, [loaded])
 }
@@ -80,9 +80,13 @@ function usePixel8FbxScene() {
 
 /** Cream → OBJ+MTL; otherwise FBX when {@link PIXEL8_USE_FBX}. */
 export function usePixel8SceneGraph() {
+  // PIXEL8_USE_FBX is a build-time constant, so the same branch runs on every
+  // render and hook order is stable. Calling both would load both models.
   if (PIXEL8_USE_FBX) {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     return usePixel8FbxScene()
   }
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   return usePixel8ObjScene()
 }
 

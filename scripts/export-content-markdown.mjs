@@ -53,7 +53,7 @@ function exportHardware() {
   const re = /export const hardware: Section = (\{[\s\S]*\})\n/
   const match = src.match(re)
   if (!match) throw new Error('hardware section not found')
-  // eslint-disable-next-line no-new-func
+   
   const section = Function(`"use strict"; return (${match[1]})`)()
 
   writeMd(
