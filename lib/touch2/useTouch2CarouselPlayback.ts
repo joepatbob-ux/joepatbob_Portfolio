@@ -1,5 +1,3 @@
-'use client'
-
 import { useCallback, useEffect, useRef, useState, type FocusEvent } from 'react'
 
 export const TOUCH2_AUTO_PLAY_MS = 6200

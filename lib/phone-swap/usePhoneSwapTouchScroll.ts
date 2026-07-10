@@ -1,5 +1,3 @@
-'use client'
-
 import { useEffect, type RefObject } from 'react'
 
 const TAP_THRESHOLD_PX = 12

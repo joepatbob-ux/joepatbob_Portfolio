@@ -1,5 +1,3 @@
-'use client'
-
 import { Touch2CarouselDots } from '@/components/touch2/Touch2CarouselDots'
 import { useChapterActive } from '@/lib/chapterActiveContext'
 import { TOUCH2_CAROUSEL_IMAGES } from '@/lib/touch2CarouselImages'

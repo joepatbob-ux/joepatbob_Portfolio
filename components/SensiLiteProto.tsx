@@ -1,7 +1,6 @@
 // components/SensiLiteProto.tsx
 // Sensi Lite — setpoint prototype (heat / cool / off, 2° deadband)
 
-'use client'
 
 import {
   useState,

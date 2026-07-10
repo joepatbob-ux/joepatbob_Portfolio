@@ -13,16 +13,12 @@
     "isolatedModules": true,
     "jsx": "react-jsx",
     "paths": {
-      "@/*": ["./*"],
-      "next/dynamic": ["./vite/shims/next-dynamic.tsx"],
-      "next/link": ["./vite/shims/next-link.tsx"],
-      "next/font/google": ["./vite/shims/next-font-google.ts"]
+      "@/*": ["./*"]
     }
   },
   "include": [
     "src",
     "assets",
-    "vite",
     "vite.config.ts",
     "vite-env.d.ts",
     "components",

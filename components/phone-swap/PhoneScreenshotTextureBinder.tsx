@@ -1,5 +1,3 @@
-'use client'
-
 import { updatePhoneScreenTextures } from '@/lib/phone-swap/updatePhoneScreenTextures'
 import { useThree } from '@react-three/fiber'
 import { useLayoutEffect, useRef, type RefObject } from 'react'

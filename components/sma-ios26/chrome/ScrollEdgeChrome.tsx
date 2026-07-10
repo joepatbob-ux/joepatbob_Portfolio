@@ -1,5 +1,3 @@
-'use client'
-
 /** Top + bottom progressive blur for edge-to-edge scroll (Schedule tab). */
 export function ScrollEdgeChrome() {
   return (

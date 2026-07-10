@@ -1,5 +1,3 @@
-'use client'
-
 import { ChapterSlideLayout } from '@/components/chapter-slide/ChapterSlideLayout'
 import { VerdantInteractive } from '@/components/VerdantInteractive'
 import { useChapterPanelOpacity } from '@/lib/useChapterPanelOpacity'

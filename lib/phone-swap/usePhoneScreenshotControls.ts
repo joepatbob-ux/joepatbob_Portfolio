@@ -1,5 +1,3 @@
-'use client'
-
 import { useTheme } from '@/components/ThemeProvider'
 import { useChapterActive } from '@/lib/chapterActiveContext'
 import {

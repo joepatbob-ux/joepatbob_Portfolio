@@ -1,5 +1,3 @@
-'use client'
-
 import type { PhoneDevice, PhonePose } from '@/lib/phone-swap/phoneSwapLayout'
 
 type Props = {

@@ -1,5 +1,3 @@
-'use client'
-
 import type { ButtonHTMLAttributes } from 'react'
 
 type Variant = 'primary' | 'secondary'

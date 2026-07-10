@@ -1,5 +1,3 @@
-'use client'
-
 import { CaseStudyOverviewBlocks } from '@/components/case-study/CaseStudyOverviewBlocks'
 import { CaseStudySectionHeader } from '@/components/case-study/CaseStudySectionHeader'
 import { ChapterBodyGroups } from '@/components/chapter-slide/ChapterBodyGroups'

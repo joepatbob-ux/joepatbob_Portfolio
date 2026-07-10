@@ -1,5 +1,3 @@
-'use client'
-
 import { useChapterCompactView } from '@/components/chapter-slide/ChapterCompactViewContext'
 import { ChapterCopyRevealHeader } from '@/components/chapter-slide/ChapterCopyRevealHeader'
 import type { ChapterCopyRevealProps } from '@/components/chapter-slide/chapterCopyRevealTypes'

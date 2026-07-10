@@ -1,5 +1,3 @@
-'use client'
-
 import { useChapterNav } from '@/components/ChapterNavProvider'
 import { EimPathArt } from '@/components/EimPathArt'
 import { ChapterSlideLayout } from '@/components/chapter-slide/ChapterSlideLayout'

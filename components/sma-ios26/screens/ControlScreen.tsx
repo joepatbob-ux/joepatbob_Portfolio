@@ -1,5 +1,3 @@
-'use client'
-
 import { DisplayTemp } from '@/components/sma-ios26/parts/DisplayTemp'
 import { ModeSelect } from '@/components/sma-ios26/parts/ModeSelect'
 import { SetpointModule } from '@/components/sma-ios26/parts/SetpointModule'

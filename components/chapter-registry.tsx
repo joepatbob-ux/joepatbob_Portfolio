@@ -1,5 +1,3 @@
-'use client'
-
 import { ChapterViewport } from '@/components/ChapterViewport'
 import { StudyChapter } from '@/components/StudyChapter'
 import { SensiLiteChapter } from '@/components/SensiLiteChapter'

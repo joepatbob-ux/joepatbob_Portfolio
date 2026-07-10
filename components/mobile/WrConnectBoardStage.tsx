@@ -1,5 +1,3 @@
-'use client'
-
 import { useWrConnectBoard } from '@/lib/hooks/useWrConnectBoard'
 
 interface Props {

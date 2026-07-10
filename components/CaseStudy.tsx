@@ -1,5 +1,3 @@
-'use client'
-
 import type { Section } from '@/lib/types'
 import { Fragment } from 'react'
 import { insertsAfterChapter } from '@/lib/chapterInserts'

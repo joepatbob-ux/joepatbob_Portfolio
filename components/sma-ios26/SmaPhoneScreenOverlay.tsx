@@ -1,5 +1,3 @@
-'use client'
-
 import { PhoneScreenViewport } from '@/components/sma-ios26/PhoneScreenViewport'
 import { SmaIos26Proto } from '@/components/sma-ios26/SmaIos26Proto'
 import type { DisplayScreenRect } from '@/lib/sma-ios26/displayScreenRect'

@@ -1,5 +1,3 @@
-'use client'
-
 import { SmaToggle } from '@/components/sma-ios26/parts/SmaToggle'
 
 type ScheduleListRowProps =

@@ -1,5 +1,3 @@
-'use client'
-
 import type { CSSProperties } from 'react'
 import { stickerHeight } from '@/lib/stickers'
 import { useStickers } from '@/components/StickerProvider'

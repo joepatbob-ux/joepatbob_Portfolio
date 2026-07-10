@@ -1,5 +1,3 @@
-'use client'
-
 import { OrbitControls, TransformControls, useCursor } from '@react-three/drei'
 import { useFrame, useLoader, useThree } from '@react-three/fiber'
 import {

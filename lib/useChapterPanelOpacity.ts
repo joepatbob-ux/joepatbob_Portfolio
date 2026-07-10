@@ -1,5 +1,3 @@
-'use client'
-
 import { CHAPTER_NAV_FADE_MS, useChapterNav } from '@/components/ChapterNavProvider'
 import { isFixedSlideshowFlowChapter, isFlowChapterId } from '@/lib/chapterFlow'
 import { isContinuousChapters } from '@/lib/continuousChapters'

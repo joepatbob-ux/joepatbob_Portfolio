@@ -1,5 +1,3 @@
-'use client'
-
 import { useTheme } from '@/components/ThemeProvider'
 import { kelvinScratchTicketSources } from '@/lib/kelvin-scratch/ticket'
 import type { KelvinScratchAssets } from '@/lib/kelvin-scratch/types'

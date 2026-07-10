@@ -1,5 +1,3 @@
-'use client'
-
 import { useThree } from '@react-three/fiber'
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 import { useLayoutEffect } from 'react'

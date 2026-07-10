@@ -1,5 +1,3 @@
-'use client'
-
 /**
  * Schedule power switcher — On / Off (SMA iOS26 Automation, node 3025:5347).
  */

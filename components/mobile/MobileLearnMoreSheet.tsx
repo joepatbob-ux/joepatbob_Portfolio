@@ -1,5 +1,3 @@
-'use client'
-
 import { useBodyScrollLock } from '@/lib/hooks/useBodyScrollLock'
 import { useDialogFocusTrap } from '@/lib/hooks/useDialogFocusTrap'
 import { useVisualViewportOverlay } from '@/lib/hooks/useVisualViewportOverlay'

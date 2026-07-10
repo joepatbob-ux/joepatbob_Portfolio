@@ -1,5 +1,3 @@
-'use client'
-
 import { capturePhoneScreenById } from '@/lib/sma-ios26/phone-screen-capture'
 import { subscribeLiveScreenCapture } from '@/lib/sma-ios26/live-screen-capture'
 import {

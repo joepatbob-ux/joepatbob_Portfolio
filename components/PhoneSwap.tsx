@@ -1,5 +1,3 @@
-'use client'
-
 import { PhoneScreenshotControls } from '@/components/phone-swap/PhoneScreenshotControls'
 import { PhoneSwapScene } from '@/components/phone-swap/PhoneSwapScene'
 import { StageSpinner } from '@/components/stage/StageSpinner'

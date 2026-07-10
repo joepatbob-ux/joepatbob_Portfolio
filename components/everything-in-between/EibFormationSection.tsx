@@ -1,5 +1,3 @@
-'use client'
-
 import { FlowChapterSlideLayout } from '@/components/chapter-slide/FlowChapterSlideLayout'
 import { ChapterCopyReveal } from '@/components/chapter-slide/ChapterCopyReveal'
 import { FormationLegoBoard } from '@/components/formation/FormationLegoBoard'

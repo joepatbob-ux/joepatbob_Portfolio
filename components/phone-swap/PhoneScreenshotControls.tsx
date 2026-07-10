@@ -1,5 +1,3 @@
-'use client'
-
 import { Touch2CarouselDots } from '@/components/touch2/Touch2CarouselDots'
 import {
   PHONE_SCREENSHOT_SLIDES,

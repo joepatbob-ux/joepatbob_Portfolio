@@ -1,5 +1,3 @@
-'use client'
-
 import { applyHeroPinFade } from '@/lib/heroScroll'
 import { LAYOUT_MQ } from '@/lib/layout/breakpoints'
 import { getLayoutViewportHeight } from '@/lib/mobileViewport'

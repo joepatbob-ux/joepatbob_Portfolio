@@ -1,5 +1,3 @@
-'use client'
-
 import { useChapterNav } from '@/components/ChapterNavProvider'
 import { useChapterActive } from '@/lib/chapterActiveContext'
 import {

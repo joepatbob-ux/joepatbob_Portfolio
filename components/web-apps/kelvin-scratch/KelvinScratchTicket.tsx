@@ -1,5 +1,3 @@
-'use client'
-
 import { useTheme } from '@/components/ThemeProvider'
 import { KelvinTicketScratchZone } from '@/components/web-apps/kelvin-scratch/KelvinTicketScratchZone'
 import {

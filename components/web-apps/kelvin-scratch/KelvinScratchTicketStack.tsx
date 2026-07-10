@@ -1,5 +1,3 @@
-'use client'
-
 import { KelvinScratchTicket } from '@/components/web-apps/kelvin-scratch/KelvinScratchTicket'
 import { KelvinCoinTray } from '@/components/web-apps/kelvin-scratch/KelvinCoinTray'
 import type { KelvinScratchAssets } from '@/lib/kelvin-scratch/types'

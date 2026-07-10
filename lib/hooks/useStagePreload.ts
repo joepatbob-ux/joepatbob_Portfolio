@@ -1,5 +1,3 @@
-'use client'
-
 import { useChapterReveal } from '@/lib/hooks/useChapterReveal'
 import { CHAPTER_INTERACTIVE_VISIBILITY } from '@/lib/chapterVisibility'
 import { useEffect, useRef } from 'react'

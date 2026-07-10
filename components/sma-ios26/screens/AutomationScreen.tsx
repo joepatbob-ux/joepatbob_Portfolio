@@ -1,5 +1,3 @@
-'use client'
-
 import { ScheduleListRow } from '@/components/sma-ios26/parts/ScheduleListRow'
 import { ScheduleModeSegment } from '@/components/sma-ios26/parts/ScheduleModeSegment'
 import type { SmaProtoState } from '@/lib/sma-ios26/state'

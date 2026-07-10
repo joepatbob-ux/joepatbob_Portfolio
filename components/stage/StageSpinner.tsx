@@ -1,5 +1,3 @@
-'use client'
-
 import type { CSSProperties } from 'react'
 
 const ICON_PX = { sm: 22, md: 28, lg: 40 } as const
@@ -36,7 +34,7 @@ export function StageSpinner({ label, className, size = 'md' }: Props) {
   )
 }
 
-/** Sized shell for next/dynamic and other lazy stage chunks. */
+/** Sized shell for dynamic() and other lazy stage chunks. */
 export function StageLoadingFallback({
   label = 'Loading…',
   className,

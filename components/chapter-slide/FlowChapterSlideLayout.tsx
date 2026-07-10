@@ -1,5 +1,3 @@
-'use client'
-
 import { ChapterSlideBand } from '@/components/chapter-slide/ChapterSlideBand'
 import type { ReactNode } from 'react'
 

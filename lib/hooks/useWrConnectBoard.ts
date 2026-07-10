@@ -1,5 +1,3 @@
-'use client'
-
 import {
   BOARD_ASPECT,
   PARTICLE_GAP,

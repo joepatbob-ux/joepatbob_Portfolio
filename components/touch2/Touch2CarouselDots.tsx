@@ -1,5 +1,3 @@
-'use client'
-
 interface Props {
   count: number
   activeIndex: number

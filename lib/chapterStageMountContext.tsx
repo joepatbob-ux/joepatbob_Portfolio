@@ -1,5 +1,3 @@
-'use client'
-
 import { isDeferredChapter, useChapterMount } from '@/lib/chapterMount'
 import {
   CHAPTER_INTERACTIVE_VISIBILITY,

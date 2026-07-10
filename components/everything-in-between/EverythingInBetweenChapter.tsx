@@ -1,5 +1,3 @@
-'use client'
-
 import { CaseStudyFlowOverview } from '@/components/case-study/CaseStudyFlowOverview'
 import { EibFormationSection } from '@/components/everything-in-between/EibFormationSection'
 import { EibPracticeSection } from '@/components/everything-in-between/EibPracticeSection'

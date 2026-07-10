@@ -1,5 +1,3 @@
-'use client'
-
 import { smaSvg, type SmaSvgName } from '@/lib/sma-ios26/figma-assets'
 
 type SmaFigmaIconProps = {
