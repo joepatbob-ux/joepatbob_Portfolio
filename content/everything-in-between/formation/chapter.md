@@ -8,12 +8,17 @@
     {
       "number": "US 12,608,066",
       "title": "Low Power Detection",
-      "status": "Awarded · 2026"
+      "status": "Granted · 2026"
     },
     {
-      "number": "Patent pending",
-      "title": "Segment display character set",
-      "status": ""
+      "number": "Canada",
+      "title": "Multi-segment display typeface",
+      "status": "Granted · 2025"
+    },
+    {
+      "number": "US 29/952,805",
+      "title": "Fixed-segment character set",
+      "status": "Pending · 2024"
     }
   ]
 }
