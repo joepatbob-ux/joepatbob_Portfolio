@@ -278,7 +278,8 @@
   padding-top: 8px;
 }
 
-/* Signature quote — flanking straight quotes beside the text */
+/* Signature quote — accent curly marks set inline with the text, so the
+   punctuation belongs to the words at every viewport */
 .case-study-overview-block--quote {
   gap: 0;
 }
@@ -291,29 +292,12 @@
   text-align: center;
 }
 
-.case-study-overview-quote__body {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
-  column-gap: clamp(6px, 1vw, 10px);
-  font-size: clamp(18px, 1.9vw, 24px);
-  line-height: 1.45;
-}
-
-.case-study-overview-quote__mark {
-  font-family: var(--font-body);
-  font-weight: 600;
-  color: var(--color-accent);
-  line-height: 1;
-  font-size: clamp(1.75em, 2.8vw, 2.1em);
-  letter-spacing: -0.02em;
-  user-select: none;
-}
-
 .case-study-overview-quote__text {
   margin: 0;
   padding: 0;
   border: none;
+  font-size: clamp(18px, 1.9vw, 24px);
+  line-height: 1.45;
 }
 
 .case-study-overview-quote__text p {
@@ -326,6 +310,11 @@
   letter-spacing: -0.01em;
   color: var(--color-ink);
   text-wrap: balance;
+}
+
+.case-study-overview-quote__mark {
+  color: var(--color-accent);
+  user-select: none;
 }
 
 .case-study-overview-quote__attr {
