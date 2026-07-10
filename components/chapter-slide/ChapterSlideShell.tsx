@@ -1,7 +1,7 @@
 import { ChapterCopyScroller } from '@/components/ChapterCopyScroller'
 import { ChapterCompactStageFill } from '@/components/chapter-slide/ChapterCompactStageFill'
 import { ChapterStageAlign } from '@/components/chapter-slide/ChapterStageAlign'
-import { isContinuousChapters } from '@/lib/continuousChapters'
+import { isContinuousChapters } from '@/lib/scroll/continuousChapters'
 import {
   ChapterCompactViewInner,
   ChapterCompactViewProvider,

@@ -1,11 +1,11 @@
 import { CHAPTER_NAV_FADE_MS, useChapterNav } from '@/components/ChapterNavProvider'
 import { isFixedSlideshowFlowChapter, isFlowChapterId } from '@/lib/chapterFlow'
-import { isContinuousChapters } from '@/lib/continuousChapters'
+import { isContinuousChapters } from '@/lib/scroll/continuousChapters'
 import {
   chapterIsAccessible,
   chapterIsContinuousActive,
   chapterIsInteractive,
-} from '@/lib/chapterVisibility'
+} from '@/lib/scroll/chapterVisibility'
 import { useChapterReveal, usePublishedActiveSlideId } from '@/lib/hooks/useChapterReveal'
 import { useLayoutMobile } from '@/lib/hooks/useLayoutMobile'
 import { useLayoutTopBarNav } from '@/lib/hooks/useLayoutTopBarNav'
@@ -16,7 +16,7 @@ import {
 import {
   SCROLL_BLUR_PX,
   blurOutFromReveal,
-} from '@/lib/scrollBlur'
+} from '@/lib/scroll/scrollBlur'
 
 const SCROLL_EASE = 'cubic-bezier(0.16, 1, 0.3, 1)'
 

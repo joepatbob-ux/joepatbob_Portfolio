@@ -1,11 +1,11 @@
 import { useEffect } from 'react'
-import { resetAllChapterCopyScrollers } from '@/lib/chapterCopyScrollReset'
+import { resetAllChapterCopyScrollers } from '@/lib/scroll/chapterCopyScrollReset'
 import {
   chapterSlotAtScrollY,
   chapterSlotScrollTop,
   scrollDocumentToChapterSlot,
-} from '@/lib/chapterSnapScroll'
-import { isContinuousChapters } from '@/lib/continuousChapters'
+} from '@/lib/scroll/chapterSnapScroll'
+import { isContinuousChapters } from '@/lib/scroll/continuousChapters'
 import { LAYOUT_MQ } from '@/lib/layout/breakpoints'
 
 const CHAPTER_SLOT_SELECTOR = '.portfolio-chapter-slot[data-chapter-id]'

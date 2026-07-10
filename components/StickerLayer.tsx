@@ -6,7 +6,7 @@ import { useStickers } from '@/components/StickerProvider'
 import { useHydrated } from '@/lib/hooks/useHydrated'
 import { useStickerActiveChapterSync } from '@/lib/hooks/useStickerActiveChapterSync'
 import { isPrerenderSnapshot } from '@/lib/isPrerenderSnapshot'
-import { flushScrollFrame } from '@/lib/scrollFrame'
+import { flushScrollFrame } from '@/lib/scroll/scrollFrame'
 
 export function StickerLayer() {
   const { placed, activeDrag, selectSticker, zIndices } = useStickers()

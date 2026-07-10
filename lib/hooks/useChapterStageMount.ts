@@ -4,8 +4,8 @@ import {
   CHAPTER_INTERACTIVE_VISIBILITY,
   CHAPTER_STAGE_PAINT_VISIBILITY,
   chapterIsInteractive,
-} from '@/lib/chapterVisibility'
-import { isContinuousChapters } from '@/lib/continuousChapters'
+} from '@/lib/scroll/chapterVisibility'
+import { isContinuousChapters } from '@/lib/scroll/continuousChapters'
 import { useChapterReveal, usePublishedActiveSlideId } from '@/lib/hooks/useChapterReveal'
 import { useChapterStageReveal } from '@/lib/hooks/useChapterStageReveal'
 

@@ -1,4 +1,4 @@
-import { resetTopBarHeroScrollHysteresis } from '@/lib/heroScroll'
+import { resetTopBarHeroScrollHysteresis } from '@/lib/scroll/heroScroll'
 import { LAYOUT_MQ } from '@/lib/layout/breakpoints'
 import { getLayoutViewportHeight, getLayoutViewportOffsetTop } from '@/lib/mobileViewport'
 import { useLayoutEffect } from 'react'

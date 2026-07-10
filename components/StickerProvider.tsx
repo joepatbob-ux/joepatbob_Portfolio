@@ -11,9 +11,9 @@ import {
 import {
   nearestChapterIdForDocY,
   pickActiveSlideId,
-} from '@/lib/chapterSlideshow'
+} from '@/lib/scroll/chapterSlideshow'
 import { installStickerDragListeners } from '@/lib/stickerDrag'
-import { flushScrollFrame } from '@/lib/scrollFrame'
+import { flushScrollFrame } from '@/lib/scroll/scrollFrame'
 import { useLayoutMobile } from '@/lib/hooks/useLayoutMobile'
 import {
   stickerZIndices,

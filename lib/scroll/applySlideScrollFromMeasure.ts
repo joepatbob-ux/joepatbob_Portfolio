@@ -3,19 +3,19 @@ import {
   applyContinuousCopyFade,
   applyPlacedStickerScrollVisibility,
   resetContinuousCopyFade,
-} from '@/lib/applyChapterPanelScrollStyles'
+} from '@/lib/scroll/applyChapterPanelScrollStyles'
 import {
   applyContinuousStageAlign,
   resetContinuousStageAlign,
-} from '@/lib/applyContinuousStageAlign'
-import { isContinuousChapters } from '@/lib/continuousChapters'
+} from '@/lib/scroll/applyContinuousStageAlign'
+import { isContinuousChapters } from '@/lib/scroll/continuousChapters'
 import { isTopBarNavViewport } from '@/lib/layout/isTopBarNavViewport'
 import {
   measureSlideScrollState,
   publishSlideScrollState,
   type SlideNavPhase,
   type SlideScrollState,
-} from '@/lib/scrollOrchestration'
+} from '@/lib/scroll/scrollOrchestration'
 
 export type SlideNavGuard = { chapterId: string; until: number } | null
 

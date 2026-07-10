@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
-import { useChapterPanelOpacity } from '@/lib/useChapterPanelOpacity'
-import { CHAPTER_STAGE_PAINT_VISIBILITY } from '@/lib/chapterVisibility'
+import { useChapterPanelOpacity } from '@/lib/hooks/useChapterPanelOpacity'
+import { CHAPTER_STAGE_PAINT_VISIBILITY } from '@/lib/scroll/chapterVisibility'
 import { useChapterStageReady } from '@/lib/chapterStageMountContext'
 import { useHydrated } from '@/lib/hooks/useHydrated'
 import { useChapterStageMount } from '@/lib/hooks/useChapterStageMount'

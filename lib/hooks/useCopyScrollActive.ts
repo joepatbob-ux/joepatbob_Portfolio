@@ -1,5 +1,5 @@
 import { useChapterNav } from '@/components/ChapterNavProvider'
-import { chapterSlotAtScrollY } from '@/lib/chapterSnapScroll'
+import { chapterSlotAtScrollY } from '@/lib/scroll/chapterSnapScroll'
 
 /** True when this chapter's copy column should receive wheel + reset to top on entry. */
 export function useCopyScrollActive(chapterId: string): boolean {

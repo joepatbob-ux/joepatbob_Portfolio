@@ -1,11 +1,11 @@
-import { applyPlacedStickerScrollVisibility } from '@/lib/applyChapterPanelScrollStyles'
-import { CHAPTER_SLOT_SELECTOR } from '@/lib/chapterSlideshow'
-import { isTopBarInHeroScrollZone } from '@/lib/heroScroll'
+import { applyPlacedStickerScrollVisibility } from '@/lib/scroll/applyChapterPanelScrollStyles'
+import { CHAPTER_SLOT_SELECTOR } from '@/lib/scroll/chapterSlideshow'
+import { isTopBarInHeroScrollZone } from '@/lib/scroll/heroScroll'
 import {
   measureSlideScrollState,
   publishSlideScrollState,
   type SlideScrollState,
-} from '@/lib/scrollOrchestration'
+} from '@/lib/scroll/scrollOrchestration'
 
 type TopBarScrollListener = (state: SlideScrollState) => void
 

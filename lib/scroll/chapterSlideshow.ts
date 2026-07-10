@@ -1,7 +1,7 @@
-import { chapterSlotScrollCenter } from '@/lib/chapterSnapScroll'
+import { chapterSlotScrollCenter } from '@/lib/scroll/chapterSnapScroll'
 import { VIEWPORT_SNAP_SLOT_SELECTOR } from '@/lib/chapterFlow'
-import { CHAPTER_INTERACTIVE_VISIBILITY } from '@/lib/chapterVisibility'
-import { heroChapterHandoffProgress } from '@/lib/heroScroll'
+import { CHAPTER_INTERACTIVE_VISIBILITY } from '@/lib/scroll/chapterVisibility'
+import { heroChapterHandoffProgress } from '@/lib/scroll/heroScroll'
 import { isLayoutMobileViewport } from '@/lib/layout/isLayoutMobileViewport'
 import { getLayoutViewportHeight } from '@/lib/mobileViewport'
 

@@ -10,7 +10,7 @@ function easeOutCubic(t: number): number {
 }
 
 import { getLayoutViewportHeight } from '@/lib/mobileViewport'
-import { getDocumentScrollY } from '@/lib/documentScrollY'
+import { getDocumentScrollY } from '@/lib/scroll/documentScrollY'
 
 function prefersReducedMotion(): boolean {
   if (typeof window === 'undefined') return false

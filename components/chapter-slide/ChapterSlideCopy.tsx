@@ -1,6 +1,6 @@
 import { ChapterCopyScroller } from '@/components/ChapterCopyScroller'
 import { ChapterBodyGroups } from '@/components/chapter-slide/ChapterBodyGroups'
-import { isContinuousChapters } from '@/lib/continuousChapters'
+import { isContinuousChapters } from '@/lib/scroll/continuousChapters'
 import { formatHeadlinePeriod } from '@/lib/chapter-slide/formatHeadlinePeriod'
 import {
   groupChapterBody,

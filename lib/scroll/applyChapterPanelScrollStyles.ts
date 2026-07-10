@@ -1,11 +1,11 @@
 import { isFixedSlideshowFlowChapter, isFlowChapterId } from '@/lib/chapterFlow'
-import { isContinuousChapters } from '@/lib/continuousChapters'
-import { CHAPTER_STICKER_SCROLL_VISIBILITY } from '@/lib/chapterVisibility'
-import { CHAPTER_SLOT_SELECTOR } from '@/lib/chapterSlideshow'
+import { isContinuousChapters } from '@/lib/scroll/continuousChapters'
+import { CHAPTER_STICKER_SCROLL_VISIBILITY } from '@/lib/scroll/chapterVisibility'
+import { CHAPTER_SLOT_SELECTOR } from '@/lib/scroll/chapterSlideshow'
 import { isLayoutMobileViewport } from '@/lib/layout/isLayoutMobileViewport'
 import { isTopBarNavViewport } from '@/lib/layout/isTopBarNavViewport'
 import { panelZFromScrollReveal } from '@/lib/layout/stacking'
-import { SCROLL_BLUR_PX, blurOutFromRevealForContinuous } from '@/lib/scrollBlur'
+import { SCROLL_BLUR_PX, blurOutFromRevealForContinuous } from '@/lib/scroll/scrollBlur'
 
 const PANEL_SELECTOR = `${CHAPTER_SLOT_SELECTOR} .portfolio-chapter-panel`
 

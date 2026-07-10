@@ -10,21 +10,21 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react
 import { useBodyScrollLock } from '@/lib/hooks/useBodyScrollLock'
 import { useDialogFocusTrap } from '@/lib/hooks/useDialogFocusTrap'
 import { usePrefersReducedMotion } from '@/lib/hooks/usePrefersReducedMotion'
-import { activeSlideIdPublished } from '@/lib/chapterSlideshow'
+import { activeSlideIdPublished } from '@/lib/scroll/chapterSlideshow'
 import { usePublishedActiveSlideId } from '@/lib/hooks/useChapterReveal'
-import { getDocumentScrollY } from '@/lib/documentScrollY'
+import { getDocumentScrollY } from '@/lib/scroll/documentScrollY'
 import {
   applySidebarHeroNameFade,
   applySidebarShellFade,
   isInHeroScrollZone,
   isTopBarInHeroScrollZone,
   resetSidebarShellFade,
-} from '@/lib/heroScroll'
+} from '@/lib/scroll/heroScroll'
 import { getLayoutViewportHeight } from '@/lib/mobileViewport'
 import { NAV_SECTIONS, sectionIdForChapter } from '@/lib/nav'
 import { sectionEntryChapterId } from '@/lib/sectionEntryChapter'
 import { LAYOUT_MQ } from '@/lib/layout/breakpoints'
-import { scheduleScrollFrame } from '@/lib/scrollFrame'
+import { scheduleScrollFrame } from '@/lib/scroll/scrollFrame'
 import { useChapterNav } from '@/components/ChapterNavProvider'
 import {
   BLUR_PX,

@@ -7,7 +7,7 @@ import { ChapterCopyReveal } from '@/components/chapter-slide/ChapterCopyReveal'
 import { getChapterCopyColumnClasses } from '@/lib/chapter-slide/layoutMode'
 import { parseChapterBody } from '@/lib/chapter-slide/parseChapterBody'
 import { useChapterLayoutMode } from '@/lib/hooks/useChapterLayoutMode'
-import { useCopyScrollActive } from '@/lib/useCopyScrollActive'
+import { useCopyScrollActive } from '@/lib/hooks/useCopyScrollActive'
 import type { ReactNode } from 'react'
 
 interface Props {

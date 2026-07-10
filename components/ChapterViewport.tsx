@@ -1,6 +1,6 @@
 import { ChapterActiveProvider } from '@/lib/chapterActiveContext'
 import { ChapterStageMountProvider } from '@/lib/chapterStageMountContext'
-import { useChapterPanelOpacity } from '@/lib/useChapterPanelOpacity'
+import { useChapterPanelOpacity } from '@/lib/hooks/useChapterPanelOpacity'
 import { memo, useRef, type CSSProperties, type ReactNode } from 'react'
 
 interface Props {

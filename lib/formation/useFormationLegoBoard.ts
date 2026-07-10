@@ -20,7 +20,7 @@ import {
 } from '@/lib/formation/legoBricks'
 import { roundPlacementPx } from '@/lib/formation/pixelNudge'
 import { spritePlacement } from '@/lib/formation/spritePlacement'
-import { scheduleScrollFrame } from '@/lib/scrollFrame'
+import { scheduleScrollFrame } from '@/lib/scroll/scrollFrame'
 import {
   clientToBoardNative,
   clientToClip,

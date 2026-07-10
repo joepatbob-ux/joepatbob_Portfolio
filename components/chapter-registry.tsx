@@ -7,7 +7,7 @@ import { VerdantChapter } from '@/components/VerdantChapter'
 import type { ChapterInsertDef } from '@/lib/chapterInserts'
 import { fullInsertChapterId } from '@/lib/chapterInserts'
 import type { Chapter } from '@/lib/types'
-import type { ReactNode } from 'react'
+import type { ComponentType, ReactNode } from 'react'
 
 export interface ChapterRenderContext {
   chapter: Chapter
@@ -19,28 +19,26 @@ function fullChapterId(sectionId: string, chapter: Chapter): string {
   return `${sectionId}-${chapter.id}`
 }
 
+/** Chapters with custom stage wrappers, keyed by full chapter id. */
+const CUSTOM_CHAPTERS: Record<
+  string,
+  ComponentType<{ chapter: Chapter; isLast: boolean }>
+> = {
+  'hardware-sensi-lite': SensiLiteChapter,
+  'hardware-touch-2': Touch2Chapter,
+  'hardware-eim': EimChapter,
+  'hardware-verdant': VerdantChapter,
+}
+
 /** Maps section chapter ids to slide layouts and custom stages. */
 export function ChapterRenderer({
   chapter,
   sectionId,
   isLast,
 }: ChapterRenderContext): ReactNode {
-  const chapterId = fullChapterId(sectionId, chapter)
-
-  switch (chapterId) {
-    case 'hardware-sensi-lite':
-      return <SensiLiteChapter chapter={chapter} isLast={isLast} />
-    case 'hardware-touch-2':
-      return <Touch2Chapter chapter={chapter} isLast={isLast} />
-    case 'hardware-eim':
-      return <EimChapter chapter={chapter} isLast={isLast} />
-    case 'hardware-verdant':
-      return <VerdantChapter chapter={chapter} isLast={isLast} />
-    default:
-      return (
-        <StudyChapter chapter={chapter} sectionId={sectionId} isLast={isLast} />
-      )
-  }
+  const Custom = CUSTOM_CHAPTERS[fullChapterId(sectionId, chapter)]
+  if (Custom) return <Custom chapter={chapter} isLast={isLast} />
+  return <StudyChapter chapter={chapter} sectionId={sectionId} isLast={isLast} />
 }
 
 /** Viewport + content for slides declared in `CHAPTER_INSERTS`. */

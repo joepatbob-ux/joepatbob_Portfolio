@@ -1,5 +1,5 @@
 import { useLayoutEffect, useState, type RefObject } from 'react'
-import { scheduleScrollFrame } from '@/lib/scrollFrame'
+import { scheduleScrollFrame } from '@/lib/scroll/scrollFrame'
 
 /** Tracks an element's viewport rect; updates on scroll, resize, and layout changes. */
 export function useAnchorViewportRect(

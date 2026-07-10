@@ -1,7 +1,7 @@
 import { useChapterNav } from '@/components/ChapterNavProvider'
 import { EimPathArt } from '@/components/EimPathArt'
 import { ChapterSlideLayout } from '@/components/chapter-slide/ChapterSlideLayout'
-import { useChapterPanelOpacity } from '@/lib/useChapterPanelOpacity'
+import { useChapterPanelOpacity } from '@/lib/hooks/useChapterPanelOpacity'
 import type { Chapter } from '@/lib/types'
 
 const CHAPTER_ID = 'hardware-eim'

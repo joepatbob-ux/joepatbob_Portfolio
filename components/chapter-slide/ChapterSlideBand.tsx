@@ -1,7 +1,7 @@
 import { ChapterViewport } from '@/components/ChapterViewport'
 import { ChapterSlideShell } from '@/components/chapter-slide/ChapterSlideShell'
 import { useChapterLayoutMode } from '@/lib/hooks/useChapterLayoutMode'
-import { useCopyScrollActive } from '@/lib/useCopyScrollActive'
+import { useCopyScrollActive } from '@/lib/hooks/useCopyScrollActive'
 import type { ReactNode } from 'react'
 
 interface Props {

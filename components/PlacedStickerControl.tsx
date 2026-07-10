@@ -9,8 +9,8 @@ import {
   writeStickerPickData,
   type StickerArtMetrics,
 } from '@/lib/stickerPickBounds'
-import { isContinuousChapters } from '@/lib/continuousChapters'
-import { CHAPTER_STICKER_SCROLL_VISIBILITY } from '@/lib/chapterVisibility'
+import { isContinuousChapters } from '@/lib/scroll/continuousChapters'
+import { CHAPTER_STICKER_SCROLL_VISIBILITY } from '@/lib/scroll/chapterVisibility'
 import { useChapterReveal, usePublishedActiveSlideId, usePublishedInHero } from '@/lib/hooks/useChapterReveal'
 import { useLayoutTopBarNav } from '@/lib/hooks/useLayoutTopBarNav'
 import {

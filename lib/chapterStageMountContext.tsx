@@ -1,9 +1,9 @@
-import { isDeferredChapter, useChapterMount } from '@/lib/chapterMount'
+import { isDeferredChapter, useChapterMount } from '@/lib/scroll/chapterMount'
 import {
   CHAPTER_INTERACTIVE_VISIBILITY,
   CHAPTER_STAGE_PAINT_VISIBILITY,
-} from '@/lib/chapterVisibility'
-import { isContinuousChapters } from '@/lib/continuousChapters'
+} from '@/lib/scroll/chapterVisibility'
+import { isContinuousChapters } from '@/lib/scroll/continuousChapters'
 import { useChapterReveal } from '@/lib/hooks/useChapterReveal'
 import { useChapterStageReveal } from '@/lib/hooks/useChapterStageReveal'
 import { createContext, useContext, type ReactNode, type RefObject } from 'react'

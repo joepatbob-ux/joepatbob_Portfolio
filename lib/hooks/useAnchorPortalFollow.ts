@@ -4,7 +4,7 @@ import {
   useRef,
   type RefObject,
 } from 'react'
-import { scheduleScrollFrame } from '@/lib/scrollFrame'
+import { scheduleScrollFrame } from '@/lib/scroll/scrollFrame'
 
 /** Imperatively tracks an anchor's viewport rect onto a fixed portal (no React state on scroll). */
 export function useAnchorPortalFollow(

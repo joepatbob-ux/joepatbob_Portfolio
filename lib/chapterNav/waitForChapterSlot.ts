@@ -1,4 +1,4 @@
-import { chapterSlotScrollTop } from '@/lib/chapterSnapScroll'
+import { chapterSlotScrollTop } from '@/lib/scroll/chapterSnapScroll'
 
 function sleep(ms: number) {
   return new Promise<void>((resolve) => {

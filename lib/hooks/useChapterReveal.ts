@@ -1,11 +1,11 @@
 import { useChapterNav } from '@/components/ChapterNavProvider'
-import { isContinuousChapters } from '@/lib/continuousChapters'
+import { isContinuousChapters } from '@/lib/scroll/continuousChapters'
 import {
   activeSlideIdPublished,
   chapterRevealForId,
   inHeroPublished,
   subscribeChapterScrollState,
-} from '@/lib/chapterSlideshow'
+} from '@/lib/scroll/chapterSlideshow'
 import { useSyncExternalStore } from 'react'
 
 /** Scroll-driven visibility for a chapter (0–1). */
