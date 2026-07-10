@@ -1,5 +1,3 @@
-'use client'
-
 import { useCallback, useRef, useState, type ReactNode } from 'react'
 
 const DEFAULT_RING_TARGETS = 'button, a, [role="button"]'

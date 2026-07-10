@@ -1,5 +1,3 @@
-'use client'
-
 import { useState, useEffect, useRef, useCallback } from 'react'
 
 import { SEGS, SEG_PARTS, LCD_SEGMENT_LAYOUT } from '@/lib/sensi-lite/lcd-segments'

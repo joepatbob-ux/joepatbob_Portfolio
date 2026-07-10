@@ -1,5 +1,3 @@
-'use client'
-
 import { useEffect, useLayoutEffect, useRef, type ReactNode } from 'react'
 
 interface Props {

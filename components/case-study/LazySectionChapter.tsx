@@ -1,6 +1,4 @@
-'use client'
-
-import dynamic from 'next/dynamic'
+import dynamic from '@/lib/dynamic'
 
 /* Real lazy boundaries — static imports here would pull every section (and its
  * 3D stack) into the entry chunk. Placeholder height keeps scroll geometry

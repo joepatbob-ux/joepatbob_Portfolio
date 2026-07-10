@@ -1,5 +1,3 @@
-'use client'
-
 import { StageSpinner } from '@/components/stage/StageSpinner'
 
 type Props = {

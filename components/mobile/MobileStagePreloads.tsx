@@ -1,5 +1,3 @@
-'use client'
-
 import { useStagePreload } from '@/lib/hooks/useStagePreload'
 import { CHAPTER_INTERACTIVE_VISIBILITY } from '@/lib/chapterVisibility'
 import { MOBILE_WR_CONNECT, mobileChapterId } from '@/lib/mobile/content'

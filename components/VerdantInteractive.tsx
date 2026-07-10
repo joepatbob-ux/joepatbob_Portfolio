@@ -1,5 +1,3 @@
-'use client'
-
 import { useEffect } from 'react'
 import { VerdantCharacterSelector } from '@/components/VerdantCharacterSelector'
 import { VerdantPreviewStage } from '@/components/VerdantPreviewStage'

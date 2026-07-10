@@ -1,5 +1,3 @@
-'use client'
-
 import { LAYOUT_MQ } from '@/lib/layout/breakpoints'
 import { useEffect, useState } from 'react'
 

@@ -1,5 +1,3 @@
-'use client'
-
 import { useChapterNav } from '@/components/ChapterNavProvider'
 import { isContinuousChapters } from '@/lib/continuousChapters'
 import {

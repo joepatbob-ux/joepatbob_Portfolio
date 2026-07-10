@@ -1,5 +1,3 @@
-'use client'
-
 import type { ScratchProgressHandler } from '@/lib/kelvin-scratch/types'
 import {
   coinDisplayPxForTicket,

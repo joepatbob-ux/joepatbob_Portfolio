@@ -1,5 +1,3 @@
-'use client'
-
 import { chapterRevealsChanged } from '@/lib/chapterReveals'
 import { applySlideScrollFromMeasure } from '@/lib/applySlideScrollFromMeasure'
 import { resetInFlowChapterPanels } from '@/lib/applyChapterPanelScrollStyles'

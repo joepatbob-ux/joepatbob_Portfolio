@@ -1,5 +1,3 @@
-'use client'
-
 import { SmaFigmaIcon } from '@/components/sma-ios26/icons/SmaFigmaIcon'
 
 type WeatherHeaderProps = {

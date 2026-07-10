@@ -1,5 +1,3 @@
-'use client'
-
 import { smaSvg } from '@/lib/sma-ios26/figma-assets'
 
 export function ModeSelect() {

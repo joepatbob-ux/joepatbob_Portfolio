@@ -1,5 +1,3 @@
-'use client'
-
 import { CaseStudyFlowOverview } from '@/components/case-study/CaseStudyFlowOverview'
 import { WebAppsKelvinChapter } from '@/components/web-apps/WebAppsKelvinChapter'
 import { webApps } from '@/lib/sections/webapps'

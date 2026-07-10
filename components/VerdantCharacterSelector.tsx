@@ -1,5 +1,3 @@
-'use client'
-
 import {
   VERDANT_CHARACTER_KEYS,
   VERDANT_VIEW_TOGGLES,

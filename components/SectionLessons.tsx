@@ -1,5 +1,3 @@
-'use client'
-
 import { ChapterViewport } from '@/components/ChapterViewport'
 import { ChapterCompactStageFill } from '@/components/chapter-slide/ChapterCompactStageFill'
 import { ChapterStageAlign } from '@/components/chapter-slide/ChapterStageAlign'

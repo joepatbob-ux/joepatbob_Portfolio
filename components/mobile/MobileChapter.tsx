@@ -1,5 +1,3 @@
-'use client'
-
 import { CaseStudyFlowOverview } from '@/components/case-study/CaseStudyFlowOverview'
 import { MobileStagePreloads } from '@/components/mobile/MobileStagePreloads'
 import { MobileSensiSection } from '@/components/mobile/MobileSensiSection'

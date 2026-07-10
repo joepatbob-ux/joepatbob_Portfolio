@@ -1,5 +1,3 @@
-'use client'
-
 import { KELVIN_COIN_TILTED_SRC } from '@/lib/kelvin-scratch/scratchAssets'
 
 /** Tilted coin — position driven by `--kelvin-coin-x/y` on the stage (no per-frame React state). */

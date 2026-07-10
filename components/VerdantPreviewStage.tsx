@@ -1,5 +1,3 @@
-'use client'
-
 import { VerdantCharacterSvg } from '@/components/VerdantCharacterSvg'
 import {
   previewKind,

@@ -1,5 +1,3 @@
-'use client'
-
 import { ChapterSlideLayout } from '@/components/chapter-slide/ChapterSlideLayout'
 import { ChapterStageMedia } from '@/components/chapter-slide/ChapterStageMedia'
 import type { Chapter } from '@/lib/types'

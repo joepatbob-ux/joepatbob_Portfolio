@@ -1,6 +1,6 @@
 import './vite-font.css'
 import '@/styles/globals.css'
-import dynamic from 'next/dynamic'
+import dynamic from '@/lib/dynamic'
 import { CaseStudy } from '@/components/CaseStudy'
 import { ChapterNavProvider } from '@/components/ChapterNavProvider'
 import { Hero } from '@/components/Hero'

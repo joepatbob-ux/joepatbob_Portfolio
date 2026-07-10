@@ -1,5 +1,3 @@
-'use client'
-
 import { eibChapterId } from '@/lib/everything-in-between/content'
 import { useStagePreload } from '@/lib/hooks/useStagePreload'
 import { preloadFormationLegoStage } from '@/lib/stagePreload/formationLego'

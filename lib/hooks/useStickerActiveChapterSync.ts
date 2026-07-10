@@ -1,5 +1,3 @@
-'use client'
-
 import { useChapterNav } from '@/components/ChapterNavProvider'
 import { useStickers } from '@/components/StickerProvider'
 import { usePublishedActiveSlideId, usePublishedInHero } from '@/lib/hooks/useChapterReveal'

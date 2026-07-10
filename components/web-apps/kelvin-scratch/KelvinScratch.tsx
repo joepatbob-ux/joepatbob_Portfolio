@@ -1,5 +1,3 @@
-'use client'
-
 import { useTheme } from '@/components/ThemeProvider'
 import { KelvinCoinCursor } from '@/components/web-apps/kelvin-scratch/KelvinCoinCursor'
 import { KelvinScratchTicketStack } from '@/components/web-apps/kelvin-scratch/KelvinScratchTicketStack'

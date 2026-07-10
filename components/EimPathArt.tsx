@@ -1,5 +1,3 @@
-'use client'
-
 import {
   EIM_PATH_VIEWBOX,
   EIM_TOUCH2_ORIGIN,

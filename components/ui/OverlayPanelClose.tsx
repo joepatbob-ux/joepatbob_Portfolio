@@ -1,5 +1,3 @@
-'use client'
-
 import { OverlayActionPill } from '@/components/ui/OverlayActionPill'
 import type { ButtonHTMLAttributes } from 'react'
 

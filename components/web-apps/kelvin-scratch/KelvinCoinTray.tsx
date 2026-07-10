@@ -1,5 +1,3 @@
-'use client'
-
 import { KELVIN_COIN_FLAT_SRC } from '@/lib/kelvin-scratch/scratchAssets'
 import type { KeyboardEvent, MouseEvent } from 'react'
 

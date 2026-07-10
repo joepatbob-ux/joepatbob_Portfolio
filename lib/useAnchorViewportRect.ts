@@ -1,5 +1,3 @@
-'use client'
-
 import { useLayoutEffect, useState, type RefObject } from 'react'
 import { scheduleScrollFrame } from '@/lib/scrollFrame'
 

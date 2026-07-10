@@ -1,5 +1,3 @@
-'use client'
-
 import { resetTopBarHeroScrollHysteresis } from '@/lib/heroScroll'
 import { LAYOUT_MQ } from '@/lib/layout/breakpoints'
 import { getLayoutViewportHeight, getLayoutViewportOffsetTop } from '@/lib/mobileViewport'

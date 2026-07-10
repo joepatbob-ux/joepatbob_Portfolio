@@ -7,9 +7,6 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, '.'),
-      'next/font/google': path.resolve(__dirname, 'vite/shims/next-font-google.ts'),
-      'next/link': path.resolve(__dirname, 'vite/shims/next-link.tsx'),
-      'next/dynamic': path.resolve(__dirname, 'vite/shims/next-dynamic.tsx'),
     },
   },
   // No manualChunks: under rolldown the old grouping fused three+drei+react-dom

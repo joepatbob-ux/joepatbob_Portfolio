@@ -1,5 +1,3 @@
-'use client'
-
 import { ChapterCompactReveal } from '@/components/chapter-slide/ChapterCompactReveal'
 import { ChapterCopyRevealHeader } from '@/components/chapter-slide/ChapterCopyRevealHeader'
 import { ChapterMobileSheet } from '@/components/chapter-slide/ChapterMobileSheet'

@@ -1,5 +1,3 @@
-'use client'
-
 import type { ReactNode } from 'react'
 import {
   SMA_LOGICAL_HEIGHT,

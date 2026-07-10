@@ -1,5 +1,3 @@
-'use client'
-
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { rotateHandleAtPoint } from '@/lib/stickerHitTest'
 import { useChapterNav } from '@/components/ChapterNavProvider'

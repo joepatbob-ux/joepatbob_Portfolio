@@ -1,5 +1,3 @@
-'use client'
-
 import { ChapterCopyScroller } from '@/components/ChapterCopyScroller'
 import { ChapterCompactStageFill } from '@/components/chapter-slide/ChapterCompactStageFill'
 import { ChapterStageAlign } from '@/components/chapter-slide/ChapterStageAlign'

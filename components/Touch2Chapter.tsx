@@ -1,5 +1,3 @@
-'use client'
-
 import { ChapterSlideLayout } from '@/components/chapter-slide/ChapterSlideLayout'
 import { Touch2Carousel } from '@/components/touch2/Touch2Carousel'
 import type { Chapter } from '@/lib/types'

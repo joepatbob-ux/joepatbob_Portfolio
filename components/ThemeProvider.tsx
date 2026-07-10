@@ -1,5 +1,3 @@
-'use client'
-
 /**
  * Theme preference API for a future light / system / dark control.
  * Today: preference defaults to `system` (only); hero portrait and `.hero-pin`

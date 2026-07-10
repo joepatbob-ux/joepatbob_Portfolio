@@ -1,5 +1,3 @@
-'use client'
-
 import {
   touch2DotCssMetrics,
   touch2HorizontalDotsScale,

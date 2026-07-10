@@ -9,7 +9,7 @@ type DynamicOptions = {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyComponent = ComponentType<any>
 
-/** Vite shim for `next/dynamic`. */
+/** Lazy component boundary: React.lazy + Suspense + ErrorBoundary, with an optional sized loading shell. */
 export default function dynamic(
   loader: () => Promise<{ default: AnyComponent }>,
   options?: DynamicOptions,

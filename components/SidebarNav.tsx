@@ -11,7 +11,6 @@
 // - Contact pill: accent at rest; expanded = muted fill; item hover = accent + ring
 // - Email pill is fixed at bottom
 
-'use client'
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'

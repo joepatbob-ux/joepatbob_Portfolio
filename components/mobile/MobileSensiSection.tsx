@@ -1,6 +1,4 @@
-'use client'
-
-import dynamic from 'next/dynamic'
+import dynamic from '@/lib/dynamic'
 import { FlowChapterSlideLayout } from '@/components/chapter-slide/FlowChapterSlideLayout'
 import { PhoneSwapBoundary } from '@/components/phone-swap/PhoneSwapBoundary'
 import { ChapterCopyReveal } from '@/components/chapter-slide/ChapterCopyReveal'

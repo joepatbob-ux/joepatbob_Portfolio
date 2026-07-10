@@ -1,5 +1,3 @@
-'use client'
-
 import {
   CONTACT_EMAIL_MAILTO,
   CONTACT_LINKEDIN_URL,

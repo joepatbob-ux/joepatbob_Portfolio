@@ -1,5 +1,3 @@
-'use client'
-
 import { CaseStudySectionHeader } from '@/components/case-study/CaseStudySectionHeader'
 import type { ReactNode } from 'react'
 

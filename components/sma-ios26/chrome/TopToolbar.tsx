@@ -1,5 +1,3 @@
-'use client'
-
 import { LiquidGlassSurface } from '@/components/sma-ios26/chrome/LiquidGlassSurface'
 import { SmaFigmaIcon } from '@/components/sma-ios26/icons/SmaFigmaIcon'
 

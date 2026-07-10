@@ -1,5 +1,3 @@
-'use client'
-
 import { ChapterSlideLayout } from '@/components/chapter-slide/ChapterSlideLayout'
 import { SensiLiteProto } from '@/components/SensiLiteProto'
 import type { Chapter } from '@/lib/types'

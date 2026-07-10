@@ -1,5 +1,3 @@
-'use client'
-
 import {
   VERDANT_DEFAULT_SELECTION,
   type VerdantSelection,

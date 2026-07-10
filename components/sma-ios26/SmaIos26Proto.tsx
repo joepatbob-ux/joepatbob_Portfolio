@@ -1,5 +1,3 @@
-'use client'
-
 import { ScrollEdgeChrome } from '@/components/sma-ios26/chrome/ScrollEdgeChrome'
 import { TabBar } from '@/components/sma-ios26/chrome/TabBar'
 import { StatusBar } from '@/components/sma-ios26/chrome/StatusBar'

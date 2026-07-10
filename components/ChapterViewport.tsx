@@ -1,5 +1,3 @@
-'use client'
-
 import { ChapterActiveProvider } from '@/lib/chapterActiveContext'
 import { ChapterStageMountProvider } from '@/lib/chapterStageMountContext'
 import { useChapterPanelOpacity } from '@/lib/useChapterPanelOpacity'

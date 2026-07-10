@@ -1,5 +1,3 @@
-'use client'
-
 import { ChapterViewport } from '@/components/ChapterViewport'
 import { ChapterSlideShell } from '@/components/chapter-slide/ChapterSlideShell'
 import { useChapterLayoutMode } from '@/lib/hooks/useChapterLayoutMode'

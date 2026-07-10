@@ -1,5 +1,3 @@
-'use client'
-
 import type { ChapterLayoutMode } from '@/lib/chapter-slide/layoutMode'
 import { useLayoutCompactBand } from '@/lib/hooks/useLayoutCompactBand'
 import { useLayoutMobile } from '@/lib/hooks/useLayoutMobile'

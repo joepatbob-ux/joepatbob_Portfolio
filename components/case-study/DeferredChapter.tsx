@@ -1,5 +1,3 @@
-'use client'
-
 import { Chapter } from '@/components/Chapter'
 import { isDeferredChapter } from '@/lib/chapterMount'
 import type { Chapter as ChapterType } from '@/lib/types'
