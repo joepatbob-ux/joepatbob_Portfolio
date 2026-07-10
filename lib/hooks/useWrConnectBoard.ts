@@ -276,6 +276,23 @@ export function useWrConnectBoard(src: string) {
 
   useEffect(() => () => stopLoop(), [stopLoop])
 
+  // Touch: while the dissolve is active the drag drives particles, so the
+  // page must not pan underneath. touch-action is locked in at gesture start
+  // (pointerenter has already begun the effect by then), so this has to be a
+  // non-passive touchmove preventDefault. hoverRef is only true when the
+  // effect actually runs (canvas ready, motion allowed) — idle touches still
+  // scroll the page normally.
+  useEffect(() => {
+    const root = rootRef.current
+    if (!root || !imageLoaded) return
+
+    const onTouchMove = (event: TouchEvent) => {
+      if (hoverRef.current) event.preventDefault()
+    }
+    root.addEventListener('touchmove', onTouchMove, { passive: false })
+    return () => root.removeEventListener('touchmove', onTouchMove)
+  }, [imageLoaded])
+
   const onPointerEnter = useCallback(() => {
     if (!canvasReadyRef.current || prefersReducedMotion()) return
     hoverRef.current = true
