@@ -3,6 +3,7 @@ import {
   resetChapterCopyScrollersAfterSnap,
 } from '@/lib/scroll/chapterCopyScrollReset'
 import { isContinuousChapters } from '@/lib/scroll/continuousChapters'
+import { isTopBarNavViewport } from '@/lib/layout/isTopBarNavViewport'
 
 const CHAPTER_SLOT_SELECTOR = '.portfolio-chapter-slot[data-chapter-id]'
 
@@ -15,22 +16,32 @@ export function elementDocumentTop(el: HTMLElement): number {
  * Document scroll Y that aligns a chapter snap slot to the viewport top.
  * Uses getBoundingClientRect (not offsetTop) and honors scroll-margin-top.
  *
- * Overview slides are the exception: in continuous mode they carry a
- * symmetric scroll buffer above and below copy that is centered in the band,
- * so top-aligning the band leaves the copy sitting low. Align band center to
- * viewport center instead so navigation lands with the copy centered.
+ * Continuous mode: slots carry scroll buffers above and below the content
+ * band, so top-aligning the slot lands with the content sitting low. Aim at
+ * the band instead: center it in the viewport when it fits, or align its top
+ * to the viewport top when the band is taller than the viewport.
  */
 export function chapterSlotScrollTop(slot: HTMLElement): number {
-  let top = elementDocumentTop(slot)
-  const slotHeight = slot.getBoundingClientRect().height
   const viewportHeight = window.innerHeight
-  if (
-    isContinuousChapters() &&
-    slot.classList.contains('case-study-flow-overview') &&
-    slotHeight > viewportHeight
-  ) {
-    top += (slotHeight - viewportHeight) / 2
+  // Desktop continuous mode only — the class is a mode flag present at every
+  // viewport, but phone/tablet keep top-align + scroll-margin (the margin
+  // accounts for the fixed mobile rail).
+  if (isContinuousChapters() && !isTopBarNavViewport()) {
+    const band =
+      slot.querySelector<HTMLElement>('.chapter-slide__inner') ?? slot
+    const rect = band.getBoundingClientRect()
+    if (rect.height > 0) {
+      const bandTop = rect.top + window.scrollY
+      // Band-relative target — the slot's scroll-margin-top belongs to the
+      // top-align semantics below and must not shift a centered landing.
+      const top =
+        rect.height <= viewportHeight
+          ? bandTop - (viewportHeight - rect.height) / 2
+          : bandTop
+      return Math.max(0, Math.round(top))
+    }
   }
+  let top = elementDocumentTop(slot)
   const marginTop = parseFloat(getComputedStyle(slot).scrollMarginTop)
   if (Number.isFinite(marginTop) && marginTop > 0) {
     top -= marginTop
@@ -62,14 +73,21 @@ export function queryChapterSlot(chapterId: string): HTMLElement | null {
 export function scrollDocumentToChapterSlot(slot: HTMLElement): void {
   resetAllChapterCopyScrollers()
 
-  // Capture once so both scroll calls aim at the same Y — prevents a visible
-  // second jump if layout shifts between the synchronous and rAF calls.
-  const top = chapterSlotScrollTop(slot)
-  window.scrollTo({ top, left: 0, behavior: 'auto' })
+  window.scrollTo({ top: chapterSlotScrollTop(slot), left: 0, behavior: 'auto' })
   resetChapterCopyScrollersAfterSnap(slot)
-  requestAnimationFrame(() => {
-    window.scrollTo({ top, left: 0, behavior: 'auto' })
-  })
+  // The jump changes which stages are pinned, which changes flow heights —
+  // and scroll anchoring can tug the position again. Re-aim against live
+  // geometry for a few frames until the landing converges instead of
+  // re-applying a stale captured target.
+  let attempts = 0
+  const settle = () => {
+    const target = chapterSlotScrollTop(slot)
+    if (Math.abs(window.scrollY - target) <= 2) return
+    window.scrollTo({ top: target, left: 0, behavior: 'auto' })
+    attempts += 1
+    if (attempts < 6) requestAnimationFrame(settle)
+  }
+  requestAnimationFrame(settle)
 }
 
 export function scrollDocumentToChapterId(chapterId: string): boolean {

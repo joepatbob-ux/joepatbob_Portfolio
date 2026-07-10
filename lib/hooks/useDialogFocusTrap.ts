@@ -28,7 +28,10 @@ export function useDialogFocusTrap(
     const focusFirst = () => {
       const items = focusables()
       const target = items[0] ?? root
-      target.focus()
+      // preventScroll: the first focusable can sit below the fold (e.g. a
+      // fact trigger in the More sheet) — focusing it must not scroll the
+      // freshly opened panel away from its top. Tabbing scrolls as usual.
+      target.focus({ preventScroll: true })
     }
 
     const raf = requestAnimationFrame(focusFirst)

@@ -383,14 +383,21 @@
     max-width: none;
   }
 
+  /* Headline and body share one measure so they wrap to the same width
+     (695px ≈ the body's 112ch at 17px — ch can't cross font sizes). */
+  .hardware-slideshow .chapter-slide__copy {
+    --hw-copy-measure: min(695px, 100%);
+  }
+
   .hardware-slideshow .chapter-copy__headline {
     font-size: clamp(36px, 2.4vw, 52px);
+    max-width: var(--hw-copy-measure);
   }
 
   .hardware-slideshow .chapter-copy__body {
     font-size: 17px;
     line-height: 1.72;
-    max-width: min(112ch, 100%);
+    max-width: var(--hw-copy-measure);
   }
 }
 
