@@ -1,5 +1,10 @@
 # Plan — Preview Feedback Round 3
 
+> **STATUS (2026-07-10): Resolved.** All five items landed on `main`: the bowl
+> was removed entirely, the PhoneSwap skeleton reserves its exact box, the
+> scratcher crop fix shipped, Touch 2 upscales to fill wide columns, and the
+> sticker pile was reworked. Kept for the diagnosis history.
+
 Five items, all diagnosed against the branch build. Suggested order: bowl (bug)
 → phone jump (bug) → scratcher crop (my regression) → Touch 2 size → sticker
 pile (design).

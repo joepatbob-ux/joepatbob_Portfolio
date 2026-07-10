@@ -27,21 +27,9 @@ import {
 
 const OFFSCREEN = { x: -1000, y: -1000 }
 const PROGRESS_DONE = 0.004
-
-function readGlyphColor(node: HTMLElement): string {
-  return (
-    getComputedStyle(node).getPropertyValue('--wr-connect-board-glyph').trim() ||
-    getComputedStyle(node).getPropertyValue('--color-accent').trim() ||
-    '#DE3E18'
-  )
-}
-
-function readMonoFont(): string {
-  const fromVar = getComputedStyle(document.documentElement)
-    .getPropertyValue('--font-mono')
-    .trim()
-  return fromVar || 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace'
-}
+const FALLBACK_GLYPH = '#DE3E18'
+const FALLBACK_MONO =
+  'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace'
 
 function prefersReducedMotion(): boolean {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -59,14 +47,40 @@ export function useWrConnectBoard(src: string) {
   const hoverRef = useRef(false)
   const mouseRef = useRef(OFFSCREEN)
   const rafRef = useRef<number | null>(null)
+  // Style + geometry caches — the paint loop must not call getComputedStyle or
+  // trigger layout per frame.
+  const styleRef = useRef<{ glyph: string; font: string } | null>(null)
+  const sizeRef = useRef<{ w: number; h: number } | null>(null)
+  const canvasReadyRef = useRef(false)
 
   const [imageLoaded, setImageLoaded] = useState(false)
   const [canvasReady, setCanvasReady] = useState(false)
-  const [hovering, setHovering] = useState(false)
-  const [animating, setAnimating] = useState(false)
-  const [progress, setProgress] = useState(0)
+  // Single boundary-driven flag — flips at interaction start and settle end,
+  // never per animation frame (a per-frame setState re-rendered the stage
+  // throughout every dissolve).
+  const [live, setLive] = useState(false)
 
-  hoverRef.current = hovering
+  const markCanvasReady = useCallback((ready: boolean) => {
+    if (canvasReadyRef.current === ready) return
+    canvasReadyRef.current = ready
+    setCanvasReady(ready)
+  }, [])
+
+  /** Refreshed at layout and interaction boundaries — covers theme switches. */
+  const readStyles = useCallback(() => {
+    const root = rootRef.current
+    if (!root) return
+    const rootStyle = getComputedStyle(root)
+    const glyph =
+      rootStyle.getPropertyValue('--wr-connect-board-glyph').trim() ||
+      rootStyle.getPropertyValue('--color-accent').trim() ||
+      FALLBACK_GLYPH
+    const font =
+      getComputedStyle(document.documentElement)
+        .getPropertyValue('--font-mono')
+        .trim() || FALLBACK_MONO
+    styleRef.current = { glyph, font }
+  }, [])
 
   const beginTransition = useCallback((to: number) => {
     targetRef.current = to
@@ -94,14 +108,15 @@ export function useWrConnectBoard(src: string) {
     const ctx = canvas.getContext('2d')
     if (!ctx) return false
 
+    const style = styleRef.current ?? { glyph: FALLBACK_GLYPH, font: FALLBACK_MONO }
     drawWrConnectBoardFrame({
       ctx,
       image,
       imageFit: fit,
       particles: particlesRef.current,
       progress: progressRef.current,
-      glyphColor: readGlyphColor(root),
-      fontFamily: readMonoFont(),
+      glyphColor: style.glyph,
+      fontFamily: style.font,
       sampleGap: PARTICLE_GAP,
     })
     return true
@@ -118,32 +133,37 @@ export function useWrConnectBoard(src: string) {
     const displayH = Math.round(height)
     if (displayW < 8 || displayH < 8) return false
 
-    const dpr = Math.min(window.devicePixelRatio || 1, 3)
-    canvas.width = Math.round(displayW * dpr)
-    canvas.height = Math.round(displayH * dpr)
-
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return false
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-
-    fitRef.current = containRect(displayW, displayH, image.naturalWidth, image.naturalHeight)
-
+    // Sample + rebuild particles BEFORE touching the visible canvas: setting
+    // canvas.width erases the bitmap, and any failure after that left a blank
+    // canvas covering a hidden photo (the recurring "board not appearing").
+    const fit = containRect(displayW, displayH, image.naturalWidth, image.naturalHeight)
     const sample = document.createElement('canvas')
     sample.width = displayW
     sample.height = displayH
     const sampleCtx = sample.getContext('2d')
     if (!sampleCtx) return false
 
-    const fit = fitRef.current
     sampleCtx.drawImage(image, fit.x, fit.y, fit.w, fit.h)
     const { data } = sampleCtx.getImageData(0, 0, displayW, displayH)
-    particlesRef.current = buildBoardParticles(data, displayW, displayH, PARTICLE_GAP)
+    const particles = buildBoardParticles(data, displayW, displayH, PARTICLE_GAP)
+
+    const dpr = Math.min(window.devicePixelRatio || 1, 3)
+    canvas.width = Math.round(displayW * dpr)
+    canvas.height = Math.round(displayH * dpr)
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return false
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+
+    fitRef.current = fit
+    particlesRef.current = particles
     resetParticles(particlesRef.current)
+    sizeRef.current = { w: displayW, h: displayH }
+    readStyles()
 
     if (!paint()) return false
-    setCanvasReady(true)
+    markCanvasReady(true)
     return true
-  }, [paint])
+  }, [paint, readStyles, markCanvasReady])
 
   const runLoop = useCallback(() => {
     if (rafRef.current != null) return
@@ -155,7 +175,6 @@ export function useWrConnectBoard(src: string) {
       const transition = transitionRef.current
       const next = progressFromTransition(transition, now)
       progressRef.current = next
-      setProgress(next)
 
       const physics = physicsStrength(next, hoverRef.current)
       const settle = targetRef.current === 0 ? 1 - next : 0
@@ -173,14 +192,13 @@ export function useWrConnectBoard(src: string) {
       const stillLive =
         hoverRef.current || progressMoving || settling || next > PROGRESS_DONE
 
-      setAnimating(progressMoving || settling)
-
       if (stillLive) {
         rafRef.current = requestAnimationFrame(tick)
       } else {
         rafRef.current = null
         resetParticles(particlesRef.current)
         paint()
+        setLive(false)
       }
     }
 
@@ -190,14 +208,15 @@ export function useWrConnectBoard(src: string) {
   useEffect(() => {
     let cancelled = false
     setImageLoaded(false)
-    setCanvasReady(false)
-    setProgress(0)
+    markCanvasReady(false)
+    setLive(false)
     progressRef.current = 0
     targetRef.current = 0
     transitionRef.current = { from: 0, to: 0, startedAt: performance.now() }
     imageRef.current = null
     fitRef.current = null
     particlesRef.current = []
+    sizeRef.current = null
 
     void loadBoardImage(src).then((image) => {
       if (cancelled || !image) return
@@ -211,7 +230,7 @@ export function useWrConnectBoard(src: string) {
       imageRef.current = null
       fitRef.current = null
     }
-  }, [src, stopLoop])
+  }, [src, stopLoop, markCanvasReady])
 
   useLayoutEffect(() => {
     if (!imageLoaded || !imageRef.current) return
@@ -233,26 +252,59 @@ export function useWrConnectBoard(src: string) {
     if (!root || !imageLoaded) return
 
     const observer = new ResizeObserver(() => {
-      layout()
-      paint()
+      // ResizeObserver fires once on observe — skip the resample when the
+      // size hasn't actually changed and the canvas is already good.
+      const rect = root.getBoundingClientRect()
+      const size = sizeRef.current
+      if (
+        size &&
+        canvasReadyRef.current &&
+        Math.round(rect.width) === size.w &&
+        Math.round(rect.height) === size.h
+      ) {
+        return
+      }
+      if (!layout()) {
+        // Never leave a blank canvas covering the photo — fall back to the
+        // <img> until a later resize lays out successfully.
+        markCanvasReady(false)
+      }
     })
     observer.observe(root)
     return () => observer.disconnect()
-  }, [imageLoaded, layout, paint])
+  }, [imageLoaded, layout, markCanvasReady])
 
   useEffect(() => () => stopLoop(), [stopLoop])
 
+  // Touch: while the dissolve is active the drag drives particles, so the
+  // page must not pan underneath. touch-action is locked in at gesture start
+  // (pointerenter has already begun the effect by then), so this has to be a
+  // non-passive touchmove preventDefault. hoverRef is only true when the
+  // effect actually runs (canvas ready, motion allowed) — idle touches still
+  // scroll the page normally.
+  useEffect(() => {
+    const root = rootRef.current
+    if (!root || !imageLoaded) return
+
+    const onTouchMove = (event: TouchEvent) => {
+      if (hoverRef.current) event.preventDefault()
+    }
+    root.addEventListener('touchmove', onTouchMove, { passive: false })
+    return () => root.removeEventListener('touchmove', onTouchMove)
+  }, [imageLoaded])
+
   const onPointerEnter = useCallback(() => {
-    if (!canvasReady || prefersReducedMotion()) return
+    if (!canvasReadyRef.current || prefersReducedMotion()) return
     hoverRef.current = true
-    setHovering(true)
+    readStyles()
+    setLive(true)
     beginTransition(1)
     runLoop()
-  }, [canvasReady, beginTransition, runLoop])
+  }, [readStyles, beginTransition, runLoop])
 
   const onPointerMove = useCallback(
     (event: PointerEvent<HTMLElement>) => {
-      if (!canvasReady) return
+      if (!canvasReadyRef.current) return
       const root = rootRef.current
       if (!root) return
       const rect = root.getBoundingClientRect()
@@ -262,18 +314,15 @@ export function useWrConnectBoard(src: string) {
       }
       if (hoverRef.current) runLoop()
     },
-    [canvasReady, runLoop],
+    [runLoop],
   )
 
   const onPointerLeave = useCallback(() => {
     hoverRef.current = false
-    setHovering(false)
     mouseRef.current = OFFSCREEN
     beginTransition(0)
     runLoop()
   }, [beginTransition, runLoop])
-
-  const live = hovering || animating || progress > PROGRESS_DONE
 
   return {
     rootRef,

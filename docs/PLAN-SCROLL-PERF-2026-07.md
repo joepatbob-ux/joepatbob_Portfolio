@@ -1,5 +1,14 @@
 # Plan — Scroll Centering, Component Smoothness, Component Load Speed
 
+> **STATUS (2026-07-10): Executed.** All six stutter sources (A–F) are fixed on
+> `main`: `applyContinuousStageAlign` has the measure/write split, ResizeObserver
+> height cache, cached safe-area insets, sticky-only centering, and quarter-pixel
+> quantization; `ChapterNavProvider` keeps reveals in a ref on the idle scroll
+> path. Load-speed items landed too: entry chunk is guarded by
+> `scripts/check-bundle.mjs`, `LazySectionChapter` is truly dynamic, idle
+> prefetch exists (`lib/idlePrefetch.ts`), and the iPhone brush normal maps were
+> reduced 2.5 MB → 840 KB each. Kept for the diagnosis history.
+
 Priorities (in order):
 1. **Scroll** — stages stick to the center of the viewport with no stutter ("shutter").
 2. **Smoothness** — interactive components run without frame drops.
