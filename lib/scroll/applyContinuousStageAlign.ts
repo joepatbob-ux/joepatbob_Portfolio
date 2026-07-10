@@ -1,9 +1,9 @@
-import { CHAPTER_SLOT_SELECTOR } from '@/lib/chapterSlideshow'
+import { CHAPTER_SLOT_SELECTOR } from '@/lib/scroll/chapterSlideshow'
 import {
   CHAPTER_INTERACTIVE_VISIBILITY,
   CHAPTER_STAGE_PAINT_VISIBILITY,
-} from '@/lib/chapterVisibility'
-import { isContinuousChapters } from '@/lib/continuousChapters'
+} from '@/lib/scroll/chapterVisibility'
+import { isContinuousChapters } from '@/lib/scroll/continuousChapters'
 import { isTopBarNavViewport } from '@/lib/layout/isTopBarNavViewport'
 
 const STAGE_SELECTOR = `${CHAPTER_SLOT_SELECTOR} .chapter-slide__stage:not(:has(.flow-chapter-slide__stage--empty))`

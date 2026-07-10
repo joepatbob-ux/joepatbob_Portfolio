@@ -1,5 +1,5 @@
 import { Chapter } from '@/components/Chapter'
-import { isDeferredChapter } from '@/lib/chapterMount'
+import { isDeferredChapter } from '@/lib/scroll/chapterMount'
 import type { Chapter as ChapterType } from '@/lib/types'
 
 interface Props {

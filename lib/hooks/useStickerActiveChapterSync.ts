@@ -2,7 +2,7 @@ import { useChapterNav } from '@/components/ChapterNavProvider'
 import { useStickers } from '@/components/StickerProvider'
 import { usePublishedActiveSlideId, usePublishedInHero } from '@/lib/hooks/useChapterReveal'
 import { useLayoutTopBarNav } from '@/lib/hooks/useLayoutTopBarNav'
-import { isContinuousChapters } from '@/lib/continuousChapters'
+import { isContinuousChapters } from '@/lib/scroll/continuousChapters'
 import { useEffect } from 'react'
 
 /** Set down selected stickers when the viewport chapter changes. */

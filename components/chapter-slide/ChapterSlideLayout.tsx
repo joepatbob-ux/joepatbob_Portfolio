@@ -13,7 +13,7 @@ import {
 import { getChapterCopyColumnClasses } from '@/lib/chapter-slide/layoutMode'
 import { useChapterStageReady } from '@/lib/chapterStageMountContext'
 import { useChapterLayoutMode } from '@/lib/hooks/useChapterLayoutMode'
-import { useCopyScrollActive } from '@/lib/useCopyScrollActive'
+import { useCopyScrollActive } from '@/lib/hooks/useCopyScrollActive'
 import type { Chapter } from '@/lib/types'
 import type { ReactNode } from 'react'
 

@@ -7,10 +7,10 @@ import {
   publishActiveSlideId,
   publishInHero,
   publishChapterScrollMaps,
-} from '@/lib/chapterSlideshow'
+} from '@/lib/scroll/chapterSlideshow'
 import { FLOW_CHAPTER_SLOT_SELECTOR } from '@/lib/chapterFlow'
-import { isContinuousChapters } from '@/lib/continuousChapters'
-import { isTopBarInHeroScrollZone, shouldSuppressChapterReveal } from '@/lib/heroScroll'
+import { isContinuousChapters } from '@/lib/scroll/continuousChapters'
+import { isTopBarInHeroScrollZone, shouldSuppressChapterReveal } from '@/lib/scroll/heroScroll'
 import { isTopBarNavViewport } from '@/lib/layout/isTopBarNavViewport'
 import { getLayoutViewportHeight } from '@/lib/mobileViewport'
 

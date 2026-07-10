@@ -3,7 +3,7 @@ import {
   popDocumentScrollLock,
   pushDocumentScrollLock,
   peekSavedScrollY,
-} from '@/lib/documentScrollY'
+} from '@/lib/scroll/documentScrollY'
 import { useEffect } from 'react'
 
 export { getDocumentScrollY, peekSavedScrollY }

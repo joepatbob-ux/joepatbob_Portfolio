@@ -1,6 +1,6 @@
 import { ChapterSlideLayout } from '@/components/chapter-slide/ChapterSlideLayout'
 import { VerdantInteractive } from '@/components/VerdantInteractive'
-import { useChapterPanelOpacity } from '@/lib/useChapterPanelOpacity'
+import { useChapterPanelOpacity } from '@/lib/hooks/useChapterPanelOpacity'
 import type { Chapter } from '@/lib/types'
 
 const CHAPTER_ID = 'hardware-verdant'

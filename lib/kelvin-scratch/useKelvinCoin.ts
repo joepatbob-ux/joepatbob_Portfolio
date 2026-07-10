@@ -3,7 +3,7 @@ import {
   coinDisplayPxForTicket,
   SCRATCH_TICKET_VIEWBOX,
 } from '@/lib/kelvin-scratch/ticket'
-import { useElementSize } from '@/lib/useElementSize'
+import { useElementSize } from '@/lib/hooks/useElementSize'
 import { useCallback, useEffect, useMemo, useState, type RefObject } from 'react'
 
 export function useKelvinCoin(

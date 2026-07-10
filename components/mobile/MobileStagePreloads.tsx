@@ -1,5 +1,5 @@
 import { useStagePreload } from '@/lib/hooks/useStagePreload'
-import { CHAPTER_INTERACTIVE_VISIBILITY } from '@/lib/chapterVisibility'
+import { CHAPTER_INTERACTIVE_VISIBILITY } from '@/lib/scroll/chapterVisibility'
 import { MOBILE_WR_CONNECT, mobileChapterId } from '@/lib/mobile/content'
 import { preloadPhoneSwapStage } from '@/lib/stagePreload/phoneSwap'
 import { preloadWrConnectBoard } from '@/lib/stagePreload/wrConnectBoard'

@@ -1,5 +1,5 @@
-import { chapterSlotScrollTop } from '@/lib/chapterSnapScroll'
-import { isContinuousChapters } from '@/lib/continuousChapters'
+import { chapterSlotScrollTop } from '@/lib/scroll/chapterSnapScroll'
+import { isContinuousChapters } from '@/lib/scroll/continuousChapters'
 
 const SCROLL_TRAP_SELECTOR = '.chapter-copy-scroller'
 

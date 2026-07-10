@@ -1,8 +1,8 @@
 import {
   resetAllChapterCopyScrollers,
   resetChapterCopyScrollersAfterSnap,
-} from '@/lib/chapterCopyScrollReset'
-import { isContinuousChapters } from '@/lib/continuousChapters'
+} from '@/lib/scroll/chapterCopyScrollReset'
+import { isContinuousChapters } from '@/lib/scroll/continuousChapters'
 
 const CHAPTER_SLOT_SELECTOR = '.portfolio-chapter-slot[data-chapter-id]'
 

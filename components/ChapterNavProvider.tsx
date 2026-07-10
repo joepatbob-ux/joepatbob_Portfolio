@@ -1,25 +1,25 @@
-import { chapterRevealsChanged } from '@/lib/chapterReveals'
-import { applySlideScrollFromMeasure } from '@/lib/applySlideScrollFromMeasure'
-import { resetInFlowChapterPanels } from '@/lib/applyChapterPanelScrollStyles'
-import { isContinuousChapters } from '@/lib/continuousChapters'
+import { chapterRevealsChanged } from '@/lib/scroll/chapterReveals'
+import { applySlideScrollFromMeasure } from '@/lib/scroll/applySlideScrollFromMeasure'
+import { resetInFlowChapterPanels } from '@/lib/scroll/applyChapterPanelScrollStyles'
+import { isContinuousChapters } from '@/lib/scroll/continuousChapters'
 import {
   measureSlideScrollState,
   type SlideNavPhase,
-} from '@/lib/scrollOrchestration'
-import { useChapterCopyWheelTrap } from '@/lib/chapterCopyWheel'
+} from '@/lib/scroll/scrollOrchestration'
+import { useChapterCopyWheelTrap } from '@/lib/scroll/chapterCopyWheel'
 import {
   resetChapterCopyScrollersAfterSnap,
   waitForChapterScrollSettle,
-} from '@/lib/chapterCopyScrollReset'
+} from '@/lib/scroll/chapterCopyScrollReset'
 import {
   chapterSlotScrollTop,
   scrollDocumentToChapterSlot,
-} from '@/lib/chapterSnapScroll'
-import { requestChapterMount } from '@/lib/chapterMount'
+} from '@/lib/scroll/chapterSnapScroll'
+import { requestChapterMount } from '@/lib/scroll/chapterMount'
 import { waitForChapterSlotReady } from '@/lib/chapterNav/waitForChapterSlot'
 import { sectionEntryChapterId } from '@/lib/sectionEntryChapter'
-import { flushScrollFrame, scheduleScrollFrame } from '@/lib/scrollFrame'
-import { bindTopBarScrollSpy } from '@/lib/topBarScrollSpy'
+import { flushScrollFrame, scheduleScrollFrame } from '@/lib/scroll/scrollFrame'
+import { bindTopBarScrollSpy } from '@/lib/scroll/topBarScrollSpy'
 import { LAYOUT_MQ } from '@/lib/layout/breakpoints'
 import { isTopBarNavViewport } from '@/lib/layout/isTopBarNavViewport'
 import {

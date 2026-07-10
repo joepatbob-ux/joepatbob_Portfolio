@@ -1,9 +1,9 @@
 import { useChapterNav } from '@/components/ChapterNavProvider'
-import { isContinuousChapters } from '@/lib/continuousChapters'
+import { isContinuousChapters } from '@/lib/scroll/continuousChapters'
 import {
   chapterStageRevealForId,
   subscribeChapterScrollState,
-} from '@/lib/chapterSlideshow'
+} from '@/lib/scroll/chapterSlideshow'
 import { useSyncExternalStore } from 'react'
 
 /** Scroll-driven stage visibility (0–1) — lags copy on exit in continuous mode. */
