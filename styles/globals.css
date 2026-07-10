@@ -85,7 +85,6 @@
     --z-stickers:           116;
     --z-sticker-pile:       115;
     --z-sticker-drag:       220;
-    --z-sticker-selected:   125;
     --z-mobile-nav-backdrop: 108;
     --z-mobile-drawer:      110;
     --z-mobile-learn-more:  112;
@@ -204,7 +203,6 @@
       --z-stickers: 96;
       --z-sticker-pile: 50;
       --z-sticker-drag: 130;
-      --z-sticker-selected: 95;
       --z-mobile-nav-backdrop: 115;
       --z-mobile-drawer: 125;
       --z-mobile-learn-more: 130;
@@ -1207,10 +1205,6 @@
   inset: 0;
   pointer-events: none;
   z-index: 4;
-}
-
-.sticker-placed--selected {
-  z-index: var(--z-sticker-selected) !important;
 }
 
 .sticker-placed__art {
