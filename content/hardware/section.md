@@ -14,14 +14,14 @@
           "status": "Granted · 2026"
         },
         {
-          "number": "CA 232,177",
+          "number": "Canada",
           "title": "Multi-segment display typeface",
           "status": "Granted · 2025"
         },
         {
           "number": "US 29/952,805",
           "title": "Fixed-segment character set",
-          "status": "Filed · 2024"
+          "status": "Pending · 2024"
         }
       ]
     },
