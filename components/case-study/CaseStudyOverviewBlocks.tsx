@@ -35,15 +35,32 @@ function OverviewScopeBlock({ items }: { items: readonly string[] }) {
   )
 }
 
-function OverviewPatentCell({ patent }: { patent: OverviewPatentEntry }) {
+/**
+ * Credential entry as a bill-of-materials row: name + title on the left, a
+ * dotted leader carrying the eye to the mono meta on the right.
+ */
+function OverviewLeaderRow({
+  name,
+  title,
+  meta,
+}: {
+  name: string
+  title?: string | null
+  meta?: string | null
+}) {
   return (
-    <div className="case-study-overview-patent">
-      <p className="case-study-overview-patent__number">{patent.number}</p>
-      {patent.title ? (
-        <p className="case-study-overview-patent__title">{patent.title}</p>
-      ) : null}
-      {patent.status ? (
-        <p className="case-study-overview-patent__status">{patent.status}</p>
+    <div className="case-study-overview-row">
+      <span className="case-study-overview-row__lead">
+        <span className="case-study-overview-row__name">{name}</span>
+        {title ? (
+          <span className="case-study-overview-row__title">{title}</span>
+        ) : null}
+      </span>
+      {meta ? (
+        <>
+          <span className="case-study-overview-row__dots" aria-hidden />
+          <span className="case-study-overview-row__meta">{meta}</span>
+        </>
       ) : null}
     </div>
   )
@@ -53,9 +70,14 @@ function OverviewPatentsBlock({ items }: { items: readonly OverviewPatentEntry[]
   return (
     <section className="case-study-overview-block case-study-overview-block--patents">
       <h3 className="case-study-overview-block__label">Patents</h3>
-      <div className="case-study-overview-patents">
+      <div className="case-study-overview-rows">
         {items.map((patent) => (
-          <OverviewPatentCell key={`${patent.number}-${patent.title ?? ''}`} patent={patent} />
+          <OverviewLeaderRow
+            key={`${patent.number}-${patent.title ?? ''}`}
+            name={patent.number}
+            title={patent.title}
+            meta={patent.status}
+          />
         ))}
       </div>
     </section>
@@ -66,14 +88,8 @@ function OverviewAwardBlock({ product, headline, detail }: OverviewAwardBlock) {
   return (
     <section className="case-study-overview-block case-study-overview-block--award">
       <h3 className="case-study-overview-block__label">Award</h3>
-      <div className="case-study-overview-awards">
-        <div className="case-study-overview-award">
-          <p className="case-study-overview-award__product">{product}</p>
-          <p className="case-study-overview-award__headline">{headline}</p>
-          {detail ? (
-            <p className="case-study-overview-award__detail">{detail}</p>
-          ) : null}
-        </div>
+      <div className="case-study-overview-rows">
+        <OverviewLeaderRow name={product} title={headline} meta={detail} />
       </div>
     </section>
   )
@@ -83,13 +99,8 @@ function OverviewHighlightBlock({ label, headline, detail }: OverviewHighlightBl
   return (
     <section className="case-study-overview-block case-study-overview-block--highlight">
       <h3 className="case-study-overview-block__label">{label}</h3>
-      <div className="case-study-overview-highlights">
-        <div className="case-study-overview-highlight">
-          <p className="case-study-overview-highlight__headline">{headline}</p>
-          {detail ? (
-            <p className="case-study-overview-highlight__detail">{detail}</p>
-          ) : null}
-        </div>
+      <div className="case-study-overview-rows">
+        <OverviewLeaderRow name={headline} meta={detail} />
       </div>
     </section>
   )
