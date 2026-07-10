@@ -105,11 +105,6 @@ export function coinDisplayPxForTicket(ticketWidthPx: number) {
   return Math.round(Math.min(88, Math.max(48, fromWidth)))
 }
 
-/** @deprecated Use coinDisplayPxForTicket */
-export function coinDisplayPxFromTicketWidth(ticketWidthPx: number) {
-  return coinDisplayPxForTicket(ticketWidthPx)
-}
-
 /** Root layout tokens for KelvinScratch (coin size + optional measured width). */
 export function kelvinScratchRootStyle(
   coinDisplayPx: number,

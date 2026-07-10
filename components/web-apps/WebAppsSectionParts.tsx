@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react'
 import { CaseStudySectionHeader } from '@/components/case-study/CaseStudySectionHeader'
-import { MobileProse, splitParagraphs } from '@/components/mobile/MobileSectionParts'
+import { MobileProse } from '@/components/mobile/MobileSectionParts'
 
-export { splitParagraphs, MobileProse }
+export { MobileProse }
 
 export function WebAppsSectionHeader({
   headline,

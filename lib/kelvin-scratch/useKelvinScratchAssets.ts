@@ -8,7 +8,7 @@ import {
   createFallbackCoinBrushDataUrl,
   loadKelvinCoinImages,
   loadScratchTicketCoverImage,
-} from '@/lib/webAppsScratchAssets'
+} from '@/lib/kelvin-scratch/scratchAssets'
 import { useEffect, useState } from 'react'
 
 /** Ticket foil cover + coin brush raster — reloads when theme changes. */

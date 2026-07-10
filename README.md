@@ -25,13 +25,12 @@ npm run preview
 
 Static output is written to `dist/` (deploy that folder to any static host).
 
-## Before running, add fonts
+## Fonts
 
-Place these files in `/public/fonts/`:
-- `AlteHaasGroteskBold.woff2`
-- `AlteHaasGroteskRegular.woff2`
-- `JetBrainsMono-Bold.woff2`
-- `JetBrainsMono-Regular.woff2`
+No manual setup required.
+
+- **Alte Haas Grotesk** (display) is self-hosted and committed under `/public/fonts/` (`AlteHaasGroteskBold`, `AlteHaasGroteskRegular`).
+- **JetBrains Mono** and **Lato** load from Google Fonts at runtime (`<link>` in `index.html`).
 
 ## Adding images
 

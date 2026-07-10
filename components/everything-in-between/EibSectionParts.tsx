@@ -4,14 +4,12 @@ import {
   CONTACT_LINKEDIN_HOST_PATH,
   CONTACT_LINKEDIN_URL,
 } from '@/lib/contact'
-import { splitParagraphs } from '@/components/mobile/MobileSectionParts'
-
-export { splitParagraphs }
+import { parseChapterBody } from '@/lib/chapter-slide/parseChapterBody'
 
 export function EibIntroProse({ text }: { text: string }) {
   return (
     <div className="eib-intro-prose mobile-prose">
-      {splitParagraphs(text).map((p, i) => (
+      {parseChapterBody(text).map((p, i) => (
         <p key={i}>{p}</p>
       ))}
     </div>

@@ -4,7 +4,8 @@ import dynamic from 'next/dynamic'
 import { FlowChapterSlideLayout } from '@/components/chapter-slide/FlowChapterSlideLayout'
 import { PhoneSwapBoundary } from '@/components/phone-swap/PhoneSwapBoundary'
 import { ChapterCopyReveal } from '@/components/chapter-slide/ChapterCopyReveal'
-import { MobileProse, splitParagraphs } from '@/components/mobile/MobileSectionParts'
+import { MobileProse } from '@/components/mobile/MobileSectionParts'
+import { parseChapterBody } from '@/lib/chapter-slide/parseChapterBody'
 import { useHydrated } from '@/lib/hooks/useHydrated'
 import { useChapterStageReady } from '@/lib/chapterStageMountContext'
 import { MOBILE_SENSI, mobileChapterId } from '@/lib/mobile/content'
@@ -35,7 +36,7 @@ function MobileSensiStage() {
 
 export function MobileSensiSection() {
   const chapterId = mobileChapterId('sensi')
-  const intro = splitParagraphs(MOBILE_SENSI.intro)
+  const intro = parseChapterBody(MOBILE_SENSI.intro)
 
   return (
     <FlowChapterSlideLayout

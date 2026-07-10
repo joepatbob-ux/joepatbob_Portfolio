@@ -1,4 +1,4 @@
-import { BEFORE_DRAWERS, fillLottoScratchLayer } from '@/lib/webAppsScratchDraw'
+import { BEFORE_DRAWERS, fillLottoScratchLayer } from '@/lib/kelvin-scratch/scratchDraw'
 import {
   KELVIN_SCRATCH_COVER_SRC,
   SCRATCH_ZONE_ASPECT,
@@ -204,39 +204,4 @@ export function loadKelvinScratchQuadPlaceholders(
         }),
     ),
   )
-}
-
-/** @deprecated Per-quadrant covers — use createUnifiedScratchCoverDataUrl */
-export function createQuadBeforeCoverDataUrl(
-  quadIndex: number,
-  scratchFront?: HTMLImageElement | null,
-  quadSize = SCRATCH_QUAD_PX,
-): string {
-  const canvas = document.createElement('canvas')
-  canvas.width = quadSize
-  canvas.height = quadSize
-  const ctx = canvas.getContext('2d')
-  if (!ctx) return ''
-
-  if (scratchFront) {
-    const { col, row } = BEFORE_QUAD_LAYOUT[quadIndex] ?? BEFORE_QUAD_LAYOUT[0]
-    ctx.drawImage(
-      scratchFront,
-      col * quadSize,
-      row * quadSize,
-      quadSize,
-      quadSize,
-      0,
-      0,
-      quadSize,
-      quadSize,
-    )
-  } else {
-    fillLottoScratchLayer(ctx, quadSize, quadSize)
-  }
-
-  const draw = BEFORE_DRAWERS[quadIndex]
-  if (draw) draw(ctx, quadSize, quadSize)
-
-  return canvas.toDataURL('image/png')
 }

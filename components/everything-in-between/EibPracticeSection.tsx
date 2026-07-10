@@ -4,7 +4,8 @@ import { FlowChapterSlideLayout } from '@/components/chapter-slide/FlowChapterSl
 import { StickerPile } from '@/components/StickerPile'
 import { ChapterCopyReveal } from '@/components/chapter-slide/ChapterCopyReveal'
 import { EibPracticeClose } from '@/components/everything-in-between/EibSectionParts'
-import { MobileProse, splitParagraphs } from '@/components/mobile/MobileSectionParts'
+import { MobileProse } from '@/components/mobile/MobileSectionParts'
+import { parseChapterBody } from '@/lib/chapter-slide/parseChapterBody'
 import {
   EIB_PRACTICE,
   eibChapterId,
@@ -25,7 +26,7 @@ export function EibPracticeSection() {
         <ChapterCopyReveal headline={EIB_PRACTICE.headline}>
           <MobileProse
             className="eib-sub-intro"
-            paragraphs={splitParagraphs(EIB_PRACTICE.intro)}
+            paragraphs={parseChapterBody(EIB_PRACTICE.intro)}
           />
           <EibPracticeClose statement={EIB_PRACTICE.close} />
         </ChapterCopyReveal>

@@ -12,7 +12,6 @@ type SectionMeta = {
   lessonTitle?: string
   lessonBody?: string
   closingQuote?: { quote: string; attribution: string }
-  overviewMeta?: Section['overviewMeta']
   overviewBlocks?: Section['overviewBlocks']
 }
 

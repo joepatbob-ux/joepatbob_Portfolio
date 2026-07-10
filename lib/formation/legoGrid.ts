@@ -29,9 +29,6 @@ export type PegPosition = PegCoord & { x: number; y: number }
 /** Y-axis letters A–J (cyan → magenta along +GY). */
 export const PEG_Y_LETTERS = 'ABCDEFGHIJ'
 
-/** @deprecated Use PEG_Y_LETTERS — kept for imports that expected GX_LETTERS. */
-export const GX_LETTERS = PEG_Y_LETTERS
-
 /** Y-axis letter for a peg row (A at gy=0, J at gy=9). */
 export function pegYLetter(gy: number): string {
   return PEG_Y_LETTERS[gy] ?? '?'

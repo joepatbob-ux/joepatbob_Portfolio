@@ -1,11 +1,5 @@
 import { ChapterBodyGroups } from '@/components/chapter-slide/ChapterBodyGroups'
-import {
-  groupChapterBody,
-  parseChapterBody,
-} from '@/lib/chapter-slide/parseChapterBody'
-
-/** @deprecated Use parseChapterBody */
-export const splitParagraphs = parseChapterBody
+import { groupChapterBody } from '@/lib/chapter-slide/parseChapterBody'
 
 export { CaseStudySectionHeader as MobileSectionHeader } from '@/components/case-study/CaseStudySectionHeader'
 
