@@ -184,7 +184,7 @@ export function useChapterPanelOpacity(chapterId: string) {
     }
   }
 
-  let reveal = scrollReveal
+  const reveal = scrollReveal
   const isActive = scrollReveal > 0.5
 
   return {

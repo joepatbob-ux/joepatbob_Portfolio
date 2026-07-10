@@ -44,8 +44,14 @@ const PREFIX_COVERED = [
 /** Intentional mixed-case directory names (vendor bundles). */
 const ALLOWED_UPPERCASE_DIR_SEGMENTS = new Set(['Magic8Ball_OBJ', 'Textures'])
 
-/** Site/static files not linked from app source. */
-const ORPHAN_ALLOWED = new Set(['/404.html', '/robots.txt', '/sitemap.xml'])
+/** Site/static files not linked from app source (or referenced outside the
+ * PATH_PATTERN scope, e.g. the root-level OG image in index.html's meta tags). */
+const ORPHAN_ALLOWED = new Set([
+  '/404.html',
+  '/robots.txt',
+  '/sitemap.xml',
+  '/og-share.jpg',
+])
 
 /** Optional local-only assets (gitignored exports). */
 const OPTIONAL_PATHS = new Set([

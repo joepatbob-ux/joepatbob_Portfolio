@@ -70,6 +70,7 @@ async function launchBrowser() {
         'or PRERENDER_EXECUTABLE_PATH/PUPPETEER_EXECUTABLE_PATH pointing at a ' +
         'Chromium binary. Or run the build on Vercel/CI with @sparticuz/chromium. ' +
         `Original error: ${err instanceof Error ? err.message : String(err)}`,
+      { cause: err },
     )
   }
 }

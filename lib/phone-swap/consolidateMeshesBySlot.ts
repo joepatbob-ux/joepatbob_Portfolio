@@ -39,12 +39,11 @@ export function consolidateMeshesBySlot(root: THREE.Object3D): ConsolidateResult
     }
 
     let mergedGeometry = mergeGeometries(geoms, false)
-    let merged = true
+    const merged = true
 
     if (!mergedGeometry && geoms.length === 1) {
       mergedGeometry = geoms[0]
     } else if (!mergedGeometry) {
-      merged = false
       for (const mesh of meshes) {
         mesh.updateMatrixWorld(true)
         const baked = mesh.geometry.clone()
