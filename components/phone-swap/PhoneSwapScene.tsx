@@ -59,7 +59,6 @@ import {
 } from '@/lib/phone-swap/phoneSwapLayout'
 import { PHONE_SWAP_URLS } from '@/lib/phone-swap/phoneSwapUrls'
 import { prepareIPhone16Scene } from '@/lib/phone-swap/prepareIPhone16Scene'
-import { PhoneLayoutSceneGuides } from '@/components/phone-swap/PhoneLayoutSceneGuides'
 import { PhoneScreenshotTextureBinder } from '@/components/phone-swap/PhoneScreenshotTextureBinder'
 import { SmaIPhoneLiveScreen } from '@/components/sma-ios26/SmaIPhoneLiveScreen'
 import type { DisplayScreenRect } from '@/lib/sma-ios26/displayScreenRect'
@@ -99,7 +98,6 @@ interface Props {
   onAnimationComplete?: () => void
   onSwapRequest?: () => void
   onBackHoverChange?: (hovering: boolean) => void
-  showGuides?: boolean
   viewLocked?: boolean
   sceneApiRef?: RefObject<PhoneSwapSceneApi | null>
   materialTunes?: PhoneMaterialTunesByDevice
@@ -217,7 +215,6 @@ export function PhoneSwapScene({
   onAnimationComplete,
   onSwapRequest,
   onBackHoverChange,
-  showGuides = false,
   viewLocked = true,
   sceneApiRef,
   materialTunes = EMPTY_PHONE_MATERIAL_TUNES,
@@ -550,7 +547,6 @@ export function PhoneSwapScene({
 
   return (
     <>
-      {layoutMode && showGuides ? <PhoneLayoutSceneGuides /> : null}
       <ambientLight intensity={0.85} />
       <directionalLight position={[5, 8, 6]} intensity={1.5} />
       <directionalLight position={[-4, 2, -4]} intensity={0.45} />

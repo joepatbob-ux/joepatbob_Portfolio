@@ -241,7 +241,6 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
                 onAnimationComplete={handleAnimationComplete}
                 onSwapRequest={triggerSwap}
                 onBackHoverChange={setBackPhoneHover}
-                showGuides={false}
                 viewLocked
                 sceneApiRef={sceneApiRef}
                 materialTunes={EMPTY_PHONE_MATERIAL_TUNES}

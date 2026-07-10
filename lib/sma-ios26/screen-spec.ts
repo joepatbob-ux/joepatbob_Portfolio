@@ -8,7 +8,7 @@ export const SMA_TOOLBAR_HEIGHT = 54
 export const SMA_TAB_BAR_HEIGHT = 95
 export const SMA_CHROME_TOP = SMA_STATUS_BAR_HEIGHT + SMA_TOOLBAR_HEIGHT
 
-/** Texture resolution for {@link IPHONE16_TEXTURES.screen} UV mapping. */
+/** Texture resolution for the iPhone screen UV mapping. */
 export const SMA_TEXTURE_WIDTH = 1608
 export const SMA_TEXTURE_HEIGHT = 3496
 

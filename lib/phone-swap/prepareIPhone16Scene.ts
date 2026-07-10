@@ -13,7 +13,6 @@ import {
 } from '@/lib/phone-swap/iphone16Assets'
 import { normalizeModel } from '@/lib/phone-swap/normalizeModel'
 
-export { IPHONE16_TEXTURES } from '@/lib/phone-swap/iphone16Assets'
 
 function isolateMeshGeometries(root: THREE.Object3D) {
   root.traverse((child) => {
