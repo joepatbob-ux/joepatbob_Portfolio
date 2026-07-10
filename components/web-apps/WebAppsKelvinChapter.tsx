@@ -5,9 +5,9 @@ import { ChapterCopyReveal } from '@/components/chapter-slide/ChapterCopyReveal'
 import { KelvinScratch } from '@/components/web-apps/kelvin-scratch/KelvinScratch'
 import {
   MobileProse,
-  splitParagraphs,
   WebAppsNdaNote,
 } from '@/components/web-apps/WebAppsSectionParts'
+import { parseChapterBody } from '@/lib/chapter-slide/parseChapterBody'
 import {
   WEB_APPS_KELVIN,
   WEB_APPS_KELVIN_CHAPTER_ID,
@@ -27,10 +27,10 @@ export function WebAppsKelvinChapter() {
           headline={WEB_APPS_KELVIN.headline}
           subhead={WEB_APPS_KELVIN.subhead}
         >
-          <MobileProse paragraphs={splitParagraphs(WEB_APPS_KELVIN.prose)} />
+          <MobileProse paragraphs={parseChapterBody(WEB_APPS_KELVIN.prose)} />
           {/* NDA disclosure stays permanently visible — never an expandable fact */}
           <WebAppsNdaNote>{WEB_APPS_KELVIN.ndaNote}</WebAppsNdaNote>
-          <MobileProse paragraphs={splitParagraphs(WEB_APPS_KELVIN.facts)} />
+          <MobileProse paragraphs={parseChapterBody(WEB_APPS_KELVIN.facts)} />
         </ChapterCopyReveal>
       }
     />

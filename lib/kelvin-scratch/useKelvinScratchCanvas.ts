@@ -10,7 +10,7 @@ import type { ScratchProgressHandler } from '@/lib/kelvin-scratch/types'
 import {
   COIN_BRUSH_PX,
   SCRATCH_CARD_PX,
-} from '@/lib/webAppsScratchAssets'
+} from '@/lib/kelvin-scratch/scratchAssets'
 import { useElementSize } from '@/lib/useElementSize'
 import {
   useCallback,

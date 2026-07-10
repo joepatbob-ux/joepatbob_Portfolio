@@ -27,9 +27,6 @@ export function sortSubpathsByRevealOrder(segments: string[]): string[] {
   return segments
 }
 
-/** @deprecated Use {@link sortSubpathsByRevealOrder} */
-export const sortSubpathsFromTouch2 = sortSubpathsByRevealOrder
-
 export function isEimDashDebugEnabled(): boolean {
   if (typeof window === 'undefined') return false
   return new URLSearchParams(window.location.search).get('eimDashDebug') === '1'

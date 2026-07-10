@@ -3,12 +3,13 @@
 import { FlowChapterSlideLayout } from '@/components/chapter-slide/FlowChapterSlideLayout'
 import { ChapterCopyReveal } from '@/components/chapter-slide/ChapterCopyReveal'
 import { WrConnectBoardStage } from '@/components/mobile/WrConnectBoardStage'
-import { MobileProse, splitParagraphs } from '@/components/mobile/MobileSectionParts'
+import { MobileProse } from '@/components/mobile/MobileSectionParts'
+import { parseChapterBody } from '@/lib/chapter-slide/parseChapterBody'
 import { MOBILE_WR_CONNECT, mobileChapterId } from '@/lib/mobile/content'
 
 export function MobileWrConnectSection() {
   const chapterId = mobileChapterId('wr-connect')
-  const paragraphs = splitParagraphs(MOBILE_WR_CONNECT.body)
+  const paragraphs = parseChapterBody(MOBILE_WR_CONNECT.body)
 
   return (
     <FlowChapterSlideLayout

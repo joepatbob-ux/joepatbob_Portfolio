@@ -11,16 +11,6 @@ export interface Chapter {
   imagePosition: 'left' | 'right'
 }
 
-export interface OverviewMetaItem {
-  label: string
-  /** @deprecated Prefer `overviewBlocks` on the section. */
-  value?: string
-  /** @deprecated Prefer `overviewBlocks` on the section. */
-  items?: readonly string[]
-  /** @deprecated Scope uses `overviewBlocks` instead. */
-  wide?: boolean
-}
-
 export interface OverviewPatentEntry {
   number: string
   title?: string
@@ -70,8 +60,6 @@ export interface Section {
   eyebrow: string
   headline: string
   overviewBody: string
-  /** @deprecated Prefer `overviewBlocks`. */
-  overviewMeta?: readonly OverviewMetaItem[]
   overviewBlocks?: readonly OverviewBlock[]
   lessonTitle: string
   lessonBody: string

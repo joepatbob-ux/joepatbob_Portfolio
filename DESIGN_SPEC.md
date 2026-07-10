@@ -161,7 +161,11 @@ Two-column: `320px | 1fr`, gap 64px
 
 ---
 
-## Interactive Components (Hardware section)
+## Interactive Components
+
+> Status note: the interactive concepts below have all shipped, though several
+> were redesigned away from their original working names during build. Paths
+> reflect what is actually in `components/` today.
 
 ### Sensi Lite — Segment Display Prototype
 Located in chapter `hardware-sensi-lite`.
@@ -170,51 +174,28 @@ A React component simulating the 32-segment display with 3-button navigation.
 - Three clickable buttons: UP, DOWN, MENU/ACTION
 - Long press on MENU enters homeowner settings mode
 - Uses the custom character set from the Verdant chapter
-- See `/components/SegmentDisplay.tsx` (stub — to be built)
+- **Built:** `/components/SegmentDisplay.tsx`, `/components/SensiLiteProto.tsx`, `/components/SensiLiteChapter.tsx`
 
-### Verdant — Character Set Cycler
+### Verdant — Character Set
 Located in chapter `hardware-verdant`.
-Cycles through the full character set image at different scales or states.
-- Click/tap to advance through states
-- States: full character set → zoomed detail → rendered on PCB display
-- See `/components/CharacterSetCycler.tsx` (stub — to be built)
+Interactive exploration of the full character set at different scales/states.
+- **Built (redesigned as a character selector):** `/components/VerdantCharacterSelector.tsx`, `/components/VerdantInteractive.tsx`, `/components/VerdantPreviewStage.tsx`, `/components/VerdantChapter.tsx`
 
-### Mobile Color — Before/After Slider
-Located in chapter `mobile-color`.
-Drag handle reveals before (legacy full-bleed orange) vs after (orange number on dark).
-- See `/components/BeforeAfterSlider.tsx` (stub — to be built)
+### Sensi — Color Mode Before/After
+Drag handle reveals before (legacy full-bleed orange) vs after (color on the temperature number).
+- **Built (redesigned):** the before/after scrubber now lives in the Sensi `color-mode` sub-story — see `content/mobile/sensi/color-mode.md` (`scrubber`). The broader Mobile section is the `PhoneSwap` / `sma-ios26` prototype, not a standalone slider chapter.
 
-### Web Apps — Lord Kelvin Mouseover
-Located at top of Web Apps section.
-Image starts desaturated (black and white engraving).
-On mouseover: color bleeds in radially from cursor position (blue and orange bloom).
-- See `/components/KelvinReveal.tsx` (stub — to be built)
+### Web Apps — Kelvin Reveal
+Kelvin's value is revealed through direct interaction rather than a hover bloom.
+- **Built (redesigned as a scratch-off reveal):** `/components/web-apps/kelvin-scratch/` (+ `lib/kelvin-scratch/`)
 
 ### Web Apps — Fragmentation Demo
-Between Context and Stakes chapters.
 Four UI cards animate from fragmented styles → unified Kelvin style.
-- See `/components/FragmentationDemo.tsx` (stub — to be built)
+- **Not built / dropped** — no component or successor exists. Remove or re-scope if still desired.
 
 ### Everything Else — Sticker Pile
 Draggable sticker images scattered around the section.
-- See `/components/StickerPile.tsx` (stub — to be built)
-
----
-
-## Component Stubs to Build
-```
-components/
-  SidebarNav.tsx         ✅ built
-  Hero.tsx               ✅ built
-  CaseStudy.tsx          ✅ built
-  Chapter.tsx            ✅ built
-  SegmentDisplay.tsx     🔲 stub
-  CharacterSetCycler.tsx 🔲 stub
-  BeforeAfterSlider.tsx  🔲 stub
-  KelvinReveal.tsx       🔲 stub
-  FragmentationDemo.tsx  🔲 stub
-  StickerPile.tsx        🔲 stub
-```
+- **Built:** `/components/StickerPile.tsx` (+ `Sticker.tsx`, `StickerLayer.tsx`, `StickerProvider.tsx`, `PlacedStickerControl.tsx`)
 
 ---
 

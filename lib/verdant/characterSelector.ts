@@ -103,11 +103,6 @@ export const VERDANT_DEFAULT_SELECTION: VerdantSelection = {
   code: 'ALL',
 }
 
-/** @deprecated Use VERDANT_VIEW_TOGGLES */
-export const VERDANT_SKETCH_IMAGE = VERDANT_VIEW_TOGGLES[0].src
-/** @deprecated Use VERDANT_VIEW_TOGGLES */
-export const VERDANT_BOARD_IMAGE = VERDANT_VIEW_TOGGLES[1].src
-
 export function verdantViewToggle(
   kind: VerdantViewKind,
 ): (typeof VERDANT_VIEW_TOGGLES)[number] {
