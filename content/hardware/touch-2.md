@@ -2,7 +2,7 @@
 {
   "id": "touch-2",
   "title": "Touch 2",
-  "subtitle": "The screen technology changed, the experience had to change with it.",
+  "subtitle": "The screen changed. The experience had to change with it.",
   "imageAlt": "ID evaluation session with Touch 2 prototypes on a table",
   "imageSrc": "/images/hw-touch2.jpg",
   "imageLayout": "portrait",
@@ -10,14 +10,16 @@
 }
 ---
 
-Touch 1 mirrored the fixed-segment Sensi Smart next to it in the product line — a reasonable first step, but it left most of what a touchscreen could do on the table. For Touch 2 I kept Touch 1's menu structure intact (no reason to make users relearn navigation) and rebuilt the visual language, interaction model, and interface architecture underneath, after a teardown of Touch 1's strengths and weaknesses, a competitive scan, and interviews with utility partners, contractors, and homeowners, each of whom hit different problems.
+I joined in 2018, a couple years before Touch 2 started near the beginning of the pandemic. Touch 1 had already shipped by the time I got there, so I'd lived with it for a while before Touch 2 kicked off, long enough to know the honest read: Touch 1 had good bones. Its menu structure worked. So instead of rebuilding it, I built on it: kept the structure intact and simplified everything underneath, trimming each screen down to one or two things a user could actually do there.
 
-I came in during industrial design evaluation, where bezel width, thickness, and screen size all move the interface's reach and density, so I sat between ID, engineering, and UI — turning form-factor constraints into interface decisions and interface needs into hardware requirements. Touch 2 shipped at 0.77", the thinnest smart thermostat in its category at launch, and the interaction model later fed into consulting work with Trane's own touchscreen team.
+That simplification is what made the action button work. Once a screen only asked one or two things of someone, a single button in the same spot every time could carry whatever mattered most there: Save, Help on a screen with more settings, Connect, Forget Network. People learned where to look once, and it held everywhere.
 
-**One button, one job**
+I also sat between ID, engineering, and UI, since bezel width and screen size decide how far an interface can reach. Touch 2 shipped at 0.77", the thinnest smart thermostat in its category at launch.
 
-A fixed contextual action button, same spot on every screen, always set to the most important next step. Users learn it once, and it holds everywhere — nobody notices consistency like that until it breaks.
+**How it landed**
 
-**The architecture had to outlive the first release**
+Pro Tool Reviews called it "possibly one of (if not THE) thinnest models on the market" and said it "doesn't clutter the screen." Neither that review nor the Editor's Choice writeup had much to say about the interface at all. That was the point.
 
-Remote sensors and the Equipment Interface Module were nowhere on the roadmap when I laid out the framework, but I left room for them. When they arrived later, they slotted in without a rewrite — I treated the architecture as a design decision, not an engineering afterthought.
+**Merging modes that already moved together**
+
+Fan mode and system mode used to live in separate menus, but people almost always changed both at once. So I merged them into a single button showing both states at a glance: heat, cool, auto, aux, or off for the system, and on, auto, or circulate for the fan. As a side effect, adjusting one setting showed users where the other one lived, teaching navigation just by using it. The off state uses a square inside a circle, lifted from the media stop symbol, one of the icons that came out of that round of testing and carried into later products.

@@ -2,4 +2,4 @@
 {}
 ---
 
-Eight years across five thermostat products and connected sensing devices—from fixed-segment displays to touchscreens, serving contractors, DIY homeowners, and hotel guests. Each had its own way of failing, yet all of them had to feel like one family. What hardware taught me is that coherence is never styling—it is judgment, one call at a time.
+Eight years across five thermostat products and connected sensing devices, from fixed-segment displays to touchscreens, built for contractors, DIY homeowners, and hotel guests. Every product failed in its own way, and all of them still had to feel like one family. Hardware taught me that coherence isn't styling. It's judgment, one call at a time.

@@ -4,8 +4,8 @@ import { requireContentRaw } from '@/lib/content/contentModules'
 import { parseMarkdownFile } from '@/lib/content/parseMarkdown'
 
 export const EIB_SECTION_TABS = [
-  { id: 'formation', label: 'Formation' },
-  { id: 'practice', label: 'Practice' },
+  { id: 'formation', label: 'Coherence' },
+  { id: 'practice', label: 'Beyond the Screen' },
 ] as const
 
 export type EibSectionId = (typeof EIB_SECTION_TABS)[number]['id']

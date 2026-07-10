@@ -2,7 +2,7 @@
 {
   "id": "eim",
   "title": "EIM",
-  "subtitle": "The design problem wasn't digital, it was physical.",
+  "subtitle": "The design problem wasn't digital. It was physical.",
   "imageAlt": "Equipment Interface Module product photo",
   "imageSrc": "/images/devices/eimpath.svg",
   "imageLayout": "full-width",
@@ -10,10 +10,14 @@
 }
 ---
 
-The Equipment Interface Module bridges thermostats to HVAC equipment on installs where the existing wiring can't carry what the system needs. Competitors covered that range with three separate modules; the Sensi EIM covers it with one. The default assumption was that setup happened at the equipment — meaning trips back and forth between thermostat and unit, often through a cramped mechanical space, time a contractor can't bill for. So I moved configuration to the thermostat: the contractor pairs the two devices, sets equipment type and location once, and the EIM configures itself. No return trips.
+The Equipment Interface Module bridges thermostats to HVAC equipment on installs where the existing wiring can't carry what the system needs. Competitors cover that range with three separate modules. The Sensi EIM covers it with one. The default assumption was that setup happened at the equipment, which meant trips back and forth between the thermostat and the unit, often through a cramped mechanical space, on time a contractor can't bill for. So I moved configuration to the thermostat. The contractor pairs the two devices, sets equipment type and location once, and the EIM configures itself. No back and forth.
 
-Two distributor groups brought up the pairing process unprompted in post-launch training sessions, and the flow generated zero iteration requests after launch — contractors are vocal when something doesn't work, so silence carries information too.
+On the post-launch distributor roadshow, contractors at two separate stops said almost the same thing without prompting: they liked not having to walk back and forth to press buttons. Contractors are loud when something doesn't work, so hearing the same unprompted praise twice, independently, carries real weight.
 
-**180 contractors in the room**
+**In their own words**
 
-The launch webinar for the EIM pairing flow drew more than 180 contractors — direct exposure to exactly the audience whose install time the redesign was trying to save.
+"Really liked the pairing process, the ability to wrap up in an area and not needing to go back and forth to press buttons was appreciated." Two different training stops, almost word for word.
+
+**How the roadshow landed**
+
+A multi-city distributor tour, Cincinnati, Indianapolis, Chicago, Michigan, Texas, put the EIM directly in front of roughly 90 contractors and distributor reps. One stop in Texas placed a purchase order on the spot and started displaying the EIM at their front counter.
