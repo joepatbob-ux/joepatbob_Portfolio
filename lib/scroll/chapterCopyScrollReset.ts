@@ -43,12 +43,13 @@ export function resetChapterCopyScrollersAfterSnap(_root?: ParentNode): void {
 
 /** Wait until document scrollY matches the chapter slot (mandatory snap can settle async). */
 export function waitForChapterScrollSettle(slot: HTMLElement): Promise<void> {
-  const expectedTop = chapterSlotScrollTop(slot)
-
   return new Promise((resolve) => {
     const start = performance.now()
 
     const tick = () => {
+      // Recompute per frame — the jump itself shifts flow heights (stage
+      // pin/unpin), so a captured target goes stale before the scroll lands.
+      const expectedTop = chapterSlotScrollTop(slot)
       if (Math.abs(window.scrollY - expectedTop) <= SCROLL_SETTLE_TOLERANCE_PX) {
         resolve()
         return
