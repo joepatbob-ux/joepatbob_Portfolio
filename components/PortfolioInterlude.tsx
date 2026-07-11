@@ -10,11 +10,11 @@ export function PortfolioInterlude() {
     <section className="portfolio-interlude" aria-label="Working philosophy">
       <PortfolioInterludeGlyphs />
       <div className="portfolio-interlude__copy">
-        <p>
+        <p className="portfolio-interlude__headline">
           I shape each product to work at its best, while understanding how it
           can and should interconnect with the others.
         </p>
-        <p>
+        <p className="portfolio-interlude__body">
           That is how strengths compound, weaknesses are offset, and the whole
           becomes more stable than any one product could be alone.
         </p>
