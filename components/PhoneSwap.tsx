@@ -1,9 +1,9 @@
 import { PhoneScreenshotControls } from '@/components/phone-swap/PhoneScreenshotControls'
 import { PhoneSwapScene } from '@/components/phone-swap/PhoneSwapScene'
 import { PhoneSwapGooLoader } from '@/components/phone-swap/PhoneSwapGooLoader'
+import { StageSceneReady } from '@/components/stage/StageSceneReady'
 import { SmaPhoneScreenOverlay } from '@/components/sma-ios26/SmaPhoneScreenOverlay'
 import type { DisplayScreenRect } from '@/lib/sma-ios26/displayScreenRect'
-import { Html } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 import {
   PHONE_SWAP_LAYOUT,
@@ -36,6 +36,9 @@ import {
   useState,
 } from 'react'
 import type * as THREE from 'three'
+
+/** Minimum time the goo loader stays up so it never flashes on fast loads. */
+const MIN_LOADER_MS = 900
 
 /** 3D Pixel / iPhone swap — tap back phone to swap. */
 export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
@@ -72,6 +75,17 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
   const androidRef = useRef<THREE.Group>(null)
   const iphoneRef = useRef<THREE.Group>(null)
   const sceneApiRef = useRef<PhoneSwapSceneApi | null>(null)
+
+  // Goo loader: hold it a minimum time so it never just flashes on fast loads,
+  // then fade out once the scene has committed AND the minimum has elapsed.
+  const [loaderHidden, setLoaderHidden] = useState(false)
+  const [loaderGone, setLoaderGone] = useState(false)
+  const loaderShownAtRef = useRef<number | null>(null)
+  const handleSceneReady = useCallback(() => {
+    const shownAt = loaderShownAtRef.current ?? performance.now()
+    const remaining = Math.max(0, MIN_LOADER_MS - (performance.now() - shownAt))
+    window.setTimeout(() => setLoaderHidden(true), remaining)
+  }, [])
 
   const swapProgress = swapped ? 1 : 0
 
@@ -161,6 +175,21 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
     }
   }, [shouldRenderScene])
 
+  // Stamp when the goo loader first appears (scene mounts) so handleSceneReady
+  // can enforce the minimum-visible window.
+  useEffect(() => {
+    if (shouldRenderScene && loaderShownAtRef.current == null) {
+      loaderShownAtRef.current = performance.now()
+    }
+  }, [shouldRenderScene])
+
+  // Unmount the loader (stopping its rAF) once the fade-out has finished.
+  useEffect(() => {
+    if (!loaderHidden) return
+    const t = window.setTimeout(() => setLoaderGone(true), 320)
+    return () => window.clearTimeout(t)
+  }, [loaderHidden])
+
   if (isPrerenderSnapshot() || !hydrated) {
     return null
   }
@@ -217,14 +246,9 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
               invalidateCanvasRef.current = invalidate
             }}
           >
-            <Suspense
-              fallback={
-                <Html center>
-                  <PhoneSwapGooLoader label="Loading phones…" />
-                </Html>
-              }
-            >
-              <PhoneSwapScene
+            <Suspense fallback={null}>
+              <StageSceneReady onReady={handleSceneReady}>
+                <PhoneSwapScene
                 layout={layout}
                 swapProgress={swapProgress}
                 layoutMode={false}
@@ -247,10 +271,11 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
                 iphoneLiveScreen={iphoneLiveScreen}
                 iphoneFocused={swapped}
                 viewportFitRef={viewportFitRef}
-                onLiveScreenRect={handleLiveScreenRect}
-                androidScreenUrl={screenshot.androidScreenUrl}
-                iphoneScreenUrl={screenshot.iphoneScreenUrl}
-              />
+                  onLiveScreenRect={handleLiveScreenRect}
+                  androidScreenUrl={screenshot.androidScreenUrl}
+                  iphoneScreenUrl={screenshot.iphoneScreenUrl}
+                />
+              </StageSceneReady>
             </Suspense>
           </Canvas>
         ) : (
@@ -258,6 +283,14 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
             <PhoneSwapGooLoader label="Loading 3D preview…" />
           </div>
         )}
+
+        {shouldRenderScene && !loaderGone ? (
+          <div
+            className={`phone-swap__loader-overlay${loaderHidden ? ' phone-swap__loader-overlay--hidden' : ''}`}
+          >
+            <PhoneSwapGooLoader label="Loading phones…" />
+          </div>
+        ) : null}
       </div>
 
       <PhoneScreenshotControls

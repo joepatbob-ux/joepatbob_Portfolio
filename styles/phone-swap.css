@@ -1172,6 +1172,30 @@
   min-height: min(50dvh, 360px);
 }
 
+/* Goo loader overlay — sits above the canvas until the scene commits + the
+   minimum-visible window elapses, then fades out. */
+.phone-swap__loader-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 300ms ease;
+}
+
+.phone-swap__loader-overlay--hidden {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .phone-swap__loader-overlay {
+    transition-duration: 0.01ms;
+  }
+}
+
 /* Ambient goo-pulse loader — echoes the interlude particle language. */
 .phone-goo-loader {
   display: flex;
