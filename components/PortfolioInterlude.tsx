@@ -1,11 +1,14 @@
+import { PortfolioInterludeGlyphs } from '@/components/PortfolioInterludeGlyphs'
+
 /**
  * Full-viewport pause between the hero and the first section — quiet room for
  * the sidebar nav to travel up and pin before the portfolio content begins.
- * Static by design: no stage, no chapter slot, no scroll choreography of its own.
+ * A gooey dust cycle of the four section glyphs sits above the statement copy.
  */
 export function PortfolioInterlude() {
   return (
     <section className="portfolio-interlude" aria-label="Working philosophy">
+      <PortfolioInterludeGlyphs />
       <div className="portfolio-interlude__copy">
         <p>
           I shape each product to work at its best, while understanding how it

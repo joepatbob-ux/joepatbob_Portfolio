@@ -103,11 +103,34 @@ html.sidebar-tablet-hero-active .sidebar-desktop-shell {
    signature-statement treatment (600 AHG, balanced, centered measure). ── */
 .portfolio-interlude {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: clamp(20px, 4vh, 44px);
   box-sizing: border-box;
   /* Phones/short screens: content-sized pause, no stranded empty viewport */
   padding-block: clamp(96px, 18svh, 200px);
+}
+
+/* Gooey glyph dust — the focal signature above the statement copy. Square,
+   sized to the viewport height so it never crowds the copy on short screens. */
+.portfolio-interlude__glyphs {
+  display: block;
+  width: clamp(200px, 30vh, 320px);
+  height: clamp(200px, 30vh, 320px);
+  aspect-ratio: 1;
+  flex: none;
+}
+
+/* Reserve the same box before hydration so the copy doesn't jump. */
+.portfolio-interlude__glyphs--placeholder {
+  visibility: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .portfolio-interlude__glyphs {
+    /* engine paints one static form; nothing animates */
+  }
 }
 
 .portfolio-interlude__copy {
