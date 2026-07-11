@@ -97,7 +97,7 @@ export function SidebarNav() {
           }}
           onClick={(e) => {
             if ((e.target as Element).closest('[data-sidebar-nav-hit]')) return
-            if (usesTopBarNav && mobileDrawerOpen) setMobileDrawerOpen(false)
+            if (usesTopBarNav && mobileDrawerOpen) closeOverlays()
           }}
         >
           {!(usesTopBarNav && mobileDrawerOpen) ? (
@@ -172,7 +172,10 @@ export function SidebarNav() {
                 aria-hidden
                 className="sidebar-shell__divider sidebar-shell__divider--horizontal"
               />
-              <SidebarOverlayClose onClose={closeOverlays} variant="mobile-panel" />
+              <SidebarOverlayClose
+                onClose={nav.commitOverlaySelection}
+                variant="mobile-panel"
+              />
             </div>
           ) : (
             <div

@@ -98,6 +98,11 @@ export function useSidebarNavState() {
 
   const staggerTimers = useRef<ReturnType<typeof setTimeout>[]>([])
   const subNavTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  /** Overlay browse-then-commit: taps stage a destination; Close navigates to it.
+      Scrim tap / Escape cancel and the highlight resyncs to the real position. */
+  const pendingNavRef = useRef<{ kind: 'section' | 'chapter'; id: string } | null>(
+    null,
+  )
   const prevStuck = useRef(false)
   const subNavVisibleRef = useRef(false)
   const activeSectionRef = useRef<string | null>(null)
@@ -271,6 +276,7 @@ export function useSidebarNavState() {
     const overlayOpen = usesTopBarNav && mobileDrawerOpen
     if (!usesTopBarNav) return
     if (overlayOpen) {
+      pendingNavRef.current = null
       const id = activeSectionRef.current || NAV_SECTIONS[0].id
       setSubNavVisible(true)
       setDividerVisible(true)
@@ -389,9 +395,15 @@ export function useSidebarNavState() {
   useBodyScrollLock(drawerOpen)
   useDialogFocusTrap(mobileDrawerPanelRef, drawerOpen, subnavRef)
 
+  /** Dismiss without navigating — drops any staged pick and resyncs the
+      highlight to the chapter actually on screen. */
   const closeOverlays = useCallback(() => {
+    pendingNavRef.current = null
+    overlayOpenRef.current = false
     setMobileDrawerOpen(false)
-  }, [])
+    const chapterId = activeSlideIdPublished()
+    if (chapterId) syncNavFromPublishedChapter(chapterId)
+  }, [syncNavFromPublishedChapter])
 
   const applyMobileHeroScroll = useCallback((y: number) => {
     const viewportH = getLayoutViewportHeight() || window.innerHeight
@@ -555,7 +567,7 @@ export function useSidebarNavState() {
   }, [applyStuckState, applyScrollSpy])
 
   const scrollToChapter = (chapterId: string) => {
-    const wasDrawerOpen = mobileDrawerOpen
+    const overlayBrowse = usesTopBarNav && mobileDrawerOpen
     const sectionId = sectionIdForChapter(chapterId)
     if (sectionId) {
       activeSectionRef.current = sectionId
@@ -564,23 +576,16 @@ export function useSidebarNavState() {
     }
     activeChapterRef.current = chapterId
     setActiveChapter(chapterId)
-    if (wasDrawerOpen) {
-      // Close first so useBodyScrollLock releases before navigation scrolls.
-      // Two rAFs: rAF1 fires before paint, useEffect cleanup runs after paint,
-      // then rAF2 fires with the body unlocked and scrollTo working.
-      closeOverlays()
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          void navigateToChapter(chapterId).then(syncScrollAfterNavigate)
-        })
-      })
-    } else {
-      void navigateToChapter(chapterId).then(syncScrollAfterNavigate)
+    if (overlayBrowse) {
+      // Overlay taps only stage the destination; Close commits it.
+      pendingNavRef.current = { kind: 'chapter', id: chapterId }
+      return
     }
+    void navigateToChapter(chapterId).then(syncScrollAfterNavigate)
   }
 
   const scrollToSection = (id: string) => {
-    const wasDrawerOpen = mobileDrawerOpen
+    const overlayBrowse = usesTopBarNav && mobileDrawerOpen
     const sec = NAV_SECTIONS.find((s) => s.id === id)
     activeSectionRef.current = id
     setActiveSection(id)
@@ -590,16 +595,35 @@ export function useSidebarNavState() {
       activeChapterRef.current = entryChapterId
       setActiveChapter(entryChapterId)
     }
-    if (wasDrawerOpen) {
-      closeOverlays()
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          void navigateToSection(id).then(syncScrollAfterNavigate)
-        })
-      })
-    } else {
-      void navigateToSection(id).then(syncScrollAfterNavigate)
+    if (overlayBrowse) {
+      pendingNavRef.current = { kind: 'section', id }
+      return
     }
+    void navigateToSection(id).then(syncScrollAfterNavigate)
+  }
+
+  /** Close button in the overlay: dismiss and navigate to the staged pick. */
+  const commitOverlaySelection = () => {
+    const pending = pendingNavRef.current
+    pendingNavRef.current = null
+    if (!pending) {
+      closeOverlays()
+      return
+    }
+    overlayOpenRef.current = false
+    setMobileDrawerOpen(false)
+    // Close first so useBodyScrollLock releases before navigation scrolls.
+    // Two rAFs: rAF1 fires before paint, useEffect cleanup runs after paint,
+    // then rAF2 fires with the body unlocked and scrollTo working.
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const run =
+          pending.kind === 'chapter'
+            ? navigateToChapter(pending.id)
+            : navigateToSection(pending.id)
+        void run.then(syncScrollAfterNavigate)
+      })
+    })
   }
 
   const currentSection =
@@ -641,6 +665,7 @@ export function useSidebarNavState() {
     subnavRef,
     scrollToChapter,
     scrollToSection,
+    commitOverlaySelection,
     currentSection,
     overlaySubnav,
     subnavInteractive,
