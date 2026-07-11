@@ -5,14 +5,14 @@ import { createGooPulse, type GooPulseRecipe } from '@/lib/glyph-dust/createGooP
 
 /** Ambient breathing goo cluster — matches the interlude particle language. */
 const RECIPE: GooPulseRecipe = {
-  motes: 900,
-  radius: 0.72,
+  motes: 500,
+  radius: 0.4,
   dotSize: 7,
-  goo: 9,
-  breath: 0.14,
-  breathMs: 2600,
-  spin: 0.5,
-  errant: 10,
+  goo: 18,
+  breath: 0.11,
+  breathMs: 2400,
+  spin: 0.8,
+  errant: 0,
 }
 
 /**
