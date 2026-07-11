@@ -267,7 +267,7 @@ export function createGlyphDust(
   let accentHex = '#DE3E18'
   let accentRGB: [number, number, number] = [222, 62, 24]
   function refreshAccent() {
-    const v = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()
+    const v = getComputedStyle(document.documentElement).getPropertyValue('--color-accent').trim()
     if (v) {
       accentHex = v
       accentRGB = hexRGB(v)

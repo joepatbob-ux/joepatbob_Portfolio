@@ -1,6 +1,6 @@
 import { PhoneScreenshotControls } from '@/components/phone-swap/PhoneScreenshotControls'
 import { PhoneSwapScene } from '@/components/phone-swap/PhoneSwapScene'
-import { StageSpinner } from '@/components/stage/StageSpinner'
+import { PhoneSwapGooLoader } from '@/components/phone-swap/PhoneSwapGooLoader'
 import { SmaPhoneScreenOverlay } from '@/components/sma-ios26/SmaPhoneScreenOverlay'
 import type { DisplayScreenRect } from '@/lib/sma-ios26/displayScreenRect'
 import { Html } from '@react-three/drei'
@@ -220,7 +220,7 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
             <Suspense
               fallback={
                 <Html center>
-                  <StageSpinner label="Loading phones…" size="lg" />
+                  <PhoneSwapGooLoader label="Loading phones…" />
                 </Html>
               }
             >
@@ -255,7 +255,7 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
           </Canvas>
         ) : (
           <div className="phone-swap__viewbox-placeholder">
-            <StageSpinner label="Loading 3D preview…" size="lg" />
+            <PhoneSwapGooLoader label="Loading 3D preview…" />
           </div>
         )}
       </div>
