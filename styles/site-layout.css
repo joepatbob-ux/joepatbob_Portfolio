@@ -97,3 +97,74 @@ html.sidebar-tablet-hero-active .sidebar-desktop-shell {
   }
 }
 
+
+/* ── Interlude — full-viewport pause between the hero and the first section.
+   Quiet room for the nav to travel up and pin; type mirrors the overview
+   signature-statement treatment (600 AHG, balanced, centered measure). ── */
+.portfolio-interlude {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(20px, 4vh, 44px);
+  box-sizing: border-box;
+  /* Phones/short screens: content-sized pause, no stranded empty viewport */
+  padding-block: clamp(96px, 18svh, 200px);
+}
+
+/* Gooey glyph dust — the focal signature above the statement copy. Square,
+   sized to the viewport height so it never crowds the copy on short screens. */
+.portfolio-interlude__glyphs {
+  display: block;
+  width: clamp(200px, 30vh, 320px);
+  height: clamp(200px, 30vh, 320px);
+  aspect-ratio: 1;
+  flex: none;
+}
+
+/* Reserve the same box before hydration so the copy doesn't jump. */
+.portfolio-interlude__glyphs--placeholder {
+  visibility: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .portfolio-interlude__glyphs {
+    /* engine paints one static form; nothing animates */
+  }
+}
+
+.portfolio-interlude__copy {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(14px, 2.2vh, 22px);
+  width: 100%;
+  max-width: var(--cs-overview-measure-max, min(60ch, 100%));
+  margin-inline: auto;
+  padding-inline: var(--cs-overview-inset-x, clamp(20px, 4vw, 40px));
+  text-align: left;
+}
+
+.portfolio-interlude__copy p {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: clamp(18px, 1.9vw, 24px);
+  line-height: 1.45;
+  letter-spacing: -0.01em;
+  color: var(--color-ink);
+  text-wrap: balance;
+}
+
+/* Tablet/desktop: centered like the section overviews */
+@media (min-width: 768px) {
+  .portfolio-interlude__copy {
+    text-align: center;
+  }
+}
+
+/* Desktop: roughly one viewport of quiet while the nav pins */
+@media (min-width: 1024px) {
+  .portfolio-interlude {
+    min-height: 100dvh;
+  }
+}

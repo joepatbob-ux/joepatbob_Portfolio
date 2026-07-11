@@ -4,6 +4,7 @@ import dynamic from '@/lib/dynamic'
 import { CaseStudy } from '@/components/CaseStudy'
 import { ChapterNavProvider } from '@/components/ChapterNavProvider'
 import { Hero } from '@/components/Hero'
+import { PortfolioInterlude } from '@/components/PortfolioInterlude'
 import { SidebarNav } from '@/components/SidebarNav'
 import { StickerProvider } from '@/components/StickerProvider'
 import { ThemeProvider } from '@/components/ThemeProvider'
@@ -44,6 +45,7 @@ export default function App() {
               <SidebarNav />
               <main id="main-content" className="content-area" tabIndex={-1}>
                 <Hero />
+                <PortfolioInterlude />
                 <CaseStudy section={hardware} sectionId="hardware" />
                 <CaseStudy sectionId="mobile" />
                 <CaseStudy sectionId="web-apps" />
