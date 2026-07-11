@@ -10,20 +10,22 @@ export interface GlyphDustRecipe {
   shapeDens: number
   /** dot radius (world units) when packed into a shape */
   dotSize: number
-  /** dot radius (world units) at the peak of the loose cloud */
+  /** dot radius (world units) mid-transit between shapes */
   cloudDot: number
   /** ms held as each dense glyph */
   hold: number
-  /** ms of the disperse→recondense flow between glyphs */
+  /** ms of the flow morphing one glyph directly into the next */
   flow: number
-  /** dots per unit² in the dispersed cloud (lower = larger, airier cloud) */
-  cloudDens: number
   /** 0–1 spread of per-mote departure times */
   stagger: number
   /** 0–1 mid-flight size flicker */
   shimmer: number
   /** metaball blur px at half-res (0 = crisp round droplets, higher = stickier fluid) */
   goo: number
+  /** how far transit paths bow (world units) — organic flow, no central cloud */
+  curve: number
+  /** count of free-floating specks that never merge (personality) */
+  errant: number
   /** hard cap on the mote pool (perf guard) */
   maxMotes?: number
 }
@@ -31,11 +33,23 @@ export interface GlyphDustRecipe {
 interface Mote {
   pos: [number, number][] // one [x,y] per glyph
   delay: number
-  cx: number // unit-disc cloud offset
-  cy: number
+  curve: number // signed perpendicular bow of this mote's transit path
   sizeJit: number
   alpha: number
   spin: number
+}
+
+interface Errant {
+  bx: number
+  by: number
+  ax: number
+  ay: number
+  sx: number
+  sy: number
+  px: number
+  py: number
+  r: number
+  alpha: number
 }
 
 export interface GlyphDustHandle {
@@ -228,15 +242,35 @@ export function createGlyphDust(
     DOTS = new Array(N)
     for (let k = 0; k < N; k++) {
       const a = P[0][k], b = P[1][m01[k]], c = P[2][m12[m01[k]]], d = P[3][m23[m12[m01[k]]]]
-      const cr = Math.sqrt(rnd()), cth = rnd() * Math.PI * 2
       DOTS[k] = {
         pos: [a, b, c, d],
         delay: rnd(),
-        cx: cr * Math.cos(cth),
-        cy: cr * Math.sin(cth),
+        curve: (rnd() - 0.5) * 2,
         sizeJit: 0.65 + rnd() * 0.7,
         alpha: 0.72 + rnd() * 0.28,
         spin: rnd() * Math.PI * 2,
+      }
+    }
+  }
+
+  // ── errant specks: a handful of free motes that never merge into the goo ──
+  let ERRANT: Errant[] = []
+  function buildErrant() {
+    const rnd = mulberry32(9001)
+    const n = Math.max(0, Math.round(recipe.errant))
+    ERRANT = new Array(n)
+    for (let k = 0; k < n; k++) {
+      ERRANT[k] = {
+        bx: rnd() * W,
+        by: rnd() * canvas.height,
+        ax: (0.1 + rnd() * 0.28) * W,
+        ay: (0.1 + rnd() * 0.28) * canvas.height,
+        sx: (0.00012 + rnd() * 0.00035) * (rnd() < 0.5 ? -1 : 1),
+        sy: (0.00012 + rnd() * 0.00035) * (rnd() < 0.5 ? -1 : 1),
+        px: rnd() * Math.PI * 2,
+        py: rnd() * Math.PI * 2,
+        r: (0.06 + rnd() * 0.11) * SCALE,
+        alpha: 0.35 + rnd() * 0.5,
       }
     }
   }
@@ -283,9 +317,6 @@ export function createGlyphDust(
       ft = (f - holdFrac) / (1 - holdFrac)
     }
     const span = Math.max(0.25, 1 - recipe.stagger)
-    const gooMargin = recipe.goo >= 1 ? recipe.goo / KH / SCALE : 0
-    const maxR = 12 - 0.6 - gooMargin - recipe.cloudDot
-    const R = Math.min(maxR, Math.sqrt(N / (Math.PI * Math.max(0.3, recipe.cloudDens))))
     const goo = recipe.goo >= 1
 
     if (goo) {
@@ -303,19 +334,19 @@ export function createGlyphDust(
         x = dot.pos[i][0]
         y = dot.pos[i][1]
       } else {
+        // Direct morph A→B along a gently bowed path (no central cloud gather).
         const A = dot.pos[i], B = dot.pos[j]
         const lt = Math.max(0, Math.min(1, (ft - dot.delay * recipe.stagger) / span))
         disp = Math.sin(Math.PI * lt)
-        const C0 = 12 + R * dot.cx, C1 = 12 + R * dot.cy
-        if (lt < 0.5) {
-          const s = easeIO(lt / 0.5)
-          x = A[0] + (C0 - A[0]) * s
-          y = A[1] + (C1 - A[1]) * s
-        } else {
-          const s = easeIO((lt - 0.5) / 0.5)
-          x = C0 + (B[0] - C0) * s
-          y = C1 + (B[1] - C1) * s
-        }
+        const e = easeIO(lt)
+        const mx = (A[0] + B[0]) / 2, my = (A[1] + B[1]) / 2
+        const dx = B[0] - A[0], dy = B[1] - A[1]
+        const len = Math.hypot(dx, dy) || 1
+        const amp = dot.curve * recipe.curve
+        const cX = mx + (-dy / len) * amp, cY = my + (dx / len) * amp
+        const u = 1 - e
+        x = u * u * A[0] + 2 * u * e * cX + e * e * B[0]
+        y = u * u * A[1] + 2 * u * e * cY + e * e * B[1]
       }
       const [cx, cy] = w2c(x, y)
       const effDotr = (recipe.dotSize + (recipe.cloudDot - recipe.dotSize) * disp) * SCALE
@@ -357,6 +388,17 @@ export function createGlyphDust(
       ctx.globalAlpha = 1
       ctx.drawImage(gbCanvas, 0, 0, HALF, HALF, 0, 0, W, canvas.height)
     }
+
+    // Errant specks — drawn crisp on top of the goo so they never merge in.
+    ctx.fillStyle = col
+    for (const e of ERRANT) {
+      const ex = e.bx + Math.sin(clock * e.sx + e.px) * e.ax
+      const ey = e.by + Math.cos(clock * e.sy + e.py) * e.ay
+      ctx.globalAlpha = e.alpha
+      ctx.beginPath()
+      ctx.arc(ex, ey, e.r, 0, 6.2832)
+      ctx.fill()
+    }
     ctx.globalAlpha = 1
   }
 
@@ -364,18 +406,21 @@ export function createGlyphDust(
   let raf = 0
   let last = 0
   let phase = 0
+  let clock = 0 // monotonic ms, drives errant drift (independent of the cycle)
   let running = false
   const total = (recipe.hold + recipe.flow) * 4
   function tick(now: number) {
     if (!running) return
     const dt = Math.max(0, now - last)
     last = now
+    clock += dt
     phase = (((phase + dt / total) % 1) + 1) % 1
     render(phase)
     raf = requestAnimationFrame(tick)
   }
 
   buildDots()
+  buildErrant()
 
   return {
     start() {

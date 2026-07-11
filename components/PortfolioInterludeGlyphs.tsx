@@ -11,10 +11,11 @@ const RECIPE: GlyphDustRecipe = {
   cloudDot: 0.03,
   hold: 1100,
   flow: 6000,
-  cloudDens: 4.5,
   stagger: 0.6,
   shimmer: 1.0,
   goo: 14.0,
+  curve: 1.6, // gentle bow on the direct shape→shape morph
+  errant: 42, // free-floating specks that never merge
 }
 
 /**
