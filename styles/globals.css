@@ -135,6 +135,29 @@
     --tablet-backdrop-scrim: rgba(240, 240, 240, 0.62);
   }
 
+  /* iOS Safari drops the animated backdrop blur on the fixed nav scrim, so the
+     62% wash is all that renders and page content bleeds through the open menu.
+     Solidify the scrim on iOS; other engines keep the lighter frosted look. */
+  @supports (-webkit-touch-callout: none) {
+    :root {
+      --tablet-backdrop-scrim: rgba(240, 240, 240, 0.94);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme='light']) {
+        --tablet-backdrop-scrim: rgba(4, 4, 4, 0.93);
+      }
+    }
+
+    html[data-theme='dark'] {
+      --tablet-backdrop-scrim: rgba(4, 4, 4, 0.93);
+    }
+
+    html[data-theme='light'] {
+      --tablet-backdrop-scrim: rgba(240, 240, 240, 0.94);
+    }
+  }
+
   html {
     /* Page canvas; hero zone uses fixed ::before layer driven by scroll fade. */
     background-color: var(--color-paper);
