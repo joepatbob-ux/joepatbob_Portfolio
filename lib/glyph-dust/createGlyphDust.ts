@@ -88,16 +88,6 @@ function circleToPath(cx: number, cy: number, r: number) {
 function subpaths(d: string) {
   return d.split(/(?=[Mm])/).map((s) => s.trim()).filter(Boolean)
 }
-function bboxArea(pts: [number, number][]) {
-  let a = 1e9, b = 1e9, c = -1e9, d = -1e9
-  for (const [x, y] of pts) {
-    a = Math.min(a, x)
-    b = Math.min(b, y)
-    c = Math.max(c, x)
-    d = Math.max(d, y)
-  }
-  return (c - a) * (d - b)
-}
 function scanKey(p: [number, number]) {
   const band = Math.floor(p[1] * 1.4)
   const x = band % 2 === 0 ? p[0] : 24 - p[0]
@@ -121,7 +111,13 @@ export function createGlyphDust(
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
   svg.setAttribute('style', 'position:absolute;width:0;height:0;overflow:hidden')
   document.body.appendChild(svg)
-  function samplePath(d: string, n: number, dx = 0, dy = 0): [number, number][] {
+  function samplePath(
+    d: string,
+    n: number,
+    scale = 1,
+    dx = 0,
+    dy = 0,
+  ): [number, number][] {
     const el = document.createElementNS('http://www.w3.org/2000/svg', 'path')
     el.setAttribute('d', d)
     svg.appendChild(el)
@@ -129,41 +125,33 @@ export function createGlyphDust(
     const pts: [number, number][] = []
     for (let i = 0; i < n; i++) {
       const p = el.getPointAtLength((len * i) / n)
-      pts.push([p.x + dx, p.y + dy])
+      pts.push([p.x * scale + dx, p.y * scale + dy])
     }
     el.remove()
     return pts
   }
 
+  // Normalize a glyph into the 24-unit mask space and rasterize its silhouette.
+  // Every subpath of every shape is added to one Path2D; even-odd fill turns the
+  // inner subpaths (screen marks, dots, mouth) into cutouts. This handles both
+  // the single-path-with-holes glyphs and multi-path glyphs uniformly.
   function prep(def: GlyphDef): Path2D {
     const [, , w, h] = def.viewBox.split(' ').map(Number)
-    const dx = (24 - w) / 2, dy = (24 - h) / 2
+    const TARGET = 20 // fit the glyph within a 20-unit box, centered in 24
+    const scale = TARGET / Math.max(w, h)
+    const dx = (24 - w * scale) / 2, dy = (24 - h * scale) / 2
     const paths = def.shapes.map((s) =>
       s.type === 'circle' ? circleToPath(s.cx!, s.cy!, s.r!) : s.d!,
     )
-    let fi = -1, fa = -1
-    paths.forEach((d, i) => {
-      const s = subpaths(d)
-      if (s.length >= 2) {
-        const a = bboxArea(samplePath(s[0], 48, dx, dy))
-        if (a > fa) {
-          fa = a
-          fi = i
-        }
-      }
-    })
-    const subs = subpaths(paths[fi])
-    const rings = subs.map((s) => samplePath(s, 220, dx, dy))
-    rings.sort((a, b) => bboxArea(b) - bboxArea(a))
-    const holes = paths.filter((_, i) => i !== fi).map((d) => samplePath(d, 140, dx, dy))
     const p2d = new Path2D()
     const add = (pts: [number, number][]) => {
       p2d.moveTo(pts[0][0], pts[0][1])
       for (let i = 1; i < pts.length; i++) p2d.lineTo(pts[i][0], pts[i][1])
       p2d.closePath()
     }
-    add(rings[0])
-    holes.forEach(add)
+    for (const d of paths) {
+      for (const sp of subpaths(d)) add(samplePath(sp, 200, scale, dx, dy))
+    }
     return p2d
   }
 
