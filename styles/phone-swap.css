@@ -1182,6 +1182,9 @@
   align-items: center;
   justify-content: center;
   pointer-events: none;
+  /* Opaque page ground so the loader fully covers the phone while it settles,
+     instead of the small goo blob floating on top of the rendered phone. */
+  background: var(--color-paper);
   opacity: 1;
   transition: opacity 300ms ease;
 }

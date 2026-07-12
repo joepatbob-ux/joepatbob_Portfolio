@@ -182,11 +182,13 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
   }, [shouldRenderScene])
 
   // Stamp when the goo loader first appears (scene mounts) so handleSceneReady
-  // can enforce the minimum-visible window.
+  // can enforce the minimum-visible window. Arm a hard fallback so the opaque
+  // overlay always releases even if the scene never signals ready.
   useEffect(() => {
-    if (shouldRenderScene && loaderShownAtRef.current == null) {
-      loaderShownAtRef.current = performance.now()
-    }
+    if (!shouldRenderScene || loaderShownAtRef.current != null) return
+    loaderShownAtRef.current = performance.now()
+    const safety = window.setTimeout(() => setLoaderHidden(true), 8000)
+    return () => window.clearTimeout(safety)
   }, [shouldRenderScene])
 
   // Unmount the loader (stopping its rAF) once the fade-out has finished.
