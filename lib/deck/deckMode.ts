@@ -38,6 +38,10 @@ export function initDeckModeClass(): void {
   const fine =
     on && (deckForced() || window.matchMedia('(pointer: fine)').matches)
   document.documentElement.classList.toggle(DECK_FINE_CLASS, fine)
+  // The deck uses the base (non-continuous) chapter layout — a two-column,
+  // viewport-fit stage/copy — not the tall continuous-scroll stack. Turn the
+  // continuous-scroll CSS/JS off so stages render statically instead of pinning.
+  if (on) document.documentElement.classList.remove('continuous-chapters')
 }
 
 /** True when the deck flag is on. */
