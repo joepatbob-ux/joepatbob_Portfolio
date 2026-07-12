@@ -1,8 +1,6 @@
 // Ambient goo pulse — a loose, breathing cluster of accent motes that churns
 // around a center, rendered with the same sticky metaball pass as the interlude
-// dust (deterministic box blur + alpha threshold). Used as the phone-stage loader.
-
-import { boxBlurRGBA } from '@/lib/glyph-dust/boxBlur'
+// dust (native canvas blur + alpha threshold). Used as the phone-stage loader.
 
 export interface GooPulseRecipe {
   /** motes in the breathing cluster */
@@ -153,10 +151,6 @@ export function createGooPulse(
 
   const goo = recipe.goo >= 1
   const dotr = recipe.dotSize
-  const useNativeGooBlur =
-    typeof navigator !== 'undefined' &&
-    /Safari/i.test(navigator.userAgent) &&
-    !/Chrome|Chromium|Edg/i.test(navigator.userAgent)
 
   function render(t: number) {
     ctx.setTransform(1, 0, 0, 1, 0, 0)
@@ -193,18 +187,12 @@ export function createGooPulse(
     }
 
     if (goo) {
-      let img: ImageData
-      if (useNativeGooBlur) {
-        gbCtx.setTransform(1, 0, 0, 1, 0, 0)
-        gbCtx.clearRect(0, 0, HALF, HALF)
-        gbCtx.filter = `blur(${recipe.goo}px)`
-        gbCtx.drawImage(gaCanvas, 0, 0)
-        gbCtx.filter = 'none'
-        img = gbCtx.getImageData(0, 0, HALF, HALF)
-      } else {
-        img = gaCtx.getImageData(0, 0, HALF, HALF)
-        boxBlurRGBA(img.data, HALF, HALF, recipe.goo)
-      }
+      gbCtx.setTransform(1, 0, 0, 1, 0, 0)
+      gbCtx.clearRect(0, 0, HALF, HALF)
+      gbCtx.filter = `blur(${recipe.goo}px)`
+      gbCtx.drawImage(gaCanvas, 0, 0)
+      gbCtx.filter = 'none'
+      const img = gbCtx.getImageData(0, 0, HALF, HALF)
       const d = img.data
       const [AR, AG, AB] = accentRGB
       const T = 96

@@ -4,7 +4,6 @@
 // tuning prototype; all magic numbers come in through GlyphDustRecipe.
 
 import { GLYPH_DEFS, GLYPH_LABELS, GLYPH_ORDER, type GlyphDef } from '@/lib/glyph-dust/glyphData'
-import { boxBlurRGBA } from '@/lib/glyph-dust/boxBlur'
 
 export interface GlyphDustRecipe {
   /** dots per unit² in a settled glyph (sizes the shared pool off the largest form) */
@@ -109,11 +108,14 @@ export function createGlyphDust(
   const KH = HALF / W
   const glyphXf = SCALE * KH
   const glyphXo = 2 * SCALE * KH
-  // Safari's native canvas blur matches the tuned recipe; Chromium blurs wider.
-  const useNativeGooBlur =
-    typeof navigator !== 'undefined' &&
-    /Safari/i.test(navigator.userAgent) &&
-    !/Chrome|Chromium|Edg/i.test(navigator.userAgent)
+  // Safari reads cleanly with native blur alone; Chromium needs hole masks because
+  // its canvas blur bleeds across thin cutouts. Keep GPU blur on both engines.
+  const needsHoleMask =
+    typeof navigator === 'undefined' ||
+    !(
+      /Safari/i.test(navigator.userAgent) &&
+      !/Chrome|Chromium|Edg/i.test(navigator.userAgent)
+    )
 
   function clearGooHoles(holePath: Path2D) {
     gaCtx.save()
@@ -199,6 +201,20 @@ export function createGlyphDust(
     return m
   }
   const HOLE_MASKS = GL_HOLES.map(buildHoleMask)
+
+  function cutHolePixels(
+    data: Uint8ClampedArray,
+    from: number,
+    to: number,
+    flowing: boolean,
+  ) {
+    const a = HOLE_MASKS[from]!
+    const b = HOLE_MASKS[to]!
+    for (let p = 0; p < a.length; p++) {
+      const cut = flowing ? a[p] === 1 || b[p] === 1 : a[p] === 1
+      if (cut) data[p * 4 + 3] = 0
+    }
+  }
 
   // one-time coverage masks (O(1) point-in-shape)
   function buildMask(p2d: Path2D): Uint8Array {
@@ -397,21 +413,17 @@ export function createGlyphDust(
     }
 
     if (goo) {
-      if (!useNativeGooBlur && !flowing) clearGooHoles(GL_HOLES[i])
-
-      let img: ImageData
-      if (useNativeGooBlur) {
-        gbCtx.setTransform(1, 0, 0, 1, 0, 0)
-        gbCtx.clearRect(0, 0, HALF, HALF)
-        gbCtx.filter = `blur(${recipe.goo}px)`
-        gbCtx.drawImage(gaCanvas, 0, 0)
-        gbCtx.filter = 'none'
-        img = gbCtx.getImageData(0, 0, HALF, HALF)
-      } else {
-        img = gaCtx.getImageData(0, 0, HALF, HALF)
-        boxBlurRGBA(img.data, HALF, HALF, recipe.goo)
+      if (needsHoleMask) {
+        clearGooHoles(GL_HOLES[i])
+        if (flowing) clearGooHoles(GL_HOLES[j])
       }
 
+      gbCtx.setTransform(1, 0, 0, 1, 0, 0)
+      gbCtx.clearRect(0, 0, HALF, HALF)
+      gbCtx.filter = `blur(${recipe.goo}px)`
+      gbCtx.drawImage(gaCanvas, 0, 0)
+      gbCtx.filter = 'none'
+      const img = gbCtx.getImageData(0, 0, HALF, HALF)
       const d = img.data
       const [AR, AG, AB] = accentRGB
       const T = 96
@@ -425,14 +437,7 @@ export function createGlyphDust(
           d[q + 3] = 0
         }
       }
-      if (!useNativeGooBlur && !flowing) {
-        const hole = HOLE_MASKS[i]!
-        for (let p = 0; p < hole.length; p++) {
-          if (hole[p] === 1) d[p * 4 + 3] = 0
-        }
-      }
-      gbCtx.setTransform(1, 0, 0, 1, 0, 0)
-      gbCtx.clearRect(0, 0, HALF, HALF)
+      if (needsHoleMask) cutHolePixels(d, i, j, flowing)
       gbCtx.putImageData(img, 0, 0)
       ctx.imageSmoothingEnabled = true
       ctx.globalAlpha = 1
