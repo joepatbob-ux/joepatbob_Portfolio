@@ -106,6 +106,14 @@ export function createGlyphDust(
   const MASKN = 24 * MASKRES
   const HALF = Math.round(W * 0.56)
   const KH = HALF / W
+  // Chrome's canvas blur is wider than Safari's at the same radius — soften slightly
+  // so the metaball threshold matches across engines before hole punch.
+  const isChrome =
+    typeof navigator !== 'undefined' &&
+    /Chrome/i.test(navigator.userAgent) &&
+    !/Edg/i.test(navigator.userAgent)
+  const gooBlurPx = isChrome ? recipe.goo * 0.88 : recipe.goo
+  const gooThreshold = isChrome ? 84 : 96
 
   // detached SVG for path sampling
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
@@ -132,10 +140,10 @@ export function createGlyphDust(
   }
 
   // Normalize a glyph into the 24-unit mask space and rasterize its silhouette.
-  // Every subpath of every shape is added to one Path2D; even-odd fill turns the
-  // inner subpaths (screen marks, dots, mouth) into cutouts. This handles both
-  // the single-path-with-holes glyphs and multi-path glyphs uniformly.
-  function prep(def: GlyphDef): Path2D {
+  // First subpath is the outer frame; later subpaths are inner cutouts. The body
+  // Path2D uses even-odd fill for masks; cutouts are kept separately so the goo
+  // pass can punch them back out after metaball blur (Chrome blurs harder than Safari).
+  function prep(def: GlyphDef): { body: Path2D; holes: Path2D } {
     const [, , w, h] = def.viewBox.split(' ').map(Number)
     const TARGET = 20 // fit the glyph within a 20-unit box, centered in 24
     const scale = TARGET / Math.max(w, h)
@@ -143,19 +151,26 @@ export function createGlyphDust(
     const paths = def.shapes.map((s) =>
       s.type === 'circle' ? circleToPath(s.cx!, s.cy!, s.r!) : s.d!,
     )
-    const p2d = new Path2D()
-    const add = (pts: [number, number][]) => {
-      p2d.moveTo(pts[0][0], pts[0][1])
-      for (let i = 1; i < pts.length; i++) p2d.lineTo(pts[i][0], pts[i][1])
-      p2d.closePath()
+    const body = new Path2D()
+    const holes = new Path2D()
+    const add = (target: Path2D, pts: [number, number][]) => {
+      target.moveTo(pts[0][0], pts[0][1])
+      for (let i = 1; i < pts.length; i++) target.lineTo(pts[i][0], pts[i][1])
+      target.closePath()
     }
+    let outer = true
     for (const d of paths) {
-      for (const sp of subpaths(d)) add(samplePath(sp, 200, scale, dx, dy))
+      for (const sp of subpaths(d)) {
+        add(outer ? body : holes, samplePath(sp, 200, scale, dx, dy))
+        outer = false
+      }
     }
-    return p2d
+    return { body, holes }
   }
 
-  const GL = GLYPH_ORDER.map((name) => prep(GLYPH_DEFS[name]))
+  const GLYPH_PATHS = GLYPH_ORDER.map((name) => prep(GLYPH_DEFS[name]))
+  const GL = GLYPH_PATHS.map((g) => g.body)
+  const GL_HOLES = GLYPH_PATHS.map((g) => g.holes)
 
   // one-time coverage masks (O(1) point-in-shape)
   function buildMask(p2d: Path2D): Uint8Array {
@@ -356,13 +371,13 @@ export function createGlyphDust(
     if (goo) {
       gbCtx.setTransform(1, 0, 0, 1, 0, 0)
       gbCtx.clearRect(0, 0, HALF, HALF)
-      gbCtx.filter = `blur(${recipe.goo}px)`
+      gbCtx.filter = `blur(${gooBlurPx}px)`
       gbCtx.drawImage(gaCanvas, 0, 0)
       gbCtx.filter = 'none'
       const img = gbCtx.getImageData(0, 0, HALF, HALF)
       const d = img.data
       const [AR, AG, AB] = accentRGB
-      const T = 96
+      const T = gooThreshold
       for (let q = 0; q < d.length; q += 4) {
         if (d[q + 3] > T) {
           d[q] = AR
@@ -375,6 +390,14 @@ export function createGlyphDust(
       ctx.imageSmoothingEnabled = true
       ctx.globalAlpha = 1
       ctx.drawImage(gbCanvas, 0, 0, HALF, HALF, 0, 0, W, canvas.height)
+      // Metaball blur bleeds across thin cutouts; punch inner subpaths while holding.
+      if (!flowing) {
+        ctx.save()
+        ctx.setTransform(SCALE, 0, 0, SCALE, 2 * SCALE, 2 * SCALE)
+        ctx.globalCompositeOperation = 'destination-out'
+        ctx.fill(GL_HOLES[i])
+        ctx.restore()
+      }
     }
 
     // Errant specks — drawn crisp on top of the goo so they never merge in.
