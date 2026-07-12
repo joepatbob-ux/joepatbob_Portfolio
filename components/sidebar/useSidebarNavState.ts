@@ -16,7 +16,9 @@ import { getDocumentScrollY } from '@/lib/scroll/documentScrollY'
 import {
   applySidebarHeroNameFade,
   applySidebarShellFade,
+  isInBreatherScrollZone,
   isInHeroScrollZone,
+  isInInterludeScrollZone,
   isTopBarInHeroScrollZone,
   resetSidebarShellFade,
 } from '@/lib/scroll/heroScroll'
@@ -104,6 +106,7 @@ export function useSidebarNavState() {
     null,
   )
   const prevStuck = useRef(false)
+  const wasInInterludeRef = useRef(false)
   const subNavVisibleRef = useRef(false)
   const activeSectionRef = useRef<string | null>(null)
   const activeChapterRef = useRef<string | null>(null)
@@ -329,7 +332,7 @@ export function useSidebarNavState() {
   useEffect(() => {
     if (!publishedSlideId) return
     if (chapterNavPhase !== 'idle') return
-    if (usesTopBarNav ? isTopBarInHeroScrollZone() : isInHeroScrollZone()) return
+    if (usesTopBarNav ? isTopBarInHeroScrollZone() : isInBreatherScrollZone()) return
     syncNavFromPublishedChapter(publishedSlideId)
   }, [
     publishedSlideId,
@@ -348,17 +351,18 @@ export function useSidebarNavState() {
         setNavIsStuck(true)
         setDimActive(true)
         subNavTimer.current = setTimeout(() => {
+          if (isInInterludeScrollZone()) return
           setSubNavVisible(true)
           const chapterId = activeSlideIdPublished()
           const sectionId = chapterId ? sectionIdForChapter(chapterId) : null
-          const id = sectionId || NAV_SECTIONS[0].id
-          activeSectionRef.current = id
-          setActiveSection(id)
+          if (!sectionId) return
+          activeSectionRef.current = sectionId
+          setActiveSection(sectionId)
           if (chapterId) {
             activeChapterRef.current = chapterId
             setActiveChapter(chapterId)
           }
-          staggerIn(id, id === NAV_SECTIONS[0].id)
+          staggerIn(sectionId, sectionId === NAV_SECTIONS[0].id)
         }, SUBNAV_DELAY_MS)
       } else if (!shouldStick && prevStuck.current) {
         prevStuck.current = false
@@ -513,7 +517,7 @@ export function useSidebarNavState() {
         syncSidebarDivider(isTopBarInHeroScrollZone())
       }
 
-      if (!inHero && !overlayOpenRef.current) applyScrollSpy()
+      if (!inHero && !isInInterludeScrollZone() && !overlayOpenRef.current) applyScrollSpy()
     })
   }, [usesTopBarNav, mobileDrawerOpen, applyScrollSpy, applyMobileHeroScroll, syncSidebarDivider])
 
@@ -535,6 +539,7 @@ export function useSidebarNavState() {
     return scheduleScrollFrame(() => {
       const y = getScrollTop()
       const inHero = isInHeroScrollZone()
+      const inInterlude = isInInterludeScrollZone()
       if (inHero !== lastHtmlHeroClassRef.current) {
         lastHtmlHeroClassRef.current = inHero
         document.documentElement.classList.toggle('in-hero-scroll', inHero)
@@ -543,7 +548,26 @@ export function useSidebarNavState() {
       syncSidebarDivider(inHero)
       applyDesktopNavScroll(y)
       applyStuckState(y)
-      if (!inHero && !overlayOpenRef.current) applyScrollSpy()
+      if (inInterlude) {
+        setSubNavVisible(false)
+        if (activeSectionRef.current !== null) {
+          activeSectionRef.current = null
+          setActiveSection(null)
+          activeChapterRef.current = null
+          setActiveChapter(null)
+        }
+        setDimActive(false)
+      } else if (wasInInterludeRef.current && prevStuck.current) {
+        setSubNavVisible(true)
+        setDimActive(true)
+        if (!overlayOpenRef.current) applyScrollSpy()
+        const chapterId = activeSlideIdPublished()
+        const sectionId = chapterId ? sectionIdForChapter(chapterId) : null
+        if (sectionId) staggerIn(sectionId, sectionId === NAV_SECTIONS[0].id)
+      } else if (!inHero && !overlayOpenRef.current) {
+        applyScrollSpy()
+      }
+      wasInInterludeRef.current = inInterlude
     })
   }, [
     usesTopBarNav,
@@ -552,6 +576,7 @@ export function useSidebarNavState() {
     measureLayout,
     applyDesktopNavScroll,
     syncSidebarDivider,
+    staggerIn,
   ])
 
   useEffect(() => {

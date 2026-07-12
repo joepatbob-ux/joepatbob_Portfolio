@@ -98,16 +98,272 @@ html.sidebar-tablet-hero-active .sidebar-desktop-shell {
 }
 
 
+/* ── Interlude layout variants (dev: ?interludeLayout=1) ── */
+.portfolio-interlude__row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(20px, 4vh, 44px);
+  width: 100%;
+}
+
+.portfolio-interlude--split .portfolio-interlude__row,
+.portfolio-interlude--editorial .portfolio-interlude__row {
+  max-width: min(var(--cs-content-pane-max, 100%), 100%);
+  margin-inline: auto;
+  padding-inline: var(--cs-overview-inset-x, clamp(20px, 4vw, 40px));
+  box-sizing: border-box;
+}
+
+@media (min-width: 900px) {
+  .portfolio-interlude--split .portfolio-interlude__row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(28px, 5vw, 64px);
+  }
+
+  .portfolio-interlude--split .portfolio-interlude__glyphs {
+    flex: none;
+    width: clamp(200px, 28vh, 300px);
+    height: clamp(200px, 28vh, 300px);
+  }
+
+  .portfolio-interlude--split .portfolio-interlude__copy {
+    flex: 1 1 44ch;
+    max-width: none;
+    min-width: 0;
+    text-align: left;
+    padding-inline: 0;
+  }
+
+  .portfolio-interlude--editorial .portfolio-interlude__row {
+    flex-direction: row-reverse;
+    align-items: center;
+    justify-content: space-between;
+    gap: clamp(24px, 4vw, 56px);
+  }
+
+  .portfolio-interlude--editorial .portfolio-interlude__glyphs {
+    flex: none;
+    width: clamp(180px, 26vh, 280px);
+    height: clamp(180px, 26vh, 280px);
+  }
+
+  .portfolio-interlude--editorial .portfolio-interlude__copy {
+    flex: 1 1 auto;
+    max-width: min(64ch, 72%);
+    text-align: left;
+    padding-inline: 0;
+  }
+}
+
+.portfolio-interlude--sandwich {
+  gap: clamp(18px, 3.5vh, 36px);
+}
+
+.portfolio-interlude--sandwich .portfolio-interlude__headline,
+.portfolio-interlude--sandwich .portfolio-interlude__body {
+  width: 100%;
+  max-width: var(--interlude-measure-max, min(86ch, 100%));
+  margin-inline: auto;
+  padding-inline: var(--cs-overview-inset-x, clamp(20px, 4vw, 40px));
+  box-sizing: border-box;
+}
+
+.portfolio-interlude--sandwich .portfolio-interlude__headline,
+.portfolio-interlude--sandwich .portfolio-interlude__body {
+  margin: 0;
+  font-family: var(--font-body);
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+.portfolio-interlude--sandwich .portfolio-interlude__headline {
+  font-weight: 700;
+  font-size: clamp(22px, 2.4vw, 30px);
+  line-height: 1.32;
+  color: var(--color-ink);
+}
+
+.portfolio-interlude--sandwich .portfolio-interlude__body {
+  font-weight: 500;
+  font-size: clamp(17px, 1.7vw, 21px);
+  line-height: 1.5;
+  color: var(--color-muted);
+}
+
+@media (min-width: 768px) {
+  .portfolio-interlude--sandwich .portfolio-interlude__headline,
+  .portfolio-interlude--sandwich .portfolio-interlude__body {
+    text-align: center;
+  }
+}
+
+.interlude-dev-picker {
+  position: fixed;
+  right: 12px;
+  bottom: 12px;
+  z-index: 120;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: min(300px, calc(100vw - 24px));
+  max-height: min(72vh, 640px);
+  overflow: auto;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--color-paper) 92%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-ink) 12%, transparent);
+  box-shadow: 0 8px 28px color-mix(in srgb, var(--color-ink) 12%, transparent);
+  backdrop-filter: blur(10px);
+}
+
+.interlude-dev-picker__group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.interlude-dev-picker__label {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.interlude-dev-picker__btn {
+  appearance: none;
+  border: 1px solid color-mix(in srgb, var(--color-ink) 10%, transparent);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  line-height: 1.3;
+  text-align: left;
+  color: var(--color-ink);
+  background: transparent;
+  cursor: pointer;
+}
+
+.interlude-dev-picker__btn:hover {
+  border-color: color-mix(in srgb, var(--color-accent) 40%, transparent);
+}
+
+.interlude-dev-picker__btn--active {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 8%, transparent);
+}
+
+/* ── Interlude copy typography variants ── */
+.portfolio-interlude--copy-overview .portfolio-interlude__headline {
+  font-weight: 600;
+  font-size: clamp(28px, 3.6vw, 50px);
+  line-height: 1.08;
+  letter-spacing: -0.025em;
+}
+
+.portfolio-interlude--copy-overview .portfolio-interlude__body {
+  font-size: var(--cs-body-size, clamp(17px, 1.7vw, 21px));
+  line-height: var(--cs-body-leading, 1.5);
+  color: var(--cs-body-color, var(--color-muted));
+}
+
+.portfolio-interlude--copy-statement .portfolio-interlude__copy {
+  gap: clamp(10px, 1.6vh, 16px);
+}
+
+.portfolio-interlude--copy-statement .portfolio-interlude__headline {
+  font-weight: 600;
+  font-size: clamp(20px, 2.1vw, 26px);
+  line-height: 1.35;
+}
+
+.portfolio-interlude--copy-statement .portfolio-interlude__body {
+  font-weight: 500;
+  font-size: clamp(18px, 1.8vw, 22px);
+  line-height: 1.45;
+  color: color-mix(in srgb, var(--color-ink) 72%, var(--color-muted));
+}
+
+.portfolio-interlude__pull {
+  margin: 0;
+  padding: 0 0 0 clamp(14px, 2vw, 20px);
+  border: none;
+  border-left: 3px solid var(--color-accent);
+}
+
+.portfolio-interlude__pull p {
+  margin: 0;
+}
+
+.portfolio-interlude--copy-offset .portfolio-interlude__body {
+  margin-inline-start: clamp(16px, 4vw, 40px);
+  max-width: none;
+}
+
+.portfolio-interlude--copy-columns .portfolio-interlude__copy {
+  display: grid;
+  gap: clamp(16px, 2.6vh, 26px);
+}
+
+@media (min-width: 900px) {
+  .portfolio-interlude--copy-columns .portfolio-interlude__copy {
+    grid-template-columns: 1.05fr 0.95fr;
+    align-items: start;
+    gap: clamp(24px, 4vw, 48px);
+    max-width: var(--interlude-measure-max, min(86ch, 100%));
+    text-align: left;
+  }
+
+  .portfolio-interlude--copy-columns .portfolio-interlude__headline {
+    margin-block-start: 0.12em;
+  }
+}
+
+.portfolio-interlude__copy--continuous,
+.portfolio-interlude--copy-continuous .portfolio-interlude__copy {
+  gap: 0;
+}
+
+.portfolio-interlude__continuous {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: clamp(18px, 1.85vw, 23px);
+  line-height: 1.55;
+  letter-spacing: -0.01em;
+  color: var(--color-muted);
+  text-wrap: balance;
+}
+
+.portfolio-interlude__continuous-lead {
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+@media (min-width: 768px) {
+  .portfolio-interlude--copy-rhythm .portfolio-interlude__headline {
+    max-width: var(--interlude-measure-max, min(86ch, 100%));
+    margin-inline: auto;
+  }
+}
+
 /* ── Interlude — full-viewport pause between the hero and the first section.
-   Quiet room for the nav to travel up and pin; type mirrors the overview
-   signature-statement treatment (600 AHG, balanced, centered measure). ── */
+   Quiet room for the nav to travel up and pin; copy uses a wider measure than
+   section overviews so the statement can breathe across the content pane. ── */
 .portfolio-interlude {
+  --interlude-measure-max: min(86ch, 100%);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: clamp(20px, 4vh, 44px);
   box-sizing: border-box;
+  width: 100%;
   /* Phones/short screens: content-sized pause, no stranded empty viewport */
   padding-block: clamp(96px, 18svh, 200px);
 }
@@ -138,7 +394,7 @@ html.sidebar-tablet-hero-active .sidebar-desktop-shell {
   flex-direction: column;
   gap: clamp(16px, 2.6vh, 26px);
   width: 100%;
-  max-width: var(--cs-overview-measure-max, min(68ch, 100%));
+  max-width: var(--interlude-measure-max, min(86ch, 100%));
   margin-inline: auto;
   padding-inline: var(--cs-overview-inset-x, clamp(20px, 4vw, 40px));
   text-align: left;
@@ -149,7 +405,15 @@ html.sidebar-tablet-hero-active .sidebar-desktop-shell {
   font-family: var(--font-body);
   letter-spacing: -0.01em;
   color: var(--color-ink);
+  max-width: 100%;
+}
+
+.portfolio-interlude__headline {
   text-wrap: balance;
+}
+
+.portfolio-interlude__body {
+  text-wrap: pretty;
 }
 
 /* Headline — the lead statement, set larger and tighter. */
@@ -178,5 +442,9 @@ html.sidebar-tablet-hero-active .sidebar-desktop-shell {
 @media (min-width: 1024px) {
   .portfolio-interlude {
     min-height: 100dvh;
+    --interlude-measure-max: min(
+      96ch,
+      calc(var(--cs-content-pane-max, 1720px) * 0.78)
+    );
   }
 }

@@ -129,6 +129,25 @@ export function heroChapterHandoffProgress(
 }
 
 /** Block chapter crossfade until the hero portrait has fully faded and scroll clears the gate. */
+export function isInInterludeScrollZone(): boolean {
+  if (typeof window === 'undefined') return false
+
+  const interlude = document.getElementById('portfolio-interlude')
+  if (!interlude) return false
+
+  const vh = layoutViewportH()
+  if (vh <= 0) return false
+
+  const rect = interlude.getBoundingClientRect()
+  // Breather until the interlude has mostly scrolled past.
+  return rect.bottom > vh * 0.28
+}
+
+/** Hero or interlude — no portfolio section should be highlighted yet. */
+export function isInBreatherScrollZone(): boolean {
+  return isInHeroScrollZone() || isInInterludeScrollZone()
+}
+
 export function shouldSuppressChapterReveal(): boolean {
   if (typeof window === 'undefined') return false
 
@@ -141,6 +160,8 @@ export function shouldSuppressChapterReveal(): boolean {
   ) {
     return true
   }
+
+  if (isInInterludeScrollZone()) return true
 
   return scrollY < viewportH * HERO_CHAPTER_SCROLL_GATE_VH
 }

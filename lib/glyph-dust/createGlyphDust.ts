@@ -5,6 +5,13 @@
 
 import { GLYPH_DEFS, GLYPH_LABELS, GLYPH_ORDER, type GlyphDef } from '@/lib/glyph-dust/glyphData'
 
+export interface GlyphDustChromeTune {
+  /** Chromium blur multiplier on recipe.goo (Safari ignores). */
+  gooMult: number
+  /** Chromium alpha threshold after blur (Safari uses 96). */
+  threshold: number
+}
+
 export interface GlyphDustRecipe {
   /** dots per unit² in a settled glyph (sizes the shared pool off the largest form) */
   shapeDens: number
@@ -28,6 +35,8 @@ export interface GlyphDustRecipe {
   errant: number
   /** hard cap on the mote pool (perf guard) */
   maxMotes?: number
+  /** Optional Chromium goo pass overrides (ignored on Safari). */
+  chrome?: GlyphDustChromeTune
 }
 
 interface Mote {
@@ -57,11 +66,19 @@ export interface GlyphDustHandle {
   stop(): void
   /** paint a single settled frame (reduced-motion / static fallback) */
   renderStatic(): void
+  /** debug: freeze cycle and render at phase 0–1 */
+  seekPhase(p: number): void
+  /** debug: resume the animation loop from the current phase */
+  resumeCycle(): void
+  /** debug: whether the cycle is frozen */
+  isPaused(): boolean
   destroy(): void
 }
 
 const VIEW = 28
 const easeIO = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2)
+/** Finish morph in the first fraction of the flow window; remaining flow time settles at target before leg index rolls. */
+const MORPH_TAIL = 0.86
 
 function mulberry32(a: number) {
   return function () {
@@ -88,10 +105,19 @@ function circleToPath(cx: number, cy: number, r: number) {
 function subpaths(d: string) {
   return d.split(/(?=[Mm])/).map((s) => s.trim()).filter(Boolean)
 }
-function scanKey(p: [number, number]) {
-  const band = Math.floor(p[1] * 1.4)
-  const x = band % 2 === 0 ? p[0] : 24 - p[0]
-  return band * 100 + x
+function centroid(pts: [number, number][]): [number, number] {
+  let x = 0, y = 0
+  for (const p of pts) {
+    x += p[0]
+    y += p[1]
+  }
+  const n = pts.length || 1
+  return [x / n, y / n]
+}
+/** Sort key: angle around centroid, then radius — keeps morph partners spatially local. */
+function morphKey(p: [number, number], c: [number, number]) {
+  const dx = p[0] - c[0], dy = p[1] - c[1]
+  return Math.atan2(dy, dx) * 1000 + Math.hypot(dx, dy)
 }
 
 export function createGlyphDust(
@@ -106,24 +132,14 @@ export function createGlyphDust(
   const MASKN = 24 * MASKRES
   const HALF = Math.round(W * 0.56)
   const KH = HALF / W
-  const glyphXf = SCALE * KH
-  const glyphXo = 2 * SCALE * KH
-  // Safari reads cleanly with native blur alone; Chromium needs hole masks because
-  // its canvas blur bleeds across thin cutouts. Keep GPU blur on both engines.
-  const needsHoleMask =
-    typeof navigator === 'undefined' ||
+  const needsChromiumGooTune =
+    typeof navigator !== 'undefined' &&
     !(
       /Safari/i.test(navigator.userAgent) &&
       !/Chrome|Chromium|Edg/i.test(navigator.userAgent)
     )
-
-  function clearGooHoles(holePath: Path2D) {
-    gaCtx.save()
-    gaCtx.setTransform(glyphXf, 0, 0, glyphXf, glyphXo, glyphXo)
-    gaCtx.globalCompositeOperation = 'destination-out'
-    gaCtx.fill(holePath)
-    gaCtx.restore()
-  }
+  const chromeGooMult = recipe.chrome?.gooMult ?? 0.65
+  const chromeThreshold = recipe.chrome?.threshold ?? 110
 
   // detached SVG for path sampling
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
@@ -150,10 +166,10 @@ export function createGlyphDust(
   }
 
   // Normalize a glyph into the 24-unit mask space and rasterize its silhouette.
-  // First subpath is the outer frame; later subpaths are inner cutouts. The body
-  // Path2D uses even-odd fill for masks; cutouts are kept separately so the goo
-  // pass can punch them back out after metaball blur (Chrome blurs harder than Safari).
-  function prep(def: GlyphDef): { body: Path2D; holes: Path2D } {
+  // Every subpath of every shape is added to one Path2D; even-odd fill turns the
+  // inner subpaths (screen marks, dots, mouth) into cutouts. This handles both
+  // the single-path-with-holes glyphs and multi-path glyphs uniformly.
+  function prep(def: GlyphDef): Path2D {
     const [, , w, h] = def.viewBox.split(' ').map(Number)
     const TARGET = 20 // fit the glyph within a 20-unit box, centered in 24
     const scale = TARGET / Math.max(w, h)
@@ -161,60 +177,19 @@ export function createGlyphDust(
     const paths = def.shapes.map((s) =>
       s.type === 'circle' ? circleToPath(s.cx!, s.cy!, s.r!) : s.d!,
     )
-    const body = new Path2D()
-    const holes = new Path2D()
-    const add = (target: Path2D, pts: [number, number][]) => {
-      target.moveTo(pts[0][0], pts[0][1])
-      for (let i = 1; i < pts.length; i++) target.lineTo(pts[i][0], pts[i][1])
-      target.closePath()
+    const p2d = new Path2D()
+    const add = (pts: [number, number][]) => {
+      p2d.moveTo(pts[0][0], pts[0][1])
+      for (let i = 1; i < pts.length; i++) p2d.lineTo(pts[i][0], pts[i][1])
+      p2d.closePath()
     }
-    let outer = true
     for (const d of paths) {
-      for (const sp of subpaths(d)) {
-        add(outer ? body : holes, samplePath(sp, 200, scale, dx, dy))
-        outer = false
-      }
+      for (const sp of subpaths(d)) add(samplePath(sp, 200, scale, dx, dy))
     }
-    return { body, holes }
+    return p2d
   }
 
-  const GLYPH_PATHS = GLYPH_ORDER.map((name) => prep(GLYPH_DEFS[name]))
-  const GL = GLYPH_PATHS.map((g) => g.body)
-  const GL_HOLES = GLYPH_PATHS.map((g) => g.holes)
-
-  // Half-res hole masks — used after threshold to zero blur bleed in thin cutouts.
-  function buildHoleMask(holes: Path2D): Uint8Array {
-    const c = document.createElement('canvas')
-    c.width = HALF
-    c.height = HALF
-    const x = c.getContext('2d')!
-    x.setTransform(glyphXf, 0, 0, glyphXf, glyphXo, glyphXo)
-    x.fillStyle = '#fff'
-    x.strokeStyle = '#fff'
-    // Widen thin notches/chrome slots so blur rim cannot refill them.
-    x.lineWidth = 3 / glyphXf
-    x.fill(holes)
-    x.stroke(holes)
-    const raw = x.getImageData(0, 0, HALF, HALF).data
-    const m = new Uint8Array(HALF * HALF)
-    for (let p = 0; p < m.length; p++) m[p] = raw[p * 4 + 3]! > 10 ? 1 : 0
-    return m
-  }
-  const HOLE_MASKS = GL_HOLES.map(buildHoleMask)
-
-  function cutHolePixels(
-    data: Uint8ClampedArray,
-    from: number,
-    to: number,
-    flowing: boolean,
-  ) {
-    const a = HOLE_MASKS[from]!
-    const b = HOLE_MASKS[to]!
-    for (let p = 0; p < a.length; p++) {
-      const cut = flowing ? a[p] === 1 || b[p] === 1 : a[p] === 1
-      if (cut) data[p * 4 + 3] = 0
-    }
-  }
+  const GL = GLYPH_ORDER.map((name) => prep(GLYPH_DEFS[name]))
 
   // one-time coverage masks (O(1) point-in-shape)
   function buildMask(p2d: Path2D): Uint8Array {
@@ -248,10 +223,44 @@ export function createGlyphDust(
     return pts
   }
   function pairMap(A: [number, number][], B: [number, number][]): number[] {
-    const ai = A.map((_, i) => i).sort((p, q) => scanKey(A[p]) - scanKey(A[q]))
-    const bi = B.map((_, i) => i).sort((p, q) => scanKey(B[p]) - scanKey(B[q]))
+    const ca = centroid(A), cb = centroid(B)
+    const ai = A.map((_, i) => i).sort((p, q) => morphKey(A[p], ca) - morphKey(A[q], ca))
+    const bi = B.map((_, i) => i).sort((p, q) => morphKey(B[p], cb) - morphKey(B[q], cb))
     const out = new Array<number>(A.length)
     for (let r = 0; r < A.length; r++) out[ai[r]] = bi[r]
+    return out
+  }
+
+  function subsampleEven(pts: [number, number][], n: number): [number, number][] {
+    if (pts.length <= n) return pts
+    const c = centroid(pts)
+    const order = pts
+      .map((_, i) => i)
+      .sort((p, q) => morphKey(pts[p], c) - morphKey(pts[q], c))
+    const out: [number, number][] = []
+    for (let k = 0; k < n; k++) {
+      const src = order[Math.floor((k * order.length) / n)]!
+      out.push(pts[src]!)
+    }
+    return out
+  }
+
+  /** Pad or thin each glyph to exactly n motes without top-heavy grid-order bias. */
+  function normalizePointCount(
+    pts: [number, number][],
+    n: number,
+    spacing: number,
+    seed: number,
+  ): [number, number][] {
+    if (!pts.length) return pts
+    if (pts.length > n) return subsampleEven(pts, n)
+    if (pts.length === n) return pts
+    const out = pts.slice()
+    const rnd = mulberry32(seed)
+    while (out.length < n) {
+      const src = pts[(rnd() * pts.length) | 0]!
+      out.push([src[0] + (rnd() - 0.5) * spacing, src[1] + (rnd() - 0.5) * spacing])
+    }
     return out
   }
 
@@ -269,21 +278,7 @@ export function createGlyphDust(
       max = Math.max(...P.map((p) => p.length))
     }
     N = max
-    for (const p of P) {
-      const base = p.length
-      if (!base || base >= N) continue
-      const rnd = mulberry32(555 + base)
-      const reps = Math.floor((N - base) / base)
-      for (let k = 0; k < base && p.length < N; k++) {
-        const src = p[k]
-        for (let d = 0; d < reps; d++)
-          p.push([src[0] + (rnd() - 0.5) * spacing, src[1] + (rnd() - 0.5) * spacing])
-      }
-      while (p.length < N) {
-        const src = p[(rnd() * base) | 0]
-        p.push([src[0] + (rnd() - 0.5) * spacing, src[1] + (rnd() - 0.5) * spacing])
-      }
-    }
+    P = P.map((p, i) => normalizePointCount(p, N, spacing, 555 + i * 17))
     const m01 = pairMap(P[0], P[1]), m12 = pairMap(P[1], P[2]), m23 = pairMap(P[2], P[3])
     const rnd = mulberry32(777)
     DOTS = new Array(N)
@@ -349,21 +344,26 @@ export function createGlyphDust(
   gbCanvas.height = HALF
   const gbCtx = gbCanvas.getContext('2d', { willReadFrequently: true })!
 
-  function render(p: number) {
+  function render() {
     ctx.setTransform(1, 0, 0, 1, 0, 0)
     ctx.clearRect(0, 0, W, canvas.height)
     const col = accentHex
     const legLen = recipe.hold + recipe.flow, holdFrac = recipe.hold / legLen
-    const x4 = ((((p % 1) + 1) % 1) * 4)
-    const i = Math.max(0, Math.min(3, Math.floor(x4)))
-    const f = x4 - i
+    // Monotonic cycle time — avoids modulo skip/snap at morph ends and cycle wrap.
+    const cycle = clock / total
+    const x4 = cycle * 4
+    const leg = Math.floor(x4)
+    const i = ((leg % 4) + 4) % 4
+    const f = x4 - leg
     const j = (i + 1) % 4
+    const span = Math.max(0.25, 1 - recipe.stagger)
+    const morphFtEnd = span + recipe.stagger
     let flowing = false, ft = 0
     if (f >= holdFrac) {
       flowing = true
-      ft = (f - holdFrac) / (1 - holdFrac)
+      const raw = (f - holdFrac) / (1 - holdFrac)
+      ft = Math.min(morphFtEnd, (raw / MORPH_TAIL) * morphFtEnd)
     }
-    const span = Math.max(0.25, 1 - recipe.stagger)
     const goo = recipe.goo >= 1
 
     if (goo) {
@@ -384,20 +384,30 @@ export function createGlyphDust(
         // Direct morph A→B along a gently bowed path (no central cloud gather).
         const A = dot.pos[i], B = dot.pos[j]
         const lt = Math.max(0, Math.min(1, (ft - dot.delay * recipe.stagger) / span))
-        disp = Math.sin(Math.PI * lt)
-        const e = easeIO(lt)
-        const mx = (A[0] + B[0]) / 2, my = (A[1] + B[1]) / 2
-        const dx = B[0] - A[0], dy = B[1] - A[1]
-        const len = Math.hypot(dx, dy) || 1
-        const amp = dot.curve * recipe.curve
-        const cX = mx + (-dy / len) * amp, cY = my + (dx / len) * amp
-        const u = 1 - e
-        x = u * u * A[0] + 2 * u * e * cX + e * e * B[0]
-        y = u * u * A[1] + 2 * u * e * cY + e * e * B[1]
+        if (lt >= 1) {
+          x = B[0]
+          y = B[1]
+          disp = 0
+        } else if (lt <= 0) {
+          x = A[0]
+          y = A[1]
+          disp = 0
+        } else {
+          disp = Math.sin(Math.PI * lt)
+          const e = easeIO(lt)
+          const mx = (A[0] + B[0]) / 2, my = (A[1] + B[1]) / 2
+          const dx = B[0] - A[0], dy = B[1] - A[1]
+          const len = Math.hypot(dx, dy) || 1
+          const amp = dot.curve * recipe.curve * Math.min(1, 3.2 / len)
+          const cX = mx + (-dy / len) * amp, cY = my + (dx / len) * amp
+          const u = 1 - e
+          x = u * u * A[0] + 2 * u * e * cX + e * e * B[0]
+          y = u * u * A[1] + 2 * u * e * cY + e * e * B[1]
+        }
       }
       const [cx, cy] = w2c(x, y)
       const effDotr = (recipe.dotSize + (recipe.cloudDot - recipe.dotSize) * disp) * SCALE
-      const r = effDotr * dot.sizeJit * (1 + recipe.shimmer * 0.6 * Math.sin(dot.spin + p * 12.56))
+      const r = effDotr * dot.sizeJit * (1 + recipe.shimmer * 0.6 * Math.sin(dot.spin + cycle * 12.56))
       if (r <= 0) continue
       if (goo) {
         const hr = Math.max(0.6, r * KH)
@@ -413,31 +423,23 @@ export function createGlyphDust(
     }
 
     if (goo) {
-      if (needsHoleMask) {
-        clearGooHoles(GL_HOLES[i])
-        if (flowing) clearGooHoles(GL_HOLES[j])
-      }
-
       gbCtx.setTransform(1, 0, 0, 1, 0, 0)
       gbCtx.clearRect(0, 0, HALF, HALF)
-      gbCtx.filter = `blur(${recipe.goo}px)`
+      gbCtx.filter = `blur(${(needsChromiumGooTune ? recipe.goo * chromeGooMult : recipe.goo)}px)`
       gbCtx.drawImage(gaCanvas, 0, 0)
       gbCtx.filter = 'none'
       const img = gbCtx.getImageData(0, 0, HALF, HALF)
       const d = img.data
       const [AR, AG, AB] = accentRGB
-      const T = 96
+      const T = needsChromiumGooTune ? chromeThreshold : 96
       for (let q = 0; q < d.length; q += 4) {
         if (d[q + 3]! > T) {
           d[q] = AR
           d[q + 1] = AG
           d[q + 2] = AB
           d[q + 3] = 255
-        } else {
-          d[q + 3] = 0
-        }
+        } else d[q + 3] = 0
       }
-      if (needsHoleMask) cutHolePixels(d, i, j, flowing)
       gbCtx.putImageData(img, 0, 0)
       ctx.imageSmoothingEnabled = true
       ctx.globalAlpha = 1
@@ -460,17 +462,16 @@ export function createGlyphDust(
   // ── loop ────────────────────────────────────────────────────────
   let raf = 0
   let last = 0
-  let phase = 0
-  let clock = 0 // monotonic ms, drives errant drift (independent of the cycle)
+  let clock = 0 // monotonic ms — drives cycle, errant drift, and shimmer
   let running = false
+  let paused = false
   const total = (recipe.hold + recipe.flow) * 4
   function tick(now: number) {
-    if (!running) return
+    if (!running || paused) return
     const dt = Math.max(0, now - last)
     last = now
     clock += dt
-    phase = (((phase + dt / total) % 1) + 1) % 1
-    render(phase)
+    render()
     raf = requestAnimationFrame(tick)
   }
 
@@ -490,7 +491,27 @@ export function createGlyphDust(
       raf = 0
     },
     renderStatic() {
-      render(0)
+      clock = 0
+      render()
+    },
+    seekPhase(p: number) {
+      paused = true
+      running = false
+      if (raf) cancelAnimationFrame(raf)
+      raf = 0
+      clock = (((p % 1) + 1) % 1) * total
+      render()
+    },
+    resumeCycle() {
+      paused = false
+      if (!running) {
+        running = true
+        last = performance.now()
+        raf = requestAnimationFrame(tick)
+      }
+    },
+    isPaused() {
+      return paused
     },
     destroy() {
       running = false
