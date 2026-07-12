@@ -28,6 +28,7 @@ import { bindTopBarScrollSpy } from '@/lib/scroll/topBarScrollSpy'
 import { LAYOUT_MQ } from '@/lib/layout/breakpoints'
 import { isTopBarNavViewport } from '@/lib/layout/isTopBarNavViewport'
 import { isDeckActive } from '@/lib/deck/deckMode'
+import { publishActiveSlideId, publishInHero } from '@/lib/scroll/chapterSlideshow'
 import {
   createContext,
   useCallback,
@@ -235,6 +236,9 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
         }
         activeRef.current = chapterId
         setActiveSlideId(chapterId)
+        // Publish so the sidebar's scroll-spy machinery highlights the chapter.
+        publishActiveSlideId(chapterId)
+        publishInHero(false)
         return
       }
 
