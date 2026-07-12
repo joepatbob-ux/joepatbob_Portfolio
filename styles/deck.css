@@ -4,8 +4,8 @@
    / narrow viewports are never affected, even with the flag on. Hero + interlude
    above the stage still scroll normally. */
 
-@media (min-width: 1024px) and (pointer: fine) {
-  html.deck-mode .portfolio-sections {
+@media (min-width: 1024px) {
+  html.deck-mode.deck-fine .portfolio-sections {
     position: relative;
     height: 100vh;
     height: 100dvh;
@@ -13,31 +13,43 @@
   }
 
   /* Sections/slots no longer contribute scroll height. */
-  html.deck-mode .portfolio-sections > article {
+  html.deck-mode.deck-fine .portfolio-sections > article {
     position: static;
   }
 
-  html.deck-mode .portfolio-sections .portfolio-chapter-slot {
+  html.deck-mode.deck-fine .portfolio-sections .portfolio-chapter-slot {
     position: static;
     min-height: 0;
     height: auto;
   }
 
-  /* Every chapter panel fills the stage; the active one cross-fades in. */
-  html.deck-mode .portfolio-sections .portfolio-chapter-panel {
+  /* Every chapter panel fills the stage; only the active slot's shows. */
+  html.deck-mode.deck-fine .portfolio-sections .portfolio-chapter-panel {
     position: absolute;
     inset: 0;
     height: 100%;
     margin: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 520ms ease;
+  }
+
+  html.deck-mode.deck-fine
+    .portfolio-sections
+    .portfolio-chapter-slot[data-deck-active]
+    .portfolio-chapter-panel {
+    opacity: 1;
+    pointer-events: auto;
+    z-index: 2;
   }
 
   /* In-flow after-panel content (sub-stories) is deck-navigated, not stacked. */
-  html.deck-mode .portfolio-sections .portfolio-chapter-slot > *:not(.portfolio-chapter-panel) {
+  html.deck-mode.deck-fine .portfolio-sections .portfolio-chapter-slot > *:not(.portfolio-chapter-panel) {
     display: none;
   }
 
   /* The page itself doesn't need a scrollbar dance while the deck owns the wheel. */
-  html.deck-mode body {
+  html.deck-mode.deck-fine body {
     overscroll-behavior-y: none;
   }
 }

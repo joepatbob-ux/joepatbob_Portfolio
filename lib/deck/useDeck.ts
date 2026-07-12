@@ -19,7 +19,7 @@ function chapterOrder(): string[] {
 }
 
 function deckStageInView(): boolean {
-  const stage = document.querySelector<HTMLElement>('.deck-stage')
+  const stage = document.querySelector<HTMLElement>('.portfolio-sections')
   if (!stage) return false
   const r = stage.getBoundingClientRect()
   const vh = window.innerHeight
@@ -98,6 +98,19 @@ export function useDeck() {
       window.clearTimeout(armIdle)
     }
   }, [navigateToChapter])
+
+  // ── mark the active slot so CSS shows only its panel ────────────
+  // Covers every chapter uniformly (section overviews render their own panels
+  // that the React opacity hook doesn't reach).
+  useEffect(() => {
+    if (!isDeckActive()) return
+    document
+      .querySelectorAll<HTMLElement>('.portfolio-chapter-slot[data-chapter-id]')
+      .forEach((el) => {
+        const on = el.dataset.chapterId === activeSlideId
+        el.toggleAttribute('data-deck-active', on)
+      })
+  }, [activeSlideId])
 
   // ── hash deep-linking: URL ⇄ active chapter ─────────────────────
   // Reflect the active chapter into the hash so the page can be shared mid-deck.
