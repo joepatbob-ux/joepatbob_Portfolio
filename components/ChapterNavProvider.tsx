@@ -21,7 +21,7 @@ import {
   scrollDocumentToChapterSlot,
 } from '@/lib/scroll/chapterSnapScroll'
 import { requestChapterMount } from '@/lib/scroll/chapterMount'
-import { waitForChapterSlotReady } from '@/lib/chapterNav/waitForChapterSlot'
+import { waitForChapterSlot, waitForChapterSlotReady } from '@/lib/chapterNav/waitForChapterSlot'
 import { sectionEntryChapterId } from '@/lib/sectionEntryChapter'
 import { flushScrollFrame, scheduleScrollFrame } from '@/lib/scroll/scrollFrame'
 import { bindTopBarScrollSpy } from '@/lib/scroll/topBarScrollSpy'
@@ -225,10 +225,14 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
       if (busyRef.current) return
 
       // Deck presentation: no document scroll — mount the chapter and switch the
-      // active id; the panel opacity hook cross-fades it in.
+      // active id immediately; the panel opacity hook cross-fades it in. We only
+      // wait for the slot to exist (mount), NOT for layout to settle — there's no
+      // scroll to position, and the stability wait would add a ~1.2s delay per nav.
       if (isDeckActive()) {
         requestChapterMount(chapterId)
-        await waitForChapterSlotReady(chapterId)
+        if (!document.querySelector(`.portfolio-chapter-slot[data-chapter-id="${CSS.escape(chapterId)}"]`)) {
+          await waitForChapterSlot(chapterId, 2000)
+        }
         activeRef.current = chapterId
         setActiveSlideId(chapterId)
         return
