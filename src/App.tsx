@@ -3,6 +3,8 @@ import '@/styles/globals.css'
 import dynamic from '@/lib/dynamic'
 import { CaseStudy } from '@/components/CaseStudy'
 import { ChapterNavProvider } from '@/components/ChapterNavProvider'
+import { ContentDebugPanel } from '@/components/ContentDebugPanel'
+import { ContentDebugProvider } from '@/components/ContentDebugProvider'
 import { Hero } from '@/components/Hero'
 import { PortfolioInterlude } from '@/components/PortfolioInterlude'
 import { SidebarNav } from '@/components/SidebarNav'
@@ -30,6 +32,7 @@ export default function App() {
       <ThemeProvider>
         <StickerProvider>
           <ChapterNavProvider>
+            <ContentDebugProvider>
             <a
               href="#main-content"
               className="skip-link"
@@ -59,6 +62,8 @@ export default function App() {
               </footer>
             </div>
             <StickerLayer />
+            <ContentDebugPanel />
+            </ContentDebugProvider>
           </ChapterNavProvider>
         </StickerProvider>
       </ThemeProvider>

@@ -159,78 +159,48 @@
   padding-block: clamp(8px, 2cqi, 14px);
   padding-inline: clamp(10px, 3cqi, 22px);
   gap: clamp(8px, 2.5cqi, 18px);
-  border-radius: 10px;
-  background: transparent;
-  transition: background 160ms ease;
-}
-
-/* Drop mode — highlight only on intentional tray hover (not while scratching) */
-.kelvin-scratch__tray--below
-  .kelvin-scratch__tray-bar.web-apps-scratch__tray-bar--drop {
-  background: transparent;
-  cursor: default;
-}
-
-.kelvin-scratch__tray--below
-  .kelvin-scratch__tray-bar.web-apps-scratch__tray-bar--drop:hover {
-  background: var(--color-nav-pill-muted-accent-1);
-}
-
-.kelvin-scratch__tray-action {
-  margin: 0;
-  padding: 0;
   border: none;
+  border-radius: 10px;
   background: transparent;
   cursor: pointer;
   font: inherit;
+  text-align: inherit;
   color: inherit;
-  pointer-events: auto;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: background 160ms ease;
 }
 
-.kelvin-scratch__tray-action:active {
-  background: transparent;
-}
-
-.kelvin-scratch__tray-action:disabled {
-  cursor: default;
-  pointer-events: none;
-}
-
-.kelvin-scratch__tray-action--take {
-  grid-area: take;
-  container-type: inline-size;
-  container-name: kelvin-tray-label;
-}
-
-.kelvin-scratch__tray-action--coin {
-  grid-area: coin;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: transparent;
-  border-radius: 0;
-  cursor: pointer;
-}
-
-.kelvin-scratch__tray-action--leave {
-  grid-area: leave;
-  container-type: inline-size;
-  container-name: kelvin-tray-label;
-}
-
-.kelvin-scratch__tray-action:focus {
+.kelvin-scratch__tray--below .kelvin-scratch__tray-bar:focus {
   outline: none;
 }
 
-.kelvin-scratch__tray-action:focus:not(:focus-visible) {
+.kelvin-scratch__tray--below .kelvin-scratch__tray-bar:focus:not(:focus-visible) {
   outline: none;
 }
 
-.kelvin-scratch__tray-action:focus-visible {
+.kelvin-scratch__tray--below .kelvin-scratch__tray-bar:focus-visible {
   outline: 2px solid var(--color-accent, #de3e18);
   outline-offset: 2px;
+}
+
+.kelvin-scratch__tray--below .kelvin-scratch__tray-bar:active {
+  background: transparent;
+}
+
+/* Drop mode — no sticky touch highlight; hover feedback only on fine pointers */
+.kelvin-scratch__tray--below
+  .kelvin-scratch__tray-bar.web-apps-scratch__tray-bar--drop {
+  background: transparent;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .kelvin-scratch__tray--below
+    .kelvin-scratch__tray-bar.web-apps-scratch__tray-bar--drop:hover {
+    background: var(--color-nav-pill-muted-accent-1);
+  }
 }
 
 .kelvin-scratch__ticket {
@@ -304,10 +274,12 @@
 }
 
 .kelvin-scratch__tray .web-apps-scratch__tray-phrase-wrap--take {
+  grid-area: take;
   justify-content: flex-end;
 }
 
 .kelvin-scratch__tray .web-apps-scratch__tray-phrase-wrap--leave {
+  grid-area: leave;
   justify-content: flex-start;
 }
 
@@ -380,15 +352,7 @@
   filter: none;
   -webkit-user-drag: none;
   user-select: none;
-}
-
-.kelvin-scratch__tray-bar--ready
-  .kelvin-scratch__tray-action--coin:hover
-  .web-apps-scratch__tray-coin-img,
-.kelvin-scratch__tray-bar--ready
-  .kelvin-scratch__tray-action--coin:focus-visible
-  .web-apps-scratch__tray-coin-img {
-  transform: scale(1.04);
+  pointer-events: none;
 }
 
 /* Empty slot: small accent dot only — not a full coin circle on grey bar */

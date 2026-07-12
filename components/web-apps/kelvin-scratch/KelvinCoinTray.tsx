@@ -14,7 +14,7 @@ function centerOf(el: HTMLElement) {
   return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 }
 }
 
-/** Kelvin footer tray — separate targets for take, coin, and leave (not one giant button). */
+/** Kelvin footer tray — one hit target: take when the coin is in, leave when it's out. */
 export function KelvinCoinTray({
   coinInTray,
   onPickUp,
@@ -22,30 +22,21 @@ export function KelvinCoinTray({
   className,
   trayBarClassName,
 }: Props) {
-  const pickUpFromEvent = (e: MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation()
-    onPickUp(e.clientX, e.clientY)
-  }
-
-  const onCoinClick = (e: MouseEvent<HTMLButtonElement>) => {
+  const onTrayClick = (e: MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation()
     if (coinInTray) onPickUp(e.clientX, e.clientY)
     else onLeave()
   }
 
-  const onCoinKey = (e: KeyboardEvent<HTMLButtonElement>) => {
-    if (coinInTray) pickUpFromKey(e)
-    else if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault()
-      onLeave()
-    }
-  }
-
-  const pickUpFromKey = (e: KeyboardEvent<HTMLButtonElement>) => {
+  const onTrayKey = (e: KeyboardEvent<HTMLButtonElement>) => {
     if (e.key !== 'Enter' && e.key !== ' ') return
     e.preventDefault()
-    const { x, y } = centerOf(e.currentTarget)
-    onPickUp(x, y)
+    if (coinInTray) {
+      const { x, y } = centerOf(e.currentTarget)
+      onPickUp(x, y)
+    } else {
+      onLeave()
+    }
   }
 
   const barClass = [
@@ -64,76 +55,60 @@ export function KelvinCoinTray({
       className={['web-apps-scratch__tray', className].filter(Boolean).join(' ')}
       data-coin-in-tray={coinInTray ? 'true' : 'false'}
     >
-      <div
+      <button
+        type="button"
         className={barClass}
-        role="group"
-        aria-label="Kelvin coin tray"
+        onClick={onTrayClick}
+        onKeyDown={onTrayKey}
+        aria-label={
+          coinInTray
+            ? 'Take the Kelvin coin to scratch'
+            : 'Leave the Kelvin coin in the tray'
+        }
       >
-        <button
-          type="button"
-          className="kelvin-scratch__tray-action kelvin-scratch__tray-action--take web-apps-scratch__tray-phrase-wrap web-apps-scratch__tray-phrase-wrap--take"
-          disabled={!coinInTray}
-          onClick={pickUpFromEvent}
-          onKeyDown={pickUpFromKey}
-          aria-label="Take the Kelvin coin to scratch"
+        <span
+          className="web-apps-scratch__tray-phrase-wrap web-apps-scratch__tray-phrase-wrap--take"
+          aria-hidden
         >
           <span className="web-apps-scratch__tray-phrase web-apps-scratch__tray-phrase--take">
             <span className="web-apps-scratch__tray-phrase-line">Take a</span>
             <span className="web-apps-scratch__tray-phrase-line">penny</span>
           </span>
-        </button>
+        </span>
 
-        <button
-          type="button"
-          className="kelvin-scratch__tray-action kelvin-scratch__tray-action--coin"
-          onClick={onCoinClick}
-          onKeyDown={onCoinKey}
-          aria-label={
+        <span
+          className={[
+            'web-apps-scratch__tray-coin',
             coinInTray
-              ? 'Take the Kelvin coin to scratch'
-              : 'Leave the Kelvin coin in the tray'
-          }
+              ? 'web-apps-scratch__tray-coin--ready'
+              : 'web-apps-scratch__tray-coin--empty',
+          ]
+            .filter(Boolean)
+            .join(' ')}
+          aria-hidden
         >
-          <span
-            className={[
-              'web-apps-scratch__tray-coin',
-              coinInTray
-                ? 'web-apps-scratch__tray-coin--ready'
-                : 'web-apps-scratch__tray-coin--empty',
-            ]
-              .filter(Boolean)
-              .join(' ')}
-            aria-hidden
-          >
-            {coinInTray ? (
-              <img
-                className="web-apps-scratch__tray-coin-img"
-                src={KELVIN_COIN_FLAT_SRC}
-                alt=""
-                draggable={false}
-              />
-            ) : (
-              <span className="web-apps-scratch__tray-coin-slot" />
-            )}
-          </span>
-        </button>
+          {coinInTray ? (
+            <img
+              className="web-apps-scratch__tray-coin-img"
+              src={KELVIN_COIN_FLAT_SRC}
+              alt=""
+              draggable={false}
+            />
+          ) : (
+            <span className="web-apps-scratch__tray-coin-slot" />
+          )}
+        </span>
 
-        <button
-          type="button"
-          className="kelvin-scratch__tray-action kelvin-scratch__tray-action--leave web-apps-scratch__tray-phrase-wrap web-apps-scratch__tray-phrase-wrap--leave"
-          disabled={coinInTray}
-          onClick={(e) => {
-            e.stopPropagation()
-            onLeave()
-          }}
-          aria-label="Leave the Kelvin coin in the tray"
+        <span
+          className="web-apps-scratch__tray-phrase-wrap web-apps-scratch__tray-phrase-wrap--leave"
+          aria-hidden
         >
           <span className="web-apps-scratch__tray-phrase web-apps-scratch__tray-phrase--leave">
             <span className="web-apps-scratch__tray-phrase-line">Leave a</span>
             <span className="web-apps-scratch__tray-phrase-line">penny</span>
           </span>
-        </button>
-      </div>
+        </span>
+      </button>
     </div>
   )
 }

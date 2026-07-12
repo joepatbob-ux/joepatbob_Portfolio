@@ -8,9 +8,19 @@ import {
   EIB_FORMATION,
   eibChapterId,
 } from '@/lib/everything-in-between/content'
+import { useContentDebug } from '@/components/ContentDebugProvider'
 
 export function EibFormationSection() {
+  const { text } = useContentDebug()
   const chapterId = eibChapterId('formation')
+  const headline = text(
+    'everything-in-between/formation/chapter#headline',
+    EIB_FORMATION.headline,
+  )
+  const body = text(
+    'everything-in-between/formation/chapter#body',
+    EIB_FORMATION.intro,
+  )
 
   const patents = EIB_FORMATION.patents.map((p) => ({
     number: p.number,
@@ -26,10 +36,10 @@ export function EibFormationSection() {
       stageAriaLabel="Formation LEGO board — patent claim visualization"
       stage={<FormationLegoBoard chapterId={chapterId} />}
       copy={
-        <ChapterCopyReveal headline={EIB_FORMATION.headline}>
+        <ChapterCopyReveal headline={headline}>
           <MobileProse
             className="eib-sub-intro"
-            paragraphs={parseChapterBody(EIB_FORMATION.intro)}
+            paragraphs={parseChapterBody(body)}
           />
           <EibPatentRow patents={patents} />
         </ChapterCopyReveal>

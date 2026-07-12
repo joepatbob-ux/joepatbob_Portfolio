@@ -24,7 +24,7 @@
 }
 ---
 
-I came up through brand design, identity and packaging and print, where the canvas is fixed and every decision earns its spot before it ships. That instinct carried into product design with new constraints stacked on top: hardware tolerances, firmware limits, regulatory requirements, OEM relationships, platform debt. I still take brand projects, because brand and UX come down to the same thing. Brand is how someone experiences a product before they use it, UX is how they experience it once they do, and both are just the feeling a product leaves behind. Split them across separate owners and that's usually where a product starts to feel disjointed.
+I came up through brand design, identity, packaging, and print, where the canvas is fixed and every decision earns its spot before it ships. That instinct carried into product design with new constraints stacked on top: hardware tolerances, firmware limits, regulatory requirements, OEM relationships, platform debt. I still take brand projects, because brand and UX come down to the same thing. Brand is how someone experiences a product before they use it, UX is how they experience it once they do, and both are just the feeling a product leaves behind. Split them across separate owners and that's usually where a product starts to feel disjointed.
 
 The mix keeps paying off in places I don't expect. The Verdant character set was as much a typography problem as a UI one. The packaging system I've pushed across Sensi and Verdant is a brand-coherence argument that doubles as a manufacturing-efficiency one. And the patents grew out of asking what a product should say when the hardware can't behave normally, a brand question aimed at a firmware problem.
 

@@ -7,6 +7,7 @@ import { parseChapterBody } from '@/lib/chapter-slide/parseChapterBody'
 import { useHydrated } from '@/lib/hooks/useHydrated'
 import { useChapterStageReady } from '@/lib/chapterStageMountContext'
 import { MOBILE_SENSI, mobileChapterId } from '@/lib/mobile/content'
+import { useContentDebug } from '@/components/ContentDebugProvider'
 import { StageLoadingFallback } from '@/components/stage/StageSpinner'
 
 const PhoneSwap = dynamic(
@@ -33,8 +34,11 @@ function MobileSensiStage() {
 }
 
 export function MobileSensiSection() {
+  const { text } = useContentDebug()
   const chapterId = mobileChapterId('sensi')
-  const intro = parseChapterBody(MOBILE_SENSI.intro)
+  const headline = text('mobile/sensi/intro#headline', MOBILE_SENSI.headline)
+  const body = text('mobile/sensi/intro#body', MOBILE_SENSI.intro)
+  const intro = parseChapterBody(body)
 
   return (
     <FlowChapterSlideLayout
@@ -44,7 +48,7 @@ export function MobileSensiSection() {
       stageAriaLabel="Sensi app on iPhone and Android 3D preview"
       stage={<MobileSensiStage />}
       copy={
-        <ChapterCopyReveal headline={MOBILE_SENSI.headline}>
+        <ChapterCopyReveal headline={headline}>
           <MobileProse paragraphs={intro} />
         </ChapterCopyReveal>
       }

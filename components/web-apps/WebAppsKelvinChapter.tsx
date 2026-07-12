@@ -10,8 +10,22 @@ import {
   WEB_APPS_KELVIN,
   WEB_APPS_KELVIN_CHAPTER_ID,
 } from '@/lib/web-apps/content'
+import { useContentDebug } from '@/components/ContentDebugProvider'
 
 export function WebAppsKelvinChapter() {
+  const { text } = useContentDebug()
+  const headline = text(
+    'web-apps/kelvin-ds/intro#headline',
+    WEB_APPS_KELVIN.headline,
+  )
+  const subhead = text(
+    'web-apps/kelvin-ds/intro#subhead',
+    WEB_APPS_KELVIN.subhead,
+  )
+  const ndaNote = text('web-apps/kelvin-ds/intro#ndaNote', WEB_APPS_KELVIN.ndaNote)
+  const prose = text('web-apps/kelvin-ds/intro#prose', WEB_APPS_KELVIN.prose)
+  const facts = text('web-apps/kelvin-ds/intro#facts', WEB_APPS_KELVIN.facts)
+
   return (
     <FlowChapterSlideLayout
       chapterId={WEB_APPS_KELVIN_CHAPTER_ID}
@@ -21,14 +35,11 @@ export function WebAppsKelvinChapter() {
       stageAriaLabel="Kelvin design system scratch-off reveal"
       stage={<KelvinScratch chapterId={WEB_APPS_KELVIN_CHAPTER_ID} />}
       copy={
-        <ChapterCopyReveal
-          headline={WEB_APPS_KELVIN.headline}
-          subhead={WEB_APPS_KELVIN.subhead}
-        >
-          <MobileProse paragraphs={parseChapterBody(WEB_APPS_KELVIN.prose)} />
+        <ChapterCopyReveal headline={headline} subhead={subhead}>
+          <MobileProse paragraphs={parseChapterBody(prose)} />
           {/* NDA disclosure stays permanently visible — never an expandable fact */}
-          <WebAppsNdaNote>{WEB_APPS_KELVIN.ndaNote}</WebAppsNdaNote>
-          <MobileProse paragraphs={parseChapterBody(WEB_APPS_KELVIN.facts)} />
+          <WebAppsNdaNote>{ndaNote}</WebAppsNdaNote>
+          <MobileProse paragraphs={parseChapterBody(facts)} />
         </ChapterCopyReveal>
       }
     />

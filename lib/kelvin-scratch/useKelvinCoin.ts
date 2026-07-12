@@ -38,6 +38,9 @@ export function useKelvinCoin(
 
   const leave = useCallback(() => {
     setCoinInTray(true)
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur()
+    }
   }, [])
 
   const coinOut = !coinInTray

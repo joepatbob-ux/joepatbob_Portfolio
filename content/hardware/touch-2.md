@@ -10,11 +10,11 @@
 }
 ---
 
-I joined in 2018, a couple years before Touch 2 started near the beginning of the pandemic. Touch 1 had already shipped by the time I got there, so I'd lived with it for a while before Touch 2 kicked off, long enough to know the honest read: Touch 1 had good bones. Its menu structure worked. So instead of rebuilding it, I built on it: kept the structure intact and simplified everything underneath, trimming each screen down to one or two things a user could actually do there.
+I joined in 2018, a couple years before Touch 2 started. Touch 1 had already shipped, so there was enough time to get an honest read before touch 2 kicked off. I'd lived with it for a while before Touch 2 kicked off, long enough to know the honest read: Touch 1 had good bones. Its menu structure worked. So instead of rebuilding it, I built on it: kept the structure intact and simplified everything underneath, trimming each screen down to one or two things a user could do there.
 
-That simplification is what made the action button work. Once a screen only asked one or two things of someone, a single button in the same spot every time could carry whatever mattered most there: Save, Help on a screen with more settings, Connect, Forget Network. People learned where to look once, and it held everywhere.
+That simplification is what made the action button work. Once a screen asked one or two things of someone, with a single button in the same spot every time it could carry whatever mattered most there: Save, Help on a screen with more settings, Connect, Forget Network. People learned where to look once, and it held everywhere.
 
-I also sat between ID, engineering, and UI, since bezel width and screen size decide how far an interface can reach. Touch 2 shipped at 0.77", the thinnest smart thermostat in its category at launch.
+My role put me between product stakeholders, engineering, and developers, I was in a great place to bring collaborative system thinking to optimize the experience for the user.
 
 **How it landed**
 

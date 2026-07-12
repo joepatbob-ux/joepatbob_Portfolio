@@ -8,9 +8,23 @@ import {
   EIB_PRACTICE,
   eibChapterId,
 } from '@/lib/everything-in-between/content'
+import { useContentDebug } from '@/components/ContentDebugProvider'
 
 export function EibPracticeSection() {
+  const { text } = useContentDebug()
   const chapterId = eibChapterId('practice')
+  const headline = text(
+    'everything-in-between/practice/chapter#headline',
+    EIB_PRACTICE.headline,
+  )
+  const body = text(
+    'everything-in-between/practice/chapter#body',
+    EIB_PRACTICE.intro,
+  )
+  const close = text(
+    'everything-in-between/practice/chapter#close',
+    EIB_PRACTICE.close,
+  )
 
   return (
     <FlowChapterSlideLayout
@@ -21,12 +35,12 @@ export function EibPracticeSection() {
       stageAriaLabel="Launch sticker pile — drag stickers onto the page"
       stage={<StickerPile />}
       copy={
-        <ChapterCopyReveal headline={EIB_PRACTICE.headline}>
+        <ChapterCopyReveal headline={headline}>
           <MobileProse
             className="eib-sub-intro"
-            paragraphs={parseChapterBody(EIB_PRACTICE.intro)}
+            paragraphs={parseChapterBody(body)}
           />
-          <EibPracticeClose statement={EIB_PRACTICE.close} />
+          <EibPracticeClose statement={close} />
         </ChapterCopyReveal>
       }
     />

@@ -1,5 +1,6 @@
 import type { Section } from '@/lib/types'
 import { Fragment } from 'react'
+import { useContentDebug } from '@/components/ContentDebugProvider'
 import { insertsAfterChapter } from '@/lib/chapterInserts'
 import { DeferredChapter } from './case-study/DeferredChapter'
 import { LazySectionChapter } from './case-study/LazySectionChapter'
@@ -29,6 +30,8 @@ const articleFullBleed: React.CSSProperties = {
 }
 
 export function CaseStudy({ section, sectionId }: Props) {
+  const { patchSection } = useContentDebug()
+  const resolved = section ? patchSection(section) : undefined
   const isMobileSection = sectionId === 'mobile'
   const isWebAppsSection = sectionId === 'web-apps'
   const isEibSection = sectionId === 'everything-else'
@@ -44,12 +47,12 @@ export function CaseStudy({ section, sectionId }: Props) {
         minWidth: 0,
       }}
     >
-      {useCustomChapter || !section ? null : (
+      {useCustomChapter || !resolved ? null : (
         <CaseStudyFlowOverview
           chapterId={`${sectionId}-overview`}
-          headline={section.headline}
-          body={section.overviewBody}
-          blocks={section.overviewBlocks}
+          headline={resolved.headline}
+          body={resolved.overviewBody}
+          blocks={resolved.overviewBlocks}
         />
       )}
 
@@ -59,8 +62,8 @@ export function CaseStudy({ section, sectionId }: Props) {
         <LazySectionChapter sectionId="web-apps" />
       ) : isEibSection ? (
         <LazySectionChapter sectionId="everything-else" />
-      ) : section ? (
-        section.chapters.map((chapter, i) => (
+      ) : resolved ? (
+        resolved.chapters.map((chapter, i) => (
           <Fragment key={chapter.id}>
             <DeferredChapter
               chapter={chapter}
@@ -78,17 +81,17 @@ export function CaseStudy({ section, sectionId }: Props) {
         ))
       ) : null}
 
-      {section?.lessonTitle?.trim() &&
+      {resolved?.lessonTitle?.trim() &&
       (isMobileSection || !useCustomChapter) ? (
         <SectionLessons
           sectionId={sectionId}
-          lessonTitle={section.lessonTitle}
-          lessonBody={section.lessonBody}
-          isLast={!section.closingQuote}
+          lessonTitle={resolved.lessonTitle}
+          lessonBody={resolved.lessonBody}
+          isLast={!resolved.closingQuote}
         />
       ) : null}
 
-      {section?.closingQuote ? (
+      {resolved?.closingQuote ? (
         <ChapterViewport
           chapterId={`${sectionId}-closing`}
           isLast
@@ -96,8 +99,8 @@ export function CaseStudy({ section, sectionId }: Props) {
           className="portfolio-chapter-slot--closing"
         >
           <ClosingQuote
-            quote={section.closingQuote.quote}
-            attribution={section.closingQuote.attribution}
+            quote={resolved.closingQuote.quote}
+            attribution={resolved.closingQuote.attribution}
           />
         </ChapterViewport>
       ) : null}

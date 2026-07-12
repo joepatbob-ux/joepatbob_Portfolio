@@ -195,12 +195,14 @@
   background: var(--color-nav-pill-muted-accent-1);
 }
 
-.web-apps-scratch__tray-bar--drop:hover {
-  background: color-mix(
-    in srgb,
-    var(--color-accent, #de3e18) 16%,
-    var(--color-nav-pill-muted-accent-1)
-  );
+@media (hover: hover) and (pointer: fine) {
+  .web-apps-scratch__tray-bar--drop:hover {
+    background: color-mix(
+      in srgb,
+      var(--color-accent, #de3e18) 16%,
+      var(--color-nav-pill-muted-accent-1)
+    );
+  }
 }
 
 .web-apps-scratch__tray-bar:focus {

@@ -1,50 +1,72 @@
 import { useEffect, useState } from 'react'
+import { useContentDebug } from '@/components/ContentDebugProvider'
 import { InterludeLayoutPicker } from '@/components/InterludeLayoutPicker'
 import { PortfolioInterludeGlyphs } from '@/components/PortfolioInterludeGlyphs'
 import { readInterludeCopyStyle, type InterludeCopyStyle } from '@/lib/interludeCopyStyle'
 import { readInterludeLayout, type InterludeLayout } from '@/lib/interludeLayout'
 
-const HEADLINE =
+export const INTERLUDE_HEADLINE =
   'I shape each product to work at its best, while understanding how it can and should interconnect with the others.'
-const BODY =
+export const INTERLUDE_BODY =
   'That is how strengths compound, weaknesses are offset, and the whole becomes more stable than any one product could be alone.'
 
-function InterludeHeadline({ copyStyle }: { copyStyle: InterludeCopyStyle }) {
-  if (copyStyle === 'rhythm') {
-    return (
-      <p className="portfolio-interlude__headline">
-        I shape each product to work at its best,
-        <br />
-        while understanding how it can and should interconnect with the others.
-      </p>
-    )
+function useInterludeCopy() {
+  const { text } = useContentDebug()
+  return {
+    headline: text('interlude#headline', INTERLUDE_HEADLINE),
+    body: text('interlude#body', INTERLUDE_BODY),
   }
-  return <p className="portfolio-interlude__headline">{HEADLINE}</p>
 }
 
-function InterludeBody({ copyStyle }: { copyStyle: InterludeCopyStyle }) {
+function InterludeHeadline({
+  copyStyle,
+  headline,
+}: {
+  copyStyle: InterludeCopyStyle
+  headline: string
+}) {
+  if (copyStyle === 'rhythm') {
+    const [lead, tail] = headline.split(', while understanding')
+    if (tail) {
+      return (
+        <p className="portfolio-interlude__headline">
+          {lead},
+          <br />
+          while understanding{tail}
+        </p>
+      )
+    }
+  }
+  return <p className="portfolio-interlude__headline">{headline}</p>
+}
+
+function InterludeBody({ copyStyle, body }: { copyStyle: InterludeCopyStyle; body: string }) {
   if (copyStyle === 'pull') {
     return (
       <blockquote className="portfolio-interlude__body portfolio-interlude__pull">
-        <p>{BODY}</p>
+        <p>{body}</p>
       </blockquote>
     )
   }
-  return <p className="portfolio-interlude__body">{BODY}</p>
+  return <p className="portfolio-interlude__body">{body}</p>
 }
 
 function InterludeCopy({
   part,
   copyStyle,
+  headline,
+  body,
 }: {
   part?: 'headline' | 'body'
   copyStyle: InterludeCopyStyle
+  headline: string
+  body: string
 }) {
   if (copyStyle === 'continuous' && !part) {
     return (
       <div className="portfolio-interlude__copy portfolio-interlude__copy--continuous">
         <p className="portfolio-interlude__continuous">
-          <span className="portfolio-interlude__continuous-lead">{HEADLINE}</span> {BODY}
+          <span className="portfolio-interlude__continuous-lead">{headline}</span> {body}
         </p>
       </div>
     )
@@ -52,16 +74,16 @@ function InterludeCopy({
 
   if (copyStyle === 'continuous' && part) {
     if (part === 'headline') {
-      return <p className="portfolio-interlude__headline">{HEADLINE}</p>
+      return <p className="portfolio-interlude__headline">{headline}</p>
     }
-    return <p className="portfolio-interlude__body">{BODY}</p>
+    return <p className="portfolio-interlude__body">{body}</p>
   }
 
   if (part === 'headline') {
-    return <InterludeHeadline copyStyle={copyStyle} />
+    return <InterludeHeadline copyStyle={copyStyle} headline={headline} />
   }
   if (part === 'body') {
-    return <InterludeBody copyStyle={copyStyle} />
+    return <InterludeBody copyStyle={copyStyle} body={body} />
   }
 
   return (
@@ -71,8 +93,8 @@ function InterludeCopy({
         `portfolio-interlude__copy--${copyStyle}`,
       ].join(' ')}
     >
-      <InterludeHeadline copyStyle={copyStyle} />
-      <InterludeBody copyStyle={copyStyle} />
+      <InterludeHeadline copyStyle={copyStyle} headline={headline} />
+      <InterludeBody copyStyle={copyStyle} body={body} />
     </div>
   )
 }
@@ -80,30 +102,35 @@ function InterludeCopy({
 function InterludeContent({
   layout,
   copyStyle,
+  headline,
+  body,
 }: {
   layout: InterludeLayout
   copyStyle: InterludeCopyStyle
+  headline: string
+  body: string
 }) {
+  const copyProps = { copyStyle, headline, body }
   switch (layout) {
     case 'sandwich':
       return (
         <>
-          <InterludeCopy part="headline" copyStyle={copyStyle} />
+          <InterludeCopy part="headline" {...copyProps} />
           <PortfolioInterludeGlyphs />
-          <InterludeCopy part="body" copyStyle={copyStyle} />
+          <InterludeCopy part="body" {...copyProps} />
         </>
       )
     case 'split':
       return (
         <div className="portfolio-interlude__row">
           <PortfolioInterludeGlyphs />
-          <InterludeCopy copyStyle={copyStyle} />
+          <InterludeCopy {...copyProps} />
         </div>
       )
     case 'editorial':
       return (
         <div className="portfolio-interlude__row portfolio-interlude__row--editorial">
-          <InterludeCopy copyStyle={copyStyle} />
+          <InterludeCopy {...copyProps} />
           <PortfolioInterludeGlyphs />
         </div>
       )
@@ -112,7 +139,7 @@ function InterludeContent({
       return (
         <>
           <PortfolioInterludeGlyphs />
-          <InterludeCopy copyStyle={copyStyle} />
+          <InterludeCopy {...copyProps} />
         </>
       )
   }
@@ -122,11 +149,13 @@ function InterludeContent({
  * Full-viewport pause between the hero and the first section — quiet room for
  * the sidebar nav to travel up and pin before the portfolio content begins.
  *
- * Dev: `?interludeLayout=1` page layouts; `?interludeCopy=1` copy typography.
+ * Dev: `?interludeLayout=1` page layouts; `?interludeCopy=1` copy typography;
+ * `?contentDebug=1` per-page copy overrides.
  */
 export function PortfolioInterlude() {
   const [layout, setLayout] = useState<InterludeLayout>('stack')
   const [copyStyle, setCopyStyle] = useState<InterludeCopyStyle>('classic')
+  const { headline, body } = useInterludeCopy()
 
   useEffect(() => {
     setLayout(readInterludeLayout())
@@ -149,7 +178,12 @@ export function PortfolioInterlude() {
         onLayoutChange={setLayout}
         onCopyStyleChange={setCopyStyle}
       />
-      <InterludeContent layout={layout} copyStyle={copyStyle} />
+      <InterludeContent
+        layout={layout}
+        copyStyle={copyStyle}
+        headline={headline}
+        body={body}
+      />
     </section>
   )
 }
