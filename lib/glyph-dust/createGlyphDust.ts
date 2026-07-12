@@ -4,6 +4,7 @@
 // tuning prototype; all magic numbers come in through GlyphDustRecipe.
 
 import { GLYPH_DEFS, GLYPH_LABELS, GLYPH_ORDER, type GlyphDef } from '@/lib/glyph-dust/glyphData'
+import { boxBlurRGBA } from '@/lib/glyph-dust/boxBlur'
 
 export interface GlyphDustRecipe {
   /** dots per unit² in a settled glyph (sizes the shared pool off the largest form) */
@@ -106,14 +107,21 @@ export function createGlyphDust(
   const MASKN = 24 * MASKRES
   const HALF = Math.round(W * 0.56)
   const KH = HALF / W
-  // Chrome's canvas blur is wider than Safari's at the same radius — soften slightly
-  // so the metaball threshold matches across engines before hole punch.
-  const isChrome =
+  const glyphXf = SCALE * KH
+  const glyphXo = 2 * SCALE * KH
+  // Safari's native canvas blur matches the tuned recipe; Chromium blurs wider.
+  const useNativeGooBlur =
     typeof navigator !== 'undefined' &&
-    /Chrome/i.test(navigator.userAgent) &&
-    !/Edg/i.test(navigator.userAgent)
-  const gooBlurPx = isChrome ? recipe.goo * 0.88 : recipe.goo
-  const gooThreshold = isChrome ? 84 : 96
+    /Safari/i.test(navigator.userAgent) &&
+    !/Chrome|Chromium|Edg/i.test(navigator.userAgent)
+
+  function clearGooHoles(holePath: Path2D) {
+    gaCtx.save()
+    gaCtx.setTransform(glyphXf, 0, 0, glyphXf, glyphXo, glyphXo)
+    gaCtx.globalCompositeOperation = 'destination-out'
+    gaCtx.fill(holePath)
+    gaCtx.restore()
+  }
 
   // detached SVG for path sampling
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
@@ -171,6 +179,26 @@ export function createGlyphDust(
   const GLYPH_PATHS = GLYPH_ORDER.map((name) => prep(GLYPH_DEFS[name]))
   const GL = GLYPH_PATHS.map((g) => g.body)
   const GL_HOLES = GLYPH_PATHS.map((g) => g.holes)
+
+  // Half-res hole masks — used after threshold to zero blur bleed in thin cutouts.
+  function buildHoleMask(holes: Path2D): Uint8Array {
+    const c = document.createElement('canvas')
+    c.width = HALF
+    c.height = HALF
+    const x = c.getContext('2d')!
+    x.setTransform(glyphXf, 0, 0, glyphXf, glyphXo, glyphXo)
+    x.fillStyle = '#fff'
+    x.strokeStyle = '#fff'
+    // Widen thin notches/chrome slots so blur rim cannot refill them.
+    x.lineWidth = 3 / glyphXf
+    x.fill(holes)
+    x.stroke(holes)
+    const raw = x.getImageData(0, 0, HALF, HALF).data
+    const m = new Uint8Array(HALF * HALF)
+    for (let p = 0; p < m.length; p++) m[p] = raw[p * 4 + 3]! > 10 ? 1 : 0
+    return m
+  }
+  const HOLE_MASKS = GL_HOLES.map(buildHoleMask)
 
   // one-time coverage masks (O(1) point-in-shape)
   function buildMask(p2d: Path2D): Uint8Array {
@@ -369,35 +397,46 @@ export function createGlyphDust(
     }
 
     if (goo) {
-      gbCtx.setTransform(1, 0, 0, 1, 0, 0)
-      gbCtx.clearRect(0, 0, HALF, HALF)
-      gbCtx.filter = `blur(${gooBlurPx}px)`
-      gbCtx.drawImage(gaCanvas, 0, 0)
-      gbCtx.filter = 'none'
-      const img = gbCtx.getImageData(0, 0, HALF, HALF)
+      if (!useNativeGooBlur && !flowing) clearGooHoles(GL_HOLES[i])
+
+      let img: ImageData
+      if (useNativeGooBlur) {
+        gbCtx.setTransform(1, 0, 0, 1, 0, 0)
+        gbCtx.clearRect(0, 0, HALF, HALF)
+        gbCtx.filter = `blur(${recipe.goo}px)`
+        gbCtx.drawImage(gaCanvas, 0, 0)
+        gbCtx.filter = 'none'
+        img = gbCtx.getImageData(0, 0, HALF, HALF)
+      } else {
+        img = gaCtx.getImageData(0, 0, HALF, HALF)
+        boxBlurRGBA(img.data, HALF, HALF, recipe.goo)
+      }
+
       const d = img.data
       const [AR, AG, AB] = accentRGB
-      const T = gooThreshold
+      const T = 96
       for (let q = 0; q < d.length; q += 4) {
-        if (d[q + 3] > T) {
+        if (d[q + 3]! > T) {
           d[q] = AR
           d[q + 1] = AG
           d[q + 2] = AB
           d[q + 3] = 255
-        } else d[q + 3] = 0
+        } else {
+          d[q + 3] = 0
+        }
       }
+      if (!useNativeGooBlur && !flowing) {
+        const hole = HOLE_MASKS[i]!
+        for (let p = 0; p < hole.length; p++) {
+          if (hole[p] === 1) d[p * 4 + 3] = 0
+        }
+      }
+      gbCtx.setTransform(1, 0, 0, 1, 0, 0)
+      gbCtx.clearRect(0, 0, HALF, HALF)
       gbCtx.putImageData(img, 0, 0)
       ctx.imageSmoothingEnabled = true
       ctx.globalAlpha = 1
       ctx.drawImage(gbCanvas, 0, 0, HALF, HALF, 0, 0, W, canvas.height)
-      // Metaball blur bleeds across thin cutouts; punch inner subpaths while holding.
-      if (!flowing) {
-        ctx.save()
-        ctx.setTransform(SCALE, 0, 0, SCALE, 2 * SCALE, 2 * SCALE)
-        ctx.globalCompositeOperation = 'destination-out'
-        ctx.fill(GL_HOLES[i])
-        ctx.restore()
-      }
     }
 
     // Errant specks — drawn crisp on top of the goo so they never merge in.
