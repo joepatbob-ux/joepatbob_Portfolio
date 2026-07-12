@@ -1,4 +1,5 @@
 import { CHAPTER_NAV_FADE_IN_MS, useChapterNav } from '@/components/ChapterNavProvider'
+import { isDeckActive } from '@/lib/deck/deckMode'
 import { isFixedSlideshowFlowChapter, isFlowChapterId } from '@/lib/chapterFlow'
 import { isContinuousChapters } from '@/lib/scroll/continuousChapters'
 import {
@@ -34,6 +35,26 @@ export function useChapterPanelOpacity(chapterId: string) {
   const flowChapter = isFlowChapterId(chapterId)
   const fixedSlideshowStacking =
     isFixedSlideshowFlowChapter(chapterId) && !layoutMobile && !isContinuousChapters()
+
+  // Deck: opacity is driven purely by the active chapter (no scroll reveal); the
+  // active panel cross-fades in, the rest out. `isActive` also gates the R3F
+  // frameloop, so only the active chapter's canvas renders.
+  if (isDeckActive()) {
+    const active = chapterId === activeSlideId
+    return {
+      opacity: active ? 1 : 0,
+      isActive: active,
+      ariaHidden: !active,
+      style: {
+        opacity: active ? 1 : 0,
+        filter: 'none',
+        zIndex: active ? 2 : 1,
+        pointerEvents: active ? 'auto' : 'none',
+        visibility: 'visible',
+        transition: `opacity ${CHAPTER_NAV_FADE_IN_MS}ms ${SCROLL_EASE}`,
+      } as const,
+    }
+  }
 
   if (phase === 'idle' && topBarNav) {
     const visibility = scrollReveal

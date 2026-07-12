@@ -1,11 +1,13 @@
 import './vite-font.css'
 import '@/styles/globals.css'
+import '@/styles/deck.css'
 import dynamic from '@/lib/dynamic'
 import { CaseStudy } from '@/components/CaseStudy'
 import { ChapterNavProvider } from '@/components/ChapterNavProvider'
 import { NavSentenceLayoutProvider } from '@/components/NavSentenceLayoutProvider'
 import { ContentDebugProvider } from '@/components/ContentDebugProvider'
 import { DevPanels } from '@/components/DevPanels'
+import { DeckController } from '@/components/DeckController'
 import { Hero } from '@/components/Hero'
 import { PortfolioInterlude } from '@/components/PortfolioInterlude'
 import { SidebarNav } from '@/components/SidebarNav'
@@ -51,11 +53,14 @@ export default function App() {
               <main id="main-content" className="content-area" tabIndex={-1}>
                 <Hero />
                 <PortfolioInterlude />
-                <CaseStudy section={hardware} sectionId="hardware" />
-                <CaseStudy sectionId="mobile" />
-                <CaseStudy sectionId="web-apps" />
-                <CaseStudy sectionId="everything-else" />
+                <div className="portfolio-sections">
+                  <CaseStudy section={hardware} sectionId="hardware" />
+                  <CaseStudy sectionId="mobile" />
+                  <CaseStudy sectionId="web-apps" />
+                  <CaseStudy sectionId="everything-else" />
+                </div>
               </main>
+              <DeckController />
             </div>
             <StickerLayer />
             <DevPanels />

@@ -27,6 +27,7 @@ import { flushScrollFrame, scheduleScrollFrame } from '@/lib/scroll/scrollFrame'
 import { bindTopBarScrollSpy } from '@/lib/scroll/topBarScrollSpy'
 import { LAYOUT_MQ } from '@/lib/layout/breakpoints'
 import { isTopBarNavViewport } from '@/lib/layout/isTopBarNavViewport'
+import { isDeckActive } from '@/lib/deck/deckMode'
 import {
   createContext,
   useCallback,
@@ -180,6 +181,13 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
       cleanup?.()
       cleanup = undefined
 
+      // Deck: React drives panel opacity from the active chapter; the per-frame
+      // scroll writer must stay out of the way (it would override the crossfade).
+      if (isDeckActive()) {
+        resetInFlowChapterPanels()
+        return
+      }
+
       if (window.matchMedia(LAYOUT_MQ.topBarNav).matches) {
         resetInFlowChapterPanels()
         releaseContinuousStageAlignForInFlowNav()
@@ -215,6 +223,16 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
   const runNavigate = useCallback(
     async (selector: string, chapterId: string) => {
       if (busyRef.current) return
+
+      // Deck presentation: no document scroll — mount the chapter and switch the
+      // active id; the panel opacity hook cross-fades it in.
+      if (isDeckActive()) {
+        requestChapterMount(chapterId)
+        await waitForChapterSlotReady(chapterId)
+        activeRef.current = chapterId
+        setActiveSlideId(chapterId)
+        return
+      }
 
       requestChapterMount(chapterId)
 
