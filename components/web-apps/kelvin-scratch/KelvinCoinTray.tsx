@@ -71,8 +71,7 @@ export function KelvinCoinTray({
           aria-hidden
         >
           <span className="web-apps-scratch__tray-phrase web-apps-scratch__tray-phrase--take">
-            <span className="web-apps-scratch__tray-phrase-line">Take a</span>
-            <span className="web-apps-scratch__tray-phrase-line">penny</span>
+            Take<br />a penny
           </span>
         </span>
 
@@ -104,8 +103,7 @@ export function KelvinCoinTray({
           aria-hidden
         >
           <span className="web-apps-scratch__tray-phrase web-apps-scratch__tray-phrase--leave">
-            <span className="web-apps-scratch__tray-phrase-line">Leave a</span>
-            <span className="web-apps-scratch__tray-phrase-line">penny</span>
+            Leave<br />a penny
           </span>
         </span>
       </button>
