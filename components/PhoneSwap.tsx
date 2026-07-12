@@ -39,6 +39,9 @@ import type * as THREE from 'three'
 
 /** Minimum time the goo loader stays up so it never flashes on fast loads. */
 const MIN_LOADER_MS = 900
+/** Extra hold after the scene commits, so the phone's camera-fit settles before
+ *  the loader lifts (otherwise the phone visibly jumps into its final framing). */
+const SETTLE_AFTER_READY_MS = 700
 
 /** 3D Pixel / iPhone swap — tap back phone to swap. */
 export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
@@ -83,7 +86,10 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
   const loaderShownAtRef = useRef<number | null>(null)
   const handleSceneReady = useCallback(() => {
     const shownAt = loaderShownAtRef.current ?? performance.now()
-    const remaining = Math.max(0, MIN_LOADER_MS - (performance.now() - shownAt))
+    const remaining = Math.max(
+      SETTLE_AFTER_READY_MS,
+      MIN_LOADER_MS - (performance.now() - shownAt),
+    )
     window.setTimeout(() => setLoaderHidden(true), remaining)
   }, [])
 

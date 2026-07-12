@@ -875,7 +875,7 @@
 /* Sensi — viewbox fills stage column; 3D camera reads --phone-viewport-* from here */
 .hardware-slideshow.mobile-chapter-slot--sensi,
 .flow-chapter-slide.mobile-chapter-slot--sensi {
-  --phone-viewport-fit-margin: 0.82;
+  --phone-viewport-fit-margin: 0.9;
   --phone-viewport-distance-scale: 0.92;
   /* Taller shell than 960×880 artboard — angled phones need vertical breathing room */
   --phone-viewbox-aspect: 960 / 1060;
@@ -926,7 +926,7 @@
 
   .hardware-slideshow.mobile-chapter-slot--sensi .phone-swap__viewbox,
   .flow-chapter-slide.mobile-chapter-slot--sensi .phone-swap__viewbox {
-    --phone-viewport-fit-margin: 0.82;
+    --phone-viewport-fit-margin: 0.9;
     --phone-viewport-distance-scale: 0.92;
     width: min(
       100%,
@@ -1290,7 +1290,7 @@
 
   .hardware-slideshow.mobile-chapter-slot--sensi .phone-swap__viewbox,
   .flow-chapter-slide.mobile-chapter-slot--sensi .phone-swap__viewbox {
-    --phone-viewport-fit-margin: 0.76;
+    --phone-viewport-fit-margin: 0.84;
     --phone-viewport-distance-scale: 0.9;
     width: min(
       100%,
