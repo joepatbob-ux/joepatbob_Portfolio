@@ -1209,8 +1209,8 @@
 
 .phone-goo-loader__canvas {
   display: block;
-  width: clamp(120px, 22vh, 180px);
-  height: clamp(120px, 22vh, 180px);
+  width: clamp(60px, 11vh, 90px);
+  height: clamp(60px, 11vh, 90px);
   aspect-ratio: 1;
 }
 
