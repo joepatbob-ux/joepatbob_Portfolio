@@ -24,8 +24,8 @@
 .case-study-flow-overview.flow-chapter-slide
   .flow-chapter-slide__copy
   .mobile-section-header__headline {
-  font-family: var(--font-body);
-  font-weight: 600;
+  font-family: var(--font-ahg);
+  font-weight: 700;
   font-size: clamp(28px, 3.6vw, 50px);
   line-height: 1.08;
   letter-spacing: -0.025em;

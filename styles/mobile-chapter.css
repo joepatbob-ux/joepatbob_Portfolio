@@ -17,8 +17,8 @@
 
 .mobile-section-header__headline {
   margin: 0;
-  font-family: var(--font-body);
-  font-weight: 600;
+  font-family: var(--font-ahg);
+  font-weight: 700;
   font-size: var(--cs-mobile-headline-size);
   line-height: 1.12;
   letter-spacing: -0.02em;

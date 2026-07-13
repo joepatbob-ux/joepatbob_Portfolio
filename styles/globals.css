@@ -28,21 +28,13 @@
 @tailwind utilities;
 
 /* ── FONTS ────────────────────────────────────────────────────────────────── */
-/* Place Alte Haas Grotesk in /public/fonts/ (see @font-face below).
-   JetBrains Mono is loaded via Google Fonts in index.html. */
+/* Alte Haas Grotesk Bold (display) in /public/fonts/.
+   Lato + JetBrains Mono load via Google Fonts in index.html. */
 
 @font-face {
   font-family: 'Alte Haas Grotesk Bold';
   src: url('/fonts/AlteHaasGroteskBold.woff2') format('woff2');
   font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Alte Haas Grotesk';
-  src: url('/fonts/AlteHaasGroteskRegular.woff2') format('woff2');
-  font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
@@ -76,9 +68,9 @@
     --gutter:           72px;
     /* Horizontal inset for main column: rules and blocks don’t hug viewport or sidebar */
     --content-pad-x:    24px;
-    /* Match @font-face family names; --font-mono comes from next/font on <html> */
+    /* Display vs body; --font-mono on <html> via vite-font-mono */
     --font-ahg:   "Alte Haas Grotesk Bold", sans-serif;
-    --font-body:  "Alte Haas Grotesk", sans-serif;
+    --font-body:  Lato, system-ui, sans-serif;
     /* Stickers above page + sidebar; mobile drawer stays on top */
     /* Stickers above fixed chapter panels (panels stay z-index 1–3) */
     /* Above chapter panels (≤100), nav transition (110), and learn-more sheet (112) */
@@ -1492,8 +1484,8 @@ html {
 
 .chapter-copy__headline {
   margin: 0;
-  font-family: var(--font-body);
-  font-weight: 600;
+  font-family: var(--font-ahg);
+  font-weight: 700;
   font-size: clamp(28px, 3.2vw, 40px);
   line-height: 1.15;
   letter-spacing: -0.02em;

@@ -1,5 +1,13 @@
 /* PhoneSwap — R3F canvas + label UI; chapter integration */
 
+/* Stage align wrapper — PhoneSwap is nested inside, not a direct stage child */
+.chapter-slide__stage:has(.phone-swap) > .chapter-stage-align {
+  width: 100%;
+  max-width: 100%;
+  margin-inline: 0;
+  overflow: visible;
+}
+
 .phone-swap {
   --phone-viewbox-base-w: clamp(380px, 58vw, 960px);
   --phone-viewbox-base-h: clamp(480px, 74dvh, 880px);
@@ -916,8 +924,8 @@
     overflow: visible;
   }
 
-  .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__stage:has(.phone-swap) > .phone-swap,
-  .flow-chapter-slide.mobile-chapter-slot--sensi .chapter-slide__stage:has(.phone-swap) > .phone-swap {
+  .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__stage:has(.phone-swap) .phone-swap,
+  .flow-chapter-slide.mobile-chapter-slot--sensi .chapter-slide__stage:has(.phone-swap) .phone-swap {
     width: 100%;
     max-width: 100%;
     margin-inline: auto;
@@ -955,7 +963,7 @@
     flex: 1 1 auto;
   }
 
-  .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__stage:has(.phone-swap) > .phone-swap {
+  .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__stage:has(.phone-swap) .phone-swap {
     width: min(100%, var(--cs-stage-gallery-w, var(--cs-stage-artifact-w)));
     max-width: 100%;
     margin-inline: auto;
@@ -1016,6 +1024,24 @@
     --hw-stage-max-w: none;
   }
 
+  .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__stage > .chapter-stage-align,
+  .flow-chapter-slide.mobile-chapter-slot--sensi .chapter-slide__stage > .chapter-stage-align {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-inline: 0 !important;
+    overflow: visible;
+    align-self: stretch;
+  }
+
+  .hardware-slideshow.mobile-chapter-slot--sensi
+    .chapter-slide__inner--compact-expand
+    .chapter-slide__stage:has(.phone-swap),
+  .hardware-slideshow.mobile-chapter-slot--sensi
+    .chapter-slide__inner--compact-expand
+    .chapter-compact-view__stage-fill:has(.phone-swap) {
+    overflow: visible;
+  }
+
   .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__stage:has(.phone-swap) {
     width: 100% !important;
     max-width: 100% !important;
@@ -1025,7 +1051,7 @@
     overflow: visible;
   }
 
-  .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__stage > .phone-swap,
+  .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__stage .phone-swap,
   .hardware-slideshow.mobile-chapter-slot--sensi .phone-swap--in-flow,
   .hardware-slideshow.mobile-chapter-slot--sensi .phone-swap--mobile-bleed {
     width: 100% !important;

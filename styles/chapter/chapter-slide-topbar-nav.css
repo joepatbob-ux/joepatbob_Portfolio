@@ -59,7 +59,54 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-items: center;
     padding: 0;
+  }
+
+  .hardware-slideshow
+    .chapter-slide__stage:not(:has(.flow-chapter-slide__stage--empty)) {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin-top: 0;
+    padding-top: 0;
+    box-sizing: border-box;
+  }
+
+  .hardware-slideshow.mobile-chapter-slot--sensi
+    .chapter-slide__stage .chapter-stage-align:has(.phone-swap),
+  .flow-chapter-slide.mobile-chapter-slot--sensi
+    .chapter-slide__stage .chapter-stage-align:has(.phone-swap) {
+    width: 100%;
+    max-width: 100%;
+    margin-inline: 0;
+    overflow: visible;
+    align-self: stretch;
+  }
+
+  .hardware-slideshow .chapter-slide__stage .chapter-stage-align {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 100%;
+    margin-inline: auto;
+    box-sizing: border-box;
+  }
+
+  .hardware-slideshow.chapter-slide--sensi-lite .chapter-slide__stage .chapter-stage-align {
+    width: min(100%, var(--cs-sensi-lite-stage-max-w, 320px));
+    aspect-ratio: 240 / 147;
+  }
+
+  .hardware-slideshow .chapter-slide__stage .chapter-stage-align:has(.eim-path-art) {
+    width: min(100%, var(--cs-eim-stage-max-w, var(--cs-stage-gallery-w)));
+  }
+
+  .hardware-slideshow.mobile-chapter-slot--wr-connect .chapter-slide__stage .chapter-stage-align,
+  .hardware-slideshow .chapter-slide__stage .chapter-stage-align:has(.wr-connect-board) {
+    width: min(100%, var(--cs-stage-gallery-w, 520px));
+    aspect-ratio: 2044 / 1476;
   }
 
   .hardware-slideshow .chapter-slide__inner {
@@ -109,13 +156,6 @@
   .hardware-slideshow
     .chapter-slide__inner--compact-expand[data-chapter-expanded='true'] {
     padding-top: var(--mobile-nav-overlay-height);
-  }
-
-  .hardware-slideshow
-    .chapter-slide__stage:not(:has(.flow-chapter-slide__stage--empty)) {
-    margin-top: 0;
-    padding-top: 0;
-    box-sizing: border-box;
   }
 
   /* Phone ≤767 — page scroll only; copy teasers open the learn-more sheet */

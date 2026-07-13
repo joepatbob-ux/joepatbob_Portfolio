@@ -6,6 +6,7 @@ import {
 } from '@/lib/scroll/applyChapterPanelScrollStyles'
 import {
   applyContinuousStageAlign,
+  releaseContinuousStageAlignForInFlowNav,
   resetContinuousStageAlign,
 } from '@/lib/scroll/applyContinuousStageAlign'
 import { isContinuousChapters } from '@/lib/scroll/continuousChapters'
@@ -63,7 +64,11 @@ export function applySlideScrollFromMeasure(
     }
   } else {
     resetContinuousCopyFade()
-    resetContinuousStageAlign()
+    if (isTopBarNavViewport()) {
+      releaseContinuousStageAlignForInFlowNav()
+    } else {
+      resetContinuousStageAlign()
+    }
   }
 
   if (

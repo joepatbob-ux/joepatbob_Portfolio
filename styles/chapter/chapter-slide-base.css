@@ -87,13 +87,13 @@
   margin-inline: auto;
 }
 
-.chapter-slide__stage > .phone-swap {
+.chapter-slide__stage .phone-swap {
   width: auto;
   max-width: 100%;
 }
 
 @media (max-width: 767px) {
-  .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__stage > .phone-swap {
+  .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__stage .phone-swap {
     max-width: none;
   }
 }

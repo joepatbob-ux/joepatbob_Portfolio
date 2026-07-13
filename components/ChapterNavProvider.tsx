@@ -1,5 +1,6 @@
 import { chapterRevealsChanged } from '@/lib/scroll/chapterReveals'
 import { applySlideScrollFromMeasure } from '@/lib/scroll/applySlideScrollFromMeasure'
+import { releaseContinuousStageAlignForInFlowNav } from '@/lib/scroll/applyContinuousStageAlign'
 import {
   hideAllChapterPanelsForNav,
   resetInFlowChapterPanels,
@@ -181,6 +182,7 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
 
       if (window.matchMedia(LAYOUT_MQ.topBarNav).matches) {
         resetInFlowChapterPanels()
+        releaseContinuousStageAlignForInFlowNav()
         cleanup = bindTopBarScrollSpy(
           () => phaseRef.current,
           () => (busyRef.current ? targetIdRef.current : null),

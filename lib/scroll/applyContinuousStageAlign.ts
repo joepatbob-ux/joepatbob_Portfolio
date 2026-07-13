@@ -333,6 +333,31 @@ function pickStagePinId(
   return bestId
 }
 
+/** Strip continuous-align inline styles without hiding stages (mobile/tablet in-flow). */
+export function releaseContinuousStageAlignForInFlowNav(): void {
+  committedPinId = null
+  exitingPinId = null
+  stageVisibleLatch.clear()
+  document.querySelectorAll<HTMLElement>(STAGE_SELECTOR).forEach((stage) => {
+    const align = stageAlignTarget(stage)
+    delete stage.dataset.stagePinned
+    delete stage.dataset.stageExiting
+    delete stage.dataset.stageOpacity
+    delete stage.dataset.stageCenterHeld
+    delete stage.dataset.stageCentered
+    delete stage.dataset.stagePhase
+    stage.style.removeProperty('--stage-artifact-half')
+    stage.style.removeProperty('opacity')
+    stage.style.removeProperty('visibility')
+    stage.style.removeProperty('pointer-events')
+    stage.style.removeProperty('z-index')
+    if (align) {
+      delete align.dataset.stagePhase
+      clearArtifactTransform(align)
+    }
+  })
+}
+
 export function resetContinuousStageAlign(): void {
   committedPinId = null
   exitingPinId = null

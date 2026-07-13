@@ -77,8 +77,8 @@
 .mobile-learn-more-sheet__title {
   margin: 0;
   min-width: 0;
-  font-family: var(--font-body);
-  font-weight: 600;
+  font-family: var(--font-ahg);
+  font-weight: 700;
   font-size: clamp(20px, 4.5vw, 26px);
   line-height: 1.15;
   letter-spacing: -0.02em;
