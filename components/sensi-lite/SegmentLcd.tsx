@@ -3,6 +3,7 @@ import {
   useCallback,
   useEffect,
   useImperativeHandle,
+  useMemo,
   useRef,
   useState,
   type CSSProperties,
@@ -23,14 +24,16 @@ import {
 } from '@/lib/sensi-lite/sensiLiteSegmentDebug'
 
 const GROUP_SELECTOR = '.lcd-seg-group'
-const SCREEN_SVG_URL = '/images/sensi-lite/screen.svg?v=17'
+const SCREEN_SVG_URL = '/images/sensi-lite/screen.svg?v=18'
 
 function applySegmentLit(el: SVGPathElement, isLit: boolean) {
   el.classList.toggle('lit', isLit)
   if (isLit) {
+    el.setAttribute('fill-opacity', '1')
     el.style.fillOpacity = '1'
   } else {
     el.style.removeProperty('fill-opacity')
+    el.setAttribute('fill-opacity', '0.05')
   }
 }
 
@@ -95,27 +98,27 @@ export const SegmentLcd = forwardRef<
     if (debug) tagSegmentCandidates(root)
   }, [debug, screenSvg])
 
+  const litKey = useMemo(() => [...lit].sort().join('|'), [lit])
+
   useEffect(() => {
     const root = rootRef.current
     if (!root || !screenSvg || atlas) return
 
-    root.querySelectorAll<SVGElement>(GROUP_SELECTOR).forEach((group) => {
-      const groupLit = group.id ? lit.has(group.id) : false
-      let anyChildLit = false
-      group.querySelectorAll<SVGPathElement>('.lcd-seg').forEach((child) => {
-        const childLit = child.id ? lit.has(child.id) : groupLit
-        if (childLit) anyChildLit = true
-        applySegmentLit(child, childLit)
-      })
-      group.classList.toggle('lit', groupLit || anyChildLit)
-    })
+    const groupLitFlags = new Map<SVGElement, boolean>()
 
     root.querySelectorAll<SVGPathElement>('.lcd-seg').forEach((el) => {
-      if (el.closest('.lcd-seg-group')) return
-      const isLit = el.id ? lit.has(el.id) : false
+      const group = el.closest<SVGElement>(GROUP_SELECTOR)
+      const groupLit = group?.id ? lit.has(group.id) : false
+      const selfLit = el.id ? lit.has(el.id) : false
+      const isLit = selfLit || groupLit
       applySegmentLit(el, isLit)
+      if (group) groupLitFlags.set(group, (groupLitFlags.get(group) ?? false) || groupLit || selfLit)
     })
-  }, [atlas, lit, screenSvg])
+
+    groupLitFlags.forEach((isLit, group) => {
+      group.classList.toggle('lit', isLit)
+    })
+  }, [atlas, litKey, screenSvg])
 
   useEffect(() => {
     const root = rootRef.current
@@ -198,7 +201,20 @@ export const SegmentLcd = forwardRef<
     [debug, onSegmentPick],
   )
 
-  if (!screenSvg) return null
+  if (!screenSvg) {
+    return (
+      <div
+        className="segment-lcd"
+        style={{
+          opacity: flash ? 0.35 : 1,
+          background: '#000',
+          borderRadius: 3,
+          ...style,
+        }}
+        aria-hidden
+      />
+    )
+  }
 
   const className = [
     'segment-lcd',

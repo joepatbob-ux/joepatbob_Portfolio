@@ -1,4 +1,5 @@
-import { SEG_PARTS, SEGS } from '@/lib/sensi-lite/lcd-segments'
+import { LETTER_SEGS, SEG_PARTS, SEGS } from '@/lib/sensi-lite/lcd-segments'
+import type { FanDuty, TempUnit } from '@/lib/sensi-lite/flow'
 import {
   ICON_IDS,
   LABEL_IDS,
@@ -24,6 +25,24 @@ function addDashDigits(target: Set<SegmentId>) {
 
 function addGroupChildrenIds(groupId: string, target: Set<SegmentId>) {
   target.add(groupId)
+}
+
+function addLetterSegments(target: Set<SegmentId>, position: DigitPosition, letter: string) {
+  const pattern = LETTER_SEGS[letter]
+  if (!pattern) return
+  SEG_PARTS.forEach((seg, index) => {
+    if (pattern[index]) target.add(digitSegmentId(position, seg))
+  })
+}
+
+function addSegmentPattern(
+  target: Set<SegmentId>,
+  position: DigitPosition,
+  pattern: readonly number[],
+) {
+  SEG_PARTS.forEach((seg, index) => {
+    if (pattern[index]) target.add(digitSegmentId(position, seg))
+  })
 }
 
 export function buildTempDisplay(target: Set<SegmentId>, value: number | null) {
@@ -68,10 +87,52 @@ export function buildHomeComposition({
 }
 
 export const HOMEOWNER_SCREEN_LABELS: Record<string, readonly SegmentId[]> = {
-  wifi: [ICON_IDS.wifi],
   display: [ICON_IDS.percent],
-  fan: [ICON_IDS.fan],
-  units: [LABEL_IDS.setup],
+}
+
+/** Wi‑Fi setup: SETUP + ON/OFF; wifi and × alternate while radio is on. */
+export function buildWifiComposition(radioOn: boolean, blinkWifi: boolean): Set<SegmentId> {
+  const lit = new Set<SegmentId>()
+  lit.add(LABEL_IDS.setup)
+
+  if (radioOn) {
+    lit.add(ICON_IDS.onText)
+    lit.add(ICON_IDS.onDegree)
+    lit.add(blinkWifi ? ICON_IDS.wifi : ICON_IDS.disconnected)
+  } else {
+    addGroupChildrenIds(ICON_IDS.off, lit)
+  }
+
+  return lit
+}
+
+/** Fan duty: SETUP + fan icon + % (numeric only); digits show 10–95, On, or Au. */
+export function buildFanComposition(fanDuty: FanDuty): Set<SegmentId> {
+  const lit = new Set<SegmentId>()
+  lit.add(LABEL_IDS.setup)
+  addGroupChildrenIds(ICON_IDS.fan, lit)
+
+  if (typeof fanDuty === 'number') {
+    lit.add(ICON_IDS.percent)
+    buildTempDisplay(lit, fanDuty)
+  } else if (fanDuty === 'on') {
+    addLetterSegments(lit, 'tens', 'O')
+    addLetterSegments(lit, 'ones', 'n')
+  } else {
+    addLetterSegments(lit, 'tens', 'A')
+    addLetterSegments(lit, 'ones', 'u')
+  }
+
+  return lit
+}
+
+/** Units: SETUP + [°][F] or [°][C] — one unit at a time, toggled with ▲/▼. */
+export function buildUnitsComposition(unit: TempUnit): Set<SegmentId> {
+  const lit = new Set<SegmentId>()
+  lit.add(LABEL_IDS.setup)
+  addLetterSegments(lit, 'tens', '°')
+  addLetterSegments(lit, 'ones', unit === 'f' ? 'F' : 'C')
+  return lit
 }
 
 export const CONTRACTOR_SCREEN_LABELS: Record<string, readonly SegmentId[]> = {
@@ -81,10 +142,32 @@ export const CONTRACTOR_SCREEN_LABELS: Record<string, readonly SegmentId[]> = {
 }
 
 export function buildSettingsComposition(
-  screenKey: keyof typeof HOMEOWNER_SCREEN_LABELS | keyof typeof CONTRACTOR_SCREEN_LABELS,
+  screenKey:
+    | keyof typeof HOMEOWNER_SCREEN_LABELS
+    | keyof typeof CONTRACTOR_SCREEN_LABELS
+    | 'wifi'
+    | 'fan'
+    | 'units',
   ring: 'homeowner' | 'contractor',
   temp: number | null,
+  homeowner?: {
+    wifi?: { radioOn: boolean; blinkWifi: boolean }
+    fanDuty?: FanDuty
+    tempUnit?: TempUnit
+  },
 ): Set<SegmentId> {
+  if (ring === 'homeowner' && screenKey === 'wifi' && homeowner?.wifi) {
+    return buildWifiComposition(homeowner.wifi.radioOn, homeowner.wifi.blinkWifi)
+  }
+
+  if (ring === 'homeowner' && screenKey === 'fan') {
+    return buildFanComposition(homeowner?.fanDuty ?? 10)
+  }
+
+  if (ring === 'homeowner' && screenKey === 'units') {
+    return buildUnitsComposition(homeowner?.tempUnit ?? 'f')
+  }
+
   const lit = new Set<SegmentId>()
   const labels =
     ring === 'homeowner'

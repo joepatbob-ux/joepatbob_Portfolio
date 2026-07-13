@@ -2,10 +2,11 @@ import type { Mode } from '@/lib/sensi-lite/build-composition'
 
 export type Ring = 'main' | 'homeowner' | 'contractor'
 
-export type HomeownerScreen = 'wifi' | 'display' | 'fan' | 'units'
+/** Wi‑Fi setup is app-prompted on first connect, not in the customer menu ring. */
+export type HomeownerScreen = 'fan' | 'units'
 export type ContractorScreen = 'outdoor' | 'auxLockout' | 'balancePoint'
 
-export const HOMEOWNER_SCREENS: HomeownerScreen[] = ['wifi', 'display', 'fan', 'units']
+export const HOMEOWNER_SCREENS: HomeownerScreen[] = ['fan', 'units']
 export const CONTRACTOR_SCREENS: ContractorScreen[] = ['outdoor', 'auxLockout', 'balancePoint']
 
 export const HOMEOWNER_LONG_PRESS_MS = 1200
@@ -15,6 +16,24 @@ export const AUX_LOCKOUT_MAX = 80
 export const AUX_LOCKOUT_MIN = -4
 export const BALANCE_POINT_DEFAULT = 55
 export const BALANCE_POINT_MIN = -5
+
+export type FanDuty = number | 'on' | 'au'
+export type TempUnit = 'f' | 'c'
+
+export const FAN_DUTY_SEQUENCE: FanDuty[] = (() => {
+  const seq: FanDuty[] = []
+  for (let p = 10; p <= 95; p += 5) seq.push(p)
+  seq.push('on', 'au')
+  return seq
+})()
+
+export function stepFanDuty(current: FanDuty, delta: number): FanDuty {
+  const idx = FAN_DUTY_SEQUENCE.indexOf(current)
+  const safeIdx = idx < 0 ? 0 : idx
+  const next =
+    (safeIdx + delta + FAN_DUTY_SEQUENCE.length) % FAN_DUTY_SEQUENCE.length
+  return FAN_DUTY_SEQUENCE[next]
+}
 
 export type FlowState = {
   ring: Ring
@@ -26,6 +45,8 @@ export type FlowState = {
   outdoorType: 'hp' | 'ac'
   auxLockout: number | null
   balancePoint: number | null
+  fanDuty: FanDuty
+  tempUnit: TempUnit
 }
 
 export const INITIAL_FLOW_STATE: FlowState = {
@@ -38,10 +59,33 @@ export const INITIAL_FLOW_STATE: FlowState = {
   outdoorType: 'hp',
   auxLockout: 80,
   balancePoint: BALANCE_POINT_DEFAULT,
+  fanDuty: 10,
+  tempUnit: 'f',
 }
 
 export function enterHomeownerRing(state: FlowState): FlowState {
-  return { ...state, ring: 'homeowner', screenIndex: 0, editingSetpoint: false }
+  return {
+    ...state,
+    ring: 'homeowner',
+    screenIndex: 0,
+    editingSetpoint: false,
+    fanDuty: state.fanDuty ?? 10,
+  }
+}
+
+export function adjustFanDuty(state: FlowState, delta: number): FlowState {
+  if (state.ring !== 'homeowner' || currentHomeownerScreen(state) !== 'fan') return state
+  return { ...state, fanDuty: stepFanDuty(state.fanDuty, delta) }
+}
+
+export function setTempUnit(state: FlowState, unit: TempUnit): FlowState {
+  if (state.ring !== 'homeowner' || currentHomeownerScreen(state) !== 'units') return state
+  return { ...state, tempUnit: unit }
+}
+
+export function adjustTempUnit(state: FlowState, _delta: number): FlowState {
+  if (state.ring !== 'homeowner' || currentHomeownerScreen(state) !== 'units') return state
+  return { ...state, tempUnit: state.tempUnit === 'f' ? 'c' : 'f' }
 }
 
 export function enterContractorRing(state: FlowState): FlowState {
@@ -62,7 +106,7 @@ export function advanceMenuTap(state: FlowState): FlowState {
 }
 
 export function currentHomeownerScreen(state: FlowState): HomeownerScreen {
-  return HOMEOWNER_SCREENS[state.screenIndex] ?? 'wifi'
+  return HOMEOWNER_SCREENS[state.screenIndex] ?? 'fan'
 }
 
 export function currentContractorScreen(state: FlowState): ContractorScreen {

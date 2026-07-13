@@ -1,5 +1,5 @@
 // components/SensiLiteProto.tsx
-// Sensi Lite — segment LCD prototype (home / homeowner / contractor rings)
+// Sensi Lite — segment LCD prototype (home / homeowner rings)
 
 import {
   useState,
@@ -18,14 +18,17 @@ import {
 import {
   INITIAL_FLOW_STATE,
   advanceMenuTap,
-  adjustContractorValue,
-  currentContractorScreen,
+  adjustFanDuty,
   currentHomeownerScreen,
-  enterContractorRing,
   enterHomeownerRing,
   returnToMain,
+  adjustTempUnit,
   type FlowState,
 } from '@/lib/sensi-lite/flow'
+import {
+  adjustFahrenheitByDisplayDelta,
+  displayTemperature,
+} from '@/lib/sensi-lite/temperature'
 import { useMenuLongPress } from '@/lib/sensi-lite/useMenuLongPress'
 import { useMenuLongPressIndicator } from '@/lib/sensi-lite/interactiveTouchContext'
 import { FRAME_HEIGHT, FRAME_LOGO, FRAME_WIDTH, type FrameRect } from '@/lib/sensi-lite/frame-layout'
@@ -84,12 +87,24 @@ function enforceDeadband(
   return { heatTo: heat, coolTo: cool }
 }
 
-function adjustHeatSetpoint(heatTo: number, coolTo: number, delta: number) {
-  return enforceDeadband(clampTemp(heatTo + delta), coolTo, 'heat')
+function adjustHeatSetpoint(
+  heatTo: number,
+  coolTo: number,
+  delta: number,
+  unit: FlowState['tempUnit'],
+) {
+  const nextHeat = clampTemp(adjustFahrenheitByDisplayDelta(heatTo, delta, unit))
+  return enforceDeadband(nextHeat, coolTo, 'heat')
 }
 
-function adjustCoolSetpoint(heatTo: number, coolTo: number, delta: number) {
-  return enforceDeadband(heatTo, clampTemp(coolTo + delta), 'cool')
+function adjustCoolSetpoint(
+  heatTo: number,
+  coolTo: number,
+  delta: number,
+  unit: FlowState['tempUnit'],
+) {
+  const nextCool = clampTemp(adjustFahrenheitByDisplayDelta(coolTo, delta, unit))
+  return enforceDeadband(heatTo, nextCool, 'cool')
 }
 
 function nextMode(mode: Mode): Mode {
@@ -216,18 +231,26 @@ function computeLit(
   }
 
   if (state.ring === 'homeowner') {
-    return buildSettingsComposition(currentHomeownerScreen(state), 'homeowner', null)
+    const screen = currentHomeownerScreen(state)
+    if (screen === 'fan') {
+      return buildSettingsComposition('fan', 'homeowner', null, {
+        fanDuty: state.fanDuty ?? 10,
+      })
+    }
+    if (screen === 'units') {
+      return buildSettingsComposition('units', 'homeowner', null, {
+        tempUnit: state.tempUnit ?? 'f',
+      })
+    }
+    return buildSettingsComposition(screen, 'homeowner', null)
   }
 
-  const screen = currentContractorScreen(state)
-  const temp =
-    screen === 'auxLockout'
-      ? state.auxLockout
-      : screen === 'balancePoint'
-        ? state.balancePoint
-        : null
-
-  return buildSettingsComposition(screen, 'contractor', temp)
+  return buildHomeComposition({
+    temp: lcdTemp,
+    mode: state.mode,
+    onActive,
+    showSetTo,
+  })
 }
 
 export function SensiLiteProto({
@@ -271,8 +294,13 @@ export function SensiLiteProto({
   const handleUp = useCallback(() => {
     triggerFlash()
 
-    if (flow.ring === 'contractor') {
-      setFlow((s) => adjustContractorValue(s, 1))
+    if (flow.ring === 'homeowner') {
+      setFlow((s) => {
+        const screen = currentHomeownerScreen(s)
+        if (screen === 'fan') return adjustFanDuty(s, 1)
+        if (screen === 'units') return adjustTempUnit(s, 1)
+        return s
+      })
       return
     }
 
@@ -281,11 +309,11 @@ export function SensiLiteProto({
     beginSetpointEdit()
     setFlow((s) => {
       if (s.mode === 'heat') {
-        const next = adjustHeatSetpoint(s.heatTo, s.coolTo, 1)
+        const next = adjustHeatSetpoint(s.heatTo, s.coolTo, 1, s.tempUnit ?? 'f')
         return { ...s, ...next }
       }
       if (s.mode === 'cool') {
-        const next = adjustCoolSetpoint(s.heatTo, s.coolTo, 1)
+        const next = adjustCoolSetpoint(s.heatTo, s.coolTo, 1, s.tempUnit ?? 'f')
         return { ...s, ...next }
       }
       return s
@@ -295,8 +323,13 @@ export function SensiLiteProto({
   const handleDown = useCallback(() => {
     triggerFlash()
 
-    if (flow.ring === 'contractor') {
-      setFlow((s) => adjustContractorValue(s, -1))
+    if (flow.ring === 'homeowner') {
+      setFlow((s) => {
+        const screen = currentHomeownerScreen(s)
+        if (screen === 'fan') return adjustFanDuty(s, -1)
+        if (screen === 'units') return adjustTempUnit(s, -1)
+        return s
+      })
       return
     }
 
@@ -305,11 +338,11 @@ export function SensiLiteProto({
     beginSetpointEdit()
     setFlow((s) => {
       if (s.mode === 'heat') {
-        const next = adjustHeatSetpoint(s.heatTo, s.coolTo, -1)
+        const next = adjustHeatSetpoint(s.heatTo, s.coolTo, -1, s.tempUnit ?? 'f')
         return { ...s, ...next }
       }
       if (s.mode === 'cool') {
-        const next = adjustCoolSetpoint(s.heatTo, s.coolTo, -1)
+        const next = adjustCoolSetpoint(s.heatTo, s.coolTo, -1, s.tempUnit ?? 'f')
         return { ...s, ...next }
       }
       return s
@@ -330,7 +363,6 @@ export function SensiLiteProto({
     triggerFlash()
     setFlow((s) => {
       if (s.ring === 'main') return enterHomeownerRing(s)
-      if (s.ring === 'homeowner') return enterContractorRing(s)
       return returnToMain(s)
     })
   }, [triggerFlash])
@@ -351,12 +383,21 @@ export function SensiLiteProto({
 
   const showSetTo = flow.editingSetpoint && flow.mode !== 'off' && flow.ring === 'main'
 
-  const lcdTemp =
+  const rawLcdTemp =
     showSetTo && flow.mode === 'heat'
       ? flow.heatTo
       : showSetTo && flow.mode === 'cool'
         ? flow.coolTo
         : DISPLAY_TEMP
+
+  const tempUnit = flow.tempUnit ?? 'f'
+
+  const lcdTemp = displayTemperature(rawLcdTemp, tempUnit)
+
+  const displayRoomTemp = displayTemperature(DISPLAY_TEMP, tempUnit)
+  const displayHeatTo = displayTemperature(flow.heatTo, tempUnit)
+  const displayCoolTo = displayTemperature(flow.coolTo, tempUnit)
+  const unitSuffix = tempUnit === 'c' ? '°C' : '°F'
 
   const onActive =
     flow.ring === 'main' &&
@@ -374,9 +415,9 @@ export function SensiLiteProto({
   const ringHint =
     flow.ring === 'main'
       ? 'Hold menu 1.2s → settings'
-      : flow.ring === 'homeowner'
-        ? 'Hold menu 2s → contractor'
-        : 'Tap menu to advance · last screen → home'
+      : currentHomeownerScreen(flow) === 'fan'
+        ? 'Fan: ▲/▼ cycles duty · tap menu to advance · hold 1.2s → home'
+        : 'Units: ▲/▼ toggles unit · tap menu to advance · hold 1.2s → home'
 
   return (
     <div
@@ -427,12 +468,9 @@ export function SensiLiteProto({
           <span style={{ display: 'block' }}>▲ ▼ setpoint / adjust · ● menu</span>
           <span style={{ display: 'block' }}>{ringHint}</span>
           <span style={{ display: 'block' }}>
-            Room {DISPLAY_TEMP}° · Heat {flow.heatTo}° · Cool {flow.coolTo}° · {DEADBAND}° gap
-            {flow.ring === 'contractor' && flow.auxLockout !== null
-              ? ` · AUX ${flow.auxLockout}°`
-              : flow.ring === 'contractor'
-                ? ' · AUX --'
-                : ''}
+            Room {displayRoomTemp}{unitSuffix} · Heat {displayHeatTo}{unitSuffix} · Cool{' '}
+            {displayCoolTo}
+            {unitSuffix} · {DEADBAND}° gap
           </span>
         </p>
       ) : null}

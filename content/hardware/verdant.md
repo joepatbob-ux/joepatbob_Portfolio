@@ -12,7 +12,7 @@
 
 Verdant serves hospitality: guests who touch the thermostat once, speak different languages, and will never read a help screen. The interface has to land immediately or it's failed. I designed two screens off one shared firmware base at the same time: VX4's primary screen, and a separate iconographic version for the European Line Voltage model. For the European model I dropped text entirely and built the interface out of icons, since no caption bails out a language gap. The character set had to read from across a hotel room, not up close, so I studied existing segment forms, drew ideal numerals in Lato, then overlaid every digit on transparency paper to find which segments always fire together and could be merged. Letters like W and Q are still there, just not as crisp as the rest of the set, one of a few trade-offs for keeping things legible at a distance. Another was going with a single mixed-case alphabet instead of separate upper and lowercase sets, since the segment budget didn't have room for both.
 
-The finalists went through A/B testing on PCB prototypes in a room the size of a hotel room, 15 to 20 feet of viewing distance, with participants who'd never seen the product, under varying light and randomized text. I led the character-set design. Canada has granted the design patent; a US application is still pending.
+The finalists went through A/B testing on PCB prototypes in a room the size of a hotel room, 15 to 20 feet of viewing distance, with participants who'd never seen the product, under varying light and randomized text. I led the character-set design. The typeface is the subject of a pending US design patent (US 29/952,805).
 
 **One protocol, two product lines**
 

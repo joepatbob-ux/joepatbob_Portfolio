@@ -36,8 +36,7 @@ function OverviewScopeBlock({ items }: { items: readonly string[] }) {
 }
 
 /**
- * Credential entry as a bill-of-materials row: name + title on the left, a
- * dotted leader carrying the eye to the mono meta on the right.
+ * Credential entry: name + optional title on the left, mono meta on the right.
  */
 function OverviewLeaderRow({
   name,
@@ -56,12 +55,7 @@ function OverviewLeaderRow({
           <span className="case-study-overview-row__title">{title}</span>
         ) : null}
       </span>
-      {meta ? (
-        <>
-          <span className="case-study-overview-row__dots" aria-hidden />
-          <span className="case-study-overview-row__meta">{meta}</span>
-        </>
-      ) : null}
+      {meta ? <span className="case-study-overview-row__meta">{meta}</span> : null}
     </div>
   )
 }

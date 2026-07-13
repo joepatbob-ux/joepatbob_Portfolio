@@ -182,21 +182,19 @@
   margin-inline-start: 0;
 }
 
-/* ── Credential rows — bill-of-materials: name + title left, dotted leader,
-   mono meta right. The dead middle becomes the connector. ── */
+/* ── Credential rows — name + title left, mono meta right ── */
 
 .case-study-overview-rows {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  border-top: 1px solid var(--cs-hairline);
-  padding-top: 10px;
+  gap: 10px;
 }
 
 .case-study-overview-row {
   display: flex;
   align-items: baseline;
-  gap: 10px;
+  justify-content: space-between;
+  gap: 12px;
   min-width: 0;
   text-align: left;
 }
@@ -228,14 +226,6 @@
   min-width: 0;
 }
 
-.case-study-overview-row__dots {
-  flex: 1 1 auto;
-  min-width: 24px;
-  border-bottom: 1px dotted
-    var(--cs-leader-dot, color-mix(in srgb, var(--color-ink) 32%, transparent));
-  transform: translateY(-4px);
-}
-
 .case-study-overview-row__meta {
   font-family: var(--font-mono);
   font-size: 11px;
@@ -246,11 +236,12 @@
   white-space: nowrap;
 }
 
-/* Narrow columns: leaders need runway — fall back to stacked entries. */
+/* Narrow columns: stack meta under the lead line. */
 @media (max-width: 560px) {
   .case-study-overview-row {
-    flex-wrap: wrap;
-    row-gap: 2px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
   }
 
   .case-study-overview-row__lead {
@@ -262,10 +253,6 @@
   .case-study-overview-row__name {
     white-space: normal;
   }
-
-  .case-study-overview-row__dots {
-    display: none;
-  }
 }
 
 /* Overview metadata stays a single tight column */
@@ -275,7 +262,8 @@
 }
 
 .case-study-flow-overview .case-study-overview-scope__cell {
-  padding-top: 8px;
+  padding-top: 0;
+  border-top: none;
 }
 
 /* Signature quote — accent curly marks set inline with the text, so the

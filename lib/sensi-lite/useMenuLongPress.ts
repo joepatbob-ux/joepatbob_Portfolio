@@ -1,6 +1,6 @@
 import { useCallback, useRef } from 'react'
 import type { Ring } from '@/lib/sensi-lite/flow'
-import { CONTRACTOR_LONG_PRESS_MS, HOMEOWNER_LONG_PRESS_MS } from '@/lib/sensi-lite/flow'
+import { HOMEOWNER_LONG_PRESS_MS } from '@/lib/sensi-lite/flow'
 
 type MenuLongPressHandlers = {
   onPointerDown: () => void
@@ -35,8 +35,7 @@ export function useMenuLongPress({
     }
   }, [])
 
-  const thresholdMs =
-    ring === 'homeowner' ? CONTRACTOR_LONG_PRESS_MS : HOMEOWNER_LONG_PRESS_MS
+  const thresholdMs = HOMEOWNER_LONG_PRESS_MS
 
   const endPress = useCallback(() => {
     onPressEnd?.()

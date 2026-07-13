@@ -11,14 +11,9 @@
       "status": "Granted · 2026"
     },
     {
-      "number": "Canada",
-      "title": "Multi-segment display typeface",
-      "status": "Granted · 2025"
-    },
-    {
       "number": "US 29/952,805",
-      "title": "Fixed-segment character set",
-      "status": "Pending · 2024"
+      "title": "Multi-Segment Typeface for a Thermostat Display",
+      "status": "Pending · 2025"
     }
   ]
 }
