@@ -68,7 +68,7 @@ export function CaseStudy({ section, sectionId }: Props) {
             <DeferredChapter
               chapter={chapter}
               sectionId={sectionId}
-              isLast={i === section.chapters.length - 1}
+              isLast={i === resolved.chapters.length - 1}
             />
             {insertsAfterChapter(sectionId, chapter.id).map((insert) => (
               <ChapterInsertSlide

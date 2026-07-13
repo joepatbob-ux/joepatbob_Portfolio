@@ -123,7 +123,11 @@ export function stepAuxLockout(current: number | null, delta: number): number | 
   return next
 }
 
-export function balancePointFloor(auxLockout: number | null): number {
+/** Highest settable balance point. It must stay below the aux lockout (the
+ *  compressor and aux ranges may not invert); with aux Off there is no backup
+ *  heat, so the ceiling collapses to the minimum — you can't lock out the only
+ *  heat source. */
+export function balancePointCeiling(auxLockout: number | null): number {
   if (auxLockout === null) return BALANCE_POINT_MIN
   return Math.max(BALANCE_POINT_MIN, auxLockout - 1)
 }
@@ -133,13 +137,14 @@ export function stepBalancePoint(
   delta: number,
   auxLockout: number | null,
 ): number | null {
-  const floor = balancePointFloor(auxLockout)
+  const ceiling = balancePointCeiling(auxLockout)
   if (current === null) {
-    return delta > 0 ? floor : null
+    // From Off, stepping up enters the range at its minimum (mirrors aux lockout).
+    return delta > 0 ? BALANCE_POINT_MIN : null
   }
   const next = current + delta
-  if (next < floor) return null
-  if (next > BALANCE_POINT_DEFAULT) return BALANCE_POINT_DEFAULT
+  if (next < BALANCE_POINT_MIN) return null // below the range → Off
+  if (next > ceiling) return ceiling // pinned below the aux lockout
   return next
 }
 

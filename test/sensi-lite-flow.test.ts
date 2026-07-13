@@ -8,7 +8,7 @@ import {
   INITIAL_FLOW_STATE,
   stepAuxLockout,
   stepBalancePoint,
-  balancePointFloor,
+  balancePointCeiling,
   stepFanDuty,
   FAN_DUTY_SEQUENCE,
 } from '@/lib/sensi-lite/flow'
@@ -61,10 +61,14 @@ describe('sensi-lite flow', () => {
     expect(stepAuxLockout(null, 1)).toBe(-4)
   })
 
-  it('respects balance point floor from aux lockout', () => {
-    expect(balancePointFloor(80)).toBe(79)
-    expect(balancePointFloor(null)).toBe(-5)
+  it('keeps the balance point pinned below the aux lockout', () => {
+    expect(balancePointCeiling(80)).toBe(79)
+    expect(balancePointCeiling(null)).toBe(-5)
     expect(stepBalancePoint(55, -1, 80)).toBe(54)
-    expect(stepBalancePoint(79, 1, 80)).toBe(55)
+    expect(stepBalancePoint(54, 1, 80)).toBe(55)
+    // clamp at the aux-derived ceiling; Off below the minimum; re-enter at min
+    expect(stepBalancePoint(79, 1, 80)).toBe(79)
+    expect(stepBalancePoint(-5, -1, 80)).toBe(null)
+    expect(stepBalancePoint(null, 1, 80)).toBe(-5)
   })
 })

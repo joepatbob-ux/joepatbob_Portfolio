@@ -1,3 +1,6 @@
+// @vitest-environment jsdom
+// These tests exercise real SVG DOM (createElementNS / innerHTML / querySelector),
+// so they need a DOM — the suite default stays `node` (vitest.config.ts).
 import { describe, expect, it } from 'vitest'
 import {
   breakApartSegmentGroup,
@@ -8,6 +11,14 @@ import {
   toSegmentPick,
   wrapSegmentsWithId,
 } from '@/lib/sensi-lite/sensiLiteSegmentDebug'
+
+// jsdom doesn't ship CSS.escape; the source uses it for id selectors.
+if (typeof CSS === 'undefined' || typeof CSS.escape !== 'function') {
+  ;(globalThis as { CSS?: unknown }).CSS = {
+    ...(globalThis as { CSS?: object }).CSS,
+    escape: (value: string) => value.replace(/[^a-zA-Z0-9_-]/g, (c) => `\\${c}`),
+  }
+}
 
 function mountSvg(markup: string) {
   const root = document.createElement('div')

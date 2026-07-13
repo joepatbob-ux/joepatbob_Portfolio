@@ -228,9 +228,12 @@ export function breakApartSegmentGroup(root: ParentNode, key: string): SegmentPi
   const parent = group.parentNode
   if (!parent) return []
 
+  // Release only element children — pretty-printed SVG interleaves whitespace
+  // text nodes, which have no tagName and aren't pickable segments. They get
+  // discarded with the group wrapper below.
   const released: SVGElement[] = []
-  while (group.firstChild) {
-    const child = group.firstChild as SVGElement
+  while (group.firstElementChild) {
+    const child = group.firstElementChild as SVGElement
     parent.insertBefore(child, group)
     released.push(child)
   }
