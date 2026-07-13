@@ -54,6 +54,125 @@
   inset: 0;
 }
 
+.segment-lcd {
+  position: absolute;
+  pointer-events: none;
+  user-select: none;
+}
+
+.segment-lcd svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.segment-lcd .lcd-seg {
+  fill: white;
+  fill-opacity: 0.05;
+  transition: fill-opacity 80ms ease;
+}
+
+.segment-lcd .lcd-seg.lit,
+.segment-lcd .lcd-seg-group.lit .lcd-seg {
+  fill-opacity: 1 !important;
+}
+
+.segment-lcd--debug {
+  pointer-events: auto;
+  cursor: crosshair;
+  z-index: 2;
+}
+
+.segment-lcd--debug path,
+.segment-lcd--debug g.lcd-seg-group {
+  pointer-events: visiblePainted;
+}
+
+/* Segment atlas — all segments visible for naming */
+.segment-lcd--atlas .lcd-seg--atlas-base {
+  fill: #fff;
+  fill-opacity: 1;
+  transition: fill 120ms ease, fill-opacity 120ms ease;
+}
+
+.segment-lcd--atlas .lcd-seg--atlas-named,
+.segment-lcd--atlas .lcd-seg--atlas-named .lcd-seg {
+  fill: color-mix(in srgb, var(--color-accent) 42%, white);
+  fill-opacity: 1;
+  transition: fill 120ms ease, fill-opacity 120ms ease;
+}
+
+.segment-lcd--atlas .lcd-seg--atlas-selected,
+.segment-lcd--atlas .lcd-seg--atlas-selected .lcd-seg {
+  fill: var(--color-accent);
+  fill-opacity: 1;
+  transition: fill 120ms ease, fill-opacity 120ms ease;
+}
+
+.sensi-lite-segment-atlas {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 16px;
+  padding: 20px 332px 20px 20px;
+  background: #0a0a0a;
+  color: #f2f2f2;
+  font-family: var(--font-mono, ui-monospace, monospace);
+}
+
+.sensi-lite-segment-atlas__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.sensi-lite-segment-atlas__title {
+  display: block;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.sensi-lite-segment-atlas__hint {
+  margin: 6px 0 0;
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+.sensi-lite-segment-atlas__exit {
+  flex-shrink: 0;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: inherit;
+  font-size: 11px;
+  text-decoration: none;
+}
+
+.sensi-lite-segment-atlas__stage {
+  position: relative;
+  place-self: center;
+  width: min(72vmin, 520px);
+  aspect-ratio: 1;
+  max-height: calc(100vh - 120px);
+}
+
+.sensi-lite-segment-atlas__stage .segment-lcd {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+@media (max-width: 720px) {
+  .sensi-lite-segment-atlas {
+    padding: 16px 16px 280px;
+  }
+}
+
 /* Sensi Lite — accent dot cursor (chapter only) */
 .chapter-slide--sensi-lite .chapter-slide__interactive-wrap {
   position: relative;
@@ -104,6 +223,24 @@
 .chapter-slide--sensi-lite .chapter-slide__interactive-dot--ring {
   --dot-fill: color-mix(in srgb, var(--color-accent) 34%, transparent);
   box-shadow: 0 0 0 1px var(--color-nav-pill-outline);
+}
+
+.chapter-slide--sensi-lite .chapter-slide__interactive-dot--long-press {
+  --dot-fill: color-mix(in srgb, var(--color-accent) 48%, transparent);
+  animation: sensi-lite-touch-long-press var(--long-press-ms, 1200ms) ease-in-out infinite;
+}
+
+@keyframes sensi-lite-touch-long-press {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    box-shadow: 0 0 0 1px var(--color-nav-pill-outline);
+  }
+
+  50% {
+    transform: translate(-50%, -50%) scale(1.22);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent) 36%, transparent);
+  }
 }
 
 /* ── EIM ────────────────────────────────────────────────────────────────── */

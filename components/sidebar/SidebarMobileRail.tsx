@@ -49,7 +49,7 @@ export function SidebarMobileRail({
       >
         <span className="sidebar-mobile-rail__chrome" aria-hidden />
         <p className="sidebar-mobile-rail__label" aria-hidden="true">
-          I design product systems for{' '}
+          I design connected experiences for{' '}
           <span className="sidebar-mobile-rail__label-accent">{sectionLabel}</span>
         </p>
       </button>

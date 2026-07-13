@@ -1,17 +1,34 @@
 // components/SensiLiteProto.tsx
-// Sensi Lite — setpoint prototype (heat / cool / off, 2° deadband)
-
+// Sensi Lite — segment LCD prototype (home / homeowner / contractor rings)
 
 import {
   useState,
   useRef,
   useCallback,
   useEffect,
+  useMemo,
   type CSSProperties,
   type ReactNode,
 } from 'react'
+import { SegmentLcd } from '@/components/sensi-lite/SegmentLcd'
+import {
+  buildHomeComposition,
+  buildSettingsComposition,
+} from '@/lib/sensi-lite/build-composition'
+import {
+  INITIAL_FLOW_STATE,
+  advanceMenuTap,
+  adjustContractorValue,
+  currentContractorScreen,
+  currentHomeownerScreen,
+  enterContractorRing,
+  enterHomeownerRing,
+  returnToMain,
+  type FlowState,
+} from '@/lib/sensi-lite/flow'
+import { useMenuLongPress } from '@/lib/sensi-lite/useMenuLongPress'
+import { useMenuLongPressIndicator } from '@/lib/sensi-lite/interactiveTouchContext'
 import { FRAME_HEIGHT, FRAME_LOGO, FRAME_WIDTH, type FrameRect } from '@/lib/sensi-lite/frame-layout'
-import { LCD_DIGITS, LCD_ICONS, LCD_SIZE, type LcdRect } from '@/lib/sensi-lite/lcd-layout'
 
 const DESIGN_WIDTH = 240
 const DESIGN_HEIGHT = 147
@@ -27,53 +44,24 @@ const TEMP_MAX = 99
 const DISPLAY_TEMP = 72
 const SETPOINT_IDLE_MS = 3000
 
-const ICON_INACTIVE = 0.05
-
 const asset = (name: string) => `/images/sensi-lite/${name}.svg`
 
 const imgLiteFrame = asset('lite-frame')
 const imgButtons = asset('lite-buttons')
 const imgType = asset('lite-type')
-const imgScreen = `${asset('screen')}?v=5`
 
-const imgCool = asset('icon-cool')
-const imgHeat = asset('icon-heat')
-const imgOff = asset('icon-off')
-const imgOn = asset('icon-on')
-const imgSetTo = asset('icon-set-to')
-
-const DIGIT_SRC: Record<number, string> = {
-  0: asset('digit-0'),
-  1: asset('digit-1'),
-  2: asset('digit-2'),
-  3: asset('digit-3'),
-  4: asset('digit-4'),
-  5: asset('digit-5'),
-  6: asset('digit-6'),
-  7: asset('digit-7'),
-  8: asset('digit-8'),
-  9: asset('digit-9'),
-}
-
-type Mode = 'heat' | 'cool' | 'off'
-const MODES: Mode[] = ['heat', 'cool', 'off']
-
-interface ThermostatState {
-  mode: Mode
-  heatTo: number
-  coolTo: number
-}
+const MODES = ['heat', 'cool', 'off'] as const
+type Mode = (typeof MODES)[number]
 
 function clampTemp(value: number): number {
   return Math.min(TEMP_MAX, Math.max(TEMP_MIN, Math.round(value)))
 }
 
-/** coolTo must stay at least DEADBAND above heatTo (within TEMP_MIN..TEMP_MAX) */
 function enforceDeadband(
   heatTo: number,
   coolTo: number,
   preferred: 'heat' | 'cool',
-): Pick<ThermostatState, 'heatTo' | 'coolTo'> {
+): Pick<FlowState, 'heatTo' | 'coolTo'> {
   let heat = clampTemp(heatTo)
   let cool = clampTemp(coolTo)
 
@@ -96,35 +84,17 @@ function enforceDeadband(
   return { heatTo: heat, coolTo: cool }
 }
 
-function adjustHeatSetpoint(
-  heatTo: number,
-  coolTo: number,
-  delta: number,
-): Pick<ThermostatState, 'heatTo' | 'coolTo'> {
+function adjustHeatSetpoint(heatTo: number, coolTo: number, delta: number) {
   return enforceDeadband(clampTemp(heatTo + delta), coolTo, 'heat')
 }
 
-function adjustCoolSetpoint(
-  heatTo: number,
-  coolTo: number,
-  delta: number,
-): Pick<ThermostatState, 'heatTo' | 'coolTo'> {
+function adjustCoolSetpoint(heatTo: number, coolTo: number, delta: number) {
   return enforceDeadband(heatTo, clampTemp(coolTo + delta), 'cool')
 }
 
 function nextMode(mode: Mode): Mode {
   const i = MODES.indexOf(mode)
   return MODES[(i + 1) % MODES.length]
-}
-
-function lcdRectStyle(rect: LcdRect): CSSProperties {
-  return {
-    position: 'absolute',
-    left: `${(rect.x / LCD_SIZE) * 100}%`,
-    top: `${(rect.y / LCD_SIZE) * 100}%`,
-    width: `${(rect.w / LCD_SIZE) * 100}%`,
-    height: `${(rect.h / LCD_SIZE) * 100}%`,
-  }
 }
 
 function frameRectStyle(rect: FrameRect): CSSProperties {
@@ -145,129 +115,15 @@ function ProtoStage({ children }: { children: ReactNode }) {
   )
 }
 
-function LcdIcon({
-  src,
-  rect,
-  active = false,
-  alt = '',
-}: {
-  src: string
-  rect: LcdRect
-  active?: boolean
-  alt?: string
-}) {
-  const imgStyle: CSSProperties = {
-    ...lcdRectStyle(rect),
-    objectFit: 'fill',
-    pointerEvents: 'none',
-    userSelect: 'none',
-    transition: 'opacity 80ms ease',
-  }
-
-  return (
-    <>
-      <img
-        src={src}
-        alt=""
-        draggable={false}
-        aria-hidden
-        style={{ ...imgStyle, opacity: ICON_INACTIVE }}
-      />
-      {active ? (
-        <img src={src} alt={alt} draggable={false} style={{ ...imgStyle, opacity: 1 }} />
-      ) : null}
-    </>
-  )
-}
-
-function TempDigits({ value }: { value: number }) {
-  const clamped = clampTemp(value)
-  const tens = Math.floor(clamped / 10)
-  const ones = clamped % 10
-  const digitBase: CSSProperties = {
-    objectFit: 'fill',
-    pointerEvents: 'none',
-  }
-
-  return (
-    <>
-      <img
-        src={DIGIT_SRC[tens]}
-        alt=""
-        draggable={false}
-        style={{ ...lcdRectStyle(LCD_DIGITS.tens), ...digitBase }}
-      />
-      <img
-        src={DIGIT_SRC[ones]}
-        alt=""
-        draggable={false}
-        style={{ ...lcdRectStyle(LCD_DIGITS.ones), ...digitBase }}
-      />
-    </>
-  )
-}
-
-export function LiteScreen({
-  mode,
-  lcdTemp,
-  showSetTo,
-  onActive,
-  flash = false,
-}: {
-  mode: Mode
-  lcdTemp: number
-  showSetTo: boolean
-  onActive: boolean
-  flash?: boolean
-}) {
-  return (
-    <div
-      style={{
-        position: 'absolute',
-        left: SCREEN_LEFT,
-        top: SCREEN_TOP,
-        width: SCREEN_WIDTH,
-        height: SCREEN_HEIGHT,
-        background: 'transparent',
-        overflow: 'visible',
-        opacity: flash ? 0.35 : 1,
-        transition: flash ? 'none' : 'opacity 80ms ease',
-      }}
-    >
-      <img
-        src={imgScreen}
-        alt=""
-        draggable={false}
-        style={{
-          position: 'absolute',
-          inset: 0,
-          width: '100%',
-          height: '100%',
-          objectFit: 'fill',
-          pointerEvents: 'none',
-        }}
-      />
-
-      <TempDigits value={lcdTemp} />
-
-      <LcdIcon src={imgSetTo} rect={LCD_ICONS.setTo} active={showSetTo} />
-      <LcdIcon src={imgCool} rect={LCD_ICONS.cool} active={mode === 'cool'} />
-      <LcdIcon src={imgHeat} rect={LCD_ICONS.heat} active={mode === 'heat'} />
-      <LcdIcon src={imgOff} rect={LCD_ICONS.off} active={mode === 'off'} />
-      <LcdIcon src={imgOn} rect={LCD_ICONS.on} active={onActive} />
-    </div>
-  )
-}
-
 function LiteFrame({
   onUp,
   onDown,
-  onMenu,
+  menuHandlers,
   hideNativeCursor = false,
 }: {
   onUp?: () => void
   onDown?: () => void
-  onMenu?: () => void
+  menuHandlers: ReturnType<typeof useMenuLongPress>
   hideNativeCursor?: boolean
 }) {
   const hitBase: CSSProperties = {
@@ -279,6 +135,7 @@ function LiteFrame({
     cursor: hideNativeCursor ? 'none' : 'pointer',
     padding: 0,
     margin: 0,
+    touchAction: 'none',
   }
 
   return (
@@ -326,7 +183,10 @@ function LiteFrame({
           aria-label="Menu"
           data-lite-hit=""
           style={{ ...hitBase, top: '33.33%', height: '33.34%' }}
-          onClick={onMenu}
+          onPointerDown={menuHandlers.onPointerDown}
+          onPointerUp={menuHandlers.onPointerUp}
+          onPointerLeave={menuHandlers.onPointerLeave}
+          onPointerCancel={menuHandlers.onPointerCancel}
         />
         <button
           type="button"
@@ -340,20 +200,44 @@ function LiteFrame({
   )
 }
 
+function computeLit(
+  state: FlowState,
+  lcdTemp: number,
+  onActive: boolean,
+  showSetTo: boolean,
+) {
+  if (state.ring === 'main') {
+    return buildHomeComposition({
+      temp: lcdTemp,
+      mode: state.mode,
+      onActive,
+      showSetTo,
+    })
+  }
+
+  if (state.ring === 'homeowner') {
+    return buildSettingsComposition(currentHomeownerScreen(state), 'homeowner', null)
+  }
+
+  const screen = currentContractorScreen(state)
+  const temp =
+    screen === 'auxLockout'
+      ? state.auxLockout
+      : screen === 'balancePoint'
+        ? state.balancePoint
+        : null
+
+  return buildSettingsComposition(screen, 'contractor', temp)
+}
+
 export function SensiLiteProto({
   showControlsLegend = true,
   useDotCursor = false,
 }: {
   showControlsLegend?: boolean
-  /** Chapter stage: hide native pointer on hit targets (orange dot overlay). */
   useDotCursor?: boolean
 }) {
-  const [state, setState] = useState<ThermostatState>({
-    mode: 'cool',
-    heatTo: 68,
-    coolTo: 75,
-  })
-  const [editingSetpoint, setEditingSetpoint] = useState(false)
+  const [flow, setFlow] = useState<FlowState>(INITIAL_FLOW_STATE)
   const [flash, setFlash] = useState(false)
   const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -367,13 +251,13 @@ export function SensiLiteProto({
   const startSetpointIdleTimer = useCallback(() => {
     clearIdleTimer()
     idleTimerRef.current = setTimeout(() => {
-      setEditingSetpoint(false)
+      setFlow((s) => ({ ...s, editingSetpoint: false }))
       idleTimerRef.current = null
     }, SETPOINT_IDLE_MS)
   }, [clearIdleTimer])
 
   const beginSetpointEdit = useCallback(() => {
-    setEditingSetpoint(true)
+    setFlow((s) => ({ ...s, editingSetpoint: true }))
     startSetpointIdleTimer()
   }, [startSetpointIdleTimer])
 
@@ -385,10 +269,17 @@ export function SensiLiteProto({
   }, [])
 
   const handleUp = useCallback(() => {
-    if (state.mode === 'off') return
     triggerFlash()
+
+    if (flow.ring === 'contractor') {
+      setFlow((s) => adjustContractorValue(s, 1))
+      return
+    }
+
+    if (flow.ring !== 'main' || flow.mode === 'off') return
+
     beginSetpointEdit()
-    setState((s) => {
+    setFlow((s) => {
       if (s.mode === 'heat') {
         const next = adjustHeatSetpoint(s.heatTo, s.coolTo, 1)
         return { ...s, ...next }
@@ -399,13 +290,20 @@ export function SensiLiteProto({
       }
       return s
     })
-  }, [state.mode, triggerFlash, beginSetpointEdit])
+  }, [beginSetpointEdit, flow.mode, flow.ring, triggerFlash])
 
   const handleDown = useCallback(() => {
-    if (state.mode === 'off') return
     triggerFlash()
+
+    if (flow.ring === 'contractor') {
+      setFlow((s) => adjustContractorValue(s, -1))
+      return
+    }
+
+    if (flow.ring !== 'main' || flow.mode === 'off') return
+
     beginSetpointEdit()
-    setState((s) => {
+    setFlow((s) => {
       if (s.mode === 'heat') {
         const next = adjustHeatSetpoint(s.heatTo, s.coolTo, -1)
         return { ...s, ...next }
@@ -416,28 +314,69 @@ export function SensiLiteProto({
       }
       return s
     })
-  }, [state.mode, triggerFlash, beginSetpointEdit])
+  }, [beginSetpointEdit, flow.mode, flow.ring, triggerFlash])
 
-  const handleMenu = useCallback(() => {
+  const handleMenuTap = useCallback(() => {
     triggerFlash()
-    setState((s) => ({ ...s, mode: nextMode(s.mode) }))
+    setFlow((s) => {
+      if (s.ring === 'main') {
+        return { ...s, mode: nextMode(s.mode) }
+      }
+      return advanceMenuTap(s)
+    })
   }, [triggerFlash])
 
-  const showSetTo = editingSetpoint && state.mode !== 'off'
+  const handleMenuLongPress = useCallback(() => {
+    triggerFlash()
+    setFlow((s) => {
+      if (s.ring === 'main') return enterHomeownerRing(s)
+      if (s.ring === 'homeowner') return enterContractorRing(s)
+      return returnToMain(s)
+    })
+  }, [triggerFlash])
+
+  const menuLongPressIndicator = useMenuLongPressIndicator()
+
+  const menuHandlers = useMenuLongPress({
+    ring: flow.ring,
+    onTap: handleMenuTap,
+    onLongPress: handleMenuLongPress,
+    onPressStart: (durationMs) => {
+      menuLongPressIndicator?.setState({ active: true, durationMs })
+    },
+    onPressEnd: () => {
+      menuLongPressIndicator?.setState({ active: false, durationMs: 0 })
+    },
+  })
+
+  const showSetTo = flow.editingSetpoint && flow.mode !== 'off' && flow.ring === 'main'
 
   const lcdTemp =
-    showSetTo && state.mode === 'heat'
-      ? state.heatTo
-      : showSetTo && state.mode === 'cool'
-        ? state.coolTo
+    showSetTo && flow.mode === 'heat'
+      ? flow.heatTo
+      : showSetTo && flow.mode === 'cool'
+        ? flow.coolTo
         : DISPLAY_TEMP
 
   const onActive =
-    state.mode === 'heat'
-      ? state.heatTo > DISPLAY_TEMP
-      : state.mode === 'cool'
-        ? state.coolTo < DISPLAY_TEMP
-        : false
+    flow.ring === 'main' &&
+    (flow.mode === 'heat'
+      ? flow.heatTo > DISPLAY_TEMP
+      : flow.mode === 'cool'
+        ? flow.coolTo < DISPLAY_TEMP
+        : false)
+
+  const lit = useMemo(
+    () => computeLit(flow, lcdTemp, onActive, showSetTo),
+    [flow, lcdTemp, onActive, showSetTo],
+  )
+
+  const ringHint =
+    flow.ring === 'main'
+      ? 'Hold menu 1.2s → settings'
+      : flow.ring === 'homeowner'
+        ? 'Hold menu 2s → contractor'
+        : 'Tap menu to advance · last screen → home'
 
   return (
     <div
@@ -455,15 +394,18 @@ export function SensiLiteProto({
           <LiteFrame
             onUp={handleUp}
             onDown={handleDown}
-            onMenu={handleMenu}
+            menuHandlers={menuHandlers}
             hideNativeCursor={useDotCursor}
           />
-          <LiteScreen
-            mode={state.mode}
-            lcdTemp={lcdTemp}
-            showSetTo={showSetTo}
-            onActive={onActive}
+          <SegmentLcd
+            lit={lit}
             flash={flash}
+            style={{
+              left: SCREEN_LEFT,
+              top: SCREEN_TOP,
+              width: SCREEN_WIDTH,
+              height: SCREEN_HEIGHT,
+            }}
           />
         </div>
       </ProtoStage>
@@ -482,9 +424,15 @@ export function SensiLiteProto({
             lineHeight: 1.8,
           }}
         >
-          <span style={{ display: 'block' }}>▲ ▼ setpoint · ● heat / cool / off</span>
+          <span style={{ display: 'block' }}>▲ ▼ setpoint / adjust · ● menu</span>
+          <span style={{ display: 'block' }}>{ringHint}</span>
           <span style={{ display: 'block' }}>
-            Room {DISPLAY_TEMP}° · Heat {state.heatTo}° · Cool {state.coolTo}° · {DEADBAND}° min gap
+            Room {DISPLAY_TEMP}° · Heat {flow.heatTo}° · Cool {flow.coolTo}° · {DEADBAND}° gap
+            {flow.ring === 'contractor' && flow.auxLockout !== null
+              ? ` · AUX ${flow.auxLockout}°`
+              : flow.ring === 'contractor'
+                ? ' · AUX --'
+                : ''}
           </span>
         </p>
       ) : null}

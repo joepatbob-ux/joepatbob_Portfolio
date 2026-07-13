@@ -1,6 +1,14 @@
-import { useCallback, useRef, useState, type ReactNode } from 'react'
+import { useCallback, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import {
+  MenuLongPressIndicatorContext,
+  type MenuLongPressIndicatorState,
+} from '@/lib/sensi-lite/interactiveTouchContext'
 
 const DEFAULT_RING_TARGETS = 'button, a, [role="button"]'
+const INACTIVE_PRESS: MenuLongPressIndicatorState = {
+  active: false,
+  durationMs: 0,
+}
 
 function pointerOverSelector(
   clientX: number,
@@ -28,6 +36,12 @@ export function InteractiveStageCursor({
   const [hovering, setHovering] = useState(false)
   const [overTarget, setOverTarget] = useState(false)
   const [pos, setPos] = useState({ x: 0, y: 0 })
+  const [menuLongPress, setMenuLongPress] =
+    useState<MenuLongPressIndicatorState>(INACTIVE_PRESS)
+
+  const setMenuLongPressState = useCallback((state: MenuLongPressIndicatorState) => {
+    setMenuLongPress(state)
+  }, [])
 
   const updateFromPointer = useCallback(
     (clientX: number, clientY: number) => {
@@ -54,32 +68,45 @@ export function InteractiveStageCursor({
   }, [])
 
   return (
-    <div
-      ref={wrapRef}
-      className={['chapter-slide__interactive-wrap', className]
-        .filter(Boolean)
-        .join(' ')}
-      onPointerEnter={(e) => {
-        setHovering(true)
-        updateFromPointer(e.clientX, e.clientY)
-      }}
-      onPointerLeave={onPointerLeave}
-      onPointerMove={onPointerMove}
+    <MenuLongPressIndicatorContext.Provider
+      value={{ state: menuLongPress, setState: setMenuLongPressState }}
     >
-      <div className="chapter-slide__interactive-content">{children}</div>
-      <div className="chapter-slide__interactive-dot-layer" aria-hidden>
-        {hovering && (
-          <div
-            className={[
-              'chapter-slide__interactive-dot',
-              overTarget ? 'chapter-slide__interactive-dot--ring' : '',
-            ]
-              .filter(Boolean)
-              .join(' ')}
-            style={{ left: pos.x, top: pos.y }}
-          />
-        )}
+      <div
+        ref={wrapRef}
+        className={['chapter-slide__interactive-wrap', className]
+          .filter(Boolean)
+          .join(' ')}
+        onPointerEnter={(e) => {
+          setHovering(true)
+          updateFromPointer(e.clientX, e.clientY)
+        }}
+        onPointerLeave={onPointerLeave}
+        onPointerMove={onPointerMove}
+      >
+        <div className="chapter-slide__interactive-content">{children}</div>
+        <div className="chapter-slide__interactive-dot-layer" aria-hidden>
+          {hovering && (
+            <div
+              className={[
+                'chapter-slide__interactive-dot',
+                overTarget ? 'chapter-slide__interactive-dot--ring' : '',
+                menuLongPress.active ? 'chapter-slide__interactive-dot--long-press' : '',
+              ]
+                .filter(Boolean)
+                .join(' ')}
+              style={{
+                left: pos.x,
+                top: pos.y,
+                ...(menuLongPress.active
+                  ? ({
+                      '--long-press-ms': `${menuLongPress.durationMs}ms`,
+                    } as CSSProperties)
+                  : {}),
+              }}
+            />
+          )}
+        </div>
       </div>
-    </div>
+    </MenuLongPressIndicatorContext.Provider>
   )
 }

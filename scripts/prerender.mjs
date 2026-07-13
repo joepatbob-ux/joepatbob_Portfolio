@@ -18,7 +18,7 @@ const snapshotUrl = `${url}?prerender=1`
 const VIEWPORT = { width: 1440, height: 900, deviceScaleFactor: 1 }
 
 /** Copy markers that must be in the hydrated snapshot (keep in sync with live content). */
-const ANCHORS = ['product systems', '12,608,066', 'thermostat', 'Kelvin']
+const ANCHORS = ['connected experiences', '12,608,066', 'thermostat', 'Kelvin']
 
 function missingAnchors(html, needles) {
   const lower = html.toLowerCase()

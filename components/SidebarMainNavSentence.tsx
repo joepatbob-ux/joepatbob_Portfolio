@@ -1,12 +1,100 @@
-import type { Dispatch, ReactNode, SetStateAction } from 'react'
-import {
-  NAV_SECTIONS,
-  navMainSentenceAriaLabel,
-  navSectionConnector,
-} from '@/lib/nav'
+import { useRef, type Dispatch, ReactNode, SetStateAction } from 'react'
+import { useNavSentenceLayout } from '@/components/NavSentenceLayoutProvider'
+import { NAV_SECTIONS, navMainSentenceAriaLabel } from '@/lib/nav'
+import type { NavMainSentenceLine } from '@/lib/navSentenceLayout'
 import type { NavSection } from '@/lib/types'
+import { NavWrapDebug } from '@/components/NavWrapDebug'
 
 const ACCENT = 'var(--color-accent)'
+const LAST_SECTION_ID = NAV_SECTIONS[NAV_SECTIONS.length - 1]?.id
+
+const sectionById = new Map(NAV_SECTIONS.map((sec) => [sec.id, sec]))
+
+/** Keep the tail words on one line inside the final keyword (period renders outside). */
+function lastSectionLabelContent(label: string): ReactNode {
+  const words = label.split(' ')
+  if (words.length <= 2) return label
+  const tail = words.slice(-2).join(' ')
+  const prefix = `${words.slice(0, -2).join(' ')} `
+  return (
+    <>
+      {prefix}
+      <span className="sidebar-main-nav__nowrap">{tail}</span>
+    </>
+  )
+}
+
+function lineEndsWithPeriod(line: NavMainSentenceLine): boolean {
+  return line.kind === 'keywords' && (!line.suffix || line.suffix === '.')
+}
+
+function MainNavSentenceBody({
+  lines,
+  keywordFor,
+}: {
+  lines: NavMainSentenceLine[]
+  keywordFor: (sec: NavSection, isLast: boolean) => ReactNode
+}) {
+  return (
+    <>
+      {lines.map((line) => (
+        <span
+          key={line.id}
+          className={[
+            'sidebar-main-nav__line',
+            line.nowrap ? 'sidebar-main-nav__line--nowrap' : '',
+          ]
+            .filter(Boolean)
+            .join(' ')}
+          data-nav-line={line.id}
+        >
+          {line.kind === 'text' ? (
+            line.text
+          ) : (
+            <>
+              {line.prefix ? (
+                <span className="sidebar-main-nav__connector" aria-hidden="true">
+                  {line.prefix}
+                </span>
+              ) : null}
+              {line.sectionIds.map((sectionId, index) => {
+                const sec = sectionById.get(sectionId)
+                if (!sec) return null
+                const isLastOnLine = index === line.sectionIds.length - 1
+                const isLastInSentence = isLastOnLine && sectionId === LAST_SECTION_ID
+                const showTerminalPeriod =
+                  isLastInSentence && lineEndsWithPeriod(line)
+                return (
+                  <span key={sectionId} className="sidebar-main-nav__keyword-group">
+                    {keywordFor(sec, isLastInSentence)}
+                    {showTerminalPeriod ? (
+                      <span
+                        className="sidebar-main-nav__connector sidebar-main-nav__period"
+                        aria-hidden="true"
+                      >
+                        .
+                      </span>
+                    ) : null}
+                    {!isLastOnLine ? (
+                      <span className="sidebar-main-nav__connector" aria-hidden="true">
+                        {line.between?.[index] ?? ', '}
+                      </span>
+                    ) : null}
+                  </span>
+                )
+              })}
+              {line.suffix && line.suffix !== '.' ? (
+                <span className="sidebar-main-nav__connector" aria-hidden="true">
+                  {line.suffix}
+                </span>
+              ) : null}
+            </>
+          )}
+        </span>
+      ))}
+    </>
+  )
+}
 
 export type SidebarMainNavKeywordStyle = {
   color: string
@@ -39,97 +127,21 @@ interface MobileHeroProps {
 
 type Props = DesktopProps | MobileHeroProps
 
-/** "In Between." stays together; "Everything" may wrap to its own line. */
-function lastSectionLabelContent(label: string): ReactNode {
-  const words = label.split(' ')
-  if (words.length <= 2) {
-    return (
-      <span className="sidebar-main-nav__nowrap">
-        {label}
-        <span className="sidebar-main-nav__period" aria-hidden="true">
-          .
-        </span>
-      </span>
-    )
-  }
-  const tail = words.slice(-2).join(' ')
-  const prefix = `${words.slice(0, -2).join(' ')} `
-  return (
-    <>
-      {prefix}
-      <span className="sidebar-main-nav__nowrap">
-        {tail}
-        <span className="sidebar-main-nav__period" aria-hidden="true">
-          .
-        </span>
-      </span>
-    </>
-  )
-}
-
-function NavSectionPiece({
-  sec,
-  index,
-  keywordButton,
-}: {
-  sec: NavSection
-  index: number
-  keywordButton: ReactNode
-}) {
-  const total = NAV_SECTIONS.length
-  const isLast = index === total - 1
-  const isPenultimate = index === total - 2
-  const connector = navSectionConnector(index, total)
-  const forceLineBefore = sec.id === 'web-apps'
-
-  const piece =
-    isLast ? (
-      <span>{keywordButton}</span>
-    ) : isPenultimate ? (
-      <span>
-        <span className="sidebar-main-nav__nowrap">
-          {keywordButton}
-          <span className="sidebar-main-nav__connector" aria-hidden="true">
-            ,{' '}
-          </span>
-        </span>
-        <span className="sidebar-main-nav__connector" aria-hidden="true">
-          and{' '}
-        </span>
-      </span>
-    ) : (
-      <span>
-        <span className="sidebar-main-nav__nowrap">
-          {keywordButton}
-          <span className="sidebar-main-nav__connector" aria-hidden="true">
-            {connector}
-          </span>
-        </span>
-      </span>
-    )
-
-  if (!forceLineBefore) return piece
-
-  return (
-    <>
-      <br aria-hidden="true" className="sidebar-main-nav__break" />
-      {piece}
-    </>
-  )
-}
-
 export function SidebarMainNavSentence(props: Props) {
+  const navRef = useRef<HTMLElement>(null)
+  const { lines } = useNavSentenceLayout()
   const ariaLabel = navMainSentenceAriaLabel()
 
   if (props.variant === 'mobile-hero') {
     return (
       <nav
+        ref={navRef}
         className="sidebar-main-nav__sentence sidebar-main-nav__sentence--mobile-hero"
         aria-label={ariaLabel}
         style={{
           fontFamily: 'var(--font-ahg)',
           fontWeight: 700,
-          fontSize: 'clamp(18px, 6vw, 24px)',
+          fontSize: 'clamp(16px, 5vw, 22px)',
           lineHeight: 1.2,
           letterSpacing: '0.02em',
           textTransform: 'uppercase',
@@ -138,10 +150,9 @@ export function SidebarMainNavSentence(props: Props) {
           width: 'min(100%, 380px)',
         }}
       >
-        <span>I design product systems across </span>
-        {NAV_SECTIONS.map((sec, i) => {
-          const isLast = i === NAV_SECTIONS.length - 1
-          const keywordButton = (
+        <MainNavSentenceBody
+          lines={lines}
+          keywordFor={(sec, isLast) => (
             <button
               type="button"
               className="sidebar-main-nav__keyword"
@@ -167,16 +178,9 @@ export function SidebarMainNavSentence(props: Props) {
             >
               {isLast ? lastSectionLabelContent(sec.label) : sec.label}
             </button>
-          )
-          return (
-            <NavSectionPiece
-              key={sec.id}
-              sec={sec}
-              index={i}
-              keywordButton={keywordButton}
-            />
-          )
-        })}
+          )}
+        />
+        <NavWrapDebug rootRef={navRef} />
       </nav>
     )
   }
@@ -195,57 +199,52 @@ export function SidebarMainNavSentence(props: Props) {
 
   return (
     <nav
+      ref={navRef}
       className="sidebar-main-nav__sentence"
       aria-label={ariaLabel}
       style={{ color: inkColor }}
     >
-      <span>I design product systems across </span>
-      {NAV_SECTIONS.map((sec, i) => {
-        const isActive = activeSection === sec.id
-        const isLast = i === NAV_SECTIONS.length - 1
-        const isHoverThis = hoverSectionId === sec.id
-        const { color: mainColor, opacity: mainOpacity } = navKeywordStyle({
-          dimActive,
-          isActive,
-          selectionExploringElsewhere: fadeMainNavSelection,
-        })
-        const keywordClass = [
-          'sidebar-main-nav__keyword',
-          isHoverThis ? 'sidebar-main-nav__keyword--hover' : '',
-        ]
-          .filter(Boolean)
-          .join(' ')
-        const keywordButton = (
-          <button
-            type="button"
-            className={keywordClass}
-            aria-label={sec.label}
-            aria-current={isActive ? 'true' : undefined}
-            onClick={() => onSelect(sec.id)}
-            style={{
-              color: isHoverThis ? 'transparent' : mainColor,
-              opacity: mainOpacity,
-            }}
-            onMouseEnter={() => {
-              onHoverSection(sec.id)
-              onClearChapterHover()
-            }}
-            onMouseLeave={() => {
-              onHoverSection((prev) => (prev === sec.id ? null : prev))
-            }}
-          >
-            {isLast ? lastSectionLabelContent(sec.label) : sec.label}
-          </button>
-        )
-        return (
-          <NavSectionPiece
-            key={sec.id}
-            sec={sec}
-            index={i}
-            keywordButton={keywordButton}
-          />
-        )
-      })}
+      <MainNavSentenceBody
+        lines={lines}
+        keywordFor={(sec, isLast) => {
+          const isActive = activeSection === sec.id
+          const isHoverThis = hoverSectionId === sec.id
+          const { color: mainColor, opacity: mainOpacity } = navKeywordStyle({
+            dimActive,
+            isActive,
+            selectionExploringElsewhere: fadeMainNavSelection,
+          })
+          const keywordClass = [
+            'sidebar-main-nav__keyword',
+            isHoverThis ? 'sidebar-main-nav__keyword--hover' : '',
+          ]
+            .filter(Boolean)
+            .join(' ')
+          return (
+            <button
+              type="button"
+              className={keywordClass}
+              aria-label={sec.label}
+              aria-current={isActive ? 'true' : undefined}
+              onClick={() => onSelect(sec.id)}
+              style={{
+                color: isHoverThis ? 'transparent' : mainColor,
+                opacity: mainOpacity,
+              }}
+              onMouseEnter={() => {
+                onHoverSection(sec.id)
+                onClearChapterHover()
+              }}
+              onMouseLeave={() => {
+                onHoverSection((prev) => (prev === sec.id ? null : prev))
+              }}
+            >
+              {isLast ? lastSectionLabelContent(sec.label) : sec.label}
+            </button>
+          )
+        }}
+      />
+      <NavWrapDebug rootRef={navRef} />
     </nav>
   )
 }

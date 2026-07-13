@@ -4,6 +4,9 @@ import dynamic from '@/lib/dynamic'
 import { CaseStudy } from '@/components/CaseStudy'
 import { ChapterNavProvider } from '@/components/ChapterNavProvider'
 import { ContentDebugPanel } from '@/components/ContentDebugPanel'
+import { NavSentenceEditorPanel } from '@/components/NavSentenceEditorPanel'
+import { NavSentenceLayoutProvider } from '@/components/NavSentenceLayoutProvider'
+import { SensiLiteSegmentAtlas } from '@/components/sensi-lite/SensiLiteSegmentAtlas'
 import { ContentDebugProvider } from '@/components/ContentDebugProvider'
 import { Hero } from '@/components/Hero'
 import { PortfolioInterlude } from '@/components/PortfolioInterlude'
@@ -33,6 +36,7 @@ export default function App() {
         <StickerProvider>
           <ChapterNavProvider>
             <ContentDebugProvider>
+            <NavSentenceLayoutProvider>
             <a
               href="#main-content"
               className="skip-link"
@@ -63,6 +67,9 @@ export default function App() {
             </div>
             <StickerLayer />
             <ContentDebugPanel />
+            <NavSentenceEditorPanel />
+            <SensiLiteSegmentAtlas />
+            </NavSentenceLayoutProvider>
             </ContentDebugProvider>
           </ChapterNavProvider>
         </StickerProvider>

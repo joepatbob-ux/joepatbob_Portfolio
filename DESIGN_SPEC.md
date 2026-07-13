@@ -169,12 +169,12 @@ Two-column: `320px | 1fr`, gap 64px
 
 ### Sensi Lite — Segment Display Prototype
 Located in chapter `hardware-sensi-lite`.
-A React component simulating the 32-segment display with 3-button navigation.
-- Displays 2-digit temperature, mode icons, navigation state
-- Three clickable buttons: UP, DOWN, MENU/ACTION
-- Long press on MENU enters homeowner settings mode
-- Uses the custom character set from the Verdant chapter
-- **Built:** `/components/SegmentDisplay.tsx`, `/components/SensiLiteProto.tsx`, `/components/SensiLiteChapter.tsx`
+Interactive segment-toggled LCD prototype with homeowner and contractor menu rings.
+- Single annotated `screen.svg` with per-segment IDs; lit state driven in React
+- Home setpoint demo (heat / cool / off), then 1.2s / 2s long-press menu rings
+- Contractor path: Outdoor (HP) → AUX Lockout → Balance Point with ▲/▼ adjust
+- **Built:** `/components/sensi-lite/SegmentLcd.tsx`, `/components/SensiLiteProto.tsx`, `/components/SensiLiteChapter.tsx`, `/lib/sensi-lite/flow.ts`
+- **Legacy (unused in chapter):** `/components/SegmentDisplay.tsx`
 
 ### Verdant — Character Set
 Located in chapter `hardware-verdant`.

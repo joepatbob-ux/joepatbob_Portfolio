@@ -2,7 +2,7 @@ Portfolio Content Draft
 Editorial chapter draft for joepatbob.com
 Navigation model: Hardware / Mobile / Web Apps / Everything in Between
 Opening
-I design product systems for complex physical and digital experiences.
+I design connected experiences for complex physical and digital experiences.
 For the past eight years, I have been the sole product designer across Copeland’s thermostat hardware, mobile apps, contractor tools, and web platforms. The work sits at the intersection of interface design, hardware constraints, installation workflows, product architecture, and business adoption.
 The through-line is simple: every surface has to work on its own terms while still belonging to a larger system.
 A touchscreen thermostat is not a fixed-segment thermostat with more pixels. A three-button thermostat is not a cheaper version of a touchscreen. A contractor app is not a consumer onboarding flow. A regulated web platform cannot be modernized like a marketing site. A design system is not useful if it ignores the workflows people have already built their jobs around.

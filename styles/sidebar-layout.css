@@ -53,22 +53,41 @@
 
 .sidebar-shell--fixed [data-sidebar-main-nav] {
   left: var(--sidebar-pad-inline);
-  right: calc(var(--sidebar-pad-inline) + var(--sidebar-pad-right));
+  right: calc(var(--sidebar-pad-right) + 4px);
 }
 
 .sidebar-main-nav__sentence {
   font-family: var(--font-ahg);
   font-weight: 700;
-  font-size: 18px;
-  line-height: 1.25;
-  letter-spacing: 0.02em;
+  font-size: 15px;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
   text-transform: uppercase;
   margin: 0;
-  text-wrap: pretty;
+  position: relative;
+}
+.sidebar-main-nav__line {
+  display: block;
+}
+
+.sidebar-main-nav__line--nowrap {
+  white-space: nowrap;
 }
 
 .sidebar-main-nav__period {
-  color: var(--color-accent);
+  color: var(--color-ink);
+  -webkit-text-fill-color: var(--color-ink);
+}
+
+/* Terminal period sits outside keywords — always ink, not accent. */
+[data-sidebar-main-nav] .sidebar-main-nav__period {
+  color: var(--color-ink);
+  -webkit-text-fill-color: var(--color-ink);
+}
+
+[data-sidebar-main-nav] .sidebar-main-nav__keyword--hover + .sidebar-main-nav__period {
+  color: var(--color-ink);
+  -webkit-text-fill-color: var(--color-ink);
 }
 
 /* Keep punctuation on the same line as its keyword; allow breaks elsewhere. */
@@ -117,6 +136,53 @@
   color: transparent;
   -webkit-text-fill-color: transparent;
   -webkit-text-stroke: 0.65px var(--color-accent);
+}
+
+/* Dev-only — enable with ?navWrapDebug=1 */
+.sidebar-main-nav__sentence--wrap-debug .sidebar-main-nav__line {
+  outline: 1px solid rgba(0, 200, 255, 0.85);
+  outline-offset: 2px;
+}
+
+.sidebar-main-nav__sentence--wrap-debug .sidebar-main-nav__line--nowrap,
+.sidebar-main-nav__sentence--wrap-debug .sidebar-main-nav__nowrap {
+  outline: 1px dashed rgba(255, 140, 0, 0.9);
+  outline-offset: 2px;
+}
+
+.sidebar-main-nav__wrap-debug-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.sidebar-main-nav__wrap-debug-line {
+  position: absolute;
+  pointer-events: none;
+}
+
+.sidebar-main-nav__wrap-debug-badge {
+  position: absolute;
+  left: 0;
+  transform: translateX(calc(-100% - 4px));
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.72);
+}
+
+.sidebar-main-nav__wrap-debug-break {
+  position: absolute;
+  width: 3px;
+  height: 10px;
+  border-radius: 1px;
+  background: #ff3b30;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35);
 }
 
 /* Outline pill — secondary actions (overlay close, etc.) */
