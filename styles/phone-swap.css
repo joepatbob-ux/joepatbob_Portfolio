@@ -54,7 +54,9 @@
   cursor: pointer;
 }
 
-.phone-swap__viewbox canvas {
+/* The R3F stage canvas fills the viewbox — but NOT the goo loader canvas, which
+   sizes itself (this !important was silently forcing the loader to full size). */
+.phone-swap__viewbox canvas:not(.phone-goo-loader__canvas) {
   width: 100% !important;
   height: 100% !important;
   display: block;
@@ -1246,6 +1248,25 @@
   font-weight: 600;
   letter-spacing: 0.02em;
   color: var(--color-muted);
+}
+
+/* ?gooDebug=1 — live size slider for dialing in the loader (never ships active). */
+.phone-goo-loader__debug {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 11px;
+}
+.phone-goo-loader__debug input {
+  width: 180px;
+  accent-color: var(--color-accent);
+}
+.phone-goo-loader__debug code {
+  color: var(--color-muted);
+  letter-spacing: 0.02em;
 }
 
 @media (prefers-reduced-motion: reduce) {
