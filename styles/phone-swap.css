@@ -1250,24 +1250,6 @@
   color: var(--color-muted);
 }
 
-/* ?gooDebug=1 — live size slider for dialing in the loader (never ships active). */
-.phone-goo-loader__debug {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  margin-top: 12px;
-  font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 11px;
-}
-.phone-goo-loader__debug input {
-  width: 180px;
-  accent-color: var(--color-accent);
-}
-.phone-goo-loader__debug code {
-  color: var(--color-muted);
-  letter-spacing: 0.02em;
-}
 
 @media (prefers-reduced-motion: reduce) {
   .phone-swap--animating .phone-swap__device {

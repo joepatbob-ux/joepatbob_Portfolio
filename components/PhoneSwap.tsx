@@ -1,6 +1,6 @@
 import { PhoneScreenshotControls } from '@/components/phone-swap/PhoneScreenshotControls'
 import { PhoneSwapScene } from '@/components/phone-swap/PhoneSwapScene'
-import { PhoneSwapGooLoader, isGooDebug } from '@/components/phone-swap/PhoneSwapGooLoader'
+import { PhoneSwapGooLoader } from '@/components/phone-swap/PhoneSwapGooLoader'
 import { StageSceneReady } from '@/components/stage/StageSceneReady'
 import { SmaPhoneScreenOverlay } from '@/components/sma-ios26/SmaPhoneScreenOverlay'
 import type { DisplayScreenRect } from '@/lib/sma-ios26/displayScreenRect'
@@ -85,7 +85,6 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
   const [loaderGone, setLoaderGone] = useState(false)
   const loaderShownAtRef = useRef<number | null>(null)
   const handleSceneReady = useCallback(() => {
-    if (isGooDebug()) return // debug: keep the loader frozen for size tuning
     const shownAt = loaderShownAtRef.current ?? performance.now()
     const remaining = Math.max(
       SETTLE_AFTER_READY_MS,
@@ -188,7 +187,6 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
   useEffect(() => {
     if (!shouldRenderScene || loaderShownAtRef.current != null) return
     loaderShownAtRef.current = performance.now()
-    if (isGooDebug()) return // debug: keep the loader frozen for size tuning
     const safety = window.setTimeout(() => setLoaderHidden(true), 8000)
     return () => window.clearTimeout(safety)
   }, [shouldRenderScene])
