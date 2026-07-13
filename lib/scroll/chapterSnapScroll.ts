@@ -7,6 +7,30 @@ import { isTopBarNavViewport } from '@/lib/layout/isTopBarNavViewport'
 
 const CHAPTER_SLOT_SELECTOR = '.portfolio-chapter-slot[data-chapter-id]'
 
+/** Max document scroll Y — caps chapter landing so the site footer isn't chased. */
+export function maxDocumentScrollY(): number {
+  const doc = document.documentElement
+  return Math.max(0, Math.round(doc.scrollHeight - window.innerHeight))
+}
+
+export function clampChapterScrollTop(top: number): number {
+  return Math.min(Math.max(0, Math.round(top)), maxDocumentScrollY())
+}
+
+function lastChapterSlot(): HTMLElement | null {
+  const slots = Array.from(
+    document.querySelectorAll<HTMLElement>(CHAPTER_SLOT_SELECTOR),
+  )
+  if (!slots.length) return null
+  return slots.reduce((last, slot) =>
+    elementDocumentTop(slot) > elementDocumentTop(last) ? slot : last,
+  )
+}
+
+export function lastChapterId(): string | null {
+  return lastChapterSlot()?.dataset.chapterId ?? null
+}
+
 /** Document Y for an element's layout top (offsetParent-safe). */
 export function elementDocumentTop(el: HTMLElement): number {
   return el.getBoundingClientRect().top + window.scrollY
@@ -34,11 +58,17 @@ export function chapterSlotScrollTop(slot: HTMLElement): number {
       const bandTop = rect.top + window.scrollY
       // Band-relative target — the slot's scroll-margin-top belongs to the
       // top-align semantics below and must not shift a centered landing.
-      const top =
+      let top =
         rect.height <= viewportHeight
           ? bandTop - (viewportHeight - rect.height) / 2
           : bandTop
-      return Math.max(0, Math.round(top))
+
+      const maxScroll = maxDocumentScrollY()
+      // Centering the last chapter can overshoot into the site footer — top-align instead.
+      if (top > maxScroll || (lastChapterSlot() === slot && top > maxScroll - 8)) {
+        top = Math.min(bandTop, maxScroll)
+      }
+      return clampChapterScrollTop(top)
     }
   }
   let top = elementDocumentTop(slot)
@@ -46,7 +76,7 @@ export function chapterSlotScrollTop(slot: HTMLElement): number {
   if (Number.isFinite(marginTop) && marginTop > 0) {
     top -= marginTop
   }
-  return Math.max(0, Math.round(top))
+  return clampChapterScrollTop(top)
 }
 
 /** Document Y at the vertical center of a chapter slot (for crossfade math). */
@@ -70,11 +100,17 @@ export function queryChapterSlot(chapterId: string): HTMLElement | null {
 }
 
 /** Scroll the document to a chapter slot without touching nested copy scrollers. */
-export function scrollDocumentToChapterSlot(slot: HTMLElement): void {
+export function scrollDocumentToChapterSlot(
+  slot: HTMLElement,
+  options?: { asyncSettle?: boolean },
+): void {
   resetAllChapterCopyScrollers()
 
   window.scrollTo({ top: chapterSlotScrollTop(slot), left: 0, behavior: 'auto' })
   resetChapterCopyScrollersAfterSnap(slot)
+
+  if (options?.asyncSettle === false) return
+
   // The jump changes which stages are pinned, which changes flow heights —
   // and scroll anchoring can tug the position again. Re-aim against live
   // geometry for a few frames until the landing converges instead of
@@ -82,7 +118,11 @@ export function scrollDocumentToChapterSlot(slot: HTMLElement): void {
   let attempts = 0
   const settle = () => {
     const target = chapterSlotScrollTop(slot)
-    if (Math.abs(window.scrollY - target) <= 2) return
+    const maxScroll = maxDocumentScrollY()
+    const y = window.scrollY
+    if (Math.abs(y - target) <= 2) return
+    // At document end, stop re-aiming — layout/stage shifts were pulling into the footer.
+    if (y >= maxScroll - 2 && target >= maxScroll - 2) return
     window.scrollTo({ top: target, left: 0, behavior: 'auto' })
     attempts += 1
     if (attempts < 6) requestAnimationFrame(settle)

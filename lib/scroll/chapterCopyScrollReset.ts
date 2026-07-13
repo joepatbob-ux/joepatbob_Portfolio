@@ -1,4 +1,4 @@
-import { chapterSlotScrollTop } from '@/lib/scroll/chapterSnapScroll'
+import { chapterSlotScrollTop, maxDocumentScrollY } from '@/lib/scroll/chapterSnapScroll'
 import { isContinuousChapters } from '@/lib/scroll/continuousChapters'
 
 const SCROLL_TRAP_SELECTOR = '.chapter-copy-scroller'
@@ -50,7 +50,13 @@ export function waitForChapterScrollSettle(slot: HTMLElement): Promise<void> {
       // Recompute per frame — the jump itself shifts flow heights (stage
       // pin/unpin), so a captured target goes stale before the scroll lands.
       const expectedTop = chapterSlotScrollTop(slot)
-      if (Math.abs(window.scrollY - expectedTop) <= SCROLL_SETTLE_TOLERANCE_PX) {
+      const y = window.scrollY
+      const maxScroll = maxDocumentScrollY()
+      if (Math.abs(y - expectedTop) <= SCROLL_SETTLE_TOLERANCE_PX) {
+        resolve()
+        return
+      }
+      if (y >= maxScroll - SCROLL_SETTLE_TOLERANCE_PX && expectedTop >= maxScroll - SCROLL_SETTLE_TOLERANCE_PX) {
         resolve()
         return
       }

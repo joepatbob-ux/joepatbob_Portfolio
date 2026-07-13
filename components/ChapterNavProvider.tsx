@@ -1,6 +1,10 @@
 import { chapterRevealsChanged } from '@/lib/scroll/chapterReveals'
 import { applySlideScrollFromMeasure } from '@/lib/scroll/applySlideScrollFromMeasure'
-import { resetInFlowChapterPanels } from '@/lib/scroll/applyChapterPanelScrollStyles'
+import {
+  hideAllChapterPanelsForNav,
+  resetInFlowChapterPanels,
+  resetNavChapterPanelStyles,
+} from '@/lib/scroll/applyChapterPanelScrollStyles'
 import { isContinuousChapters } from '@/lib/scroll/continuousChapters'
 import {
   measureSlideScrollState,
@@ -32,14 +36,20 @@ import {
   useState,
   type ReactNode,
 } from 'react'
+import { flushSync } from 'react-dom'
 
-export const CHAPTER_NAV_FADE_MS = 520
+export const CHAPTER_NAV_FADE_IN_MS = 360
+
+/** @deprecated Use CHAPTER_NAV_FADE_IN_MS */
+export const CHAPTER_NAV_FADE_MS = CHAPTER_NAV_FADE_IN_MS
 
 export type ChapterNavPhase = SlideNavPhase
 
 interface ChapterNavContextValue {
   phase: ChapterNavPhase
   targetId: string | null
+  /** After phase `in`, one frame at opacity 0 before the fade runs. */
+  navFadeInArmed: boolean
   activeSlideId: string | null
   reveals: Readonly<Record<string, number>>
   navigateToChapter: (chapterId: string) => Promise<void>
@@ -54,7 +64,7 @@ function sleep(ms: number) {
   })
 }
 
-/** Two frames so opacity:0 from phase `out` is painted before scroll. */
+/** Two frames so phase `out` opacity commits before scroll. */
 function waitForPaint() {
   return new Promise<void>((resolve) => {
     requestAnimationFrame(() => {
@@ -66,6 +76,7 @@ function waitForPaint() {
 export function ChapterNavProvider({ children }: { children: ReactNode }) {
   const [phase, setPhase] = useState<ChapterNavPhase>('idle')
   const [targetId, setTargetId] = useState<string | null>(null)
+  const [navFadeInArmed, setNavFadeInArmed] = useState(false)
   const [activeSlideId, setActiveSlideId] = useState<string | null>(null)
   const [reveals, setReveals] = useState<Record<string, number>>({})
   const busyRef = useRef(false)
@@ -152,6 +163,8 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
     }
 
     const measureAndApplySlides = () => {
+      if (busyRef.current) return
+
       const state = applySlideScrollFromMeasure(
         phaseRef.current,
         busyRef.current ? targetIdRef.current : null,
@@ -239,7 +252,7 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
 
         navGuardRef.current = {
           chapterId,
-          until: performance.now() + 720,
+          until: performance.now() + CHAPTER_NAV_FADE_IN_MS + 200,
         }
         busyRef.current = false
         applySlideScrollFromMeasure('idle', chapterId, navGuardRef.current)
@@ -251,15 +264,18 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
         return
       }
 
+      // Legacy fixed-slideshow nav: React panel crossfade.
       busyRef.current = true
-      setTargetId(chapterId)
-      activeRef.current = chapterId
-      setActiveSlideId(chapterId)
-
-      // Consumers read `reveals` from context once phase leaves 'idle' —
-      // publish the ref that idle scrolling kept current (batched with setPhase).
-      setReveals(revealsRef.current)
-      setPhase('out')
+      hideAllChapterPanelsForNav()
+      flushSync(() => {
+        setTargetId(chapterId)
+        setNavFadeInArmed(false)
+        setReveals({})
+        revealsRef.current = {}
+        setPhase('out')
+      })
+      applySlideScrollFromMeasure('out', null, null)
+      flushScrollFrame()
       await waitForPaint()
 
       scrollDocumentToChapterSlot(target)
@@ -269,22 +285,34 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
         await waitForChapterScrollSettle(target)
       }
       resetChapterCopyScrollersAfterSnap()
+
+      flushSync(() => {
+        activeRef.current = chapterId
+        setActiveSlideId(chapterId)
+        setPhase('in')
+      })
+      await waitForPaint()
+      flushSync(() => {
+        setNavFadeInArmed(true)
+      })
       applySlideScrollFromMeasure('in', chapterId, null)
       flushScrollFrame()
 
-      setPhase('in')
-      await sleep(CHAPTER_NAV_FADE_MS)
+      await sleep(CHAPTER_NAV_FADE_IN_MS)
 
       navGuardRef.current = {
         chapterId,
-        until: performance.now() + 720,
+        until: performance.now() + CHAPTER_NAV_FADE_IN_MS + 120,
       }
-      busyRef.current = false
-      setPhase('idle')
-      setTargetId(null)
-      // Lock destination reveal before React clears transition inline styles.
+      flushSync(() => {
+        setPhase('idle')
+        setTargetId(null)
+        setNavFadeInArmed(false)
+      })
+      resetNavChapterPanelStyles()
       applySlideScrollFromMeasure('idle', chapterId, navGuardRef.current)
       flushScrollFrame()
+      busyRef.current = false
       requestAnimationFrame(() => {
         applySlideScrollFromMeasure('idle', null, navGuardRef.current)
         flushScrollFrame()
@@ -317,12 +345,13 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
     () => ({
       phase,
       targetId,
+      navFadeInArmed,
       activeSlideId,
       reveals,
       navigateToChapter,
       navigateToSection,
     }),
-    [phase, targetId, activeSlideId, reveals, navigateToChapter, navigateToSection],
+    [phase, targetId, navFadeInArmed, activeSlideId, reveals, navigateToChapter, navigateToSection],
   )
 
   return (

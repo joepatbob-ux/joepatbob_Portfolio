@@ -6,6 +6,7 @@
     /* Scroll-snap caused ~300px geometry jumps that skipped the center blend band. */
     scroll-snap-type: none;
     scroll-behavior: auto;
+    overscroll-behavior-y: none;
     /* One canvas for bleed + chapters — avoids paper vs hero-canvas mismatch in gaps. */
     --color-hero-canvas: var(--color-paper);
     --cs-inter-chapter-gap: clamp(40px, 6vh, 80px);

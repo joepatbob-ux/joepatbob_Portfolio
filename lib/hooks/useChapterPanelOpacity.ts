@@ -1,4 +1,4 @@
-import { CHAPTER_NAV_FADE_MS, useChapterNav } from '@/components/ChapterNavProvider'
+import { CHAPTER_NAV_FADE_IN_MS, useChapterNav } from '@/components/ChapterNavProvider'
 import { isFixedSlideshowFlowChapter, isFlowChapterId } from '@/lib/chapterFlow'
 import { isContinuousChapters } from '@/lib/scroll/continuousChapters'
 import {
@@ -21,7 +21,7 @@ import {
 const SCROLL_EASE = 'cubic-bezier(0.16, 1, 0.3, 1)'
 
 export function useChapterPanelOpacity(chapterId: string) {
-  const { phase, targetId, activeSlideId, reveals } = useChapterNav()
+  const { phase, targetId, navFadeInArmed, activeSlideId, reveals } = useChapterNav()
   const layoutMobile = useLayoutMobile()
   const topBarNav = useLayoutTopBarNav()
   const publishedReveal = useChapterReveal(chapterId)
@@ -106,7 +106,7 @@ export function useChapterPanelOpacity(chapterId: string) {
     }
   }
 
-  // Nav transition phases — React owns panel styles.
+  // Nav transition phases — React owns panel styles (legacy / fixed slideshow).
   if (phase === 'out') {
     return {
       opacity: 0,
@@ -117,7 +117,7 @@ export function useChapterPanelOpacity(chapterId: string) {
         filter: blurOutFromReveal(0, SCROLL_BLUR_PX).filter,
         zIndex: 0,
         pointerEvents: 'none',
-        /* Instant hide before programmatic scroll — avoids old chapter lingering. */
+        visibility: 'hidden',
         transition: 'none',
       } as const,
     }
@@ -125,14 +125,15 @@ export function useChapterPanelOpacity(chapterId: string) {
 
   if (phase === 'in') {
     const entering = chapterId === targetId
-    const { opacity, filter } = blurOutFromReveal(entering ? 1 : 0, SCROLL_BLUR_PX)
+    const fadeOpacity = entering && navFadeInArmed ? 1 : 0
+    const { filter } = blurOutFromReveal(fadeOpacity, SCROLL_BLUR_PX)
     const flowEntering = entering && fixedSlideshowStacking
     return {
-      opacity,
-      isActive: entering,
+      opacity: fadeOpacity,
+      isActive: entering && navFadeInArmed,
       ariaHidden: !entering,
       style: {
-        opacity,
+        opacity: fadeOpacity,
         filter: flowEntering ? 'none' : filter,
         zIndex: flowEntering
           ? 100
@@ -141,8 +142,12 @@ export function useChapterPanelOpacity(chapterId: string) {
               ? MOBILE_PANEL_Z_ENTERING
               : 2
             : 0,
-        pointerEvents: entering ? 'auto' : 'none',
-        transition: `opacity ${CHAPTER_NAV_FADE_MS}ms ${SCROLL_EASE}, filter ${CHAPTER_NAV_FADE_MS}ms ${SCROLL_EASE}`,
+        pointerEvents: entering && navFadeInArmed ? 'auto' : 'none',
+        visibility: entering ? 'visible' : 'hidden',
+        transition:
+          entering && navFadeInArmed
+            ? `opacity ${CHAPTER_NAV_FADE_IN_MS}ms ${SCROLL_EASE}, filter ${CHAPTER_NAV_FADE_IN_MS}ms ${SCROLL_EASE}`
+            : 'none',
       } as const,
     }
   }

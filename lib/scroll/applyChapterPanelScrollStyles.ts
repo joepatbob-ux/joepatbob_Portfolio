@@ -9,6 +9,31 @@ import { SCROLL_BLUR_PX, blurOutFromRevealForContinuous } from '@/lib/scroll/scr
 
 const PANEL_SELECTOR = `${CHAPTER_SLOT_SELECTOR} .portfolio-chapter-panel`
 
+/** Instant hide before mount/scroll — legacy fixed-slideshow nav. */
+export function hideAllChapterPanelsForNav(): void {
+  document.querySelectorAll<HTMLElement>(PANEL_SELECTOR).forEach((panel) => {
+    panel.style.opacity = '0'
+    panel.style.visibility = 'hidden'
+    panel.style.pointerEvents = 'none'
+    panel.style.transition = 'none'
+    panel.style.setProperty('--chapter-copy-opacity', '0')
+    panel.style.setProperty('--chapter-copy-filter', 'none')
+    panel.setAttribute('aria-hidden', 'true')
+  })
+}
+
+/** Strip nav transition inline styles before scroll-driven opacity resumes. */
+export function resetNavChapterPanelStyles(): void {
+  document.querySelectorAll<HTMLElement>(PANEL_SELECTOR).forEach((panel) => {
+    panel.style.removeProperty('opacity')
+    panel.style.removeProperty('filter')
+    panel.style.removeProperty('transition')
+    panel.style.removeProperty('visibility')
+    panel.style.removeProperty('z-index')
+    panel.style.removeProperty('pointer-events')
+  })
+}
+
 /** Top-bar nav: panels scroll in-flow — strip scroll-linked inline styles. */
 export function resetInFlowChapterPanels(): void {
   document.querySelectorAll<HTMLElement>(PANEL_SELECTOR).forEach((panel) => {

@@ -1957,19 +1957,6 @@ html {
   border: 0;
 }
 
-/* ── Site footer ─────────────────────────────────────────────────────────── */
-.site-footer {
-  padding: 2rem;
-  text-align: center;
-  font-size: 0.75rem;
-  opacity: 0.4;
-  user-select: none;
-}
-
-.site-footer__copy {
-  margin: 0;
-}
-
 /* ── Reduced motion (global) ─────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   *,
