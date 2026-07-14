@@ -105,27 +105,40 @@
     max-width: min(712px, 100%) !important;
   }
 
-  /* Center the chapter's stage + copy as a group in the content area, like the
-     overview and interlude. By default the copy column stretches to fill (the
-     712px text left-aligned inside a ~1045px column on wide screens), so the
-     content sits left with dead space on the right. Cap the copy column to the
-     text measure and center the tracks; `minmax(0, …)` lets them shrink to fit
-     at narrower widths instead of overflowing. Also open up the stage↔copy gap
-     a little. Overviews keep their own centered single-column layout. */
+  /* One shared content band for every deck surface — chapters, overviews, and
+     the interlude/breather — so they all center at the same width instead of
+     three different measures (chapter 1140, overview full-width, breather 977).
+     At this band the chapter copy column (2fr) lands on the ~712px text measure. */
+  html.deck-mode.deck-fine {
+    --deck-band: min(1160px, 100%);
+  }
+
+  /* Center the content group in the content area like the overview/interlude.
+     Chapter columns are 1fr/2fr fractions that otherwise fill the full pane
+     (leaving the copy text short of a huge column on wide screens); capping the
+     band and centering it keeps the fr ratio intact while giving balanced
+     left/right margins. Applies to overviews too so they share the band. */
+  html.deck-mode.deck-fine
+    .portfolio-sections
+    .portfolio-chapter-slot
+    .chapter-slide__inner {
+    max-width: var(--deck-band) !important;
+    margin-inline: auto !important;
+  }
+
+  /* Extra air between the component (stage) and the copy — chapters only. */
   html.deck-mode.deck-fine
     .portfolio-sections
     .portfolio-chapter-slot:not(.case-study-flow-overview)
     .chapter-slide__inner {
-    /* Center the stage + copy as a group like the overview/interlude. The
-       columns are 1fr/2fr fractions that otherwise fill the full content pane
-       (leaving the copy text short of a huge column on wide screens); capping
-       the band and centering it keeps the fr ratio intact while giving balanced
-       left/right margins. The gap is widened a little for more air between the
-       component and the text. At ~1140px the copy column lands at the ~712px
-       text measure. */
-    max-width: min(1140px, 100%) !important;
+    column-gap: clamp(56px, 5vw, 92px);
+  }
+
+  /* Breather/interlude: same band + centering as the chapters and overview. */
+  html.deck-mode.deck-fine .portfolio-interlude__row,
+  html.deck-mode.deck-fine .portfolio-interlude__copy {
+    max-width: var(--deck-band) !important;
     margin-inline: auto !important;
-    column-gap: clamp(48px, 4vw, 72px);
   }
 
   /* The page itself doesn't need a scrollbar dance while the deck owns the wheel. */
