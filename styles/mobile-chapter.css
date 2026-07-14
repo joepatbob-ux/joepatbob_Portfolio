@@ -29,12 +29,7 @@
   display: block;
 }
 
-.mobile-section-header__rule {
-  width: var(--cs-rule-width);
-  height: var(--cs-rule-height);
-  margin: 16px 0 20px;
-  background: var(--color-accent);
-}
+/* .mobile-section-header__rule — shared accent rule in styles/globals.css */
 
 /* Prose */
 .mobile-prose {
@@ -80,8 +75,8 @@
 }
 
 .mobile-sub-story__rule {
-  width: 32px;
-  height: 2px;
+  width: var(--cs-subrule-width);
+  height: var(--cs-subrule-height);
   margin: 12px 0 16px;
   background: var(--color-accent);
 }

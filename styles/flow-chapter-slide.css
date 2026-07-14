@@ -34,13 +34,6 @@
   color: var(--color-ink);
 }
 
-.flow-chapter-slide__copy .mobile-sub-story__rule {
-  width: 32px;
-  height: 2px;
-  margin: 12px 0 16px;
-  background: var(--color-accent);
-}
-
 .flow-chapter-slide__copy .eib-sub-intro {
   margin-bottom: clamp(16px, 2.5vh, 24px);
 }

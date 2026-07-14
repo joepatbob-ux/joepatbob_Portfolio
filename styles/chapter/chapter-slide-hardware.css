@@ -254,10 +254,6 @@
     overscroll-behavior-y: contain;
   }
 
-  .hardware-slideshow .chapter-copy__rule {
-    margin: 16px 0 20px;
-  }
-
   /* Single-column copy — beats chapter-slide 2-col body at 1200px+ */
   .hardware-slideshow
     .chapter-slide__copy:not(.chapter-slide__copy--lessons)

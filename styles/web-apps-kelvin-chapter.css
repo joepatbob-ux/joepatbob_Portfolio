@@ -130,12 +130,6 @@
   color: var(--color-accent);
 }
 
-[data-section-id='web-apps'] .mobile-section-header__rule {
-  width: var(--cs-rule-width);
-  height: var(--cs-rule-height);
-  margin: 16px 0 20px;
-}
-
 [data-section-id='web-apps'] .mobile-prose__p,
 [data-section-id='web-apps'] .web-apps-numbered-list__text {
   color: var(--cs-body-color);

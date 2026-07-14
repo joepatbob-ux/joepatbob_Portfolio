@@ -11,9 +11,11 @@
   margin-bottom: 0;
 }
 
+/* Same headline→rule gap as the chapters; bottom spacing comes from the overview
+   stack's flex gap, so no bottom margin here. */
 .case-study-flow-overview .case-study-flow-overview__header .mobile-section-header__rule,
 .case-study-flow-overview .case-study-flow-overview__header .case-study-section-header__rule {
-  margin: 10px 0 0;
+  margin: var(--cs-rule-gap-top) 0 0;
 }
 
 .case-study-flow-overview .case-study-section-header__headline,

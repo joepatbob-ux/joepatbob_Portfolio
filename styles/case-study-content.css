@@ -3,8 +3,15 @@
 :root {
   --cs-eyebrow-size: 11px;
   --cs-eyebrow-tracking: 0.1em;
+  /* Accent rule — the short underline under every headline. One source of truth;
+     consumers reference these tokens (see the shared rule in styles/globals.css). */
   --cs-rule-width: 48px;
   --cs-rule-height: 3px;
+  --cs-rule-gap-top: 16px;
+  --cs-rule-gap-bottom: 20px;
+  /* Sub-story rule — smaller, marks a lower heading level */
+  --cs-subrule-width: 32px;
+  --cs-subrule-height: 2px;
   --cs-body-size: 16px;
   --cs-body-leading: 1.6;
   --cs-body-color: var(--color-ink);
@@ -114,13 +121,6 @@
 [data-section-id='hardware'] .chapter-copy__headline,
 .hardware-slideshow .chapter-copy__headline {
   line-height: 1.12;
-}
-
-[data-section-id='hardware'] .chapter-copy__rule,
-.hardware-slideshow .chapter-copy__rule {
-  width: var(--cs-rule-width);
-  height: var(--cs-rule-height);
-  margin: 16px 0 20px;
 }
 
 [data-section-id='hardware'] .chapter-copy__body,

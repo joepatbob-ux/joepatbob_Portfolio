@@ -1508,11 +1508,18 @@ html {
   letter-spacing: 0.01em;
 }
 
-.chapter-copy__rule {
-  width: 40px;
-  height: 1px;
-  margin: clamp(16px, 2vw, 22px) 0;
+/* Accent rule — the short underline under every case-study / chapter / overview
+   headline. Single source of truth for size + colour (tokens in
+   styles/case-study-content.css). Contextual alignment (centered overview vs
+   left-aligned chapters) and the tighter overview spacing layer on top of this. */
+.chapter-copy__rule,
+.mobile-section-header__rule,
+.case-study-section-header__rule {
+  width: var(--cs-rule-width);
+  height: var(--cs-rule-height);
+  margin: var(--cs-rule-gap-top) 0 var(--cs-rule-gap-bottom);
   background-color: var(--color-accent);
+  border: 0;
 }
 
 .chapter-copy__body {
