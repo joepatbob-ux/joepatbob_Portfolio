@@ -18,7 +18,7 @@ export const PIXEL8_DISPLAY = {
   /** Lift the screenshot clear of the coplanar glass so they don't z-fight.
       Must hold at tilted poses (the swap), not just the settled camera — 0.004
       was tuned flat and fought (diagonal moire) once the phone rotated. */
-  surfaceNudge: 0.02,
+  surfaceNudge: 0.05,
 } as const
 
 /** Draw order — well above body (0); screen wins over bezel in overlap. */
