@@ -1,8 +1,11 @@
 /* Flow case studies — stage/copy shell in styles/chapter/chapter-slide-hardware.css */
 
+/* No header margin here — the accent rule's own bottom gap (--cs-rule-gap-bottom)
+   is the single spacer to the body, matching the hardware chapters. Adding a
+   header margin on top stacked a double gap under the rule. */
 .flow-chapter-slide__copy .case-study-section-header,
 .flow-chapter-slide__copy .mobile-section-header {
-  margin-bottom: clamp(20px, 3vh, 32px);
+  margin-bottom: 0;
 }
 
 .flow-chapter-slide__copy .case-study-section-header__headline,
