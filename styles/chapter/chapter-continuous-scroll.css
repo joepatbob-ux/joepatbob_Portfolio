@@ -2,11 +2,20 @@
  * In-flow panels, native document scroll, scroll-driven crossfade (no nested copy trap). */
 
 @media (min-width: 1024px) {
+  html.continuous-chapters,
+  html.continuous-chapters body {
+    /* Suppress the root rubber-band at the very bottom: without this on BOTH the
+       document element and the body, momentum past the last chapter bounces the
+       page (content springs up into white, then back) — the "jump going past the
+       last chapter." overscroll-behavior only fully governs the root scroll when
+       it is set on the body too, not html alone. */
+    overscroll-behavior-y: none;
+  }
+
   html.continuous-chapters {
     /* Scroll-snap caused ~300px geometry jumps that skipped the center blend band. */
     scroll-snap-type: none;
     scroll-behavior: auto;
-    overscroll-behavior-y: none;
     /* One canvas for bleed + chapters — avoids paper vs hero-canvas mismatch in gaps. */
     --color-hero-canvas: var(--color-paper);
     --cs-inter-chapter-gap: clamp(40px, 6vh, 80px);
