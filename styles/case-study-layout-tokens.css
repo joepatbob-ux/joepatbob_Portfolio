@@ -197,7 +197,10 @@
     --cs-verdant-max-w: min(100%, var(--cs-stage-gallery-w));
     --cs-eim-stage-max-w: var(--cs-stage-gallery-w);
     --cs-sensi-lite-stage-max-w: min(100%, 380px);
-    --cs-phone-viewbox-max-w: min(var(--cs-stage-max), 400px);
+    /* Phone swap reads smaller than the other stage artifacts (board, scratch,
+       carousel ~460-520px) because it's two phones inside the viewbox. Cap wider
+       so the composition lands in the same size band. */
+    --cs-phone-viewbox-max-w: min(var(--cs-stage-max), 520px);
   }
 }
 

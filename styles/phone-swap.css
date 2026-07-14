@@ -907,8 +907,8 @@
   /* Phone stage — scale via --phone-swap-*; 3D camera reads --phone-viewport-* on viewbox */
   .hardware-slideshow.mobile-chapter-slot--sensi,
   .flow-chapter-slide.mobile-chapter-slot--sensi {
-    --phone-swap-height: 0.84;
-    --phone-swap-width: 0.84;
+    --phone-swap-height: 1;
+    --phone-swap-width: 1;
     --phone-viewbox-base-w: 100%;
     --hw-stage-max-w: none;
     --hw-stage-min-w: 0;
@@ -949,6 +949,19 @@
     aspect-ratio: var(--phone-viewbox-aspect, 960 / 1060);
     height: auto !important;
     max-height: none !important;
+  }
+
+  /* The stage-align wrapper (and the phone-swap chain under it) is flex:0 1 auto,
+     so its percentage widths collapse onto the 3D canvas's intrinsic size (~444px)
+     — the whole composition then reads narrower than the other stage artifacts.
+     Give the wrapper a definite width from the token (resolved against the stage
+     column, which is definite) so the chain has a real box to fill. */
+  .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__stage:has(.phone-swap) > .chapter-stage-align,
+  .flow-chapter-slide.mobile-chapter-slot--sensi .chapter-slide__stage:has(.phone-swap) > .chapter-stage-align {
+    width: min(var(--cs-phone-viewbox-max-w, 520px), 100%);
+    max-width: 100%;
+    flex: 0 0 auto;
+    margin-inline: auto;
   }
 }
 
