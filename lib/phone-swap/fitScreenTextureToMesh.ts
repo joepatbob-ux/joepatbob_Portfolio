@@ -88,13 +88,16 @@ export function screenTextureForDisplay(source: THREE.Texture): THREE.Texture {
   map.wrapT = THREE.ClampToEdgeWrapping
   map.repeat.set(1, 1)
   map.offset.set(0, 0)
-  // The phone is viewed at a tilt, so the screen texture is minified along the
-  // grazing axis — at the default anisotropy of 1 that reads as a blurry,
-  // "low-res" screen no matter how sharp the source is. A moderate anisotropy
-  // recovers most of the crispness; going all the way to the hardware max
-  // over-sharpened the steeply-minified UI into shimmer/speckle. Mipmaps are on
-  // by default, which anisotropic filtering needs.
-  map.anisotropy = 4
+  // The screen shows at a tilt and displays ~10x smaller than the source, so it
+  // is heavily minified. Without mipmaps that minification aliases the fine UI
+  // into moiré/speckle — the "artifacts" on the tilted phone. Force a mipmapped
+  // min-filter and mipmap generation (three otherwise leaves NPOT screenshots on
+  // the base level in some paths), then anisotropy keeps the grazing axis crisp
+  // instead of over-blurred. This — not source compression — was the problem.
+  map.generateMipmaps = true
+  map.minFilter = THREE.LinearMipmapLinearFilter
+  map.magFilter = THREE.LinearFilter
+  map.anisotropy = 8
   map.needsUpdate = true
   return map
 }
