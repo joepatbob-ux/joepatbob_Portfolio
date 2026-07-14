@@ -12,6 +12,7 @@
     "lint": "tsc --noEmit && eslint .",
     "test": "vitest run",
     "check:bundle": "node scripts/check-bundle.mjs",
+    "check:grid": "node scripts/check-grid.mjs",
     "audit:assets": "node scripts/audit-assets.mjs",
     "generate:og-share": "node scripts/generate-og-share.mjs"
   },
