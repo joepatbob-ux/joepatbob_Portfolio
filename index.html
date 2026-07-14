@@ -103,6 +103,12 @@
           document.documentElement.dataset.theme = theme;
           if (theme === 'dark') {
             document.documentElement.style.colorScheme = 'dark';
+            // The prerender bakes the light hero-canvas color inline on <html>,
+            // and inline styles beat the theme-critical stylesheet — so for a
+            // dark visitor the fixed ::before backdrop stays #f4f4f4 and flashes
+            // white around the sidebar until hydration. Drop the stale inline
+            // value so the dark critical value (#040404) applies immediately.
+            document.documentElement.style.removeProperty('--color-hero-canvas');
           }
           if (window.scrollY <= 24) {
             document.documentElement.classList.add('in-hero-scroll');
