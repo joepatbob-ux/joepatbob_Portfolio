@@ -23,7 +23,10 @@
     height: auto;
   }
 
-  /* Every chapter panel fills the stage; only the active slot's shows. */
+  /* Every chapter panel fills the stage; only the active slot's shows.
+     Sequential fade (keep timings in sync with DECK_FADE_MS): the outgoing
+     panel fades out immediately, the incoming one waits one fade-length before
+     fading in, so two distinct stages never overlap into a muddy crossfade. */
   html.deck-mode.deck-fine .portfolio-sections .portfolio-chapter-panel {
     position: absolute;
     inset: 0;
@@ -31,7 +34,7 @@
     margin: 0;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 520ms ease;
+    transition: opacity 260ms ease;
   }
 
   html.deck-mode.deck-fine
@@ -41,6 +44,7 @@
     opacity: 1;
     pointer-events: auto;
     z-index: 2;
+    transition: opacity 260ms ease 260ms;
   }
 
   /* In-flow after-panel content (sub-stories) is deck-navigated, not stacked. */

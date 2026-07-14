@@ -10,6 +10,12 @@
 export const DECK_MODE_CLASS = 'deck-mode'
 export const DECK_FINE_CLASS = 'deck-fine'
 
+// One side of the sequential chapter fade. A swap runs fade-out (this long) then
+// fade-in (this long, delayed by the same amount) so the outgoing chapter clears
+// to paper before the next appears — no muddy crossfade of two distinct stages.
+// Keep this in sync with the transition timings in styles/deck.css.
+export const DECK_FADE_MS = 260
+
 function deckParam(): string | null {
   if (typeof window === 'undefined') return null
   try {

@@ -102,14 +102,31 @@ export function useDeck() {
   // ── mark the active slot so CSS shows only its panel ────────────
   // Covers every chapter uniformly (section overviews render their own panels
   // that the React opacity hook doesn't reach).
+  const didFocusInitRef = useRef(false)
   useEffect(() => {
     if (!isDeckActive()) return
+    let activeSlot: HTMLElement | null = null
     document
       .querySelectorAll<HTMLElement>('.portfolio-chapter-slot[data-chapter-id]')
       .forEach((el) => {
         const on = el.dataset.chapterId === activeSlideId
         el.toggleAttribute('data-deck-active', on)
+        if (on) activeSlot = el
       })
+
+    // Move focus to the new chapter's reading region so keyboard / AT users and
+    // deep-link landings follow the swap (its outline is :focus-visible only, so
+    // mouse-wheel users see nothing). Skip the first activation — landing on the
+    // page shouldn't steal focus or jump-scroll.
+    if (!didFocusInitRef.current) {
+      didFocusInitRef.current = true
+      return
+    }
+    if (!activeSlot) return
+    const region =
+      (activeSlot as HTMLElement).querySelector<HTMLElement>('.chapter-copy-scroller') ??
+      (activeSlot as HTMLElement).querySelector<HTMLElement>('.portfolio-chapter-panel')
+    region?.focus({ preventScroll: true })
   }, [activeSlideId])
 
   // ── hash deep-linking: URL ⇄ active chapter ─────────────────────
