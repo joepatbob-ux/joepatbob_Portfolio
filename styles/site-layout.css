@@ -450,3 +450,47 @@ html.sidebar-tablet-hero-active .sidebar-desktop-shell {
     );
   }
 }
+
+/* Closing page — full-viewport landing after the last chapter, bookending the
+   hero → interlude opening. A quiet page for page-end momentum to settle on
+   (instead of bouncing at the bottom of the tall final chapter). */
+.portfolio-outro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 100%;
+  padding-block: clamp(96px, 18svh, 200px);
+  padding-inline: clamp(20px, 4vw, 40px);
+  text-align: center;
+}
+
+@media (min-width: 1024px) {
+  .portfolio-outro {
+    min-height: 100dvh;
+  }
+}
+
+/* Reuse the close markup, but present it as the focal statement, not a footer
+   divider inside a chapter. */
+.portfolio-outro .eib-practice-close {
+  margin: 0;
+  padding: 0;
+  border-top: none;
+  /* px, not ch: the container has body-size font, so a ch measure here would
+     be tiny and shatter the large statement into one-word lines. */
+  max-width: min(540px, 100%);
+}
+
+.portfolio-outro .eib-practice-close__statement {
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  line-height: 1.16;
+  letter-spacing: -0.02em;
+  margin: 0 0 1.75rem;
+  text-wrap: balance;
+}
+
+.portfolio-outro .eib-practice-close__cta {
+  font-size: 14px;
+}

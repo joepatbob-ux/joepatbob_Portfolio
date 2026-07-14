@@ -10,6 +10,7 @@ import { DevPanels } from '@/components/DevPanels'
 import { DeckController } from '@/components/DeckController'
 import { Hero } from '@/components/Hero'
 import { PortfolioInterlude } from '@/components/PortfolioInterlude'
+import { PortfolioOutro } from '@/components/PortfolioOutro'
 import { SidebarNav } from '@/components/SidebarNav'
 import { StickerProvider } from '@/components/StickerProvider'
 import { ThemeProvider } from '@/components/ThemeProvider'
@@ -59,6 +60,7 @@ export default function App() {
                   <CaseStudy sectionId="web-apps" />
                   <CaseStudy sectionId="everything-else" />
                 </div>
+                <PortfolioOutro />
               </main>
               <DeckController />
             </div>

@@ -1,7 +1,6 @@
 import { FlowChapterSlideLayout } from '@/components/chapter-slide/FlowChapterSlideLayout'
 import { StickerPile } from '@/components/StickerPile'
 import { ChapterCopyReveal } from '@/components/chapter-slide/ChapterCopyReveal'
-import { EibPracticeClose } from '@/components/everything-in-between/EibSectionParts'
 import { MobileProse } from '@/components/mobile/MobileSectionParts'
 import { parseChapterBody } from '@/lib/chapter-slide/parseChapterBody'
 import {
@@ -21,10 +20,6 @@ export function EibPracticeSection() {
     'everything-in-between/practice/chapter#body',
     EIB_PRACTICE.intro,
   )
-  const close = text(
-    'everything-in-between/practice/chapter#close',
-    EIB_PRACTICE.close,
-  )
 
   return (
     <FlowChapterSlideLayout
@@ -40,7 +35,6 @@ export function EibPracticeSection() {
             className="eib-sub-intro"
             paragraphs={parseChapterBody(body)}
           />
-          <EibPracticeClose statement={close} />
         </ChapterCopyReveal>
       }
     />
