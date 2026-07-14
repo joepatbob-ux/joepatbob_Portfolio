@@ -71,8 +71,8 @@
   --cs-overview-inner-max: min(var(--cs-band-max), 100%);
   --cs-overview-copy-measure-max: var(--cs-overview-measure-max);
   --cs-overview-headline-measure: var(--cs-overview-measure-max);
-  --cs-overview-stack-gap: clamp(12px, 1.8vh, 18px);
-  --cs-overview-metadata-gap: clamp(16px, 2.2vh, 22px);
+  --cs-overview-stack-gap: clamp(12px, 1.8vh, 16px);
+  --cs-overview-metadata-gap: clamp(16px, 2.2vh, 24px);
   --cs-overview-pad-block: clamp(12px, 1.5vh, 24px);
 
   /* Continuous scroll: runway above/below copy for stage load (desktop ≥1024) */
