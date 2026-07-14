@@ -84,6 +84,27 @@
     gap: clamp(18px, 2.6vh, 30px);
   }
 
+  /* Headline ↔ body measure parity. The chapter headline is uncapped while the
+     body is capped at the ~70ch reading measure, so on wide monitors the
+     headline runs well past the body's right edge (they only coincide near
+     1440px); a few chapters also leave the body uncapped (~100%), reading too
+     wide. Pin both to one shared measure so the headline container and body
+     copy are the same width at every viewport. It must be a px measure, not
+     `ch`: `ch` is font-relative, so 70ch on the large headline (~1320px) and
+     70ch on the small body (~712px) are different widths — the exact bug. The
+     ~712px value matches the body's designed 70ch measure. Overviews excluded
+     (centered intro band). */
+  html.deck-mode.deck-fine
+    .portfolio-sections
+    .portfolio-chapter-slot:not(.case-study-flow-overview) :is(
+      .chapter-copy__headline,
+      .mobile-section-header__headline,
+      .chapter-copy__body,
+      .mobile-prose
+    ) {
+    max-width: min(712px, 100%) !important;
+  }
+
   /* The page itself doesn't need a scrollbar dance while the deck owns the wheel. */
   html.deck-mode.deck-fine body {
     overscroll-behavior-y: none;
