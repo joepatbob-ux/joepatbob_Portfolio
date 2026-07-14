@@ -11,6 +11,19 @@
   line-height: 1.15;
 }
 
+/* Headline, subhead, and the NDA note share the body's reading measure across
+   every non-overview chapter (mobile, web-apps, everything-else), so they wrap to
+   the same width instead of running the full copy column while the body stays
+   capped. Body paragraphs are already capped by .mobile-prose__p; the overview
+   keeps its own centered measure (it lives outside .flow-chapter-slide__copy).
+   px twin of the body measure — `ch` can't cross the larger headline font. */
+.flow-chapter-slide__copy .mobile-section-header__headline,
+.flow-chapter-slide__copy .case-study-section-header__headline,
+.flow-chapter-slide__copy .case-study-section-header__subhead,
+.flow-chapter-slide__copy .web-apps-nda-note {
+  max-width: min(var(--cs-copy-measure-px, 712px), 100%);
+}
+
 .flow-chapter-slide__copy .mobile-sub-story__heading {
   margin: clamp(20px, 3vh, 28px) 0 0;
   font-family: var(--font-ahg);
