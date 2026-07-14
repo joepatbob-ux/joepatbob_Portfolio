@@ -25,7 +25,7 @@ export function CaseStudyFlowOverview({
   body,
   blocks,
   subhead,
-  align = 'center',
+  align = 'left',
   className,
 }: Props) {
   const paragraphs = parseChapterBody(body)

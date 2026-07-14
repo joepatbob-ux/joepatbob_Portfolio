@@ -91,25 +91,12 @@
   flex-direction: column;
   align-items: stretch;
   width: 100%;
-  max-width: var(--cs-overview-measure-max, min(60ch, 100%));
-  margin-inline: auto;
-  padding-inline: var(--cs-overview-inset-x, clamp(20px, 4vw, 40px));
+  /* Span the full chapter band (component + copy) so the intro sits at the same
+     width and left edge as the chapters, not a narrow centered column. */
+  max-width: 100%;
+  margin-inline: 0;
   gap: var(--cs-overview-stack-gap, clamp(12px, 1.8vh, 18px));
   box-sizing: border-box;
-}
-
-/* The copy-only shell caps .chapter-slide__copy to 100% at higher specificity
-   (see the --copy-only rules above); the overview column carries both classes,
-   so restate the measure at matching specificity or the intro band runs the full
-   content pane instead of the centered reading column. */
-.case-study-flow-overview.portfolio-chapter-slot--fill
-  .chapter-slide__inner--copy-only
-  .chapter-slide__copy--overview,
-.hardware-slideshow.case-study-flow-overview
-  .chapter-slide__inner--copy-only
-  .chapter-slide__copy--overview {
-  max-width: var(--cs-overview-measure-max, min(60ch, 100%));
-  margin-inline: auto;
 }
 
 .case-study-flow-overview .chapter-slide__copy--overview-center {
@@ -341,7 +328,7 @@
   }
 }
 
-/* Tablet/desktop — centered band with horizontal inset */
+/* Tablet/desktop — full-band intro, left-aligned to match the chapters */
 @media (min-width: 768px) {
   .case-study-flow-overview.portfolio-chapter-slot--fill .chapter-slide__viewport,
   .hardware-slideshow.case-study-flow-overview .chapter-slide__viewport {
@@ -352,7 +339,7 @@
   .case-study-flow-overview.portfolio-chapter-slot--fill
     .chapter-slide__copy--overview,
   .hardware-slideshow.case-study-flow-overview .chapter-slide__copy--overview {
-    text-align: center;
+    text-align: left;
   }
 
   .case-study-flow-overview.portfolio-chapter-slot--fill
