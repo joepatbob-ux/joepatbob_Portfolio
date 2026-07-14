@@ -13,7 +13,8 @@
   --cs-subrule-width: 32px;
   --cs-subrule-height: 2px;
   --cs-body-size: 16px;
-  --cs-body-leading: 1.6;
+  /* 1.75 × 16px = 28px line box → lands on the 4pt grid (open, editorial leading) */
+  --cs-body-leading: 1.75;
   --cs-body-color: var(--color-ink);
   --cs-subhead-size: clamp(20px, 2.4vw, 26px);
   --cs-subhead-leading: 1.2;
