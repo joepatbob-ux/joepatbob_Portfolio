@@ -66,15 +66,23 @@ export function useDeck() {
       const dy = e.deltaY
       const dir: 1 | -1 = dy > 0 ? 1 : -1
 
-      // reading zone: a scrollable copy region scrolls before we navigate
+      // Reading zone: a scrollable copy region scrolls through before we
+      // navigate. Allow a little slack at each edge — a chapter that "almost
+      // fits" (a few px of overflow) then advances on the first flick instead
+      // of demanding a wasted flick to nudge the copy to the exact pixel bottom.
+      // That exact-bottom requirement was what made section-boundary crossings
+      // (the last chapter's copy is often just-barely taller than the frame)
+      // feel inconsistent — sometimes one flick, sometimes two.
       const scroller = (e.target as Element | null)?.closest?.(
         '.chapter-copy-scroller',
       ) as HTMLElement | null
       if (scroller) {
-        const atBottom =
-          scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 1
-        const atTop = scroller.scrollTop <= 0
-        if ((dir > 0 && !atBottom) || (dir < 0 && !atTop)) return // native scroll
+        const EDGE_SLACK = 48 // px from an edge that still counts as "at the edge"
+        const remainingDown =
+          scroller.scrollHeight - scroller.clientHeight - scroller.scrollTop
+        const remainingUp = scroller.scrollTop
+        if ((dir > 0 && remainingDown > EDGE_SLACK) || (dir < 0 && remainingUp > EDGE_SLACK))
+          return // native scroll through the copy first
       }
 
       // Re-arm only after a genuine pause (no wheel events for IDLE ms).
