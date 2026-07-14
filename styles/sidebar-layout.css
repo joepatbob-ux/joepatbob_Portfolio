@@ -199,7 +199,8 @@
   border: none;
   border-radius: 9999px;
   cursor: pointer;
-  box-shadow: none;
+  /* Transparent ring so :hover only animates the colour (see .sidebar-nav-pill). */
+  box-shadow: 0 0 0 1px transparent;
   transition:
     background 180ms ease,
     color 180ms ease,
@@ -243,7 +244,9 @@
   border: none;
   border-radius: 9999px;
   background: transparent;
-  box-shadow: none;
+  /* Transparent ring so :hover only animates the colour — transitioning
+     box-shadow from `none` renders the ring's bottom edge unevenly on first paint. */
+  box-shadow: 0 0 0 1px transparent;
   font-family: var(--font-mono);
   font-weight: 700;
   font-size: 11px;

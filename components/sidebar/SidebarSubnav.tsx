@@ -68,7 +68,10 @@ export function SidebarSubnav({
           const isVisible = interactive && (overlayMode || visibleItems.includes(i))
           const isHoverThis = hoverChapterId === chId
           const chapterFill = isActive && !isHoverThis ? NAV_PILL_1 : 'transparent'
-          const chapterRing = isHoverThis ? `0 0 0 1px ${ACCENT}` : 'none'
+          // Keep the ring present but transparent when idle so the hover only
+          // animates its colour. Transitioning box-shadow from `none` renders the
+          // ring unevenly on the first paint (a broken bottom edge).
+          const chapterRing = `0 0 0 1px ${isHoverThis ? ACCENT : 'transparent'}`
           return (
             <button
               key={chapter.id}
