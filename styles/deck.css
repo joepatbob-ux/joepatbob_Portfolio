@@ -26,11 +26,17 @@
   /* Every chapter panel fills the stage; only the active slot's shows.
      Sequential fade (keep timings in sync with DECK_FADE_MS): the outgoing
      panel fades out immediately, the incoming one waits one fade-length before
-     fading in, so two distinct stages never overlap into a muddy crossfade. */
+     fading in, so two distinct stages never overlap into a muddy crossfade.
+
+     !important defeats the base fixed-slideshow rule (globals.css) that pins
+     these panels `position: fixed` to the viewport — in the deck they must be
+     absolute *inside* the stage, or they float over the hero + interlude above
+     it (the interlude looked "gone" because the fixed panel covered it). */
   html.deck-mode.deck-fine .portfolio-sections .portfolio-chapter-panel {
-    position: absolute;
-    inset: 0;
-    height: 100%;
+    position: absolute !important;
+    inset: 0 !important;
+    width: auto !important;
+    height: 100% !important;
     margin: 0;
     opacity: 0;
     pointer-events: none;
@@ -50,6 +56,18 @@
   /* In-flow after-panel content (sub-stories) is deck-navigated, not stacked. */
   html.deck-mode.deck-fine .portfolio-sections .portfolio-chapter-slot > *:not(.portfolio-chapter-panel) {
     display: none;
+  }
+
+  /* Focus moves to the new chapter's reading region on swap (for AT + keyboard
+     copy-scrolling), but the deck drives that focus programmatically on every
+     wheel step — the :focus-visible ring would read as an unwanted border box
+     around the content. The sidebar already marks the active chapter, so drop
+     the ring here; genuine controls (sidebar, links) keep their own focus. */
+  html.deck-mode.deck-fine
+    .portfolio-sections
+    .portfolio-chapter-slot[data-deck-active]
+    .chapter-copy-scroller:focus-visible {
+    outline: none;
   }
 
   /* The page itself doesn't need a scrollbar dance while the deck owns the wheel. */
