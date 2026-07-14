@@ -1,3 +1,4 @@
+import { deckRequested } from '@/lib/deck/deckMode'
 import { isPrerenderSnapshot } from '@/lib/isPrerenderSnapshot'
 
 /**
@@ -53,6 +54,15 @@ export function startIdlePrefetch(): void {
     navigator as Navigator & { connection?: { saveData?: boolean } }
   ).connection
   if (connection?.saveData) return
+
+  // In deck mode every chapter is one wheel-flick away — warm eagerly instead
+  // of waiting on the idle timeout, since a `?deck=1` visit is a deliberate
+  // desktop demo that can afford it.
+  if (deckRequested()) {
+    warmLazyChunks()
+    PREFETCH_ASSETS.forEach(prefetchAsset)
+    return
+  }
 
   const run = () => {
     onIdle(warmLazyChunks, 4_000)
