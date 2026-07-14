@@ -98,6 +98,20 @@
   box-sizing: border-box;
 }
 
+/* The copy-only shell caps .chapter-slide__copy to 100% at higher specificity
+   (see the --copy-only rules above); the overview column carries both classes,
+   so restate the measure at matching specificity or the intro band runs the full
+   content pane instead of the centered reading column. */
+.case-study-flow-overview.portfolio-chapter-slot--fill
+  .chapter-slide__inner--copy-only
+  .chapter-slide__copy--overview,
+.hardware-slideshow.case-study-flow-overview
+  .chapter-slide__inner--copy-only
+  .chapter-slide__copy--overview {
+  max-width: var(--cs-overview-measure-max, min(60ch, 100%));
+  margin-inline: auto;
+}
+
 .case-study-flow-overview .chapter-slide__copy--overview-center {
   text-align: center;
 }

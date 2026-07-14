@@ -35,9 +35,12 @@ export function CaseStudyFlowOverview({
       chapterId={chapterId}
       fillViewport
       copyOnly
-      copyClassName={
-        align === 'center' ? 'chapter-slide__copy--overview-center' : ''
-      }
+      copyClassName={[
+        'chapter-slide__copy--overview',
+        align === 'center' ? 'chapter-slide__copy--overview-center' : '',
+      ]
+        .filter(Boolean)
+        .join(' ')}
       className={[
         'mobile-chapter-slot',
         'flow-chapter-slide',
