@@ -95,6 +95,13 @@
   white-space: nowrap;
 }
 
+/* Glue a keyword to its trailing comma so a wrap never orphans the comma onto
+   the next line. Only the non-final keywords bind — the last one keeps its own
+   internal wrapping (long "everything in between" phrase). */
+.sidebar-main-nav__keyword-group--bind {
+  white-space: nowrap;
+}
+
 .sidebar-main-nav__connector {
   color: var(--color-ink);
   -webkit-text-fill-color: var(--color-ink);

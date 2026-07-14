@@ -114,7 +114,8 @@
     .chapter-slide__copy--overview {
     max-width: calc(
       (100% - var(--cs-continuous-grid-gap, 56px)) * 5 / 11 +
-        var(--cs-continuous-grid-gap, 56px) + var(--cs-copy-measure-px, 712px)
+        var(--cs-continuous-grid-gap, 56px) + var(--cs-copy-measure-px, 712px) -
+        var(--cs-overview-narrow, clamp(32px, 4vw, 96px))
     );
     /* Copy-only inner centers its children; pin the intro to the band's left edge
        so it lines up with the chapters instead of centering. */
