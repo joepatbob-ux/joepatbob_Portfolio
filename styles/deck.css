@@ -145,4 +145,17 @@
   html.deck-mode.deck-fine body {
     overscroll-behavior-y: none;
   }
+
+  /* One wheel-driven system: the deck consumes every wheel event and snaps
+     between the hero / breather / chapter pages itself, so the browser
+     scrollbar is just noise (and reads as a competing second scroll system).
+     Hide it — programmatic scrollTo for the snaps still works. */
+  html.deck-mode.deck-fine {
+    scrollbar-width: none; /* Firefox */
+  }
+  html.deck-mode.deck-fine::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none; /* WebKit */
+  }
 }
