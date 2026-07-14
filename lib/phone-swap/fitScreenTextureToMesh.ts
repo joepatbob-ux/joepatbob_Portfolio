@@ -88,6 +88,12 @@ export function screenTextureForDisplay(source: THREE.Texture): THREE.Texture {
   map.wrapT = THREE.ClampToEdgeWrapping
   map.repeat.set(1, 1)
   map.offset.set(0, 0)
+  // The phone is viewed at a tilt, so the screen texture is minified along the
+  // grazing axis — at the default anisotropy of 1 that reads as a blurry,
+  // "low-res" screen no matter how sharp the source is. Request the max; three
+  // clamps it to the hardware limit at upload (mipmaps are on by default, which
+  // anisotropic filtering needs).
+  map.anisotropy = 16
   map.needsUpdate = true
   return map
 }
