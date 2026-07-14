@@ -23,6 +23,10 @@
     )
   );
   --cs-copy-measure-max: min(70ch, 100%);
+  /* Px twin of the body reading measure, for the headline. The headline font is
+     larger, so `ch` can't cross font sizes — a px value keeps headline and body
+     wrapping to the same width. Keep in sync with --cs-copy-measure-max. */
+  --cs-copy-measure-px: min(712px, 100%);
 
   /* Usable width inside the content pane (sidebar → right pad).
      Capped for cinema displays — bands center via their auto margins. */
@@ -214,6 +218,7 @@
       )
     );
     --cs-copy-measure-max: min(78ch, 100%);
+    --cs-copy-measure-px: min(794px, 100%);
     --cs-mobile-headline-size: clamp(36px, 2.6vw, 52px);
     --cs-touch2-frame-max-w: min(var(--cs-touch2-frame-w), var(--cs-stage-max));
     --cs-band-max: var(--cs-content-pane-max);
