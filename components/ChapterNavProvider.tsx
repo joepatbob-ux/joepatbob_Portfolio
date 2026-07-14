@@ -28,7 +28,11 @@ import { bindTopBarScrollSpy } from '@/lib/scroll/topBarScrollSpy'
 import { LAYOUT_MQ } from '@/lib/layout/breakpoints'
 import { isTopBarNavViewport } from '@/lib/layout/isTopBarNavViewport'
 import { isDeckActive } from '@/lib/deck/deckMode'
-import { publishActiveSlideId, publishInHero } from '@/lib/scroll/chapterSlideshow'
+import {
+  publishActiveSlideId,
+  publishChapterScrollMaps,
+  publishInHero,
+} from '@/lib/scroll/chapterSlideshow'
 import {
   createContext,
   useCallback,
@@ -239,6 +243,12 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
         // Publish so the sidebar's scroll-spy machinery highlights the chapter.
         publishActiveSlideId(chapterId)
         publishInHero(false)
+        // The deck has no scroll to drive the chapter reveal maps that stage
+        // visuals gate their interactive layer on (Formation lego bricks,
+        // sticker pile, R3F frameloops). Publish the active chapter as fully
+        // revealed and everything else as 0 so the active stage paints while
+        // the rest stay dormant.
+        publishChapterScrollMaps({ [chapterId]: 1 }, { [chapterId]: 1 })
         return
       }
 
