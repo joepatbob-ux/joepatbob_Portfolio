@@ -10,7 +10,10 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react
 import { useBodyScrollLock } from '@/lib/hooks/useBodyScrollLock'
 import { useDialogFocusTrap } from '@/lib/hooks/useDialogFocusTrap'
 import { usePrefersReducedMotion } from '@/lib/hooks/usePrefersReducedMotion'
-import { activeSlideIdPublished } from '@/lib/scroll/chapterSlideshow'
+import {
+  activeSlideIdPublished,
+  nearestChapterIdForDocY,
+} from '@/lib/scroll/chapterSlideshow'
 import { usePublishedActiveSlideId } from '@/lib/hooks/useChapterReveal'
 import { getDocumentScrollY } from '@/lib/scroll/documentScrollY'
 import {
@@ -62,6 +65,15 @@ function getScrollTop(): number {
   return getDocumentScrollY()
 }
 
+/** Published slide id lags a frame behind scroll (the provider's frame runs
+    after the sidebar's), so reveal paths fall back to slot geometry. */
+function currentChapterIdForNav(): string | null {
+  return (
+    activeSlideIdPublished() ??
+    nearestChapterIdForDocY(getScrollTop() + window.innerHeight / 2)
+  )
+}
+
 export function useSidebarNavState() {
   const usesTopBarNav = useTopBarNav()
   const reducedMotion = usePrefersReducedMotion()
@@ -108,6 +120,10 @@ export function useSidebarNavState() {
   const prevStuck = useRef(false)
   const wasInInterludeRef = useRef(false)
   const subNavVisibleRef = useRef(false)
+  /** Chapter items staggered (or scheduled) for the current section — false
+      whenever the list has been cleared, so scroll spy can self-heal a
+      visible-but-empty subnav instead of waiting for a section change. */
+  const subNavStaggeredRef = useRef(false)
   const activeSectionRef = useRef<string | null>(null)
   const activeChapterRef = useRef<string | null>(null)
   const overlayOpenRef = useRef(false)
@@ -201,6 +217,7 @@ export function useSidebarNavState() {
       staggerTimers.current.forEach(clearTimeout)
       staggerTimers.current = []
       setChapterItemsVisible([])
+      subNavStaggeredRef.current = true
       const sec = NAV_SECTIONS.find((s) => s.id === sectionId)
       if (!sec) return
       if (reducedMotion) {
@@ -226,6 +243,7 @@ export function useSidebarNavState() {
       staggerTimers.current.forEach(clearTimeout)
       staggerTimers.current = []
       setChapterItemsVisible([])
+      subNavStaggeredRef.current = false
       if (reducedMotion) {
         cb()
         return
@@ -294,6 +312,7 @@ export function useSidebarNavState() {
         setDimActive(false)
         setNavIsStuck(false)
         setChapterItemsVisible([])
+        subNavStaggeredRef.current = false
         staggerTimers.current.forEach(clearTimeout)
         staggerTimers.current = []
       }, MOBILE_SIDEBAR_MS)
@@ -318,6 +337,8 @@ export function useSidebarNavState() {
         activeSectionRef.current = sectionId
         setActiveSection(sectionId)
         if (subNavVisibleRef.current) staggerOut(() => staggerIn(sectionId))
+      } else if (subNavVisibleRef.current && !subNavStaggeredRef.current) {
+        staggerIn(sectionId)
       }
     },
     [chapterNavPhase, staggerIn, staggerOut],
@@ -353,7 +374,7 @@ export function useSidebarNavState() {
         subNavTimer.current = setTimeout(() => {
           if (isInInterludeScrollZone()) return
           setSubNavVisible(true)
-          const chapterId = activeSlideIdPublished()
+          const chapterId = currentChapterIdForNav()
           const sectionId = chapterId ? sectionIdForChapter(chapterId) : null
           if (!sectionId) return
           activeSectionRef.current = sectionId
@@ -373,6 +394,7 @@ export function useSidebarNavState() {
         syncSidebarDivider(isInHeroScrollZone())
         setDimActive(false)
         setChapterItemsVisible([])
+        subNavStaggeredRef.current = false
         if (subNavTimer.current) clearTimeout(subNavTimer.current)
       }
     },
@@ -550,6 +572,7 @@ export function useSidebarNavState() {
       applyStuckState(y)
       if (inInterlude) {
         setSubNavVisible(false)
+        subNavStaggeredRef.current = false
         if (activeSectionRef.current !== null) {
           activeSectionRef.current = null
           setActiveSection(null)
@@ -561,7 +584,7 @@ export function useSidebarNavState() {
         setSubNavVisible(true)
         setDimActive(true)
         if (!overlayOpenRef.current) applyScrollSpy()
-        const chapterId = activeSlideIdPublished()
+        const chapterId = currentChapterIdForNav()
         const sectionId = chapterId ? sectionIdForChapter(chapterId) : null
         if (sectionId) staggerIn(sectionId, sectionId === NAV_SECTIONS[0].id)
       } else if (!inHero && !overlayOpenRef.current) {
