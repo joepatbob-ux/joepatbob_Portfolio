@@ -15,8 +15,10 @@ export const PIXEL8_DISPLAY = {
   bezel: 0x121216,
   /** Lift glass frame above body (screen uses {@link surfaceNudge}). */
   bezelNudge: 0.006,
-  /** Push screenshot above overlapping glass from the settled camera. */
-  surfaceNudge: 0.004,
+  /** Lift the screenshot clear of the coplanar glass so they don't z-fight.
+      Must hold at tilted poses (the swap), not just the settled camera — 0.004
+      was tuned flat and fought (diagonal moire) once the phone rotated. */
+  surfaceNudge: 0.02,
 } as const
 
 /** Draw order — well above body (0); screen wins over bezel in overlap. */

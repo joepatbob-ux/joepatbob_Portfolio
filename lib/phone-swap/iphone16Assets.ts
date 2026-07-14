@@ -12,8 +12,10 @@ export const IPHONE16_MESH = {
 export const IPHONE16_DISPLAY = {
   backing: 0x050508,
   bezel: 0x121216,
-  /** Push screenshot above overlapping glass from the settled camera. */
-  surfaceNudge: 0.004,
+  /** Lift the screenshot clear of the coplanar glass so they don't z-fight.
+      Must hold at tilted poses (the swap), not just the settled camera — 0.004
+      was tuned flat and fought (diagonal moire) once the phone rotated. */
+  surfaceNudge: 0.02,
 } as const
 
 /** Draw order — display must win over overlapping glass. */
