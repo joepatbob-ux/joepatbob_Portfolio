@@ -1,10 +1,12 @@
 import { inject } from '@vercel/analytics'
 import { initContinuousChaptersClass } from '@/lib/scroll/continuousChapters'
+import { initDeckModeClass } from '@/lib/deck/deckMode'
 import { StrictMode } from 'react'
 import { createRoot, hydrateRoot } from 'react-dom/client'
 import Root from './Root'
 
 initContinuousChaptersClass()
+initDeckModeClass()
 
 const root = document.getElementById('root')
 if (!root) {

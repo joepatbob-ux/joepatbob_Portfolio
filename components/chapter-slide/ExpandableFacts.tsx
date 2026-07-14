@@ -4,6 +4,8 @@ import { formatChapterInline } from '@/lib/chapter-slide/formatChapterInline'
 export interface ExpandableFactItem {
   /** Collapsed trigger line — rendered in the micro-label treatment. */
   header: string
+  /** Optional label swapped in while expanded (e.g. "More" → "Less"). */
+  expandedHeader?: string
   /** Detail revealed on expand — one or more body-copy paragraphs. */
   detail: string | readonly string[]
 }
@@ -55,7 +57,7 @@ export function ExpandableFacts({
                 <span className="chapter-fact__bar chapter-fact__bar--v" />
               </span>
               <span className="cs-microlabel chapter-fact__label">
-                {fact.header}
+                {isOpen && fact.expandedHeader ? fact.expandedHeader : fact.header}
               </span>
             </button>
             <div

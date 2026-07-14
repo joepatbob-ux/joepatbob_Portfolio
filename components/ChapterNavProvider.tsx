@@ -21,12 +21,14 @@ import {
   scrollDocumentToChapterSlot,
 } from '@/lib/scroll/chapterSnapScroll'
 import { requestChapterMount } from '@/lib/scroll/chapterMount'
-import { waitForChapterSlotReady } from '@/lib/chapterNav/waitForChapterSlot'
+import { waitForChapterSlot, waitForChapterSlotReady } from '@/lib/chapterNav/waitForChapterSlot'
 import { sectionEntryChapterId } from '@/lib/sectionEntryChapter'
 import { flushScrollFrame, scheduleScrollFrame } from '@/lib/scroll/scrollFrame'
 import { bindTopBarScrollSpy } from '@/lib/scroll/topBarScrollSpy'
 import { LAYOUT_MQ } from '@/lib/layout/breakpoints'
 import { isTopBarNavViewport } from '@/lib/layout/isTopBarNavViewport'
+import { isDeckActive } from '@/lib/deck/deckMode'
+import { publishActiveSlideId, publishInHero } from '@/lib/scroll/chapterSlideshow'
 import {
   createContext,
   useCallback,
@@ -180,6 +182,13 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
       cleanup?.()
       cleanup = undefined
 
+      // Deck: React drives panel opacity from the active chapter; the per-frame
+      // scroll writer must stay out of the way (it would override the crossfade).
+      if (isDeckActive()) {
+        resetInFlowChapterPanels()
+        return
+      }
+
       if (window.matchMedia(LAYOUT_MQ.topBarNav).matches) {
         resetInFlowChapterPanels()
         releaseContinuousStageAlignForInFlowNav()
@@ -215,6 +224,23 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
   const runNavigate = useCallback(
     async (selector: string, chapterId: string) => {
       if (busyRef.current) return
+
+      // Deck presentation: no document scroll — mount the chapter and switch the
+      // active id immediately; the panel opacity hook cross-fades it in. We only
+      // wait for the slot to exist (mount), NOT for layout to settle — there's no
+      // scroll to position, and the stability wait would add a ~1.2s delay per nav.
+      if (isDeckActive()) {
+        requestChapterMount(chapterId)
+        if (!document.querySelector(`.portfolio-chapter-slot[data-chapter-id="${CSS.escape(chapterId)}"]`)) {
+          await waitForChapterSlot(chapterId, 2000)
+        }
+        activeRef.current = chapterId
+        setActiveSlideId(chapterId)
+        // Publish so the sidebar's scroll-spy machinery highlights the chapter.
+        publishActiveSlideId(chapterId)
+        publishInHero(false)
+        return
+      }
 
       requestChapterMount(chapterId)
 

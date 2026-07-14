@@ -1,0 +1,148 @@
+/* Desktop deck presentation (opt-in via ?deck=1). Collapses the case-study
+   region into one fixed, viewport-tall stage; chapter panels stack and cross-
+   fade instead of scrolling. Scoped to the same gate as the JS driver so touch
+   / narrow viewports are never affected, even with the flag on. Hero + interlude
+   above the stage still scroll normally. */
+
+@media (min-width: 1024px) {
+  html.deck-mode.deck-fine .portfolio-sections {
+    position: relative;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  /* Sections/slots no longer contribute scroll height. */
+  html.deck-mode.deck-fine .portfolio-sections > article {
+    position: static;
+  }
+
+  html.deck-mode.deck-fine .portfolio-sections .portfolio-chapter-slot {
+    position: static;
+    min-height: 0;
+    height: auto;
+  }
+
+  /* Every chapter panel fills the stage; only the active slot's shows.
+     Sequential fade (keep timings in sync with DECK_FADE_MS): the outgoing
+     panel fades out immediately, the incoming one waits one fade-length before
+     fading in, so two distinct stages never overlap into a muddy crossfade.
+
+     !important defeats the base fixed-slideshow rule (globals.css) that pins
+     these panels `position: fixed` to the viewport — in the deck they must be
+     absolute *inside* the stage, or they float over the hero + interlude above
+     it (the interlude looked "gone" because the fixed panel covered it). */
+  html.deck-mode.deck-fine .portfolio-sections .portfolio-chapter-panel {
+    position: absolute !important;
+    inset: 0 !important;
+    width: auto !important;
+    height: 100% !important;
+    margin: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 260ms ease;
+  }
+
+  html.deck-mode.deck-fine
+    .portfolio-sections
+    .portfolio-chapter-slot[data-deck-active]
+    .portfolio-chapter-panel {
+    opacity: 1;
+    pointer-events: auto;
+    z-index: 2;
+    transition: opacity 260ms ease 260ms;
+  }
+
+  /* In-flow after-panel content (sub-stories) is deck-navigated, not stacked. */
+  html.deck-mode.deck-fine .portfolio-sections .portfolio-chapter-slot > *:not(.portfolio-chapter-panel) {
+    display: none;
+  }
+
+  /* Focus moves to the new chapter's reading region on swap (for AT + keyboard
+     copy-scrolling), but the deck drives that focus programmatically on every
+     wheel step — the :focus-visible ring would read as an unwanted border box
+     around the content. The sidebar already marks the active chapter, so drop
+     the ring here; genuine controls (sidebar, links) keep their own focus. */
+  html.deck-mode.deck-fine
+    .portfolio-sections
+    .portfolio-chapter-slot[data-deck-active]
+    .chapter-copy-scroller:focus-visible {
+    outline: none;
+  }
+
+  /* Overview vertical rhythm: the overview stacks header / body / metadata, and
+     the stack spacing is a flex `gap` on .chapter-slide__copy--overview. But the
+     reading-zone scroller wraps all three as a single child, so that gap never
+     applies and the blocks touch (headline → body → PATENTS with no breathing
+     room). Restore the rhythm by making the overview's scroller the flex column. */
+  html.deck-mode.deck-fine
+    .portfolio-sections
+    .case-study-flow-overview
+    .chapter-copy-scroller {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(18px, 2.6vh, 30px);
+  }
+
+  /* Headline ↔ body measure parity. The chapter headline is uncapped while the
+     body is capped at the ~70ch reading measure, so on wide monitors the
+     headline runs well past the body's right edge (they only coincide near
+     1440px); a few chapters also leave the body uncapped (~100%), reading too
+     wide. Pin both to one shared measure so the headline container and body
+     copy are the same width at every viewport. It must be a px measure, not
+     `ch`: `ch` is font-relative, so 70ch on the large headline (~1320px) and
+     70ch on the small body (~712px) are different widths — the exact bug. The
+     ~712px value matches the body's designed 70ch measure. Overviews excluded
+     (centered intro band). */
+  html.deck-mode.deck-fine
+    .portfolio-sections
+    .portfolio-chapter-slot:not(.case-study-flow-overview) :is(
+      .chapter-copy__headline,
+      .mobile-section-header__headline,
+      .chapter-copy__body,
+      .mobile-prose
+    ) {
+    max-width: min(712px, 100%) !important;
+  }
+
+  /* One shared content band for every deck surface — chapters, overviews, and
+     the interlude/breather — so they all center at the same width instead of
+     three different measures (chapter 1140, overview full-width, breather 977).
+     At this band the chapter copy column (2fr) lands on the ~712px text measure. */
+  html.deck-mode.deck-fine {
+    --deck-band: min(1160px, 100%);
+  }
+
+  /* Center the content group in the content area like the overview/interlude.
+     Chapter columns are 1fr/2fr fractions that otherwise fill the full pane
+     (leaving the copy text short of a huge column on wide screens); capping the
+     band and centering it keeps the fr ratio intact while giving balanced
+     left/right margins. Applies to overviews too so they share the band. */
+  html.deck-mode.deck-fine
+    .portfolio-sections
+    .portfolio-chapter-slot
+    .chapter-slide__inner {
+    max-width: var(--deck-band) !important;
+    margin-inline: auto !important;
+  }
+
+  /* Extra air between the component (stage) and the copy — chapters only. */
+  html.deck-mode.deck-fine
+    .portfolio-sections
+    .portfolio-chapter-slot:not(.case-study-flow-overview)
+    .chapter-slide__inner {
+    column-gap: clamp(56px, 5vw, 92px);
+  }
+
+  /* Breather/interlude: same band + centering as the chapters and overview. */
+  html.deck-mode.deck-fine .portfolio-interlude__row,
+  html.deck-mode.deck-fine .portfolio-interlude__copy {
+    max-width: var(--deck-band) !important;
+    margin-inline: auto !important;
+  }
+
+  /* The page itself doesn't need a scrollbar dance while the deck owns the wheel. */
+  html.deck-mode.deck-fine body {
+    overscroll-behavior-y: none;
+  }
+}
