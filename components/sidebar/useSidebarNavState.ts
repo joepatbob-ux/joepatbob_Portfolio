@@ -19,6 +19,7 @@ import {
   isInBreatherScrollZone,
   isInHeroScrollZone,
   isInInterludeScrollZone,
+  isInOutroScrollZone,
   isTopBarInHeroScrollZone,
   resetSidebarShellFade,
 } from '@/lib/scroll/heroScroll'
@@ -107,6 +108,7 @@ export function useSidebarNavState() {
   )
   const prevStuck = useRef(false)
   const wasInInterludeRef = useRef(false)
+  const wasInOutroRef = useRef(false)
   /** Set when we scroll out of the interlude into the sections; stays armed until
       the scroll orchestration publishes an active chapter so the subnav reveal
       isn't lost to a one-frame timing gap at the interlude boundary. */
@@ -336,7 +338,12 @@ export function useSidebarNavState() {
   useEffect(() => {
     if (!publishedSlideId) return
     if (chapterNavPhase !== 'idle') return
-    if (usesTopBarNav ? isTopBarInHeroScrollZone() : isInBreatherScrollZone()) return
+    if (
+      usesTopBarNav
+        ? isTopBarInHeroScrollZone()
+        : isInBreatherScrollZone() || isInOutroScrollZone()
+    )
+      return
     syncNavFromPublishedChapter(publishedSlideId)
   }, [
     publishedSlideId,
@@ -521,7 +528,13 @@ export function useSidebarNavState() {
         syncSidebarDivider(isTopBarInHeroScrollZone())
       }
 
-      if (!inHero && !isInInterludeScrollZone() && !overlayOpenRef.current) applyScrollSpy()
+      if (
+        !inHero &&
+        !isInInterludeScrollZone() &&
+        !isInOutroScrollZone() &&
+        !overlayOpenRef.current
+      )
+        applyScrollSpy()
     })
   }, [usesTopBarNav, mobileDrawerOpen, applyScrollSpy, applyMobileHeroScroll, syncSidebarDivider])
 
@@ -544,6 +557,10 @@ export function useSidebarNavState() {
       const y = getScrollTop()
       const inHero = isInHeroScrollZone()
       const inInterlude = isInInterludeScrollZone()
+      const inOutro = isInOutroScrollZone()
+      // The closing page sits past every chapter, like the interlude sits before
+      // them — neither should highlight a section in the nav.
+      const inBreather = inInterlude || inOutro
       if (inHero !== lastHtmlHeroClassRef.current) {
         lastHtmlHeroClassRef.current = inHero
         document.documentElement.classList.toggle('in-hero-scroll', inHero)
@@ -552,7 +569,7 @@ export function useSidebarNavState() {
       syncSidebarDivider(inHero)
       applyDesktopNavScroll(y)
       applyStuckState(y)
-      if (inInterlude) {
+      if (inBreather) {
         subnavRevealArmedRef.current = false
         setSubNavVisible(false)
         if (activeSectionRef.current !== null) {
@@ -563,11 +580,15 @@ export function useSidebarNavState() {
         }
         setDimActive(false)
       } else {
-        // Leaving the interlude into the sections arms the reveal; keep it armed
-        // until the orchestration has published an active chapter (it can lag the
-        // interlude boundary by a frame or two). Without the retry the one-frame
-        // reveal is missed and the chapter list never appears until a section click.
-        if (wasInInterludeRef.current && prevStuck.current) {
+        // Leaving a breather zone (interlude above, outro below) back into the
+        // sections arms the reveal; keep it armed until the orchestration has
+        // published an active chapter (it can lag the boundary by a frame or
+        // two). Without the retry the one-frame reveal is missed and the chapter
+        // list never reappears until a section click.
+        if (
+          (wasInInterludeRef.current || wasInOutroRef.current) &&
+          prevStuck.current
+        ) {
           subnavRevealArmedRef.current = true
         }
         if (subnavRevealArmedRef.current) {
@@ -588,6 +609,7 @@ export function useSidebarNavState() {
         if (!inHero && !overlayOpenRef.current) applyScrollSpy()
       }
       wasInInterludeRef.current = inInterlude
+      wasInOutroRef.current = inOutro
     })
   }, [
     usesTopBarNav,

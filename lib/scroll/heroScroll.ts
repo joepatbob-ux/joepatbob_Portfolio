@@ -143,6 +143,22 @@ export function isInInterludeScrollZone(): boolean {
   return rect.bottom > vh * 0.28
 }
 
+/** Closing page after the last chapter — like the interlude, no section should
+ *  be highlighted here (it sits past all the chapters). True once the outro has
+ *  risen past the viewport midpoint. */
+export function isInOutroScrollZone(): boolean {
+  if (typeof window === 'undefined') return false
+
+  const outro = document.getElementById('portfolio-outro')
+  if (!outro) return false
+
+  const vh = layoutViewportH()
+  if (vh <= 0) return false
+
+  const rect = outro.getBoundingClientRect()
+  return rect.top < vh * 0.5
+}
+
 /** Hero or interlude — no portfolio section should be highlighted yet. */
 export function isInBreatherScrollZone(): boolean {
   return isInHeroScrollZone() || isInInterludeScrollZone()
