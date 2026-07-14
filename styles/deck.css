@@ -70,6 +70,20 @@
     outline: none;
   }
 
+  /* Overview cards otherwise render full-width (~1030px), so their headline
+     wraps at a different measure than the ~710px chapter copy column — flipping
+     between an overview and a chapter makes the headline jump width. Cap the
+     overview copy to the chapter measure and center it, so every card in the
+     deck shares one wrap width (kept centered to still read as a section intro).
+     Deck-only; the scroll site's overview is untouched. */
+  html.deck-mode.deck-fine
+    .portfolio-sections
+    .case-study-flow-overview
+    .chapter-slide__copy--overview {
+    max-width: 710px !important;
+    margin-inline: auto !important;
+  }
+
   /* The page itself doesn't need a scrollbar dance while the deck owns the wheel. */
   html.deck-mode.deck-fine body {
     overscroll-behavior-y: none;
