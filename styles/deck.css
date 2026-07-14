@@ -105,6 +105,29 @@
     max-width: min(712px, 100%) !important;
   }
 
+  /* Center the chapter's stage + copy as a group in the content area, like the
+     overview and interlude. By default the copy column stretches to fill (the
+     712px text left-aligned inside a ~1045px column on wide screens), so the
+     content sits left with dead space on the right. Cap the copy column to the
+     text measure and center the tracks; `minmax(0, …)` lets them shrink to fit
+     at narrower widths instead of overflowing. Also open up the stage↔copy gap
+     a little. Overviews keep their own centered single-column layout. */
+  html.deck-mode.deck-fine
+    .portfolio-sections
+    .portfolio-chapter-slot:not(.case-study-flow-overview)
+    .chapter-slide__inner {
+    /* Center the stage + copy as a group like the overview/interlude. The
+       columns are 1fr/2fr fractions that otherwise fill the full content pane
+       (leaving the copy text short of a huge column on wide screens); capping
+       the band and centering it keeps the fr ratio intact while giving balanced
+       left/right margins. The gap is widened a little for more air between the
+       component and the text. At ~1140px the copy column lands at the ~712px
+       text measure. */
+    max-width: min(1140px, 100%) !important;
+    margin-inline: auto !important;
+    column-gap: clamp(48px, 4vw, 72px);
+  }
+
   /* The page itself doesn't need a scrollbar dance while the deck owns the wheel. */
   html.deck-mode.deck-fine body {
     overscroll-behavior-y: none;
