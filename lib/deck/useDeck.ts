@@ -6,6 +6,11 @@ import { isDeckActive } from '@/lib/deck/deckMode'
 const TRIGGER = 18 // |deltaY| that counts as an intentional step
 const REARM = 6 //    |deltaY| at/below this = momentum ended → re-arm
 const IDLE = 120 //   ms of quiet also re-arms (discrete mouse wheels)
+// Hard cooldown after a step: a jittery trackpad decay can dip to REARM and
+// spike again within one flick, which re-armed the gate and double-stepped
+// ("touchy"). During the cooldown further wheel deltas are still consumed
+// (so the page can't scroll) but cannot advance another chapter.
+const STEP_COOLDOWN = 340 // ms between chapter steps
 
 /** Ordered chapter ids as they appear in the document (the deck sequence). */
 function chapterOrder(): string[] {
@@ -42,6 +47,7 @@ export function useDeck() {
   useEffect(() => {
     let armed = true
     let armIdle = 0
+    let lastStepAt = 0
 
     const step = (dir: 1 | -1) => {
       const order = chapterOrder()
@@ -89,6 +95,10 @@ export function useDeck() {
 
       e.preventDefault()
       armed = false
+      // Consume the wheel but don't advance again until the cooldown clears —
+      // stops a single flick's momentum tail from stepping twice.
+      if (performance.now() - lastStepAt < STEP_COOLDOWN) return
+      lastStepAt = performance.now()
       step(dir)
     }
 
