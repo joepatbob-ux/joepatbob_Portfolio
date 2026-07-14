@@ -107,6 +107,10 @@ export function useSidebarNavState() {
   )
   const prevStuck = useRef(false)
   const wasInInterludeRef = useRef(false)
+  /** Set when we scroll out of the interlude into the sections; stays armed until
+      the scroll orchestration publishes an active chapter so the subnav reveal
+      isn't lost to a one-frame timing gap at the interlude boundary. */
+  const subnavRevealArmedRef = useRef(false)
   const subNavVisibleRef = useRef(false)
   const activeSectionRef = useRef<string | null>(null)
   const activeChapterRef = useRef<string | null>(null)
@@ -549,6 +553,7 @@ export function useSidebarNavState() {
       applyDesktopNavScroll(y)
       applyStuckState(y)
       if (inInterlude) {
+        subnavRevealArmedRef.current = false
         setSubNavVisible(false)
         if (activeSectionRef.current !== null) {
           activeSectionRef.current = null
@@ -557,15 +562,30 @@ export function useSidebarNavState() {
           setActiveChapter(null)
         }
         setDimActive(false)
-      } else if (wasInInterludeRef.current && prevStuck.current) {
-        setSubNavVisible(true)
-        setDimActive(true)
-        if (!overlayOpenRef.current) applyScrollSpy()
-        const chapterId = activeSlideIdPublished()
-        const sectionId = chapterId ? sectionIdForChapter(chapterId) : null
-        if (sectionId) staggerIn(sectionId, sectionId === NAV_SECTIONS[0].id)
-      } else if (!inHero && !overlayOpenRef.current) {
-        applyScrollSpy()
+      } else {
+        // Leaving the interlude into the sections arms the reveal; keep it armed
+        // until the orchestration has published an active chapter (it can lag the
+        // interlude boundary by a frame or two). Without the retry the one-frame
+        // reveal is missed and the chapter list never appears until a section click.
+        if (wasInInterludeRef.current && prevStuck.current) {
+          subnavRevealArmedRef.current = true
+        }
+        if (subnavRevealArmedRef.current) {
+          subNavVisibleRef.current = true
+          setSubNavVisible(true)
+          setDimActive(true)
+          const chapterId = activeSlideIdPublished()
+          const sectionId = chapterId ? sectionIdForChapter(chapterId) : null
+          if (sectionId) {
+            activeSectionRef.current = sectionId
+            setActiveSection(sectionId)
+            activeChapterRef.current = chapterId
+            setActiveChapter(chapterId)
+            staggerIn(sectionId, sectionId === NAV_SECTIONS[0].id)
+            subnavRevealArmedRef.current = false
+          }
+        }
+        if (!inHero && !overlayOpenRef.current) applyScrollSpy()
       }
       wasInInterludeRef.current = inInterlude
     })
