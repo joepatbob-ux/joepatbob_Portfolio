@@ -3,6 +3,8 @@ import {
   CONTACT_EMAIL_MAILTO,
   CONTACT_LINKEDIN_HOST_PATH,
   CONTACT_LINKEDIN_URL,
+  CONTACT_RESUME_LABEL,
+  CONTACT_RESUME_URL,
 } from '@/lib/contact'
 import { parseChapterBody } from '@/lib/chapter-slide/parseChapterBody'
 
@@ -78,6 +80,12 @@ export function EibPracticeClose({ statement }: { statement: string }) {
           rel="noopener noreferrer"
         >
           {CONTACT_LINKEDIN_HOST_PATH}
+        </a>
+        <span className="eib-practice-close__sep" aria-hidden>
+          ·
+        </span>
+        <a href={CONTACT_RESUME_URL} target="_blank" rel="noopener noreferrer">
+          {CONTACT_RESUME_LABEL}
         </a>
       </p>
     </footer>
