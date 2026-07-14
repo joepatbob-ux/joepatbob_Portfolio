@@ -328,7 +328,11 @@ export function useSidebarNavState() {
   )
 
   const applyScrollSpy = useCallback(() => {
-    const chapterId = publishedSlideId ?? activeSlideIdPublished()
+    // Prefer the live module getter over the React snapshot: right after a
+    // click-nav publishes the new id, syncScrollAfterNavigate re-runs this
+    // synchronously, before React re-renders — so `publishedSlideId` still holds
+    // the OLD chapter and would revert the optimistic pill. The getter is fresh.
+    const chapterId = activeSlideIdPublished() ?? publishedSlideId
     if (!chapterId) return
     syncNavFromPublishedChapter(chapterId)
   }, [publishedSlideId, syncNavFromPublishedChapter])
