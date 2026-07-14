@@ -91,12 +91,34 @@
   flex-direction: column;
   align-items: stretch;
   width: 100%;
-  /* Span the full chapter band (component + copy) so the intro sits at the same
-     width and left edge as the chapters, not a narrow centered column. */
+  /* Mobile/tablet stack the stage over the copy, so the intro spans the column. */
   max-width: 100%;
   margin-inline: 0;
   gap: var(--cs-overview-stack-gap, clamp(12px, 1.8vh, 18px));
   box-sizing: border-box;
+}
+
+/* Desktop: match the chapters' content container — the stage column plus the
+   copy's *text* (which stops at the reading measure, not the full copy track).
+   Flow chapters use a 5fr : 6fr stage:copy grid (chapter-continuous-scroll.css),
+   so the text's right edge sits at 5/11 of the band + the gutter + the copy
+   measure. Left-aligned, this lands the overview's right edge on the chapters'. */
+@media (min-width: 1024px) {
+  .case-study-flow-overview.portfolio-chapter-slot--fill
+    .chapter-slide__inner--copy-only
+    .chapter-slide__copy--overview,
+  .hardware-slideshow.case-study-flow-overview
+    .chapter-slide__inner--copy-only
+    .chapter-slide__copy--overview {
+    max-width: calc(
+      (100% - var(--cs-continuous-grid-gap, 56px)) * 5 / 11 +
+        var(--cs-continuous-grid-gap, 56px) + var(--cs-copy-measure-px, 712px)
+    );
+    /* Copy-only inner centers its children; pin the intro to the band's left edge
+       so it lines up with the chapters instead of centering. */
+    align-self: flex-start;
+    margin-inline: 0 auto;
+  }
 }
 
 .case-study-flow-overview .chapter-slide__copy--overview-center {
