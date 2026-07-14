@@ -1,13 +1,49 @@
 import { ChapterViewport } from '@/components/ChapterViewport'
 import { StudyChapter } from '@/components/StudyChapter'
-import { SensiLiteChapter } from '@/components/SensiLiteChapter'
-import { Touch2Chapter } from '@/components/Touch2Chapter'
-import { EimChapter } from '@/components/EimChapter'
-import { VerdantChapter } from '@/components/VerdantChapter'
+import dynamic from '@/lib/dynamic'
 import type { ChapterInsertDef } from '@/lib/chapterInserts'
 import { fullInsertChapterId } from '@/lib/chapterInserts'
 import type { Chapter } from '@/lib/types'
 import type { ComponentType, ReactNode } from 'react'
+
+/* Real lazy boundaries — static imports here would ship every hardware stage
+ * (Sensi Lite LCD prototype + segment tooling, Touch 2, EIM, Verdant) in the
+ * entry chunk. Placeholder height keeps scroll geometry stable while a chunk
+ * loads (same pattern as LazySectionChapter). */
+
+function ChapterLoading() {
+  return <div style={{ minHeight: '100vh' }} aria-hidden="true" />
+}
+
+const SensiLiteChapter = dynamic(
+  () =>
+    import('@/components/SensiLiteChapter').then((m) => ({
+      default: m.SensiLiteChapter,
+    })),
+  { loading: ChapterLoading },
+)
+
+const Touch2Chapter = dynamic(
+  () =>
+    import('@/components/Touch2Chapter').then((m) => ({
+      default: m.Touch2Chapter,
+    })),
+  { loading: ChapterLoading },
+)
+
+const EimChapter = dynamic(
+  () =>
+    import('@/components/EimChapter').then((m) => ({ default: m.EimChapter })),
+  { loading: ChapterLoading },
+)
+
+const VerdantChapter = dynamic(
+  () =>
+    import('@/components/VerdantChapter').then((m) => ({
+      default: m.VerdantChapter,
+    })),
+  { loading: ChapterLoading },
+)
 
 export interface ChapterRenderContext {
   chapter: Chapter

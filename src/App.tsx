@@ -3,11 +3,9 @@ import '@/styles/globals.css'
 import dynamic from '@/lib/dynamic'
 import { CaseStudy } from '@/components/CaseStudy'
 import { ChapterNavProvider } from '@/components/ChapterNavProvider'
-import { ContentDebugPanel } from '@/components/ContentDebugPanel'
-import { NavSentenceEditorPanel } from '@/components/NavSentenceEditorPanel'
 import { NavSentenceLayoutProvider } from '@/components/NavSentenceLayoutProvider'
-import { SensiLiteSegmentAtlas } from '@/components/sensi-lite/SensiLiteSegmentAtlas'
 import { ContentDebugProvider } from '@/components/ContentDebugProvider'
+import { DevPanels } from '@/components/DevPanels'
 import { Hero } from '@/components/Hero'
 import { PortfolioInterlude } from '@/components/PortfolioInterlude'
 import { SidebarNav } from '@/components/SidebarNav'
@@ -60,9 +58,7 @@ export default function App() {
               </main>
             </div>
             <StickerLayer />
-            <ContentDebugPanel />
-            <NavSentenceEditorPanel />
-            <SensiLiteSegmentAtlas />
+            <DevPanels />
             </NavSentenceLayoutProvider>
             </ContentDebugProvider>
           </ChapterNavProvider>

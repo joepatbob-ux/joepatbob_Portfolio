@@ -1,9 +1,26 @@
 import { useEffect, useState } from 'react'
 import { useContentDebug } from '@/components/ContentDebugProvider'
-import { InterludeLayoutPicker } from '@/components/InterludeLayoutPicker'
+import dynamic from '@/lib/dynamic'
 import { PortfolioInterludeGlyphs } from '@/components/PortfolioInterludeGlyphs'
 import { readInterludeCopyStyle, type InterludeCopyStyle } from '@/lib/interludeCopyStyle'
 import { readInterludeLayout, type InterludeLayout } from '@/lib/interludeLayout'
+
+/* Dev-only picker (?interludeLayout=1 / ?interludeCopy=1) — flag-gated lazy
+ * mount so its chunk never loads on a normal visit. */
+const InterludeLayoutPicker = dynamic(
+  () =>
+    import('@/components/InterludeLayoutPicker').then((m) => ({
+      default: m.InterludeLayoutPicker,
+    })),
+  { loading: () => null },
+)
+
+function interludeDevPickerRequested(): boolean {
+  if (typeof window === 'undefined') return false
+  if (process.env.NODE_ENV === 'production') return false
+  const params = new URLSearchParams(window.location.search)
+  return params.has('interludeLayout') || params.has('interludeCopy')
+}
 
 export const INTERLUDE_HEADLINE =
   'I shape each product to work at its best, while understanding how it can and should interconnect with the others.'
@@ -155,11 +172,13 @@ function InterludeContent({
 export function PortfolioInterlude() {
   const [layout, setLayout] = useState<InterludeLayout>('stack')
   const [copyStyle, setCopyStyle] = useState<InterludeCopyStyle>('classic')
+  const [pickerOn, setPickerOn] = useState(false)
   const { headline, body } = useInterludeCopy()
 
   useEffect(() => {
     setLayout(readInterludeLayout())
     setCopyStyle(readInterludeCopyStyle())
+    setPickerOn(interludeDevPickerRequested())
   }, [])
 
   return (
@@ -172,12 +191,14 @@ export function PortfolioInterlude() {
       ].join(' ')}
       aria-label="Working philosophy"
     >
-      <InterludeLayoutPicker
-        layout={layout}
-        copyStyle={copyStyle}
-        onLayoutChange={setLayout}
-        onCopyStyleChange={setCopyStyle}
-      />
+      {pickerOn ? (
+        <InterludeLayoutPicker
+          layout={layout}
+          copyStyle={copyStyle}
+          onLayoutChange={setLayout}
+          onCopyStyleChange={setCopyStyle}
+        />
+      ) : null}
       <InterludeContent
         layout={layout}
         copyStyle={copyStyle}
