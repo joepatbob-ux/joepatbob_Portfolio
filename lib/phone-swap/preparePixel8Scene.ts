@@ -16,6 +16,7 @@ import { mirrorModelX } from '@/lib/phone-swap/mirrorModelX'
 import { normalizeModel } from '@/lib/phone-swap/normalizeModel'
 import {
   PIXEL8_COLOR_VARIANT,
+  PIXEL8_FRONT_OCCLUDER_MESHES,
   PIXEL8_MESH,
   PIXEL8_MIRROR_X,
   type Pixel8MaterialMaps,
@@ -30,6 +31,17 @@ function isolateMeshGeometries(root: THREE.Object3D) {
   root.traverse((child) => {
     if (child instanceof THREE.Mesh) {
       child.geometry = child.geometry.clone()
+    }
+  })
+}
+
+/** Hide the internal earpiece/camera meshes that protrude in front of the display
+    plane and render as faint rings over the screenshot (see the constant's note). */
+function hidePixel8FrontOccluders(root: THREE.Object3D): void {
+  const hidden = new Set<string>(PIXEL8_FRONT_OCCLUDER_MESHES)
+  root.traverse((child) => {
+    if (child instanceof THREE.Mesh && hidden.has(child.name)) {
+      child.visible = false
     }
   })
 }
@@ -95,6 +107,8 @@ export function preparePixel8Scene(
   clone.traverse((child) => {
     if (child instanceof THREE.Mesh) slotNames.push(child.name)
   })
+
+  hidePixel8FrontOccluders(clone)
 
   const frameMesh = clone.getObjectByName(PIXEL8_MESH.body) as THREE.Mesh | undefined
 

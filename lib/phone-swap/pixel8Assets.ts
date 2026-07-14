@@ -9,6 +9,24 @@ export const PIXEL8_MESH = {
   body: 'polySurface87SG1',
 } as const
 
+/** Internal earpiece / front-camera / sensor cluster meshes that sit *in front
+    of* the flat display plane (Z ≈ 0.08–0.19 vs the screen at ~0.05). On a real
+    phone these live under the glass; here they poke through and render as two
+    faint rings over the upper-middle of the screenshot. They are never meant to
+    be visible on the front, so hide them (the top punch-hole camera is a separate
+    mesh and stays). */
+export const PIXEL8_FRONT_OCCLUDER_MESHES: readonly string[] = [
+  'pSphere1SG1',
+  'polySurface44SG1',
+  'polySurface53SG1',
+  'polySurface60SG1',
+  'polySurface61SG1',
+  'polySurface62SG1',
+  'polySurface67SG1',
+  'polySurface102SG1',
+  'polySurface103SG1',
+]
+
 /** Front OLED well + glass frame (matches Pixel 9 bezel tone). */
 export const PIXEL8_DISPLAY = {
   backing: 0x050508,
