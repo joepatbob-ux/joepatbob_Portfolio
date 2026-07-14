@@ -274,6 +274,14 @@
     max-width: var(--cs-copy-measure-max, 70ch);
   }
 
+  /* Headline shares the body's reading measure (px twin — see the token) so the
+     two wrap to the same width instead of the headline running the full column. */
+  .hardware-slideshow
+    .chapter-slide__copy:not(.chapter-slide__copy--lessons)
+    .chapter-copy__headline {
+    max-width: var(--cs-copy-measure-px, 712px);
+  }
+
   /* Structural containers span the column; running text keeps a reading measure */
   .flow-chapter-slide.hardware-slideshow .chapter-slide__copy .mobile-prose,
   .flow-chapter-slide.hardware-slideshow .chapter-slide__copy .mobile-section-header,
@@ -391,7 +399,7 @@
 
   .hardware-slideshow .chapter-copy__headline {
     font-size: clamp(36px, 2.4vw, 52px);
-    max-width: var(--hw-copy-measure);
+    max-width: var(--cs-copy-measure-px);
   }
 
   .hardware-slideshow .chapter-copy__body {

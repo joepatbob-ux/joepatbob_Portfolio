@@ -21,6 +21,19 @@
   margin-bottom: 2rem;
 }
 
+/* Everything-else chapters cap the body at the reading measure but left the
+   headline running the full column. Cap the headline to the same measure (px
+   twin — ch can't cross the larger headline font) so the two align. The overview
+   is a centered intro band with its own measure, so it is excluded. */
+[data-section-id='everything-else']
+  .portfolio-chapter-slot:not(.case-study-flow-overview)
+  .mobile-section-header__headline,
+[data-section-id='everything-else']
+  .portfolio-chapter-slot:not(.case-study-flow-overview)
+  .chapter-copy__headline {
+  max-width: min(var(--cs-copy-measure-px, 712px), 100%);
+}
+
 .eib-principles {
   list-style: none;
   margin: 0 0 2.5rem;
