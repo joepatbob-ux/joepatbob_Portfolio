@@ -117,10 +117,14 @@
   margin: 0 0 1.25rem;
 }
 
+/* Mono uppercase labels — match the rest of the site's nav / section labels. */
 .eib-practice-close__cta {
-  font-family: var(--font-mono);
-  font-size: 13px;
   margin: 0;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 .eib-practice-close__cta a,
@@ -135,7 +139,7 @@
 }
 
 .eib-practice-close__sep {
-  margin: 0 0.5rem;
+  margin: 0 0.9em;
   color: var(--color-muted);
 }
 
