@@ -90,10 +90,11 @@ export function screenTextureForDisplay(source: THREE.Texture): THREE.Texture {
   map.offset.set(0, 0)
   // The phone is viewed at a tilt, so the screen texture is minified along the
   // grazing axis — at the default anisotropy of 1 that reads as a blurry,
-  // "low-res" screen no matter how sharp the source is. Request the max; three
-  // clamps it to the hardware limit at upload (mipmaps are on by default, which
-  // anisotropic filtering needs).
-  map.anisotropy = 16
+  // "low-res" screen no matter how sharp the source is. A moderate anisotropy
+  // recovers most of the crispness; going all the way to the hardware max
+  // over-sharpened the steeply-minified UI into shimmer/speckle. Mipmaps are on
+  // by default, which anisotropic filtering needs.
+  map.anisotropy = 4
   map.needsUpdate = true
   return map
 }
