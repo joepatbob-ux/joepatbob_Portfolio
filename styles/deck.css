@@ -70,18 +70,18 @@
     outline: none;
   }
 
-  /* Overview cards otherwise render full-width (~1030px), so their headline
-     wraps at a different measure than the ~710px chapter copy column — flipping
-     between an overview and a chapter makes the headline jump width. Cap the
-     overview copy to the chapter measure and center it, so every card in the
-     deck shares one wrap width (kept centered to still read as a section intro).
-     Deck-only; the scroll site's overview is untouched. */
+  /* Overview vertical rhythm: the overview stacks header / body / metadata, and
+     the stack spacing is a flex `gap` on .chapter-slide__copy--overview. But the
+     reading-zone scroller wraps all three as a single child, so that gap never
+     applies and the blocks touch (headline → body → PATENTS with no breathing
+     room). Restore the rhythm by making the overview's scroller the flex column. */
   html.deck-mode.deck-fine
     .portfolio-sections
     .case-study-flow-overview
-    .chapter-slide__copy--overview {
-    max-width: 710px !important;
-    margin-inline: auto !important;
+    .chapter-copy-scroller {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(18px, 2.6vh, 30px);
   }
 
   /* The page itself doesn't need a scrollbar dance while the deck owns the wheel. */
