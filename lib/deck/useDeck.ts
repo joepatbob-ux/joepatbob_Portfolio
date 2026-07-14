@@ -2,15 +2,16 @@ import { useEffect, useRef } from 'react'
 import { useChapterNav } from '@/components/ChapterNavProvider'
 import { isDeckActive } from '@/lib/deck/deckMode'
 
-// Momentum gate (ported from the locked prototype): one flick = one chapter.
+// Momentum gate: one flick = one chapter. The gate re-arms only after the wheel
+// goes genuinely quiet (IDLE ms with no events) — NOT on an instantaneous small
+// delta, because a trackpad's decay tail routinely dips low and spikes again
+// inside one flick, which re-armed the gate and double-stepped ("touchy").
 const TRIGGER = 18 // |deltaY| that counts as an intentional step
-const REARM = 6 //    |deltaY| at/below this = momentum ended → re-arm
-const IDLE = 120 //   ms of quiet also re-arms (discrete mouse wheels)
-// Hard cooldown after a step: a jittery trackpad decay can dip to REARM and
-// spike again within one flick, which re-armed the gate and double-stepped
-// ("touchy"). During the cooldown further wheel deltas are still consumed
-// (so the page can't scroll) but cannot advance another chapter.
-const STEP_COOLDOWN = 340 // ms between chapter steps
+const IDLE = 160 //   ms of no wheel events before the gate re-arms
+// Backstop hard cooldown after a step: even if the gate somehow re-arms, no
+// second chapter advance until this clears. Wheel is still consumed meanwhile
+// so the page can't scroll.
+const STEP_COOLDOWN = 450 // ms between chapter steps
 
 /** Ordered chapter ids as they appear in the document (the deck sequence). */
 function chapterOrder(): string[] {
@@ -76,11 +77,11 @@ export function useDeck() {
         if ((dir > 0 && !atBottom) || (dir < 0 && !atTop)) return // native scroll
       }
 
+      // Re-arm only after a genuine pause (no wheel events for IDLE ms).
       window.clearTimeout(armIdle)
       armIdle = window.setTimeout(() => {
         armed = true
       }, IDLE)
-      if (Math.abs(dy) <= REARM) armed = true
       if (!armed || Math.abs(dy) < TRIGGER) {
         e.preventDefault()
         return
