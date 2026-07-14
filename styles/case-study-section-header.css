@@ -13,7 +13,7 @@
 }
 
 .case-study-section-header__subhead {
-  margin: clamp(10px, 1.5vh, 14px) 0 0;
+  margin: clamp(12px, 1.5vh, 16px) 0 0;
   font-family: var(--font-body);
   font-size: clamp(15px, 1.2vw, 17px);
   line-height: 1.55;
