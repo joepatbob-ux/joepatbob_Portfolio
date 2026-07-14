@@ -139,11 +139,11 @@
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   grid-template-areas: 'take coin leave';
   align-items: center;
-  gap: clamp(10px, 3vw, 24px);
+  gap: clamp(12px, 3vw, 24px);
   box-sizing: border-box;
   width: 100%;
   margin: 0;
-  padding: clamp(14px, 3vh, 20px) clamp(12px, 3vw, 20px);
+  padding: clamp(16px, 3vh, 20px) clamp(12px, 3vw, 20px);
   border: none;
   border-radius: 12px;
   background: transparent;

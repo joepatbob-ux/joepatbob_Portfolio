@@ -3,7 +3,7 @@
 .overlay-action-slot {
   display: flex;
   width: 100%;
-  margin: clamp(16px, 2vw, 22px) 0 clamp(14px, 2vw, 18px);
+  margin: clamp(16px, 2vw, 24px) 0 clamp(16px, 2vw, 20px);
 }
 
 .case-study-section-header--center .overlay-action-slot,
@@ -19,7 +19,7 @@
   justify-content: center;
   min-height: 44px;
   margin: 0;
-  padding: 10px 20px;
+  padding: var(--space-2) var(--space-5);
   border: none;
   border-radius: 9999px;
   font-family: var(--font-mono);

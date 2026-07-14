@@ -81,7 +81,7 @@
     .chapter-copy-scroller {
     display: flex;
     flex-direction: column;
-    gap: clamp(18px, 2.6vh, 30px);
+    gap: clamp(16px, 2.6vh, 32px);
   }
 
   /* Headline ↔ body measure parity. The chapter headline is uncapped while the
