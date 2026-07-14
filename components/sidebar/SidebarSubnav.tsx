@@ -57,7 +57,7 @@ export function SidebarSubnav({
           transform: 'translateY(-50%)',
           display: 'flex',
           flexDirection: 'column',
-          gap: 6,
+          gap: 8,
           zIndex: 101,
           pointerEvents: interactive ? 'auto' : 'none',
         }}
@@ -97,8 +97,10 @@ export function SidebarSubnav({
                   : `opacity ${TRANSITION_MS}ms ease ${i * 20}ms, filter ${TRANSITION_MS}ms ease ${i * 20}ms, transform ${TRANSITION_MS}ms ease ${i * 20}ms, background 180ms ease, box-shadow 180ms ease`,
                 pointerEvents: isVisible ? 'auto' : 'none',
                 borderRadius: 9999,
+                // 44px keeps the WCAG touch target; padding + gap sit on the 8px
+                // grid, and the label is centred with line-height 1 (below).
                 minHeight: 44,
-                padding: '10px 16px',
+                padding: '8px 16px',
                 background: chapterFill,
                 boxShadow: chapterRing,
                 border: 'none',
@@ -119,7 +121,7 @@ export function SidebarSubnav({
                   fontSize: 11,
                   letterSpacing: '0.07em',
                   textTransform: 'uppercase',
-                  lineHeight: 1.5,
+                  lineHeight: 1,
                   color: isHoverThis || isActive ? ACCENT : NAV_FADED,
                 }}
               >
