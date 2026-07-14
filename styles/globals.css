@@ -1573,7 +1573,7 @@ html {
   gap: 12px;
   width: 100%;
   margin: 0;
-  padding: 14px 2px;
+  padding: 12px 0;
   background: none;
   border: none;
   text-align: left;
@@ -1598,14 +1598,14 @@ html {
   color: var(--color-accent);
 }
 
-/* Icon: two rounded bars over a 14px box. Closed = plus; open = minus
-   (vertical bar held collapsed). Bar thickness 2.5px, so a bar scaled to
-   0.18 of its length reads as the center dot. */
+/* Icon: two rounded bars over a 12px box (4pt grid). Closed = plus; open = minus
+   (vertical bar held collapsed). Bar thickness 2px, so a bar scaled to ~0.2 of
+   its length reads as the center dot. */
 .chapter-fact__icon {
   position: relative;
   flex: none;
-  width: 14px;
-  height: 14px;
+  width: 12px;
+  height: 12px;
 }
 
 .chapter-fact__bar {
@@ -1616,16 +1616,16 @@ html {
 
 .chapter-fact__bar--h {
   left: 0;
-  top: calc(50% - 1.25px);
-  width: 14px;
-  height: 2.5px;
+  top: calc(50% - 1px);
+  width: 12px;
+  height: 2px;
 }
 
 .chapter-fact__bar--v {
   top: 0;
-  left: calc(50% - 1.25px);
-  width: 2.5px;
-  height: 14px;
+  left: calc(50% - 1px);
+  width: 2px;
+  height: 12px;
 }
 
 .chapter-fact[data-state='open'] .chapter-fact__bar--v {
