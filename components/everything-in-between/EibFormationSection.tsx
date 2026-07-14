@@ -1,7 +1,6 @@
 import { FlowChapterSlideLayout } from '@/components/chapter-slide/FlowChapterSlideLayout'
 import { ChapterCopyReveal } from '@/components/chapter-slide/ChapterCopyReveal'
 import { FormationLegoBoard } from '@/components/formation/FormationLegoBoard'
-import { EibPatentRow } from '@/components/everything-in-between/EibSectionParts'
 import { MobileProse } from '@/components/mobile/MobileSectionParts'
 import { parseChapterBody } from '@/lib/chapter-slide/parseChapterBody'
 import {
@@ -22,12 +21,6 @@ export function EibFormationSection() {
     EIB_FORMATION.intro,
   )
 
-  const patents = EIB_FORMATION.patents.map((p) => ({
-    number: p.number,
-    title: p.title,
-    status: p.status,
-  }))
-
   return (
     <FlowChapterSlideLayout
       chapterId={chapterId}
@@ -41,7 +34,6 @@ export function EibFormationSection() {
             className="eib-sub-intro"
             paragraphs={parseChapterBody(body)}
           />
-          <EibPatentRow patents={patents} />
         </ChapterCopyReveal>
       }
     />
