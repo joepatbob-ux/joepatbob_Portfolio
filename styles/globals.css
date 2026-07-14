@@ -1500,7 +1500,7 @@ html {
 }
 
 .chapter-copy__subtitle {
-  margin: clamp(10px, 1.5vw, 14px) 0 0;
+  margin: clamp(12px, 1.5vw, 16px) 0 0;
   font-family: var(--font-mono);
   font-size: 13px;
   font-weight: 700;
@@ -1701,7 +1701,7 @@ html {
   display: flex;
   flex-direction: column;
   gap: 1em;
-  padding: 2px 2px 18px;
+  padding: 2px 2px var(--space-4);
 }
 
 .chapter-fact__detail p {
