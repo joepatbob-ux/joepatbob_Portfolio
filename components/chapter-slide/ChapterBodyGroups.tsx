@@ -2,7 +2,8 @@ import { ExpandableFacts } from '@/components/chapter-slide/ExpandableFacts'
 import { formatChapterInline } from '@/lib/chapter-slide/formatChapterInline'
 import type { ChapterBodyGroup } from '@/lib/chapter-slide/parseChapterBody'
 
-const CONTINUE_READING_LABEL = 'Continue reading'
+const CONTINUE_READING_LABEL = 'More'
+const CONTINUE_READING_LABEL_OPEN = 'Less'
 
 interface Props {
   groups: ChapterBodyGroup[]
@@ -27,7 +28,13 @@ export function ChapterBodyGroups({
       <>
         <p className={paragraphClass}>{formatChapterInline(lede)}</p>
         <ExpandableFacts
-          facts={[{ header: CONTINUE_READING_LABEL, detail: rest }]}
+          facts={[
+            {
+              header: CONTINUE_READING_LABEL,
+              expandedHeader: CONTINUE_READING_LABEL_OPEN,
+              detail: rest,
+            },
+          ]}
           paragraphClass={paragraphClass}
         />
       </>
