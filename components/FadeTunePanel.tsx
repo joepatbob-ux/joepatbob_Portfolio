@@ -19,7 +19,7 @@ export type FadeTuneState = {
   stickerBlur: number
   /** Scroll reveal: blur on chapter copy (text). Site default 12. */
   copyScrollBlur: number
-  /** Stage exit: fade/blur when a chapter's artifact clears. 0ms = hard cut (site default). */
+  /** Stage exit: fade/blur when a chapter's artifact clears. */
   stageMs: number
   stageBlur: number
 }
@@ -31,8 +31,8 @@ export const FADE_TUNE_DEFAULTS: FadeTuneState = {
   stickerMs: 320,
   stickerBlur: 8,
   copyScrollBlur: 12,
-  stageMs: 0,
-  stageBlur: 8,
+  stageMs: 320,
+  stageBlur: 12,
 }
 
 function loadState(): FadeTuneState {

@@ -97,7 +97,7 @@
   justify-self: stretch;
   /* Stage exit: the scroll system latches stages visible and clears them with
      a single opacity/visibility flip — this transition turns that flip into a
-     fade/blur (dialable via ?fadeTune=1; default 0ms keeps the hard cut).
+     fade/blur (site default 320ms/12px; dialable via ?fadeTune=1).
      Visibility waits for the fade on the way out; the pinned rule below flips
      it immediately on the way in so the entry never waits. */
   transition:

@@ -2077,6 +2077,8 @@ html {
   --ghost-fade-blur: 8px;
   --sticker-exit-duration: 320ms;
   --sticker-exit-blur: 8px;
+  --stage-exit-duration: 320ms;
+  --stage-exit-blur: 12px;
 }
 
 .prerender-ghost {
