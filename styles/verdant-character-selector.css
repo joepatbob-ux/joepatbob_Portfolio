@@ -31,6 +31,7 @@
 }
 
 .verdant-selector__key {
+  position: relative;
   margin: 0;
   border: none;
   border-radius: 9999px;
@@ -47,6 +48,15 @@
     background 180ms ease,
     box-shadow 180ms ease,
     color 180ms ease;
+}
+
+/* Keyboard-style grid: extend each key's hit area halfway into the gap so
+   adjacent targets tile the row with no dead zones (visuals unchanged). */
+.verdant-selector__key::before {
+  content: '';
+  position: absolute;
+  inset: calc(var(--verdant-key-gap, 6px) / -2);
+  border-radius: inherit;
 }
 
 .verdant-selector__key--char,

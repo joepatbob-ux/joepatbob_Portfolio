@@ -143,8 +143,11 @@ function LiteFrame({
 }) {
   const hitBase: CSSProperties = {
     position: 'absolute',
-    left: 0,
-    width: '100%',
+    /* Hit zones are invisible overlays on the device art — extend them
+       horizontally into the bezel so the touch target clears the 24px WCAG
+       floor (the visible button strip is only ~21px wide on phones). */
+    left: '-50%',
+    width: '200%',
     border: 'none',
     background: 'transparent',
     cursor: hideNativeCursor ? 'none' : 'pointer',

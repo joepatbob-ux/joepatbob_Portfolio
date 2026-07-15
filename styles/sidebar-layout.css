@@ -102,6 +102,16 @@
   white-space: nowrap;
 }
 
+/* Touch devices: the keywords are inline text buttons (~23px line box).
+   Vertical padding on an inline box extends its hit area without changing
+   line layout — lifts the tap target toward 44px. (!important beats the
+   component's inline padding: 0.) */
+@media (pointer: coarse) {
+  .sidebar-main-nav__sentence--mobile-hero .sidebar-main-nav__keyword {
+    padding-block: 10px !important;
+  }
+}
+
 .sidebar-main-nav__connector {
   color: var(--color-ink);
   -webkit-text-fill-color: var(--color-ink);

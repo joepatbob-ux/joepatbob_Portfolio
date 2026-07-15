@@ -246,6 +246,14 @@
   height: var(--touch2-dot-ring-size);
 }
 
+/* Touch devices: grow the hit box to the 44px target — the visible dot/ring
+   is an absolutely-centered child, so the visuals don't move. */
+@media (pointer: coarse) {
+  .touch2-carousel__dots--horizontal .touch2-carousel__dot {
+    min-height: 44px;
+  }
+}
+
 .touch2-carousel__dots--horizontal .touch2-carousel__dot-indicator {
   width: var(--touch2-dot-size);
   height: var(--touch2-dot-size);
