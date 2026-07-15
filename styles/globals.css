@@ -81,6 +81,12 @@
     --z-mobile-drawer:      110;
     --z-mobile-learn-more:  112;
     --formation-z-bricks:   120;
+    /* Full-screen overlays — above all app chrome, in stacking order */
+    --z-page-overlay:       240; /* 404 takeover */
+    --z-skip-link:          300;
+    --z-dev-tools:          400; /* phone dev menus/panels (±1 for backdrop/panel) */
+    --z-proto-overlay:      500; /* live SMA proto hit layer */
+    --z-debug-atlas:        600; /* sensi-lite segment atlas */
   }
 
   @media (prefers-color-scheme: dark) {
@@ -363,7 +369,7 @@
 .contact-liquid:hover .contact-liquid__surface,
 .contact-liquid:focus-within .contact-liquid__surface {
   width: var(--contact-expanded);
-  border-radius: 22px;
+  border-radius: var(--contact-radius);
   background: var(--color-nav-pill-muted-accent-1);
   box-shadow: none;
 }
@@ -1918,7 +1924,7 @@ html {
   position: absolute;
   left: calc(12px + var(--safe-area-left));
   top: calc(12px + var(--safe-area-top));
-  z-index: 9999;
+  z-index: var(--z-skip-link);
   padding: var(--space-2) var(--space-4);
   font-family: var(--font-mono);
   font-weight: 700;

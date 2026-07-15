@@ -213,7 +213,7 @@ html.sidebar-tablet-hero-active .sidebar-desktop-shell {
   max-height: min(72vh, 640px);
   overflow: auto;
   padding: var(--space-2) var(--space-3);
-  border-radius: 10px;
+  border-radius: 12px;
   background: color-mix(in srgb, var(--color-paper) 92%, transparent);
   border: 1px solid color-mix(in srgb, var(--color-ink) 12%, transparent);
   box-shadow: 0 8px 28px color-mix(in srgb, var(--color-ink) 12%, transparent);

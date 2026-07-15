@@ -160,7 +160,7 @@
   padding-inline: clamp(12px, 3cqi, 24px);
   gap: clamp(8px, 2.5cqi, 16px);
   border: none;
-  border-radius: 10px;
+  border-radius: 12px;
   background: transparent;
   cursor: pointer;
   font: inherit;

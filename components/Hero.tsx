@@ -50,6 +50,8 @@ export function Hero() {
 
   return (
     <section id="hero" className="hero">
+      {/* Single page h1 — visual name treatments in the sidebar/hero are divs */}
+      <h1 className="visually-hidden">Joseph Patrick Roberts</h1>
       <div className="hero-pin">
         <div className="hero-media">
           {!isMobile ? (

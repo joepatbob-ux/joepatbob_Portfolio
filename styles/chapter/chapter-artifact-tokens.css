@@ -112,7 +112,7 @@
 .sensi-lite-segment-atlas {
   position: fixed;
   inset: 0;
-  z-index: 100000;
+  z-index: var(--z-debug-atlas);
   display: grid;
   grid-template-rows: auto 1fr;
   gap: 16px;
@@ -145,7 +145,7 @@
 .sensi-lite-segment-atlas__exit {
   flex-shrink: 0;
   padding: var(--space-2) var(--space-3);
-  border-radius: 6px;
+  border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.2);
   color: inherit;
   font-size: 11px;
@@ -239,6 +239,14 @@
 
   50% {
     transform: translate(-50%, -50%) scale(1.22);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent) 36%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chapter-slide--sensi-lite .chapter-slide__interactive-dot--long-press {
+    animation: none;
+    /* Hold the emphasized state statically instead of pulsing */
     box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent) 36%, transparent);
   }
 }
