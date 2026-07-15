@@ -171,6 +171,24 @@ html.sidebar-tablet-hero-active .sidebar-desktop-shell {
   box-sizing: border-box;
 }
 
+/* Let the statement headline run wider than the prose measure (same cap as
+   the chapter band) so it balances into two lines instead of three; the
+   body below keeps the 86ch reading measure. */
+.portfolio-interlude__copy.portfolio-interlude__copy--classic {
+  max-width: min(
+    calc(
+      var(--cs-copy-measure-px, 712px) * 11 / 6 +
+        var(--cs-continuous-grid-gap, 56px)
+    ),
+    100%
+  );
+}
+
+.portfolio-interlude__copy.portfolio-interlude__copy--classic .portfolio-interlude__body {
+  max-width: var(--interlude-measure-max, min(86ch, 100%));
+  margin-inline: auto;
+}
+
 .portfolio-interlude--sandwich .portfolio-interlude__headline,
 .portfolio-interlude--sandwich .portfolio-interlude__body {
   margin: 0;
