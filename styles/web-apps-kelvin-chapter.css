@@ -52,7 +52,7 @@
   /* Small mono runs long in the copy column — cap at a reading measure */
   max-width: 70ch;
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: var(--text-caption);
   line-height: 1.5;
   letter-spacing: 0.02em;
   color: var(--color-ink);

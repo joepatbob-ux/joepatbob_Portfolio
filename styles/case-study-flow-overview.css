@@ -203,7 +203,7 @@
   margin: 0;
   font-family: var(--font-body);
   font-weight: 600;
-  font-size: 15px;
+  font-size: var(--text-body-md);
   line-height: 1.25;
   color: var(--cs-body-color);
 }
@@ -241,7 +241,7 @@
 .case-study-overview-row__name {
   font-family: var(--font-body);
   font-weight: 600;
-  font-size: 15px;
+  font-size: var(--text-body-md);
   line-height: 1.4;
   color: var(--cs-body-color);
   white-space: nowrap;
@@ -258,7 +258,7 @@
 
 .case-study-overview-row__meta {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--text-label);
   line-height: 1.4;
   letter-spacing: 0.02em;
   color: var(--color-ink);
@@ -341,7 +341,7 @@
   margin: clamp(12px, 2vh, 16px) 0 0;
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 11px;
+  font-size: var(--text-label);
   letter-spacing: 0.02em;
   text-transform: uppercase;
   color: var(--color-accent-text, var(--color-accent));

@@ -387,7 +387,7 @@
   justify-content: center;
   font-family: var(--font-mono), ui-monospace, monospace;
   font-weight: 700;
-  font-size: 11px;
+  font-size: var(--text-label);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: #fff;
@@ -435,7 +435,7 @@
   font: inherit;
   font-family: var(--font-mono), ui-monospace, monospace;
   font-weight: 700;
-  font-size: 11px;
+  font-size: var(--text-label);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: #fff;
@@ -748,7 +748,7 @@
 .closing-quote__attr {
   margin: 0;
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 11px;
+  font-size: var(--text-label);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -775,7 +775,7 @@
 .not-found-page__code {
   margin: 0;
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 11px;
+  font-size: var(--text-label);
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -811,7 +811,7 @@
   border-radius: 24px;
   border: 2px solid #fff;
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 11px;
+  font-size: var(--text-label);
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -1060,7 +1060,7 @@
 
 .sticker-pile__empty {
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: var(--text-caption);
   color: var(--color-muted);
   margin: 0;
   padding: 48px 0;
@@ -1513,7 +1513,7 @@ html {
 .chapter-copy__subtitle {
   margin: clamp(12px, 1.5vw, 16px) 0 0;
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: var(--text-ui);
   font-weight: 700;
   color: var(--color-muted);
   letter-spacing: 0.01em;
@@ -1794,7 +1794,7 @@ html {
   min-width: 14px;
   padding: 1px 3px;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--text-micro);
   font-weight: 700;
   line-height: 1.2;
   text-align: center;
@@ -1868,7 +1868,7 @@ html {
   margin: 0;
   padding: var(--space-2) var(--space-3);
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--text-micro);
   font-weight: 700;
   letter-spacing: 0.04em;
   color: #fff;
@@ -1883,7 +1883,7 @@ html {
 
 .eim-path-art__debug-num {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: var(--text-nano);
   font-weight: 700;
   fill: #fff;
   stroke: #1a1a1a;
@@ -1901,7 +1901,7 @@ html {
 
 .eim-path-art__debug-origin-label {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: var(--text-nano);
   font-weight: 700;
   fill: #00aeef;
   pointer-events: none;
@@ -1909,7 +1909,7 @@ html {
 
 .eim-meander-line__label {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--text-micro);
   font-weight: 700;
   letter-spacing: 0.06em;
   fill: #c45c00;
@@ -1933,7 +1933,7 @@ html {
   padding: var(--space-2) var(--space-4);
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 12px;
+  font-size: var(--text-caption);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   text-decoration: none;

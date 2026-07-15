@@ -145,7 +145,7 @@
   border-radius: 4px;
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 9px;
+  font-size: var(--text-nano);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: #fff;
@@ -191,7 +191,7 @@
 
 .drag-scrubber__arrows {
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: var(--text-ui);
   font-weight: 700;
   letter-spacing: 0.12em;
   color: var(--color-ink);
@@ -201,7 +201,7 @@
 .drag-scrubber__caption {
   margin: 12px 0 0;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--text-label);
   line-height: 1.45;
   letter-spacing: 0.02em;
   color: var(--color-ink);

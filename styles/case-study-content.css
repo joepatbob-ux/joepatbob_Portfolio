@@ -1,7 +1,8 @@
 /* Shared case study text rhythm (mobile chapter + hardware slideshow) */
 
 :root {
-  --cs-eyebrow-size: 11px;
+  /* Type sizes alias the --text-* scale (case-study-layout-tokens.css) */
+  --cs-eyebrow-size: var(--text-label, 11px);
   --cs-eyebrow-tracking: 0.1em;
   /* Accent rule — the short underline under every headline. One source of truth;
      consumers reference these tokens (see the shared rule in styles/globals.css). */
@@ -12,13 +13,13 @@
   /* Sub-story rule — smaller, marks a lower heading level */
   --cs-subrule-width: 32px;
   --cs-subrule-height: 2px;
-  --cs-body-size: 16px;
+  --cs-body-size: var(--text-body, 16px);
   /* 1.75 × 16px = 28px line box → lands on the 4pt grid (open, editorial leading) */
   --cs-body-leading: 1.75;
   --cs-body-color: var(--color-ink);
   --cs-subhead-size: clamp(20px, 2.4vw, 26px);
   --cs-subhead-leading: 1.2;
-  --cs-label-size: 11px;
+  --cs-label-size: var(--text-label, 11px);
   --cs-label-tracking: 0.07em;
   /* Secondary micro-label state — e.g. an expanded fact trigger receding
      behind its detail text. Primary stays var(--color-accent). */
@@ -29,7 +30,7 @@
   --cs-block-radius: 8px;
   --cs-block-pad: 14px 16px;
   --cs-block-gap: 7px;
-  --cs-block-body-size: 14px;
+  --cs-block-body-size: var(--text-body-sm, 14px);
   --cs-block-body-leading: 1.55;
   --cs-overview-meta-bg: var(--cs-block-bg);
   --cs-callout-bg: rgba(245, 67, 27, 0.05);

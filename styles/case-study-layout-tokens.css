@@ -24,6 +24,25 @@
   --space-18: 72px;
   --space-24: 96px;
 
+  /* ── Type scale ───────────────────────────────────────────────────────────
+     Fixed steps for UI/label/body type. The --cs-* type tokens
+     (case-study-content.css) alias onto these. Fluid display sizes (headline
+     clamps) are deliberate per-stage art direction and stay unscaled.
+     Leading pairs: none 1 · tight 1.2 · snug 1.35 · normal 1.5 ·
+     relaxed = --cs-body-leading (1.75). */
+  --text-nano: 9px; /* dev-panel fine print only */
+  --text-micro: 10px; /* dev chrome, guide tags, tiny meta */
+  --text-label: 11px; /* microlabels, eyebrows, nav pills */
+  --text-caption: 12px; /* captions, small mono notes */
+  --text-ui: 13px; /* compact UI text */
+  --text-body-sm: 14px; /* block/spec-row body */
+  --text-body-md: 15px; /* sidebar sentence, dense body */
+  --text-body: 16px; /* reading body (--cs-body-size) */
+  --leading-none: 1;
+  --leading-tight: 1.2;
+  --leading-snug: 1.35;
+  --leading-normal: 1.5;
+
   /* ── Stage column (desktop 1024+ default) ─────────────────────────────── */
   --cs-stage-min: 220px;
   --cs-stage-max: 560px;
