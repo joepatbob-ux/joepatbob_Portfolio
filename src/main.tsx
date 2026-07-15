@@ -29,6 +29,25 @@ const snapshotMatchesViewport = window.matchMedia(
   `(min-width: ${LAYOUT_BP.desktopMin}px)`,
 ).matches
 
+/* Replacing the snapshot with the fresh render is a hard swap — hold the old
+ * DOM in a frozen overlay and fade it out over the new tree instead. Only
+ * worth doing at the top of the page, where the two renders line up. */
+function fadeOutSnapshot(container: HTMLElement): void {
+  if (!container.hasChildNodes() || window.scrollY > 0) return
+  const ghost = document.createElement('div')
+  ghost.className = 'prerender-ghost'
+  ghost.setAttribute('aria-hidden', 'true')
+  while (container.firstChild) ghost.appendChild(container.firstChild)
+  document.body.appendChild(ghost)
+  // Two frames so the fresh render has painted underneath before the fade.
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      ghost.classList.add('prerender-ghost--out')
+    })
+  })
+  window.setTimeout(() => ghost.remove(), 600)
+}
+
 if (root.hasChildNodes() && snapshotMatchesViewport) {
   // The snapshot bakes the lazy chapters' HTML; resolve their chunks first so
   // every boundary hydrates against real content instead of a fallback (the
@@ -45,6 +64,7 @@ if (root.hasChildNodes() && snapshotMatchesViewport) {
     })
   })
 } else {
+  fadeOutSnapshot(root)
   createRoot(root).render(app)
 }
 

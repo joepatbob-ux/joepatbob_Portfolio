@@ -2038,6 +2038,25 @@ html {
   border: 0;
 }
 
+/* ── Prerender snapshot fade-out ─────────────────────────────────────────── */
+/* main.tsx parks the snapshot DOM here while the fresh render paints
+   underneath, then fades it — phone/tablet render fresh instead of hydrating
+   the desktop-captured snapshot, and this softens the swap. The global
+   reduced-motion rule collapses the fade to an instant cut. */
+.prerender-ghost {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-page-overlay, 240);
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 280ms ease;
+}
+
+.prerender-ghost--out {
+  opacity: 0;
+}
+
 /* ── Reduced motion (global) ─────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   *,
