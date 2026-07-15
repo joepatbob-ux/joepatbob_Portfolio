@@ -246,11 +246,13 @@
   height: var(--touch2-dot-ring-size);
 }
 
-/* Touch devices: grow the hit box to the 44px target — the visible dot/ring
-   is an absolutely-centered child, so the visuals don't move. */
+/* Touch devices: grow the hit box past the 44px target — the visible dot/ring
+   is an absolutely-centered child, so the visuals don't move. 48 keeps the
+   pill's inset at (48−32)/2 = 8px so the declared gaps below produce equal
+   24px visual gaps photo→pill and pill→headline. */
 @media (pointer: coarse) {
   .touch2-carousel__dots--horizontal .touch2-carousel__dot {
-    min-height: 44px;
+    min-height: 48px;
   }
 }
 
@@ -272,6 +274,12 @@
 }
 
 @media (max-width: 767px) {
+  /* Controller rhythm: with the 48px hit box around the 32px pill (8px inset),
+     16px declared gaps read as balanced 24px visual gaps above and below. */
+  .hardware-slideshow.chapter-slide--touch-2 {
+    --cs-mobile-section-gap: 16px;
+  }
+
   .touch2-carousel {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto auto;
