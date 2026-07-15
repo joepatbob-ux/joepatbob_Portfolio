@@ -13,7 +13,7 @@ const MobileChapter = dynamic(
     import('@/components/mobile/MobileChapter').then((m) => ({
       default: m.MobileChapter,
     })),
-  { loading: SectionLoading },
+  { loading: SectionLoading, preloadForHydration: true },
 )
 
 const WebAppsChapter = dynamic(
@@ -21,7 +21,7 @@ const WebAppsChapter = dynamic(
     import('@/components/web-apps/WebAppsChapter').then((m) => ({
       default: m.WebAppsChapter,
     })),
-  { loading: SectionLoading },
+  { loading: SectionLoading, preloadForHydration: true },
 )
 
 const EverythingInBetweenChapter = dynamic(
@@ -29,7 +29,7 @@ const EverythingInBetweenChapter = dynamic(
     import('@/components/everything-in-between/EverythingInBetweenChapter').then(
       (m) => ({ default: m.EverythingInBetweenChapter }),
     ),
-  { loading: SectionLoading },
+  { loading: SectionLoading, preloadForHydration: true },
 )
 
 export function LazySectionChapter({ sectionId }: { sectionId: string }) {

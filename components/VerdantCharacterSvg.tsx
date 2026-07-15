@@ -42,16 +42,16 @@ export function VerdantCharacterSvg({ code, className, alt }: Props) {
     .filter(Boolean)
     .join(' ')
 
-  if (!markup) {
-    return <span className={classNames} aria-hidden />
-  }
-
+  /* One render path in both states: branching to a bare placeholder while the
+     SVG loads broke hydration against the prerender snapshot (which bakes the
+     loaded glyph). With dangerouslySetInnerHTML React adopts the baked
+     children, so the glyph stays visible until the fetch replaces it. */
   return (
     <span
       className={classNames}
       role="img"
       aria-label={alt ?? `Verdant character ${code}`}
-      dangerouslySetInnerHTML={{ __html: markup }}
+      dangerouslySetInnerHTML={{ __html: markup ?? '' }}
     />
   )
 }

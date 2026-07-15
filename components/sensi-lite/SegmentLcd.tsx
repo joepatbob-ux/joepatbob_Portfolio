@@ -204,21 +204,6 @@ export const SegmentLcd = forwardRef<
     [debug, onSegmentPick],
   )
 
-  if (!screenSvg) {
-    return (
-      <div
-        className="segment-lcd"
-        style={{
-          opacity: flash ? 0.35 : 1,
-          background: '#000',
-          borderRadius: 3,
-          ...style,
-        }}
-        aria-hidden
-      />
-    )
-  }
-
   const className = [
     'segment-lcd',
     debug ? 'segment-lcd--debug' : '',
@@ -227,6 +212,11 @@ export const SegmentLcd = forwardRef<
     .filter(Boolean)
     .join(' ')
 
+  /* One render path in both states: branching to a placeholder element while
+     the SVG loads broke hydration against the prerender snapshot (which bakes
+     the loaded SVG). With dangerouslySetInnerHTML React adopts the baked
+     children, so the LCD art stays visible until the fetch replaces it; a
+     fresh visit briefly shows the black loading surface instead. */
   return (
     <div
       ref={rootRef}
@@ -234,6 +224,7 @@ export const SegmentLcd = forwardRef<
       style={{
         opacity: flash ? 0.35 : 1,
         transition: flash ? 'none' : 'opacity 80ms ease',
+        ...(screenSvg ? {} : { background: '#000', borderRadius: 3 }),
         ...style,
       }}
       onClick={onClick}

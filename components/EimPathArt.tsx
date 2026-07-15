@@ -328,10 +328,15 @@ export function EimPathArt({
         </p>
       ) : null}
       <div className="eim-path-art__stage-wrap">
+        {/* Imperatively-filled host: the prerender snapshot bakes the injected
+            SVG, and React would fail hydration on the unexpected children.
+            dangerouslySetInnerHTML makes React adopt whatever is there; the
+            fetch effect clears and re-injects on every mount regardless. */}
         <div
           ref={svgHostRef}
           className="eim-path-art__svg-host"
           aria-hidden
+          dangerouslySetInnerHTML={{ __html: '' }}
         />
         {dashDebug && debugLabels.length > 0 ? (
           <div className="eim-path-art__debug-labels" aria-hidden>
