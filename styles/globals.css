@@ -1028,16 +1028,17 @@
   pointer-events: auto;
   touch-action: none;
   will-change: transform;
-  /* The pile fades like the placed stickers — the portal stays mounted and
-     anchor-tracked while hidden, so it dissolves in already in position. */
+  /* The pile mirrors its stage's dissolve (it paints in a body portal the
+     stage's own fade can't reach) — same tokens, and it stays mounted and
+     anchor-tracked while hidden so it dissolves in already in position. */
   transition:
-    opacity var(--sticker-exit-duration) ease,
-    filter var(--sticker-exit-duration) ease;
+    opacity var(--stage-exit-duration) ease,
+    filter var(--stage-exit-duration) ease;
 }
 
 .sticker-pile-portal[data-pile-visible='false'] {
   opacity: 0;
-  filter: blur(var(--sticker-exit-blur));
+  filter: blur(var(--stage-exit-blur));
   /* Backup for the inline value — the anchor-follow hook clears inline
      pointer-events when it repositions the portal. */
   pointer-events: none;

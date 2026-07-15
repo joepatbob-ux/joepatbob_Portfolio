@@ -9,8 +9,10 @@ export const CHAPTER_INTERACTIVE_VISIBILITY = 0.12
 /** At/above this — imperative stage paint + run sims/carousel (continuous desktop). */
 export const CHAPTER_STAGE_PAINT_VISIBILITY = 0.22
 
-/** Placed stickers follow panel crossfade above this reveal (matches panel aria threshold). */
-export const CHAPTER_STICKER_SCROLL_VISIBILITY = 0.08
+/** Placed stickers enter/exit with the rest of the chapter choreography —
+ * same reveal line as the stage artifact and the pile, so nothing lingers
+ * after the chapter has dissolved out. */
+export const CHAPTER_STICKER_SCROLL_VISIBILITY = CHAPTER_STAGE_PAINT_VISIBILITY
 
 export function chapterIsAccessible(visibility: number): boolean {
   return visibility >= CHAPTER_A11Y_VISIBILITY

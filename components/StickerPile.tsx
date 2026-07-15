@@ -36,11 +36,26 @@ export function StickerPile() {
   }, [])
 
   useEffect(() => {
+    // Continuous desktop: the pile is the practice chapter's stage content,
+    // but it paints in a body portal the stage's dissolve can't reach — so
+    // mirror the stage state machine (data-stage-fx) instead of a raw reveal
+    // threshold. Showing on reveal alone flashed the pile in early, at the
+    // pre-centered anchor position, then snapped it when the stage engaged.
+    const continuousStageVisible = () => {
+      const stage = anchorRef.current?.closest<HTMLElement>(
+        '.chapter-slide__stage',
+      )
+      if (stage) return stage.dataset.stageFx === 'visible'
+      return (
+        chapterRevealForId(PRACTICE_CHAPTER_ID) >=
+        CHAPTER_STAGE_PAINT_VISIBILITY
+      )
+    }
+
     const sync = () => {
       const vis = inFlowScroll
         ? isContinuousChapters()
-          ? chapterRevealForId(PRACTICE_CHAPTER_ID) >=
-            CHAPTER_STAGE_PAINT_VISIBILITY
+          ? continuousStageVisible()
           : activeSlideIdPublished() === PRACTICE_CHAPTER_ID
         : activeSlideId === PRACTICE_CHAPTER_ID
       if (vis !== pileVisibleRef.current) {
