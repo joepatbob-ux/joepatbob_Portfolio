@@ -101,7 +101,7 @@ export const PIXEL8_TEXTURES = {
   bodyJadeLight: PIXEL8_BODY_ATLAS_FILES.jade_light,
   bodyLicoriceDark: PIXEL8_BODY_ATLAS_FILES.licorice_dark,
   logoAlpha: `${PIXEL8_PRO_TEX}/logo_alpha.png`,
-  speakerAlpha: `${PIXEL8_PRO_TEX}/speaker_alpha.png`,
+  speakerAlpha: `${PIXEL8_PRO_TEX}/speaker_alpha.webp`,
   speakerGrilleAlpha: `${PIXEL8_PRO_TEX}/speaker_grille_alpha.png`,
 } as const
 
