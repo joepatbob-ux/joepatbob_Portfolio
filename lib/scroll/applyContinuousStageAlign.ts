@@ -23,7 +23,6 @@ function stagePointerEvents(
   }
   return stageOpacity >= STAGE_INTERACTIVE_OPACITY ? 'auto' : 'none'
 }
-const STAGE_EXIT_TRAVEL_PX = 140
 const ALIGN_HEIGHT_MIN_PX = 48
 
 type AlignPhase = 'idle' | 'enter' | 'center' | 'exit'
@@ -130,10 +129,6 @@ function artifactHeight(align: HTMLElement): number {
  * Pure geometry helpers — operate on measured numbers, never touch the DOM.
  * ------------------------------------------------------------------------- */
 
-function easeOutQuart(t: number): number {
-  const x = Math.max(0, Math.min(1, t))
-  return 1 - Math.pow(1 - x, 4)
-}
 
 function viewportCenterTop(vh: number, artifactH: number): number {
   const { top: safeTop, bottom: safeBottom } = safeAreaInsets()
@@ -146,12 +141,6 @@ export function stageOpacityFromReveal(reveal: number): number {
   const t = Math.max(0, Math.min(1, reveal))
   if (t <= STAGE_CLEAR_THRESHOLD) return 0
   return t
-}
-
-function exitTranslateY(stageReveal: number): number {
-  if (stageReveal >= 0.995) return 0
-  const t = 1 - stageReveal
-  return -easeOutQuart(t) * STAGE_EXIT_TRAVEL_PX
 }
 
 /* ---------------------------------------------------------------------------
@@ -214,15 +203,58 @@ function clearStagePin(
     if (align) clearArtifactTransform(align)
     return
   }
+  if (stage.dataset.stageFading === 'true') return
+  beginStageFadeOut(stage)
+}
+
+/* Fade out in place: the stage keeps its pin and viewport-center hold while
+ * opacity/blur transition to zero (chapter-slide-base.css supplies the
+ * transition), then the positional teardown runs once it's invisible —
+ * tearing down immediately snapped the artifact out of center mid-fade. */
+const stageFadeTimers = new WeakMap<HTMLElement, number>()
+
+function beginStageFadeOut(stage: HTMLElement): void {
+  stage.dataset.stageFading = 'true'
+  // Freeze the artifact where it sits: the sticky center hold can't pin past
+  // the slot's bounds, so without this the artifact rides up with the scroll
+  // while dissolving. The fade-hold pass counter-translates to this top.
+  const align = stageAlignTarget(stage)
+  if (align) {
+    stage.dataset.stageFadeTop = align.getBoundingClientRect().top.toFixed(1)
+  }
+  stage.dataset.stageOpacity = '0.000'
+  stage.style.opacity = '0'
+  stage.style.filter = 'blur(var(--stage-exit-blur, 0px))'
+  // Behind whatever pins next, so an incoming artifact crossfades on top.
+  stage.style.zIndex = '1'
+  stage.style.pointerEvents = 'none'
+
+  const durationMs = parseFloat(getComputedStyle(stage).transitionDuration) * 1000 || 0
+  const timer = window.setTimeout(() => {
+    finalizeStageClear(stage, stageAlignTarget(stage))
+  }, durationMs + 60)
+  stageFadeTimers.set(stage, timer)
+}
+
+export function cancelStageFadeOut(stage: HTMLElement): void {
+  const timer = stageFadeTimers.get(stage)
+  if (timer != null) {
+    window.clearTimeout(timer)
+    stageFadeTimers.delete(stage)
+  }
+  delete stage.dataset.stageFading
+  delete stage.dataset.stageFadeTop
+}
+
+function finalizeStageClear(stage: HTMLElement, align: HTMLElement | null): void {
+  stageFadeTimers.delete(stage)
+  delete stage.dataset.stageFading
+  delete stage.dataset.stageFadeTop
   delete stage.dataset.stagePinned
-  delete stage.dataset.stageExiting
   delete stage.dataset.stageOpacity
   delete stage.dataset.stageCenterHeld
   delete stage.dataset.stageCentered
   stage.style.removeProperty('--stage-artifact-half')
-  // The transition on .chapter-slide__stage (see chapter-slide-base.css) turns
-  // this flip into the dialable fade/blur exit; default duration 0 = hard cut.
-  stage.style.filter = 'blur(var(--stage-exit-blur, 0px))'
   stage.style.opacity = '0'
   stage.style.visibility = 'hidden'
   stage.style.removeProperty('pointer-events')
@@ -265,7 +297,7 @@ type StageEntry = {
 
 type StageMeasure = {
   entry: StageEntry
-  action: 'clear-if-unlatched' | 'clear' | 'apply'
+  action: 'clear-if-unlatched' | 'clear' | 'apply' | 'fade-hold'
   stageOpacity: number
   isPin: boolean
   artifactH: number
@@ -338,8 +370,8 @@ export function releaseContinuousStageAlignForInFlowNav(): void {
   stageVisibleLatch.clear()
   document.querySelectorAll<HTMLElement>(STAGE_SELECTOR).forEach((stage) => {
     const align = stageAlignTarget(stage)
+    cancelStageFadeOut(stage)
     delete stage.dataset.stagePinned
-    delete stage.dataset.stageExiting
     delete stage.dataset.stageOpacity
     delete stage.dataset.stageCenterHeld
     delete stage.dataset.stageCentered
@@ -361,8 +393,9 @@ export function resetContinuousStageAlign(): void {
   exitingPinId = null
   stageVisibleLatch.clear()
   document.querySelectorAll<HTMLElement>(STAGE_SELECTOR).forEach((stage) => {
-    const chapterId = stage.closest<HTMLElement>('[data-chapter-id]')?.dataset.chapterId
-    clearStagePin(stage, stageAlignTarget(stage), chapterId)
+    // Mode switches tear down immediately — no lingering fade timers.
+    cancelStageFadeOut(stage)
+    finalizeStageClear(stage, stageAlignTarget(stage))
   })
 }
 
@@ -395,6 +428,15 @@ function measureStage(
   }
 
   if (!painted) {
+    // Mid-dissolve: hold the artifact at its captured viewport position while
+    // the opacity/blur transition runs (see beginStageFadeOut).
+    if (entry.stage.dataset.stageFading === 'true') {
+      return {
+        ...cleared,
+        action: 'fade-hold',
+        visualTop: align.getBoundingClientRect().top,
+      }
+    }
     if (!stageVisibleLatch.has(chapterId) && stageReveal < STAGE_PIN_REVEAL) {
       return { ...cleared, action: 'clear-if-unlatched' }
     }
@@ -423,8 +465,20 @@ function measureStage(
 }
 
 function writeStage(m: StageMeasure): void {
-  const { stage, align, chapterId, stageReveal } = m.entry
+  const { stage, align, chapterId } = m.entry
   if (!chapterId || !align) return
+
+  if (m.action === 'fade-hold') {
+    const captured = parseFloat(stage.dataset.stageFadeTop ?? '')
+    if (Number.isFinite(captured)) {
+      const current = parseFloat(align.dataset.stageAlignY ?? '0') || 0
+      const error = captured - m.visualTop
+      if (Math.abs(error) > 0.5) {
+        applyArtifactTransform(align, current + error)
+      }
+    }
+    return
+  }
 
   if (m.action === 'clear-if-unlatched') {
     clearStagePin(stage, align, chapterId)
@@ -441,6 +495,9 @@ function writeStage(m: StageMeasure): void {
   }
 
   const opacityKey = m.stageOpacity.toFixed(3)
+  if (stage.dataset.stageFading === 'true') {
+    cancelStageFadeOut(stage)
+  }
   if (stage.dataset.stageOpacity !== opacityKey) {
     stage.dataset.stageOpacity = opacityKey
     stage.style.opacity = opacityKey
@@ -467,41 +524,16 @@ function writeStage(m: StageMeasure): void {
     return
   }
 
-  const exitY = exitTranslateY(stageReveal)
-  const exitActive = exitY !== 0
-
-  let phase: AlignPhase
-  let translateY: number | null
-
   // Sticky is the only centering mechanism: the artifact rides in flow at
   // scroll speed and position:sticky catches it at the viewport center.
   // No JS position interpolation — interpolating between copy-track and
   // center moved the artifact faster than the scroll and snapped at the
-  // handoff (the "jump on scroll-in").
+  // handoff (the "jump on scroll-in"). There is no exit travel either: the
+  // artifact stays locked to the center and dissolves in place (see
+  // beginStageFadeOut) while the copy scrolls past with its own fade.
   applyCssViewportCenter(stage, align, m.artifactH)
-  if (exitActive) {
-    phase = 'exit'
-    translateY = exitY
-  } else {
-    // Stuck once the flow position reaches the center line.
-    phase = m.visualTop <= m.stickTop + 1 ? 'center' : 'enter'
-    translateY = null
-  }
-
-  if (exitY < 0) {
-    if (stage.dataset.stageExiting !== 'true') {
-      stage.dataset.stageExiting = 'true'
-    }
-  } else {
-    delete stage.dataset.stageExiting
-  }
-
-  setPhase(stage, align, phase)
-  if (translateY == null) {
-    clearArtifactTransform(align)
-  } else {
-    applyArtifactTransform(align, translateY)
-  }
+  setPhase(stage, align, m.visualTop <= m.stickTop + 1 ? 'center' : 'enter')
+  clearArtifactTransform(align)
 }
 
 /**
