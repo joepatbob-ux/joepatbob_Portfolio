@@ -22,6 +22,8 @@ export type FadeTuneState = {
   /** Stage exit: fade/blur when a chapter's artifact clears. */
   stageMs: number
   stageBlur: number
+  /** Gap between one artifact's dissolve-out and the next one's dissolve-in. */
+  stagePauseMs: number
 }
 
 export const FADE_TUNE_DEFAULTS: FadeTuneState = {
@@ -33,6 +35,7 @@ export const FADE_TUNE_DEFAULTS: FadeTuneState = {
   copyScrollBlur: 12,
   stageMs: 320,
   stageBlur: 12,
+  stagePauseMs: 240,
 }
 
 function loadState(): FadeTuneState {
@@ -54,8 +57,9 @@ function applyVars(state: FadeTuneState): void {
   s.setProperty('--sticker-exit-blur', `${state.stickerBlur}px`)
   s.setProperty('--stage-exit-duration', `${state.stageMs}ms`)
   s.setProperty('--stage-exit-blur', `${state.stageBlur}px`)
-  // The copy blur is read by the rAF writer as a dataset (cheap read).
+  // The copy blur and handoff pause are read by the rAF writer as datasets.
   document.documentElement.dataset.copyScrollBlur = String(state.copyScrollBlur)
+  document.documentElement.dataset.stagePauseMs = String(state.stagePauseMs)
 }
 
 function replayGhost(state: FadeTuneState): void {
@@ -184,6 +188,7 @@ export function FadeTunePanel() {
       <Dial label="Copy blur" value={state.copyScrollBlur} min={0} max={24} step={1} unit="px" onChange={(v) => set({ copyScrollBlur: v })} />
       <Dial label="Stage exit duration" value={state.stageMs} min={0} max={1200} step={20} unit="ms" onChange={(v) => set({ stageMs: v })} />
       <Dial label="Stage exit blur" value={state.stageBlur} min={0} max={24} step={1} unit="px" onChange={(v) => set({ stageBlur: v })} />
+      <Dial label="Handoff pause" value={state.stagePauseMs} min={0} max={1000} step={20} unit="ms" onChange={(v) => set({ stagePauseMs: v })} />
 
       <div style={{ display: 'flex', gap: 6, marginTop: 10, flexWrap: 'wrap' }}>
         <button type="button" style={buttonStyle} onClick={() => replayGhost(state)}>

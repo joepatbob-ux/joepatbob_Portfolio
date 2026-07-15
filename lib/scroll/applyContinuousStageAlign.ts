@@ -4,6 +4,7 @@ import {
   CHAPTER_STAGE_PAINT_VISIBILITY,
 } from '@/lib/scroll/chapterVisibility'
 import { isContinuousChapters } from '@/lib/scroll/continuousChapters'
+import { flushScrollFrame } from '@/lib/scroll/scrollFrame'
 import { isTopBarNavViewport } from '@/lib/layout/isTopBarNavViewport'
 
 const STAGE_SELECTOR = `${CHAPTER_SLOT_SELECTOR} .chapter-slide__stage:not(:has(.flow-chapter-slide__stage--empty))`
@@ -213,6 +214,31 @@ function clearStagePin(
  * tearing down immediately snapped the artifact out of center mid-fade. */
 const stageFadeTimers = new WeakMap<HTMLElement, number>()
 
+/* Handoff pause: an ENTERING stage stays hidden (blurred, already positioned
+ * at the center) until the outgoing dissolve finishes plus a beat, so the two
+ * never overlap and the copy transition gets the room between them. Dialable
+ * via ?fadeTune=1 (documentElement.dataset.stagePauseMs). */
+const STAGE_HANDOFF_PAUSE_MS = 240
+let stageEntryGateUntil = 0
+let gateFlushTimer: number | null = null
+
+function handoffPauseMs(): number {
+  const raw = document.documentElement.dataset.stagePauseMs
+  const parsed = raw ? parseFloat(raw) : NaN
+  return Number.isFinite(parsed) ? Math.max(0, parsed) : STAGE_HANDOFF_PAUSE_MS
+}
+
+/* Scroll frames only run while scrolling — if the visitor stops mid-gap, this
+ * one-shot re-runs the pipeline at release time so the entry isn't stranded. */
+function scheduleGateFlush(): void {
+  if (gateFlushTimer != null) return
+  const delay = Math.max(0, stageEntryGateUntil - performance.now()) + 30
+  gateFlushTimer = window.setTimeout(() => {
+    gateFlushTimer = null
+    flushScrollFrame()
+  }, delay)
+}
+
 function beginStageFadeOut(stage: HTMLElement): void {
   stage.dataset.stageFading = 'true'
   // Freeze the artifact where it sits: the sticky center hold can't pin past
@@ -234,6 +260,10 @@ function beginStageFadeOut(stage: HTMLElement): void {
     finalizeStageClear(stage, stageAlignTarget(stage))
   }, durationMs + 60)
   stageFadeTimers.set(stage, timer)
+  stageEntryGateUntil = Math.max(
+    stageEntryGateUntil,
+    performance.now() + durationMs + handoffPauseMs(),
+  )
 }
 
 export function cancelStageFadeOut(stage: HTMLElement): void {
@@ -250,6 +280,7 @@ function finalizeStageClear(stage: HTMLElement, align: HTMLElement | null): void
   stageFadeTimers.delete(stage)
   delete stage.dataset.stageFading
   delete stage.dataset.stageFadeTop
+  delete stage.dataset.stageEntryHold
   delete stage.dataset.stagePinned
   delete stage.dataset.stageOpacity
   delete stage.dataset.stageCenterHeld
@@ -497,18 +528,39 @@ function writeStage(m: StageMeasure): void {
     return
   }
 
-  const opacityKey = m.stageOpacity.toFixed(3)
+  // Handoff pause: a stage arriving from hidden waits (positioned at the
+  // center, blurred, opacity 0) until the outgoing dissolve + pause elapse.
+  // A stage returning mid-fade is not an arrival and restores instantly.
+  const arriving =
+    stage.dataset.stageOpacity == null || stage.dataset.stageEntryHold === 'true'
+  const gated =
+    arriving &&
+    stage.dataset.stageFading !== 'true' &&
+    performance.now() < stageEntryGateUntil
+  if (gated) {
+    stage.dataset.stageEntryHold = 'true'
+    scheduleGateFlush()
+  } else if (stage.dataset.stageEntryHold != null) {
+    delete stage.dataset.stageEntryHold
+  }
+  const effectiveOpacity = gated ? 0 : m.stageOpacity
+
+  const opacityKey = effectiveOpacity.toFixed(3)
   if (stage.dataset.stageFading === 'true') {
     cancelStageFadeOut(stage)
   }
   if (stage.dataset.stageOpacity !== opacityKey) {
     stage.dataset.stageOpacity = opacityKey
     stage.style.opacity = opacityKey
-    if (stage.style.filter) {
+    if (gated) {
+      // Hold the resting blur inline — pinning removes the CSS resting rule,
+      // and the blur must still be there when the gate releases the fade-in.
+      stage.style.filter = 'blur(var(--stage-exit-blur, 0px))'
+    } else if (stage.style.filter) {
       stage.style.filter = ''
     }
     stage.style.visibility = 'visible'
-    const pointerEvents = stagePointerEvents(stage, m.stageOpacity)
+    const pointerEvents = stagePointerEvents(stage, effectiveOpacity)
     if (stage.style.pointerEvents !== pointerEvents) {
       stage.style.pointerEvents = pointerEvents
     }
@@ -527,16 +579,25 @@ function writeStage(m: StageMeasure): void {
     return
   }
 
-  // Sticky is the only centering mechanism: the artifact rides in flow at
-  // scroll speed and position:sticky catches it at the viewport center.
-  // No JS position interpolation — interpolating between copy-track and
-  // center moved the artifact faster than the scroll and snapped at the
-  // handoff (the "jump on scroll-in"). There is no exit travel either: the
-  // artifact stays locked to the center and dissolves in place (see
-  // beginStageFadeOut) while the copy scrolls past with its own fade.
+  // The artifact lives its whole visible life at the viewport center: it
+  // dissolves IN already on the center line (full counter-translate hold — a
+  // full hold reaches zero exactly at the sticky handoff, unlike the old
+  // partial interpolation that outran the scroll and snapped), holds sharp
+  // via position:sticky, then dissolves OUT in place (see beginStageFadeOut)
+  // while the copy scrolls past with its own fade.
   applyCssViewportCenter(stage, align, m.artifactH)
-  setPhase(stage, align, m.visualTop <= m.stickTop + 1 ? 'center' : 'enter')
-  clearArtifactTransform(align)
+  const currentHold = parseFloat(align.dataset.stageAlignY ?? '0') || 0
+  const naturalTop = m.visualTop - currentHold
+  if (naturalTop <= m.stickTop + 1) {
+    setPhase(stage, align, 'center')
+    clearArtifactTransform(align)
+  } else {
+    setPhase(stage, align, 'enter')
+    const error = m.stickTop - m.visualTop
+    if (Math.abs(error) > 0.5) {
+      applyArtifactTransform(align, currentHold + error)
+    }
+  }
 }
 
 /**

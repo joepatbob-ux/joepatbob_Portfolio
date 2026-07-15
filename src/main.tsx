@@ -79,6 +79,8 @@ function applyFadeTuneOverrides(): { holdMs: number; totalMs: number } {
         s.setProperty('--stage-exit-duration', `${t.stageMs}ms`)
       if (typeof t.stageBlur === 'number')
         s.setProperty('--stage-exit-blur', `${t.stageBlur}px`)
+      if (typeof t.stagePauseMs === 'number')
+        document.documentElement.dataset.stagePauseMs = String(t.stagePauseMs)
     }
   } catch {
     /* corrupted overrides are ignored */
