@@ -36,6 +36,13 @@ const STAGE_REENTRY_SCROLL_PX = 100
  * settles back) still gets its artifact. */
 const STAGE_ENTRY_NEAR_PX = 56
 
+/* Reverse scroll releases the sticky clamp and the artifact starts riding
+ * down with the copy — dissolve out once it has ridden this far below the
+ * lock instead of traveling away with the text. Must exceed
+ * STAGE_ENTRY_NEAR_PX, or a near-line arrival would dissolve straight back
+ * out of its own entry position. */
+const STAGE_RIDE_AWAY_PX = STAGE_ENTRY_NEAR_PX + 40
+
 function stagePointerEvents(
   stage: HTMLElement,
   stageOpacity: number,
@@ -418,16 +425,16 @@ function measureStage(
   let want = fx != null ? shouldKeep : shouldShow
 
   if (want && fx === 'visible') {
-    // Slot containment has started forcing the clamped artifact above its
-    // center lock — dissolve out now, in place, rather than letting it crawl
-    // upward at full opacity until the reveal threshold catches up. Only the
-    // upward push exits: scrolling back up, the artifact riding down below
-    // center is the natural reverse of its entry and stays visible.
+    // The artifact has left its center lock — dissolve out near the lock, in
+    // place, rather than letting it travel with the text until the reveal
+    // threshold catches up. Upward: slot containment forcing it off at the
+    // chapter's end. Downward: reverse scroll releasing the sticky clamp.
     const artifactH = artifactHeight(align)
-    const pushedOff =
-      align.getBoundingClientRect().top <
-      viewportCenterTop(vh, artifactH) - STAGE_PUSH_OFF_PX
-    if (pushedOff) want = false
+    const centerTop = viewportCenterTop(vh, artifactH)
+    const alignTop = align.getBoundingClientRect().top
+    const pushedOff = alignTop < centerTop - STAGE_PUSH_OFF_PX
+    const rodeAway = alignTop > centerTop + STAGE_RIDE_AWAY_PX
+    if (pushedOff || rodeAway) want = false
   }
 
   let centerHalf: number | null = null
