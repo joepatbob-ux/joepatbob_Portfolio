@@ -103,12 +103,19 @@
 }
 
 /* Touch devices: the keywords are inline text buttons (~23px line box).
-   Vertical padding on an inline box extends its hit area without changing
-   line layout — lifts the tap target toward 44px. (!important beats the
-   component's inline padding: 0.) */
+   Extend the tap target with an absolutely positioned ::after — layout-inert
+   in every engine. (Vertical padding is NOT safe here: WebKit renders
+   <button> as inline-block regardless of display: inline, so padding
+   inflates the line boxes on iOS and breaks the tagline stack.) */
 @media (pointer: coarse) {
   .sidebar-main-nav__sentence--mobile-hero .sidebar-main-nav__keyword {
-    padding-block: 12px !important;
+    position: relative;
+  }
+
+  .sidebar-main-nav__sentence--mobile-hero .sidebar-main-nav__keyword::after {
+    content: '';
+    position: absolute;
+    inset: -10px -4px;
   }
 }
 
