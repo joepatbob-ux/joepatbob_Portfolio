@@ -1,3 +1,4 @@
+import { isPrerenderSnapshot } from '@/lib/isPrerenderSnapshot'
 import {
   EIM_PATH_VIEWBOX,
   EIM_TOUCH2_ORIGIN,
@@ -106,6 +107,10 @@ export function EimPathArt({
   }, [])
 
   useEffect(() => {
+    // Keep the snapshot host empty: baking the injected SVG freezes a stale
+    // reveal state that hydration would adopt and the dash system can't drive.
+    if (isPrerenderSnapshot()) return
+
     let cancelled = false
     const host = svgHostRef.current
     if (!host) return
@@ -328,15 +333,10 @@ export function EimPathArt({
         </p>
       ) : null}
       <div className="eim-path-art__stage-wrap">
-        {/* Imperatively-filled host: the prerender snapshot bakes the injected
-            SVG, and React would fail hydration on the unexpected children.
-            dangerouslySetInnerHTML makes React adopt whatever is there; the
-            fetch effect clears and re-injects on every mount regardless. */}
         <div
           ref={svgHostRef}
           className="eim-path-art__svg-host"
           aria-hidden
-          dangerouslySetInnerHTML={{ __html: '' }}
         />
         {dashDebug && debugLabels.length > 0 ? (
           <div className="eim-path-art__debug-labels" aria-hidden>

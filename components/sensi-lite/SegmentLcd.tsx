@@ -1,3 +1,4 @@
+import { isPrerenderSnapshot } from '@/lib/isPrerenderSnapshot'
 import {
   forwardRef,
   useCallback,
@@ -75,6 +76,10 @@ export const SegmentLcd = forwardRef<
   const [screenSvg, setScreenSvg] = useState('')
 
   useEffect(() => {
+    // Keep the snapshot host empty (loading surface) — baking the loaded SVG
+    // would freeze stale lit-segment state for hydration to adopt.
+    if (isPrerenderSnapshot()) return
+
     let cancelled = false
     fetch(SCREEN_SVG_URL)
       .then((res) => {
@@ -213,10 +218,9 @@ export const SegmentLcd = forwardRef<
     .join(' ')
 
   /* One render path in both states: branching to a placeholder element while
-     the SVG loads broke hydration against the prerender snapshot (which bakes
-     the loaded SVG). With dangerouslySetInnerHTML React adopts the baked
-     children, so the LCD art stays visible until the fetch replaces it; a
-     fresh visit briefly shows the black loading surface instead. */
+     the SVG loads broke hydration (different element shapes). The snapshot
+     bakes this same black loading surface (the fetch is prerender-gated), so
+     hydration matches; the fetch then fills the screen in. */
   return (
     <div
       ref={rootRef}
