@@ -30,7 +30,7 @@ Static output is written to `dist/` (deploy that folder to any static host).
 No manual setup required.
 
 - **Alte Haas Grotesk** (display) is self-hosted and committed under `/public/fonts/` (`AlteHaasGroteskBold`, `AlteHaasGroteskRegular`).
-- **JetBrains Mono** and **Lato** load from Google Fonts at runtime (`<link>` in `index.html`).
+- **JetBrains Mono** and **Lato** are self-hosted woff2 subsets in `/public/fonts/` (faces in `styles/globals.css`).
 
 ## Adding images
 
