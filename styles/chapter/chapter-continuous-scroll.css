@@ -170,6 +170,18 @@
     z-index: 0;
   }
 
+  /* Resting stages sit blurred so the entry transition (chapter-slide-base)
+     dissolves them IN — the mirror of the centered fade-out. Hidden stages
+     don't paint, so the filter costs nothing at rest; it lifts the moment the
+     stage pins and the transition carries blur → sharp. */
+  html.continuous-chapters
+    .portfolio-chapter-slot--fill.hardware-slideshow
+    .chapter-slide__stage:not([data-stage-pinned='true']):not(
+      :has(.flow-chapter-slide__stage--empty)
+    ) {
+    filter: blur(var(--stage-exit-blur, 0px));
+  }
+
   html.continuous-chapters
     .portfolio-chapter-slot--fill.hardware-slideshow
     .chapter-slide__stage[data-stage-pinned='true'] {

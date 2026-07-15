@@ -257,6 +257,9 @@ function finalizeStageClear(stage: HTMLElement, align: HTMLElement | null): void
   stage.style.removeProperty('--stage-artifact-half')
   stage.style.opacity = '0'
   stage.style.visibility = 'hidden'
+  // The resting blur comes from CSS (chapter-continuous-scroll) so the next
+  // entry dissolves in — drop the fade-out's inline value.
+  stage.style.removeProperty('filter')
   stage.style.removeProperty('pointer-events')
   stage.style.removeProperty('z-index')
   clearPhase(stage, align)
