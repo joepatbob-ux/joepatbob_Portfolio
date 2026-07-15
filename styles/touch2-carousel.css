@@ -292,7 +292,14 @@
     max-width: var(--cs-touch2-mobile-max-w);
     height: auto;
     min-height: var(--cs-touch2-mobile-min-h);
-    max-height: var(--cs-touch2-mobile-max-h);
+    /* Reserve the controller's room (48px dots + 16px gap) inside the stage's
+       max-height: on tall/wide phones the aspect-driven photo otherwise fills
+       the whole cap and the dots overflow the stage bottom (overflow is
+       visible), eating the gap to the headline. The photo shrinks instead. */
+    max-height: min(
+      var(--cs-touch2-mobile-max-h),
+      calc(var(--cs-mobile-stage-max-h, 480px) - 64px)
+    );
     aspect-ratio: var(--touch2-frame-aspect);
   }
 
@@ -303,7 +310,10 @@
     width: 100%;
     max-width: var(--cs-touch2-mobile-max-w);
     height: auto;
-    min-height: var(--touch2-dot-slot-w);
+    /* Size from the 48px dot buttons — the slot-width token is the desktop
+       vertical rail's dimension and inflated this row to 72px, overflowing
+       the stage and eating the headline gap on tall phones. */
+    min-height: 0;
     gap: clamp(8px, 2vw, 12px);
   }
 
