@@ -49,7 +49,6 @@ function overviewPage(section: Section): ContentDebugPage {
 }
 
 function hardwareChapterPage(chapterId: string, title: string): ContentDebugPage {
-  const ch = hardware.chapters.find((c) => c.id === chapterId)!
   const id = `hardware-${chapterId}`
   return {
     id,

@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useState, type RefObject } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useState, type RefObject } from 'react'
 import { createPortal } from 'react-dom'
 import {
   isNavWrapDebugEnabled,
@@ -174,7 +174,7 @@ export function useNavWrapDebug(rootRef: RefObject<HTMLElement | null>) {
 
   useEffect(() => {
     setRoot(rootRef.current)
-  })
+  }, [rootRef])
 
   useEffect(() => {
     if (!root) return
@@ -183,10 +183,10 @@ export function useNavWrapDebug(rootRef: RefObject<HTMLElement | null>) {
     return () => root.classList.remove('sidebar-main-nav__sentence--wrap-debug')
   }, [root, enabled])
 
-  const remeasure = () => {
+  const remeasure = useCallback(() => {
     if (!root || !enabled) return
     setMeasure(measureNavWrap(root))
-  }
+  }, [root, enabled])
 
   useLayoutEffect(() => {
     if (!root || !enabled) {
@@ -209,7 +209,7 @@ export function useNavWrapDebug(rootRef: RefObject<HTMLElement | null>) {
       ro.disconnect()
       window.removeEventListener('resize', onResize)
     }
-  }, [root, enabled])
+  }, [root, enabled, remeasure])
 
   return { enabled, measure, root }
 }

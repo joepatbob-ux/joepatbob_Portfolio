@@ -64,7 +64,6 @@ function usePixel8ObjScene() {
 }
 
 function usePixel8FbxScene() {
-  const urls = PHONE_SWAP_URLS.pixel8
   const raw = useFbxModel(PIXEL8_FBX, PIXEL8_FBX_RESOURCE_PATH)
   const materialMaps = usePixel8ProTexMaps()
 

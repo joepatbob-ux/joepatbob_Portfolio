@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import {
   INTERLUDE_COPY_STYLE_LABELS,
   INTERLUDE_COPY_STYLES,
-  readInterludeCopyStyle,
   saveInterludeCopyStylePick,
   type InterludeCopyStyle,
 } from '@/lib/interludeCopyStyle'
@@ -10,7 +9,6 @@ import {
   INTERLUDE_LAYOUT_LABELS,
   INTERLUDE_LAYOUTS,
   isInterludeDevPickerEnabled,
-  readInterludeLayout,
   saveInterludeLayoutPick,
   type InterludeLayout,
 } from '@/lib/interludeLayout'

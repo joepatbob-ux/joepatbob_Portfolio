@@ -68,10 +68,10 @@ export function FormationLegoBoard({ chapterId }: Props) {
     syncBoardRectOnScroll: false,
     visible: showBricks,
   })
-  const { plate, hasMeasured } = board
+  const { plate, hasMeasured, activeId, toggleActivePivot } = board
 
   useEffect(() => {
-    if (!showBricks || board.activeId == null) return
+    if (!showBricks || activeId == null) return
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== 'r' && e.key !== 'R') return
       if (e.metaKey || e.ctrlKey || e.altKey) return
@@ -82,11 +82,11 @@ export function FormationLegoBoard({ chapterId }: Props) {
         return
       }
       e.preventDefault()
-      board.toggleActivePivot()
+      toggleActivePivot()
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [board.activeId, board.toggleActivePivot, showBricks])
+  }, [activeId, toggleActivePivot, showBricks])
 
   const rootClass = [
     'formation-lego',

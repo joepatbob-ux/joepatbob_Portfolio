@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { GlyphDustDebugPanel } from '@/components/GlyphDustDebugPanel'
+import dynamic from '@/lib/dynamic'
 import { useHydrated } from '@/lib/hooks/useHydrated'
 import { usePrefersReducedMotion } from '@/lib/hooks/usePrefersReducedMotion'
 import { isPrerenderSnapshot } from '@/lib/isPrerenderSnapshot'
@@ -13,6 +13,16 @@ import {
   saveGlyphDustDebugState,
   type GlyphDustDebugState,
 } from '@/lib/glyph-dust/glyphDustDebug'
+
+/* Dev-only dial panel (?glyphDustDebug=1) — flag-gated lazy mount so its chunk
+ * never enters the entry graph or gets fetched on a normal visit. */
+const GlyphDustDebugPanel = dynamic(
+  () =>
+    import('@/components/GlyphDustDebugPanel').then((m) => ({
+      default: m.GlyphDustDebugPanel,
+    })),
+  { loading: () => null },
+)
 
 /**
  * Interlude signature: a conserved cloud of accent motes that settles into the
@@ -30,6 +40,14 @@ export function PortfolioInterludeGlyphs() {
   const [debugEnabled, setDebugEnabled] = useState(false)
   const [debugState, setDebugState] = useState<GlyphDustDebugState | null>(null)
   const [canvasPx, setCanvasPx] = useState(760)
+  const debugRecipe = debugState?.recipe
+  const debugChrome = debugState?.chrome
+  const debugPhase = debugState?.phase
+  const debugPaused = debugState?.paused
+  /* Scrub position is read once at engine creation but must not recreate the
+   * engine on every slider move — the effect below reacts to scrubs live. */
+  const scrubRef = useRef({ paused: debugPaused, phase: debugPhase })
+  scrubRef.current = { paused: debugPaused, phase: debugPhase }
 
   useEffect(() => {
     if (!hydrated) return
@@ -54,10 +72,10 @@ export function PortfolioInterludeGlyphs() {
     canvas.height = px
     setCanvasPx(px)
 
-    const recipe = debugEnabled && debugState ? debugState.recipe : DEFAULT_GLYPH_DUST_RECIPE
+    const recipe = debugEnabled && debugRecipe ? debugRecipe : DEFAULT_GLYPH_DUST_RECIPE
     const chrome =
-      debugEnabled && debugState
-        ? debugState.chrome
+      debugEnabled && debugChrome
+        ? debugChrome
         : isChromiumBrowser()
           ? DEFAULT_CHROME_TUNE
           : undefined
@@ -77,8 +95,8 @@ export function PortfolioInterludeGlyphs() {
       }
     }
 
-    if (debugEnabled && debugState?.paused) {
-      engine.seekPhase(debugState.phase)
+    if (debugEnabled && scrubRef.current.paused) {
+      engine.seekPhase(scrubRef.current.phase ?? 0)
     } else if (debugEnabled) {
       engine.resumeCycle()
     } else {
@@ -101,15 +119,15 @@ export function PortfolioInterludeGlyphs() {
       engine.destroy()
       engineRef.current = null
     }
-  }, [hydrated, reduced, debugEnabled, debugState?.recipe, debugState?.chrome])
+  }, [hydrated, reduced, debugEnabled, debugRecipe, debugChrome])
 
   useEffect(() => {
-    if (!debugEnabled || !debugState) return
+    if (!debugEnabled || debugPaused === undefined) return
     const engine = engineRef.current
     if (!engine) return
-    if (debugState.paused) engine.seekPhase(debugState.phase)
+    if (debugPaused) engine.seekPhase(debugPhase ?? 0)
     else engine.resumeCycle()
-  }, [debugEnabled, debugState?.phase, debugState?.paused])
+  }, [debugEnabled, debugPhase, debugPaused])
 
   if (!hydrated || isPrerenderSnapshot()) {
     return (

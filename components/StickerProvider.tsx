@@ -20,7 +20,6 @@ import {
   type StickerZIndices,
 } from '@/lib/layout/stacking'
 import {
-  STICKER_ASSETS,
   createShuffledDeck,
   deckFromOrderedIds,
   readStoredDeckIds,

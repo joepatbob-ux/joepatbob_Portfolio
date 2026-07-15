@@ -21,7 +21,6 @@ import {
 } from '@/lib/phone-swap/phoneDeviceRoles'
 import {
   applyPoseToGroup,
-  readPoseFromGroup,
   snapshotForProgress,
 } from '@/lib/phone-swap/phoneSwapAnimation'
 import {
