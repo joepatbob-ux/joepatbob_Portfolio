@@ -23,6 +23,10 @@ export function SidebarMobileRail({
       className={['sidebar-mobile-nav', ready ? 'sidebar-mobile-nav--ready' : '']
         .filter(Boolean)
         .join(' ')}
+      /* --ready is effect-driven: the snapshot bakes it true, the first client
+         render is false, and the effect reconciles right after — prod React
+         never compares attributes, so only the dev warning needs quieting. */
+      suppressHydrationWarning
     >
       <div
         className={`sidebar-mobile-backdrop${drawerOpen ? ' sidebar-mobile-backdrop--visible' : ''}`}
@@ -49,7 +53,9 @@ export function SidebarMobileRail({
       >
         <span className="sidebar-mobile-rail__chrome" aria-hidden />
         <p className="sidebar-mobile-rail__label" aria-hidden="true">
-          I design connected experiences for{' '}
+          {/* Single-string child: the prerender snapshot merges adjacent text
+              nodes ("…for" + " "), which fails hydration's text comparison. */}
+          {'I design connected experiences for '}
           <span className="sidebar-mobile-rail__label-accent">{sectionLabel}</span>
         </p>
       </button>

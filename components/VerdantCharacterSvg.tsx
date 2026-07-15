@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { isPrerenderSnapshot } from '@/lib/isPrerenderSnapshot'
 import {
   fetchThemedVerdantCharacterSvg,
   getCachedThemedVerdantCharacterSvg,
@@ -12,11 +13,15 @@ interface Props {
 
 /** Inline themed character SVG (label / secondary label segment colors). */
 export function VerdantCharacterSvg({ code, className, alt }: Props) {
-  const [markup, setMarkup] = useState(
-    () => getCachedThemedVerdantCharacterSvg(code) ?? null,
+  const [markup, setMarkup] = useState(() =>
+    isPrerenderSnapshot() ? null : (getCachedThemedVerdantCharacterSvg(code) ?? null),
   )
 
   useEffect(() => {
+    // Keep the snapshot host empty — a baked glyph freezes one theme's colors
+    // for hydration to adopt.
+    if (isPrerenderSnapshot()) return
+
     const cached = getCachedThemedVerdantCharacterSvg(code)
     if (cached) {
       setMarkup(cached)
@@ -42,16 +47,16 @@ export function VerdantCharacterSvg({ code, className, alt }: Props) {
     .filter(Boolean)
     .join(' ')
 
-  if (!markup) {
-    return <span className={classNames} aria-hidden />
-  }
-
+  /* One render path in both states: branching to a bare placeholder while the
+     SVG loads broke hydration against the prerender snapshot (which bakes the
+     loaded glyph). With dangerouslySetInnerHTML React adopts the baked
+     children, so the glyph stays visible until the fetch replaces it. */
   return (
     <span
       className={classNames}
       role="img"
       aria-label={alt ?? `Verdant character ${code}`}
-      dangerouslySetInnerHTML={{ __html: markup }}
+      dangerouslySetInnerHTML={{ __html: markup ?? '' }}
     />
   )
 }

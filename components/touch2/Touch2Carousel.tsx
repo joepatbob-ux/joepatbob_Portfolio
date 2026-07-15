@@ -194,7 +194,9 @@ function Touch2CarouselInner({
       {...pauseHandlers}
     >
       <p className="touch2-carousel__sr-status">
-        Photo {index + 1} of {count}
+        {/* Single-string child: the prerender snapshot merges adjacent text
+            nodes, which fails hydration's text comparison. */}
+        {`Photo ${index + 1} of ${count}`}
       </p>
 
       <div

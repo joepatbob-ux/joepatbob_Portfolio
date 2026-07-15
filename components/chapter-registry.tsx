@@ -20,7 +20,7 @@ const SensiLiteChapter = dynamic(
     import('@/components/SensiLiteChapter').then((m) => ({
       default: m.SensiLiteChapter,
     })),
-  { loading: ChapterLoading },
+  { loading: ChapterLoading, preloadForHydration: true },
 )
 
 const Touch2Chapter = dynamic(
@@ -28,13 +28,13 @@ const Touch2Chapter = dynamic(
     import('@/components/Touch2Chapter').then((m) => ({
       default: m.Touch2Chapter,
     })),
-  { loading: ChapterLoading },
+  { loading: ChapterLoading, preloadForHydration: true },
 )
 
 const EimChapter = dynamic(
   () =>
     import('@/components/EimChapter').then((m) => ({ default: m.EimChapter })),
-  { loading: ChapterLoading },
+  { loading: ChapterLoading, preloadForHydration: true },
 )
 
 const VerdantChapter = dynamic(
@@ -42,7 +42,7 @@ const VerdantChapter = dynamic(
     import('@/components/VerdantChapter').then((m) => ({
       default: m.VerdantChapter,
     })),
-  { loading: ChapterLoading },
+  { loading: ChapterLoading, preloadForHydration: true },
 )
 
 export interface ChapterRenderContext {

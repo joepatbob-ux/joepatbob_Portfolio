@@ -36,11 +36,26 @@ export function StickerPile() {
   }, [])
 
   useEffect(() => {
+    // Continuous desktop: the pile is the practice chapter's stage content,
+    // but it paints in a body portal the stage's dissolve can't reach — so
+    // mirror the stage state machine (data-stage-fx) instead of a raw reveal
+    // threshold. Showing on reveal alone flashed the pile in early, at the
+    // pre-centered anchor position, then snapped it when the stage engaged.
+    const continuousStageVisible = () => {
+      const stage = anchorRef.current?.closest<HTMLElement>(
+        '.chapter-slide__stage',
+      )
+      if (stage) return stage.dataset.stageFx === 'visible'
+      return (
+        chapterRevealForId(PRACTICE_CHAPTER_ID) >=
+        CHAPTER_STAGE_PAINT_VISIBILITY
+      )
+    }
+
     const sync = () => {
       const vis = inFlowScroll
         ? isContinuousChapters()
-          ? chapterRevealForId(PRACTICE_CHAPTER_ID) >=
-            CHAPTER_STAGE_PAINT_VISIBILITY
+          ? continuousStageVisible()
           : activeSlideIdPublished() === PRACTICE_CHAPTER_ID
         : activeSlideId === PRACTICE_CHAPTER_ID
       if (vis !== pileVisibleRef.current) {
@@ -80,11 +95,13 @@ export function StickerPile() {
     )
   }
 
+  // The portal stays mounted and anchor-tracked even while hidden — mounting
+  // it on the visibility flip painted one unpositioned frame (a flash at the
+  // viewport origin) and an unmounted pile can't fade. Visibility is CSS
+  // (data-pile-visible) so the show/hide runs the sticker fade transition.
   const usePortal = !topBarNav
-  const portalRef = useAnchorPortalFollow(
-    anchorRef,
-    mounted && pileVisible && usePortal && !isPrerenderSnapshot(),
-  )
+  const portalActive = mounted && usePortal && !isPrerenderSnapshot()
+  const portalRef = useAnchorPortalFollow(anchorRef, portalActive)
 
   const pileStack = (
     <div
@@ -153,14 +170,15 @@ export function StickerPile() {
   )
 
   const portaledPile =
-    usePortal &&
-    mounted &&
-    pileVisible &&
-    !isPrerenderSnapshot() &&
+    portalActive &&
     createPortal(
       <div
         ref={portalRef}
         data-sticker-managed=""
+        data-pile-visible={pileVisible ? 'true' : 'false'}
+        // React 18 types don't know `inert`; the empty string renders the
+        // bare attribute, keeping the hidden pile out of the tab order.
+        {...(pileVisible ? {} : ({ inert: '' } as Record<string, string>))}
         className={[
           'sticker-pile-portal',
           draggingTop ? 'sticker-pile-portal--pile-drag' : '',
@@ -172,7 +190,7 @@ export function StickerPile() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'flex-start',
-          pointerEvents: draggingTop ? 'none' : 'auto',
+          pointerEvents: !pileVisible || draggingTop ? 'none' : 'auto',
         }}
       >
         {pileStack}

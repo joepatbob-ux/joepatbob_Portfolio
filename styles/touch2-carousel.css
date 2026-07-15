@@ -356,6 +356,17 @@
     flex-shrink: 0;
   }
 
+  /* 48px tap target without touching the calibrated 32px row: a layout-inert
+     hit extension (same pattern as the hero tagline keywords). Vertical only —
+     the 8px dot gaps leave no room to widen sideways. */
+  @media (pointer: coarse) {
+    .touch2-carousel__dot::after {
+      content: '';
+      position: absolute;
+      inset: -8px 0;
+    }
+  }
+
   .touch2-carousel__dot--active {
     width: var(--touch2-dot-slot-w);
     height: var(--touch2-dot-ring-size);

@@ -1,3 +1,4 @@
+import { isPrerenderSnapshot } from '@/lib/isPrerenderSnapshot'
 import {
   forwardRef,
   useCallback,
@@ -75,6 +76,10 @@ export const SegmentLcd = forwardRef<
   const [screenSvg, setScreenSvg] = useState('')
 
   useEffect(() => {
+    // Keep the snapshot host empty (loading surface) — baking the loaded SVG
+    // would freeze stale lit-segment state for hydration to adopt.
+    if (isPrerenderSnapshot()) return
+
     let cancelled = false
     fetch(SCREEN_SVG_URL)
       .then((res) => {
@@ -204,21 +209,6 @@ export const SegmentLcd = forwardRef<
     [debug, onSegmentPick],
   )
 
-  if (!screenSvg) {
-    return (
-      <div
-        className="segment-lcd"
-        style={{
-          opacity: flash ? 0.35 : 1,
-          background: '#000',
-          borderRadius: 3,
-          ...style,
-        }}
-        aria-hidden
-      />
-    )
-  }
-
   const className = [
     'segment-lcd',
     debug ? 'segment-lcd--debug' : '',
@@ -227,6 +217,10 @@ export const SegmentLcd = forwardRef<
     .filter(Boolean)
     .join(' ')
 
+  /* One render path in both states: branching to a placeholder element while
+     the SVG loads broke hydration (different element shapes). The snapshot
+     bakes this same black loading surface (the fetch is prerender-gated), so
+     hydration matches; the fetch then fills the screen in. */
   return (
     <div
       ref={rootRef}
@@ -234,6 +228,7 @@ export const SegmentLcd = forwardRef<
       style={{
         opacity: flash ? 0.35 : 1,
         transition: flash ? 'none' : 'opacity 80ms ease',
+        ...(screenSvg ? {} : { background: '#000', borderRadius: 3 }),
         ...style,
       }}
       onClick={onClick}

@@ -1,3 +1,4 @@
+import { isPrerenderSnapshot } from '@/lib/isPrerenderSnapshot'
 import {
   EIM_PATH_VIEWBOX,
   EIM_TOUCH2_ORIGIN,
@@ -106,6 +107,10 @@ export function EimPathArt({
   }, [])
 
   useEffect(() => {
+    // Keep the snapshot host empty: baking the injected SVG freezes a stale
+    // reveal state that hydration would adopt and the dash system can't drive.
+    if (isPrerenderSnapshot()) return
+
     let cancelled = false
     const host = svgHostRef.current
     if (!host) return

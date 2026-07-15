@@ -1028,6 +1028,20 @@
   pointer-events: auto;
   touch-action: none;
   will-change: transform;
+  /* The pile mirrors its stage's dissolve (it paints in a body portal the
+     stage's own fade can't reach) — same tokens, and it stays mounted and
+     anchor-tracked while hidden so it dissolves in already in position. */
+  transition:
+    opacity var(--stage-exit-duration) ease,
+    filter var(--stage-exit-duration) ease;
+}
+
+.sticker-pile-portal[data-pile-visible='false'] {
+  opacity: 0;
+  filter: blur(var(--stage-exit-blur));
+  /* Backup for the inline value — the anchor-follow hook clears inline
+     pointer-events when it repositions the portal. */
+  pointer-events: none;
 }
 
 .sticker-pile-portal--pile-drag {
@@ -1158,6 +1172,33 @@
   transform: translate(-50%, -50%);
   pointer-events: none;
   touch-action: none;
+  /* Both visibility writers (React's chapterInView and the scroll spy) flip
+     inline opacity/visibility instantly — the transition here turns that into
+     a fade/blur exit; visibility waits for the fade so it doesn't cut it off. */
+  transition:
+    opacity var(--sticker-exit-duration) ease,
+    filter var(--sticker-exit-duration) ease,
+    visibility 0s linear var(--sticker-exit-duration);
+}
+
+/* Fading in: visibility must flip immediately or the fade paints nothing. */
+.sticker-placed[data-sticker-visible='true']:not([data-sticker-scroll-visible='false']) {
+  transition:
+    opacity var(--sticker-exit-duration) ease,
+    filter var(--sticker-exit-duration) ease,
+    visibility 0s;
+}
+
+.sticker-placed[data-sticker-scroll-visible='false'],
+.sticker-placed[data-sticker-visible='false'] {
+  filter: blur(var(--sticker-exit-blur));
+}
+
+/* Drag pickup and selection are direct manipulation — never eased. */
+.sticker-placed--ghost,
+.sticker-placed--selected {
+  transition: none;
+  filter: none;
 }
 
 .sticker-placed--ghost {
@@ -2036,6 +2077,40 @@ html {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+/* ── Prerender snapshot fade-out ─────────────────────────────────────────── */
+/* main.tsx parks the snapshot DOM here while the fresh render paints
+   underneath, then fades it — phone/tablet render fresh instead of hydrating
+   the desktop-captured snapshot, and this softens the swap. The global
+   reduced-motion rule collapses the fade to an instant cut. */
+/* Fade-tune tokens — dialable live via the ?fadeTune=1 panel (localStorage
+   overrides applied in main.tsx before the ghost mounts). */
+:root {
+  --ghost-fade-duration: 320ms;
+  --ghost-fade-blur: 8px;
+  --sticker-exit-duration: 320ms;
+  --sticker-exit-blur: 8px;
+  --stage-exit-duration: 320ms;
+  --stage-exit-blur: 12px;
+}
+
+.prerender-ghost {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-page-overlay, 240);
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 1;
+  filter: blur(0);
+  transition:
+    opacity var(--ghost-fade-duration) ease,
+    filter var(--ghost-fade-duration) ease;
+}
+
+.prerender-ghost--out {
+  opacity: 0;
+  filter: blur(var(--ghost-fade-blur));
 }
 
 /* ── Reduced motion (global) ─────────────────────────────────────────────── */

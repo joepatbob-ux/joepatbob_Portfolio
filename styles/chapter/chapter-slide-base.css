@@ -95,6 +95,22 @@
   min-width: 0;
   max-width: none;
   justify-self: stretch;
+  /* Stage exit: the scroll system latches stages visible and clears them with
+     a single opacity/visibility flip — this transition turns that flip into a
+     fade/blur (site default 320ms/12px; dialable via ?fadeTune=1).
+     Visibility waits for the fade on the way out; the pinned rule below flips
+     it immediately on the way in so the entry never waits. */
+  transition:
+    opacity var(--stage-exit-duration, 0ms) ease,
+    filter var(--stage-exit-duration, 0ms) ease,
+    visibility 0s linear var(--stage-exit-duration, 0ms);
+}
+
+.chapter-slide__stage[data-stage-pinned='true'] {
+  transition:
+    opacity var(--stage-exit-duration, 0ms) ease,
+    filter var(--stage-exit-duration, 0ms) ease,
+    visibility 0s;
 }
 
 .chapter-slide__stage > * {

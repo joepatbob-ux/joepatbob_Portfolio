@@ -23,7 +23,7 @@ const StickerLayer = dynamic(
     import('@/components/StickerLayer').then((m) => ({
       default: m.StickerLayer,
     })),
-  { loading: () => null },
+  { loading: () => null, preloadForHydration: true },
 )
 
 export default function App() {
