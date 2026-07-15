@@ -66,9 +66,19 @@ export function startIdlePrefetch(): void {
 
   const run = () => {
     onIdle(warmLazyChunks, 4_000)
-    onIdle(() => {
-      PREFETCH_ASSETS.forEach(prefetchAsset)
-    }, 10_000)
+    // The 3D binaries (~1.8MB of GLB + Draco) only pay off if the visitor
+    // heads toward the chapters — warm them on the first scroll instead of a
+    // blind idle timer, so a bounce never downloads them.
+    const warmBinaries = () => {
+      onIdle(() => {
+        PREFETCH_ASSETS.forEach(prefetchAsset)
+      }, 2_000)
+    }
+    if (window.scrollY > 0) {
+      warmBinaries()
+    } else {
+      window.addEventListener('scroll', warmBinaries, { once: true, passive: true })
+    }
   }
 
   if (document.readyState === 'complete') {

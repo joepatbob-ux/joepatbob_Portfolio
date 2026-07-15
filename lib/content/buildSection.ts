@@ -38,7 +38,7 @@ export function chapterFromMarkdown(raw: string): Chapter {
 }
 
 export function sectionFromMarkdown(sectionRaw: string, chapterRaws: readonly string[]): Section {
-  const { meta, body } = parseMarkdownFile<SectionMeta>(sectionRaw)
+  const { body } = parseMarkdownFile<SectionMeta>(sectionRaw)
   return sectionFromParts(sectionRaw, body, chapterRaws)
 }
 

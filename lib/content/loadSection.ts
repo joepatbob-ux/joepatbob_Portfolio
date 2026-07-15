@@ -1,5 +1,5 @@
 import type { Section } from '../types'
-import { chapterFromMarkdown, sectionFromParts } from './buildSection'
+import { sectionFromParts } from './buildSection'
 import { getContentRaw, requireContentRaw } from './contentModules'
 import { parseMarkdownFile } from './parseMarkdown'
 

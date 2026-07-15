@@ -3,7 +3,6 @@ import * as THREE from 'three'
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 import {
   cameraViewFittingPhones,
-  enclosingCameraView,
   lerpCameraView,
 } from '@/lib/phone-swap/phoneSwapCameraFit'
 

@@ -3,7 +3,6 @@ import { LAYOUT_MQ } from '@/lib/layout/breakpoints'
 import { getLayoutViewportHeight } from '@/lib/mobileViewport'
 import { getDocumentScrollY } from '@/lib/scroll/documentScrollY'
 import { useLayoutMobile } from '@/lib/hooks/useLayoutMobile'
-import { useMobileHeroViewport } from '@/lib/hooks/useMobileHeroViewport'
 import { flushScrollFrame, scheduleScrollFrame } from '@/lib/scroll/scrollFrame'
 import { useEffect } from 'react'
 import { useTheme } from '@/components/ThemeProvider'
@@ -14,8 +13,6 @@ const PORTRAIT_DARK = '/images/PortraitDark_MG_3490-optimized.jpg'
 export function Hero() {
   const { resolvedTheme } = useTheme()
   const isMobile = useLayoutMobile()
-
-  useMobileHeroViewport()
 
   useEffect(() => {
     const hero = document.getElementById('hero')

@@ -104,12 +104,15 @@ export const SegmentLcd = forwardRef<
     const root = rootRef.current
     if (!root || !screenSvg || atlas) return
 
+    // Rebuilt from the content key so the effect re-runs on lit-set content
+    // changes only, never on Set identity churn.
+    const litSet = new Set(litKey ? litKey.split('|') : [])
     const groupLitFlags = new Map<SVGElement, boolean>()
 
     root.querySelectorAll<SVGPathElement>('.lcd-seg').forEach((el) => {
       const group = el.closest<SVGElement>(GROUP_SELECTOR)
-      const groupLit = group?.id ? lit.has(group.id) : false
-      const selfLit = el.id ? lit.has(el.id) : false
+      const groupLit = group?.id ? litSet.has(group.id) : false
+      const selfLit = el.id ? litSet.has(el.id) : false
       const isLit = selfLit || groupLit
       applySegmentLit(el, isLit)
       if (group) groupLitFlags.set(group, (groupLitFlags.get(group) ?? false) || groupLit || selfLit)

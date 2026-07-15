@@ -1,5 +1,6 @@
 import { OrbitControls, TransformControls, useCursor } from '@react-three/drei'
 import { useFrame, useLoader, useThree } from '@react-three/fiber'
+import { usePrefersReducedMotion } from '@/lib/hooks/usePrefersReducedMotion'
 import {
   useCallback,
   useEffect,
@@ -20,7 +21,6 @@ import {
 } from '@/lib/phone-swap/phoneDeviceRoles'
 import {
   applyPoseToGroup,
-  readPoseFromGroup,
   snapshotForProgress,
 } from '@/lib/phone-swap/phoneSwapAnimation'
 import {
@@ -233,6 +233,9 @@ export function PhoneSwapScene({
   const androidRef = androidRefProp ?? androidRefLocal
   const iphoneRef = iphoneRefProp ?? iphoneRefLocal
   const controlsRef = useRef<OrbitControlsImpl>(null)
+  /* Reduced motion: collapse the swap arc to an instant cut */
+  const prefersReducedMotion = usePrefersReducedMotion()
+  const swapDurationMs = prefersReducedMotion ? 1 : animSettings.durationMs
   const progressRef = useRef(swapProgress)
   const targetProgress = useRef(swapProgress)
   const animFrom = useRef(swapProgress)
@@ -402,7 +405,7 @@ export function PhoneSwapScene({
       if (animating) {
         animLinear = Math.min(
           1,
-          (performance.now() - animStart.current) / animSettings.durationMs,
+          (performance.now() - animStart.current) / swapDurationMs,
         )
         if (animLinear >= 1) {
           progressRef.current = animTo.current

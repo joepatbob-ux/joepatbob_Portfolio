@@ -70,11 +70,21 @@
       media="(prefers-color-scheme: dark)"
       fetchpriority="high"
     />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Lato + JetBrains Mono self-hosted (latin/latin-ext subsets) — faces in
+         styles/globals.css; preload the two above-the-fold ones. -->
     <link
-      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Lato:wght@400&display=swap"
-      rel="stylesheet"
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href="/fonts/Lato-400-latin.woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href="/fonts/JetBrainsMono-700-latin.woff2"
+      crossorigin
     />
     <style id="theme-critical">
       html[data-theme='dark'] {

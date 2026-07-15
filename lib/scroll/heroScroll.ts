@@ -38,15 +38,6 @@ export const HERO_CHAPTER_SCROLL_GATE_VH = 0.58
 let heroZoneCommitted: boolean | null = null
 let lastResizeInnerH = 0
 
-/** Phone + tablet top-bar nav: scroll-Y hysteresis for hero intro vs frosted rail. */
-let topBarHeroScrollCommitted: boolean | null = null
-
-/** Re-enter hero intro when hero bottom rises above this (vh). */
-const TOP_BAR_HERO_ENTER_VH = 0.76
-
-export function resetTopBarHeroScrollHysteresis(): void {
-  topBarHeroScrollCommitted = null
-}
 
 /** Phone + tablet top-bar nav: hero intro until pin fade completes (matches applyHeroPinFade). */
 export function isTopBarInHeroScrollZone(): boolean {
@@ -59,7 +50,6 @@ export function isTopBarInHeroScrollZone(): boolean {
 
 export function resetHeroScrollZoneHysteresis(): void {
   heroZoneCommitted = null
-  resetTopBarHeroScrollHysteresis()
 }
 
 const HYSTERESIS_RESET_GRACE_MS = 500

@@ -46,7 +46,7 @@ export function applyIPhoneScreen(
     }
 
     child.geometry = child.geometry.clone()
-    const atlasUV = remapMeshUVsTo01(child)
+    remapMeshUVsTo01(child)
     const map = screenTextureForDisplay(screenTexture)
     if (map.image) map.needsUpdate = true
 
@@ -79,7 +79,7 @@ export function applyIPhone16Screen(
 
     child.geometry = child.geometry.clone()
     generateScreenUVsFromPosition(child, true)
-    const atlasUV = remapDisplayUVFlipV(child)
+    remapDisplayUVFlipV(child)
     backingGeometry = child.geometry.clone()
     nudgeGeometryAlongNormals(child.geometry, IPHONE16_DISPLAY.surfaceNudge)
     const map = screenTextureForDisplay(screenTexture)
@@ -221,7 +221,7 @@ export function applyPixel9Screen(
     }
 
     child.geometry = child.geometry.clone()
-    const atlasUV = remapMeshUVsTo01(child)
+    remapMeshUVsTo01(child)
     const map = screenTextureForDisplay(screenTexture)
     if (map.image) map.needsUpdate = true
 
@@ -457,7 +457,7 @@ export function applyAndroidScreen(
     if (child.name !== ANDROID_MESH.display) return
 
     child.geometry = child.geometry.clone()
-    const atlasUV = remapMeshUVsTo01(child)
+    remapMeshUVsTo01(child)
     const map = screenTextureForDisplay(screenTexture)
     if (map.image) {
       map.needsUpdate = true

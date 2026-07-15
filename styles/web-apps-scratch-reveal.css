@@ -291,7 +291,12 @@
   transition: transform 160ms ease;
 }
 
-.web-apps-scratch__tray-bar--ready:hover .web-apps-scratch__tray-coin-img,
+@media (hover: hover) {
+  .web-apps-scratch__tray-bar--ready:hover .web-apps-scratch__tray-coin-img {
+    transform: scale(0.9);
+  }
+}
+
 .web-apps-scratch__tray-bar--ready:focus-visible .web-apps-scratch__tray-coin-img {
   transform: scale(0.9);
 }
@@ -333,8 +338,10 @@
   cursor: pointer;
 }
 
-.web-apps-scratch__reset:hover {
-  background: rgba(245, 67, 27, 0.08);
+@media (hover: hover) {
+  .web-apps-scratch__reset:hover {
+    background: rgba(245, 67, 27, 0.08);
+  }
 }
 
 .web-apps-scratch__reset:focus-visible {

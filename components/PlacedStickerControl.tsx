@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useLayoutEffect, useRef, useState } from 'react'
 import { rotateHandleAtPoint } from '@/lib/stickerHitTest'
 import { useChapterNav } from '@/components/ChapterNavProvider'
 import { Sticker } from '@/components/Sticker'

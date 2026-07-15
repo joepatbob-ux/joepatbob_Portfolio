@@ -10,7 +10,6 @@
 
 import {
   boardScale,
-  BOARD_VIEWBOX,
   GRID_STEP,
   nearestStudFromNative,
   type PegCoord,

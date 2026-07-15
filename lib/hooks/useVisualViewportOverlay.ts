@@ -32,5 +32,5 @@ export function useVisualViewportOverlay(
       window.removeEventListener('resize', run)
       clearVisualViewportSync(el)
     }
-  }, [active])
+  }, [active, ref])
 }

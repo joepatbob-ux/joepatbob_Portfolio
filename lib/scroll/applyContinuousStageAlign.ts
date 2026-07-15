@@ -245,11 +245,6 @@ function applyCssViewportCenter(
   clearArtifactTransform(align)
 }
 
-function clearCssViewportCenter(stage: HTMLElement): void {
-  if (stage.dataset.stageCentered == null) return
-  delete stage.dataset.stageCentered
-  stage.style.removeProperty('--stage-artifact-half')
-}
 
 /* ---------------------------------------------------------------------------
  * Per-frame pipeline: one measure pass (all layout reads), one write pass
@@ -373,7 +368,7 @@ function measureStage(
   pinId: string | null,
   vh: number,
 ): StageMeasure | null {
-  const { stage, align, copy, chapterId, stageReveal, copyReveal } = entry
+  const { align, copy, chapterId, stageReveal, copyReveal } = entry
   if (!chapterId || !copy || !align) return null
 
   const stageOpacity = stageOpacityFromReveal(stageReveal)

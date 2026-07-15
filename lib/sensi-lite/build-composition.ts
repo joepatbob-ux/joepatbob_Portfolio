@@ -35,15 +35,6 @@ function addLetterSegments(target: Set<SegmentId>, position: DigitPosition, lett
   })
 }
 
-function addSegmentPattern(
-  target: Set<SegmentId>,
-  position: DigitPosition,
-  pattern: readonly number[],
-) {
-  SEG_PARTS.forEach((seg, index) => {
-    if (pattern[index]) target.add(digitSegmentId(position, seg))
-  })
-}
 
 export function buildTempDisplay(target: Set<SegmentId>, value: number | null) {
   if (value === null) {

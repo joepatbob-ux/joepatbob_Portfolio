@@ -19,7 +19,6 @@ export function bindTopBarScrollSpy(
 
   let rafId = 0
   let lastInHero: boolean | null = null
-  let lastActiveId: string | null = null
   let heroPaused = isTopBarInHeroScrollZone()
 
   const publish = () => {
@@ -27,7 +26,6 @@ export function bindTopBarScrollSpy(
     publishSlideScrollState(state)
     applyPlacedStickerScrollVisibility(state.revealMap, state.activeSlideId, state.inHero)
     lastInHero = state.inHero
-    lastActiveId = state.activeSlideId
     onUpdate(state)
   }
 

@@ -82,8 +82,10 @@
   text-transform: uppercase;
 }
 
-.verdant-selector__key:hover {
-  box-shadow: 0 0 0 1px var(--color-nav-pill-outline);
+@media (hover: hover) {
+  .verdant-selector__key:hover {
+    box-shadow: 0 0 0 1px var(--color-nav-pill-outline);
+  }
 }
 
 .verdant-selector__key--active {

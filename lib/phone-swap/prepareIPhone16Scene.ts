@@ -251,17 +251,13 @@ export function prepareIPhone16Scene(
   const clone = raw.clone(true)
   isolateMeshGeometries(clone)
 
-  const { radius, maxDim } = normalizeModel(clone)
+  const { radius } = normalizeModel(clone)
   mirrorModelX(clone)
 
   applyIPhone16ProMaterials(clone, proMaps)
   applyIPhone16FrontBezel(clone)
-  const displayMeshes = applyIPhone16Screen(clone, screenTexture)
+  applyIPhone16Screen(clone, screenTexture)
   applyIPhone16FrontOverlays(clone)
-
-  const display = clone.getObjectByName(IPHONE16_MESH.display)
-  const body = clone.getObjectByName(IPHONE16_MESH.body)
-  const glass = clone.getObjectByName(IPHONE16_MESH.glass)
 
   return { scene: clone, fitRadius: radius }
 }

@@ -18,7 +18,6 @@ function slideModifier(chapter: Chapter): string {
 
 export function StudyChapter({ chapter, sectionId, isLast, stage }: Props) {
   const chapterId = `${sectionId}-${chapter.id}`
-  const stacked = chapter.imageLayout === 'full-width'
 
   return (
     <ChapterSlideLayout
