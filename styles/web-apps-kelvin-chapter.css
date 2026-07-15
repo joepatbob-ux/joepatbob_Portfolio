@@ -49,8 +49,10 @@
 .web-apps-nda-note {
   margin: 0 0 20px;
   padding: 0;
+  /* Small mono runs long in the copy column — cap at a reading measure */
+  max-width: 70ch;
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: var(--text-caption);
   line-height: 1.5;
   letter-spacing: 0.02em;
   color: var(--color-ink);
@@ -127,7 +129,7 @@
   margin: 0 0 var(--space-3);
   font-size: var(--cs-eyebrow-size);
   letter-spacing: var(--cs-eyebrow-tracking);
-  color: var(--color-accent);
+  color: var(--color-accent-text, var(--color-accent));
 }
 
 [data-section-id='web-apps'] .mobile-prose__p,

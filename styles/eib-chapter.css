@@ -9,7 +9,7 @@
 
 .eib-chapter-intro__eyebrow {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--text-label);
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -77,7 +77,7 @@
 
 .eib-patent-row__number {
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: var(--text-caption);
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -87,7 +87,7 @@
 
 .eib-patent-row__status {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--text-label);
   color: var(--color-muted);
   margin: 0.35rem 0 0;
 }
@@ -111,7 +111,7 @@
 .eib-practice-close__cta {
   margin: 0;
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: var(--text-caption);
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;

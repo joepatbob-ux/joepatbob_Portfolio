@@ -31,7 +31,8 @@ export function TopToolbar({
         </button>
       </LiquidGlassSurface>
 
-      <h1 className="sma-toolbar__title">{title}</h1>
+      {/* Mock phone chrome — not a document heading (the page owns its h1) */}
+      <p className="sma-toolbar__title">{title}</p>
 
       <LiquidGlassSurface className="sma-toolbar__btn-wrap sma-toolbar__btn-wrap--trailing">
         <button type="button" className="sma-icon-btn sma-icon-btn--help" aria-label="Help">

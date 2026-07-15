@@ -24,7 +24,6 @@ export function SidebarHeroName({ variant }: { variant: 'desktop' | 'mobile' }) 
       >
         Hello, I am
       </div>
-      {isMobile ? <h1 className="visually-hidden">Joseph Patrick Roberts</h1> : null}
       <div
         className={isMobile ? undefined : 'sidebar-hero-name__display'}
         style={{

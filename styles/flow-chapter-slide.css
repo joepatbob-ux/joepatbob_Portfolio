@@ -22,9 +22,13 @@
    px twin of the body measure — `ch` can't cross the larger headline font. */
 .flow-chapter-slide__copy .mobile-section-header__headline,
 .flow-chapter-slide__copy .case-study-section-header__headline,
-.flow-chapter-slide__copy .case-study-section-header__subhead,
-.flow-chapter-slide__copy .web-apps-nda-note {
+.flow-chapter-slide__copy .case-study-section-header__subhead {
   max-width: min(var(--cs-copy-measure-px, 712px), 100%);
+}
+
+/* Small mono runs long — also cap at its own reading measure (70ch @12px) */
+.flow-chapter-slide__copy .web-apps-nda-note {
+  max-width: min(var(--cs-copy-measure-px, 712px), 70ch, 100%);
 }
 
 .flow-chapter-slide__copy .mobile-sub-story__heading {

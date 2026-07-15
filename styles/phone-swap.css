@@ -67,7 +67,7 @@
 /* Live SMA proto — body-portal hit layer above fixed chapter panels */
 .sma-phone-overlay {
   position: fixed;
-  z-index: 12000;
+  z-index: var(--z-proto-overlay);
   opacity: 0;
   overflow: hidden;
   pointer-events: none;
@@ -144,7 +144,7 @@
 }
 
 .phone-swap__layout-toggle {
-  font-size: 12px;
+  font-size: var(--text-caption);
   color: #444;
   background: rgba(255, 255, 255, 0.92);
   border: 0.5px solid rgba(0, 0, 0, 0.18);
@@ -168,7 +168,7 @@
 .phone-dev-tools-menu__backdrop {
   position: fixed;
   inset: 0;
-  z-index: 10049;
+  z-index: calc(var(--z-dev-tools) - 1);
   border: 0;
   padding: 0;
   margin: 0;
@@ -178,10 +178,10 @@
 
 .phone-dev-tools-menu {
   position: fixed;
-  z-index: 10050;
+  z-index: var(--z-dev-tools);
   min-width: 168px;
   padding: var(--space-2);
-  border-radius: 10px;
+  border-radius: 12px;
   border: 0.5px solid rgba(0, 0, 0, 0.14);
   background: rgba(255, 255, 255, 0.98);
   box-shadow: 0 8px 28px rgba(0, 0, 0, 0.14);
@@ -191,7 +191,7 @@
 .phone-dev-tools-menu__label {
   margin: 0;
   padding: var(--space-2) var(--space-3) var(--space-1);
-  font-size: 10px;
+  font-size: var(--text-micro);
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -204,11 +204,11 @@
   margin: 0;
   padding: var(--space-2) var(--space-3);
   border: 0;
-  border-radius: 7px;
+  border-radius: 8px;
   background: transparent;
   color: #222;
   font: inherit;
-  font-size: 13px;
+  font-size: var(--text-ui);
   text-align: left;
   cursor: pointer;
 }
@@ -225,7 +225,7 @@
 }
 
 .phone-anim-tune-panel {
-  z-index: 10051;
+  z-index: calc(var(--z-dev-tools) + 1);
 }
 
 .phone-layout-panel {
@@ -237,9 +237,9 @@
   border: 0.5px solid rgba(0, 0, 0, 0.12);
   background: rgba(18, 18, 20, 0.96);
   color: #f2f2f2;
-  font-size: 12px;
+  font-size: var(--text-caption);
   line-height: 1.45;
-  z-index: 10050;
+  z-index: var(--z-dev-tools);
   pointer-events: auto;
   box-shadow:
     0 12px 40px rgba(0, 0, 0, 0.35),
@@ -284,7 +284,7 @@
 
 .phone-layout-panel__drag-hint {
   flex-shrink: 0;
-  font-size: 14px;
+  font-size: var(--text-body-sm);
   line-height: 1;
   letter-spacing: -0.12em;
   color: rgba(255, 255, 255, 0.35);
@@ -293,18 +293,18 @@
 
 .phone-layout-panel__header strong {
   flex: 1 1 auto;
-  font-size: 13px;
+  font-size: var(--text-ui);
   font-weight: 600;
   min-width: 0;
 }
 
 .phone-layout-panel__close {
   font: inherit;
-  font-size: 11px;
+  font-size: var(--text-label);
   color: #ddd;
   background: transparent;
   border: 0.5px solid rgba(255, 255, 255, 0.25);
-  border-radius: 6px;
+  border-radius: 8px;
   padding: var(--space-1) var(--space-3);
   cursor: pointer;
 }
@@ -327,11 +327,11 @@
 
 .phone-layout-panel button {
   font: inherit;
-  font-size: 11px;
+  font-size: var(--text-label);
   color: #ddd;
   background: rgba(255, 255, 255, 0.06);
   border: 0.5px solid rgba(255, 255, 255, 0.14);
-  border-radius: 6px;
+  border-radius: 8px;
   padding: var(--space-2) var(--space-3);
   cursor: pointer;
 }
@@ -359,7 +359,7 @@
 
 .phone-layout-panel__status--camera {
   font-family: var(--font-mono, ui-monospace, monospace);
-  font-size: 10px;
+  font-size: var(--text-micro);
   line-height: 1.5;
 }
 
@@ -370,7 +370,7 @@
 }
 
 .phone-layout-panel__coords dt {
-  font-size: 10px;
+  font-size: var(--text-micro);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: #888;
@@ -379,7 +379,7 @@
 .phone-layout-panel__coords dd {
   margin: 0;
   font-family: var(--font-mono, ui-monospace, monospace);
-  font-size: 10px;
+  font-size: var(--text-micro);
   color: #ccc;
 }
 
@@ -402,7 +402,7 @@
 }
 
 .phone-layout-panel__fieldset legend {
-  font-size: 10px;
+  font-size: var(--text-micro);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: #999;
@@ -419,7 +419,7 @@
   display: flex;
   flex-direction: column;
   gap: 3px;
-  font-size: 9px;
+  font-size: var(--text-nano);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: #888;
@@ -428,7 +428,7 @@
 .phone-layout-panel__inputs input {
   font: inherit;
   font-family: var(--font-mono, ui-monospace, monospace);
-  font-size: 11px;
+  font-size: var(--text-label);
   color: #eee;
   background: rgba(0, 0, 0, 0.35);
   border: 0.5px solid rgba(255, 255, 255, 0.18);
@@ -453,7 +453,7 @@
 }
 
 .phone-layout-panel__view-box legend {
-  font-size: 10px;
+  font-size: var(--text-micro);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: #999;
@@ -473,7 +473,7 @@
 }
 
 .phone-layout-panel__view-box-row span {
-  font-size: 10px;
+  font-size: var(--text-micro);
   color: #999;
 }
 
@@ -484,20 +484,20 @@
 
 .phone-layout-panel__view-box-row output {
   font-family: var(--font-mono, ui-monospace, monospace);
-  font-size: 11px;
+  font-size: var(--text-label);
   color: #ccc;
   text-align: right;
 }
 
 .phone-layout-panel__view-box-hint {
   margin: 8px 0 0;
-  font-size: 10px;
+  font-size: var(--text-micro);
   color: #888;
   line-height: 1.4;
 }
 
 .phone-material-tune-panel__count {
-  font-size: 11px;
+  font-size: var(--text-label);
   color: #888;
   align-self: center;
 }
@@ -509,7 +509,7 @@
 
 .phone-material-tune-panel__field-hint {
   margin: 0 0 var(--space-2);
-  font-size: 10px;
+  font-size: var(--text-micro);
   color: #777;
   line-height: 1.4;
 }
@@ -517,7 +517,7 @@
 .phone-layout-panel select,
 .phone-material-tune-panel__select {
   font: inherit;
-  font-size: 11px;
+  font-size: var(--text-label);
   color: #eee;
   background-color: rgba(0, 0, 0, 0.45);
   border: 0.5px solid rgba(255, 255, 255, 0.22);
@@ -552,7 +552,7 @@
 }
 
 .phone-material-tune-panel__color-row code {
-  font-size: 10px;
+  font-size: var(--text-micro);
   color: #666;
 }
 
@@ -684,7 +684,7 @@
 .phone-layout-guides__tag {
   position: absolute;
   font-family: var(--font-mono, ui-monospace, monospace);
-  font-size: 9px;
+  font-size: var(--text-nano);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: rgba(0, 0, 0, 0.42);
@@ -732,7 +732,7 @@
 }
 
 .phone-swap__sep {
-  font-size: 11px;
+  font-size: var(--text-label);
   color: #bbb;
 }
 
@@ -844,7 +844,7 @@
 }
 
 .phone-swap__btn {
-  font-size: 13px;
+  font-size: var(--text-ui);
   color: #555;
   background: transparent;
   border: 0.5px solid rgba(0, 0, 0, 0.2);
@@ -860,7 +860,7 @@
 
 .phone-swap__fallback {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--text-label);
   line-height: 1.5;
   color: var(--color-muted);
   text-align: center;
@@ -878,7 +878,7 @@
 .phone-swap__fallback-detail {
   display: block;
   margin-top: 8px;
-  font-size: 10px;
+  font-size: var(--text-micro);
   word-break: break-word;
 }
 
@@ -1181,7 +1181,7 @@
   transform: none;
   height: calc(var(--contact-h) - 4px);
   padding: 0 var(--space-2);
-  font-size: 10px;
+  font-size: var(--text-micro);
   letter-spacing: 0.06em;
   color: var(--color-accent);
   border-radius: 999px;

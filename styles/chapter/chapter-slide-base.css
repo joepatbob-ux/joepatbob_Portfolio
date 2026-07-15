@@ -251,9 +251,11 @@
   }
 }
 
-/* Desktop row (≥1200): left-aligned copy — mobile/compact center in their sheets */
+/* Desktop row (≥1200): left-aligned copy — mobile/compact center in their
+   sheets; the centered overview variant keeps its own alignment. */
 @media (min-width: 1200px) {
-  .chapter-slide__inner:not(.chapter-slide__inner--compact-expand) .chapter-slide__copy {
+  .chapter-slide__inner:not(.chapter-slide__inner--compact-expand)
+    .chapter-slide__copy:not(.chapter-slide__copy--overview-center) {
     text-align: left;
   }
 
@@ -320,7 +322,7 @@
   position: relative;
   z-index: 1;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--text-micro);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: rgba(0, 0, 0, 0.25);

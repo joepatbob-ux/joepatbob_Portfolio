@@ -50,6 +50,9 @@
     --color-accent:     #DE3E18;
     /* Links / nav hovers: darker still for ~AA against paper and clear focus/hover signal. */
     --color-accent-hover: #B73412;
+    /* Accent for SMALL text (10-11px microlabels/eyebrows): base accent is
+       ~3.8:1 on light paper — this hits >=4.5:1 (AA). Dark theme overrides. */
+    --color-accent-text: #B73412;
     --color-rule:       rgba(0, 0, 0, 0.1);
     /* ~4.5:1 vs paper for 14px body (was 0.45 alpha — too light). */
     --color-muted:      rgba(13, 13, 13, 0.72);
@@ -81,6 +84,12 @@
     --z-mobile-drawer:      110;
     --z-mobile-learn-more:  112;
     --formation-z-bricks:   120;
+    /* Full-screen overlays — above all app chrome, in stacking order */
+    --z-page-overlay:       240; /* 404 takeover */
+    --z-skip-link:          300;
+    --z-dev-tools:          400; /* phone dev menus/panels (±1 for backdrop/panel) */
+    --z-proto-overlay:      500; /* live SMA proto hit layer */
+    --z-debug-atlas:        600; /* sensi-lite segment atlas */
   }
 
   @media (prefers-color-scheme: dark) {
@@ -91,6 +100,7 @@
       --color-rule:       rgba(255, 255, 255, 0.12);
       --color-muted:      rgba(240, 238, 234, 0.78);
       --color-accent-nav-hover:    #ff9a7a;
+      --color-accent-text: #E8552F;
       --color-nav-faded-selection: rgba(222, 62, 24, 0.45);
       --color-nav-pill-muted-accent-1: rgba(222, 62, 24, 0.16);
       --color-nav-pill-outline:        rgba(222, 62, 24, 0.48);
@@ -106,6 +116,7 @@
     --color-rule:       rgba(255, 255, 255, 0.12);
     --color-muted:      rgba(240, 238, 234, 0.78);
     --color-accent-nav-hover:    #ff9a7a;
+    --color-accent-text: #E8552F;
     --color-nav-faded-selection: rgba(222, 62, 24, 0.45);
     --color-nav-pill-muted-accent-1: rgba(222, 62, 24, 0.16);
     --color-nav-pill-outline:        rgba(222, 62, 24, 0.48);
@@ -363,7 +374,7 @@
 .contact-liquid:hover .contact-liquid__surface,
 .contact-liquid:focus-within .contact-liquid__surface {
   width: var(--contact-expanded);
-  border-radius: 22px;
+  border-radius: var(--contact-radius);
   background: var(--color-nav-pill-muted-accent-1);
   box-shadow: none;
 }
@@ -376,7 +387,7 @@
   justify-content: center;
   font-family: var(--font-mono), ui-monospace, monospace;
   font-weight: 700;
-  font-size: 11px;
+  font-size: var(--text-label);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: #fff;
@@ -424,7 +435,7 @@
   font: inherit;
   font-family: var(--font-mono), ui-monospace, monospace;
   font-weight: 700;
-  font-size: 11px;
+  font-size: var(--text-label);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: #fff;
@@ -451,7 +462,7 @@
 .contact-liquid:focus-within .contact-liquid__btn {
   opacity: 1;
   transform: translateX(0) scale(1);
-  color: var(--color-accent);
+  color: var(--color-accent-text, var(--color-accent));
 }
 
 .contact-liquid__btn:hover,
@@ -737,7 +748,7 @@
 .closing-quote__attr {
   margin: 0;
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 11px;
+  font-size: var(--text-label);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -748,7 +759,7 @@
 .not-found-page {
   position: fixed;
   inset: 0;
-  z-index: 1000;
+  z-index: var(--z-page-overlay);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -764,7 +775,7 @@
 .not-found-page__code {
   margin: 0;
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 11px;
+  font-size: var(--text-label);
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -800,7 +811,7 @@
   border-radius: 24px;
   border: 2px solid #fff;
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 11px;
+  font-size: var(--text-label);
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -1049,7 +1060,7 @@
 
 .sticker-pile__empty {
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: var(--text-caption);
   color: var(--color-muted);
   margin: 0;
   padding: 48px 0;
@@ -1502,7 +1513,7 @@ html {
 .chapter-copy__subtitle {
   margin: clamp(12px, 1.5vw, 16px) 0 0;
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: var(--text-ui);
   font-weight: 700;
   color: var(--color-muted);
   letter-spacing: 0.01em;
@@ -1595,7 +1606,7 @@ html {
 
 .chapter-fact__trigger:hover .chapter-fact__label,
 .chapter-fact[data-state='open'] .chapter-fact__label {
-  color: var(--color-accent);
+  color: var(--color-accent-text, var(--color-accent));
 }
 
 /* Icon: two rounded bars over a 12px box (4pt grid). Closed = plus; open = minus
@@ -1783,7 +1794,7 @@ html {
   min-width: 14px;
   padding: 1px 3px;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--text-micro);
   font-weight: 700;
   line-height: 1.2;
   text-align: center;
@@ -1857,7 +1868,7 @@ html {
   margin: 0;
   padding: var(--space-2) var(--space-3);
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--text-micro);
   font-weight: 700;
   letter-spacing: 0.04em;
   color: #fff;
@@ -1872,7 +1883,7 @@ html {
 
 .eim-path-art__debug-num {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: var(--text-nano);
   font-weight: 700;
   fill: #fff;
   stroke: #1a1a1a;
@@ -1890,7 +1901,7 @@ html {
 
 .eim-path-art__debug-origin-label {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: var(--text-nano);
   font-weight: 700;
   fill: #00aeef;
   pointer-events: none;
@@ -1898,7 +1909,7 @@ html {
 
 .eim-meander-line__label {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--text-micro);
   font-weight: 700;
   letter-spacing: 0.06em;
   fill: #c45c00;
@@ -1918,11 +1929,11 @@ html {
   position: absolute;
   left: calc(12px + var(--safe-area-left));
   top: calc(12px + var(--safe-area-top));
-  z-index: 9999;
+  z-index: var(--z-skip-link);
   padding: var(--space-2) var(--space-4);
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 12px;
+  font-size: var(--text-caption);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   text-decoration: none;

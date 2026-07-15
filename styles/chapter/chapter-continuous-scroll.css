@@ -129,9 +129,19 @@
     .chapter-slide__inner {
     max-height: none !important;
     height: auto;
-    /* Cinema displays: the slideshow shell forces max-width 100%, which lets
-       the band span the whole pane — re-apply the band cap and center it. */
-    max-width: min(var(--cs-band-max), 100%) !important;
+    /* Center the band in the content pane (like the interlude): cap it at the
+       width the content actually uses — the copy measure is 6/11 of the band
+       (5fr:6fr grid), so band = measure × 11/6 + gutter. Below ~1450px the
+       pane is narrower than that, so nothing changes; on wide screens the
+       leftover space splits evenly instead of piling up on the right. */
+    max-width: min(
+      var(--cs-band-max),
+      100%,
+      calc(
+        var(--cs-copy-measure-px, 712px) * 11 / 6 +
+          var(--cs-continuous-grid-gap, 56px)
+      )
+    ) !important;
     margin-inline: auto !important;
   }
 

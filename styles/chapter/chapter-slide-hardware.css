@@ -399,7 +399,7 @@
   }
 
   .hardware-slideshow .chapter-copy__body {
-    font-size: 17px;
+    font-size: 17px; /* deliberate cinema body bump — pairs with the 695px measure above */
     line-height: 1.72;
     max-width: var(--hw-copy-measure);
   }

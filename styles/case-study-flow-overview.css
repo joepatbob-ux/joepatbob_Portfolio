@@ -117,10 +117,10 @@
         var(--cs-continuous-grid-gap, 56px) + var(--cs-copy-measure-px, 712px) -
         var(--cs-overview-narrow, clamp(32px, 4vw, 96px))
     );
-    /* Copy-only inner centers its children; pin the intro to the band's left edge
-       so it lines up with the chapters instead of centering. */
-    align-self: flex-start;
-    margin-inline: 0 auto;
+    /* Center the overview block in the band — same axis as the interlude
+       and the chapter compositions. */
+    align-self: center;
+    margin-inline: auto;
   }
 }
 
@@ -143,6 +143,9 @@
 
 .case-study-flow-overview .chapter-slide__copy--overview .mobile-prose__p {
   width: 100%;
+  /* The intro deliberately runs the full overview band: every overview
+     element shares one right edge with the chapters (a capped reading
+     measure here breaks that alignment — reverted after review). */
   max-width: none !important;
   margin-inline: 0 !important;
   margin-bottom: 0;
@@ -181,7 +184,7 @@
   font-size: var(--cs-label-size);
   letter-spacing: var(--cs-label-tracking);
   text-transform: uppercase;
-  color: var(--color-accent);
+  color: var(--color-accent-text, var(--color-accent));
   line-height: 1.35;
   text-align: left;
 }
@@ -199,7 +202,7 @@
   margin: 0;
   font-family: var(--font-body);
   font-weight: 600;
-  font-size: 15px;
+  font-size: var(--text-body-md);
   line-height: 1.25;
   color: var(--cs-body-color);
 }
@@ -237,7 +240,7 @@
 .case-study-overview-row__name {
   font-family: var(--font-body);
   font-weight: 600;
-  font-size: 15px;
+  font-size: var(--text-body-md);
   line-height: 1.4;
   color: var(--cs-body-color);
   white-space: nowrap;
@@ -254,7 +257,7 @@
 
 .case-study-overview-row__meta {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--text-label);
   line-height: 1.4;
   letter-spacing: 0.02em;
   color: var(--color-ink);
@@ -335,10 +338,10 @@
   margin: clamp(12px, 2vh, 16px) 0 0;
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 11px;
+  font-size: var(--text-label);
   letter-spacing: 0.02em;
   text-transform: uppercase;
-  color: var(--color-accent);
+  color: var(--color-accent-text, var(--color-accent));
 }
 
 @media (min-width: 640px) {
@@ -362,8 +365,9 @@
   }
 
   .case-study-flow-overview.portfolio-chapter-slot--fill
-    .chapter-slide__copy--overview,
-  .hardware-slideshow.case-study-flow-overview .chapter-slide__copy--overview {
+    .chapter-slide__copy--overview:not(.chapter-slide__copy--overview-center),
+  .hardware-slideshow.case-study-flow-overview
+    .chapter-slide__copy--overview:not(.chapter-slide__copy--overview-center) {
     text-align: left;
   }
 
