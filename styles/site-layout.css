@@ -171,17 +171,11 @@ html.sidebar-tablet-hero-active .sidebar-desktop-shell {
   box-sizing: border-box;
 }
 
-/* Let the statement headline run wider than the prose measure (same cap as
-   the chapter band) so it balances into two lines instead of three; the
-   body below keeps the 86ch reading measure. */
+/* Let the statement headline run wider than the prose measure (the shared
+   band cap) so it balances into two lines instead of three; the body below
+   keeps the 86ch reading measure. */
 .portfolio-interlude__copy.portfolio-interlude__copy--classic {
-  max-width: min(
-    calc(
-      var(--cs-copy-measure-px, 712px) * 11 / 6 +
-        var(--cs-continuous-grid-gap, 56px)
-    ),
-    100%
-  );
+  max-width: min(var(--cs-band-content-cap, 100%), 100%);
 }
 
 .portfolio-interlude__copy.portfolio-interlude__copy--classic .portfolio-interlude__body {
