@@ -62,7 +62,10 @@ export function SmaPhoneScreenOverlay({
         height: rect?.height ?? SMA_LOGICAL_HEIGHT,
         visibility: visible && rect ? 'visible' : 'hidden',
         pointerEvents: active ? 'auto' : 'none',
-        touchAction: active ? 'manipulation' : 'none',
+        /* pan-y: taps drive the live proto, vertical swipes keep scrolling
+           the page — this fixed overlay sits exactly over the phone screen,
+           so touch-action: none here would trap the scroll on iOS. */
+        touchAction: active ? 'pan-y' : 'none',
       }}
       aria-hidden
       onPointerDown={active ? handlePointerDown : undefined}
