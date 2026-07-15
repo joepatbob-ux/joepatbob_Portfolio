@@ -12,7 +12,7 @@
   font-size: var(--cs-eyebrow-size);
   letter-spacing: var(--cs-eyebrow-tracking);
   text-transform: uppercase;
-  color: var(--color-accent);
+  color: var(--color-accent-text, var(--color-accent));
 }
 
 .mobile-section-header__headline {

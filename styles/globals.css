@@ -50,6 +50,9 @@
     --color-accent:     #DE3E18;
     /* Links / nav hovers: darker still for ~AA against paper and clear focus/hover signal. */
     --color-accent-hover: #B73412;
+    /* Accent for SMALL text (10-11px microlabels/eyebrows): base accent is
+       ~3.8:1 on light paper — this hits >=4.5:1 (AA). Dark theme overrides. */
+    --color-accent-text: #B73412;
     --color-rule:       rgba(0, 0, 0, 0.1);
     /* ~4.5:1 vs paper for 14px body (was 0.45 alpha — too light). */
     --color-muted:      rgba(13, 13, 13, 0.72);
@@ -97,6 +100,7 @@
       --color-rule:       rgba(255, 255, 255, 0.12);
       --color-muted:      rgba(240, 238, 234, 0.78);
       --color-accent-nav-hover:    #ff9a7a;
+      --color-accent-text: #E8552F;
       --color-nav-faded-selection: rgba(222, 62, 24, 0.45);
       --color-nav-pill-muted-accent-1: rgba(222, 62, 24, 0.16);
       --color-nav-pill-outline:        rgba(222, 62, 24, 0.48);
@@ -112,6 +116,7 @@
     --color-rule:       rgba(255, 255, 255, 0.12);
     --color-muted:      rgba(240, 238, 234, 0.78);
     --color-accent-nav-hover:    #ff9a7a;
+    --color-accent-text: #E8552F;
     --color-nav-faded-selection: rgba(222, 62, 24, 0.45);
     --color-nav-pill-muted-accent-1: rgba(222, 62, 24, 0.16);
     --color-nav-pill-outline:        rgba(222, 62, 24, 0.48);
@@ -457,7 +462,7 @@
 .contact-liquid:focus-within .contact-liquid__btn {
   opacity: 1;
   transform: translateX(0) scale(1);
-  color: var(--color-accent);
+  color: var(--color-accent-text, var(--color-accent));
 }
 
 .contact-liquid__btn:hover,
@@ -1601,7 +1606,7 @@ html {
 
 .chapter-fact__trigger:hover .chapter-fact__label,
 .chapter-fact[data-state='open'] .chapter-fact__label {
-  color: var(--color-accent);
+  color: var(--color-accent-text, var(--color-accent));
 }
 
 /* Icon: two rounded bars over a 12px box (4pt grid). Closed = plus; open = minus

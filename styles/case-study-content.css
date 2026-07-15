@@ -73,7 +73,8 @@
   font-size: var(--cs-label-size);
   letter-spacing: var(--cs-label-tracking);
   text-transform: uppercase;
-  color: var(--color-accent);
+  /* 11px accent text needs the AA-passing accent (base is ~3.8:1 on paper) */
+  color: var(--color-accent-text, var(--color-accent));
   line-height: 1.35;
 }
 

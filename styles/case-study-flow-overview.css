@@ -143,7 +143,11 @@
 
 .case-study-flow-overview .chapter-slide__copy--overview .mobile-prose__p {
   width: 100%;
-  max-width: none !important;
+  /* Reading measure: the intro previously ran the full overview band
+     (~119ch on desktop). Cap the text at an editorial lede measure; the
+     meta/scope rows below keep the wide band. (!important still needed to
+     beat the upstream prose cap this rule originally fought.) */
+  max-width: 80ch !important;
   margin-inline: 0 !important;
   margin-bottom: 0;
 }
@@ -181,7 +185,7 @@
   font-size: var(--cs-label-size);
   letter-spacing: var(--cs-label-tracking);
   text-transform: uppercase;
-  color: var(--color-accent);
+  color: var(--color-accent-text, var(--color-accent));
   line-height: 1.35;
   text-align: left;
 }
@@ -315,8 +319,10 @@
 }
 
 .case-study-overview-quote__text p {
-  margin: 0;
+  margin: 0 auto;
   width: 100%;
+  /* Reading measure for the pull quote (block stays centered) */
+  max-width: 70ch;
   font-family: var(--font-body);
   font-weight: 600;
   font-size: 1em;
@@ -338,7 +344,7 @@
   font-size: 11px;
   letter-spacing: 0.02em;
   text-transform: uppercase;
-  color: var(--color-accent);
+  color: var(--color-accent-text, var(--color-accent));
 }
 
 @media (min-width: 640px) {
