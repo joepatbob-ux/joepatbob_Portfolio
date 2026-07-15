@@ -318,10 +318,8 @@
 }
 
 .case-study-overview-quote__text p {
-  margin: 0 auto;
+  margin: 0;
   width: 100%;
-  /* Reading measure for the pull quote (block stays centered) */
-  max-width: 70ch;
   font-family: var(--font-body);
   font-weight: 600;
   font-size: 1em;
