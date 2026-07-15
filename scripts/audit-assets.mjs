@@ -51,6 +51,9 @@ const ORPHAN_ALLOWED = new Set([
   '/robots.txt',
   '/sitemap.xml',
   '/og-share.jpg',
+  // Referenced from lib/contact.ts (CONTACT_RESUME_URL) — root-level .docx
+  // sits outside PATH_PATTERN's directory/extension scope.
+  '/Joseph_Roberts_Resume.docx',
 ])
 
 /** Optional local-only assets (gitignored exports). */
