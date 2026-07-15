@@ -1,7 +1,13 @@
 import { useEffect, useState } from 'react'
 
 export function usePrefersReducedMotion(): boolean {
-  const [reduced, setReduced] = useState(false)
+  // Read synchronously so the first render already honors the preference —
+  // the effect below only handles live changes.
+  const [reduced, setReduced] = useState(
+    () =>
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+  )
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)')

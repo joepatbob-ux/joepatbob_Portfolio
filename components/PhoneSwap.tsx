@@ -223,12 +223,11 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
           e.preventDefault()
           doSwap()
         }}
+        role="img"
         aria-label={
-          inFlowChapter
-            ? undefined
-            : swapped
-              ? 'Phone models: iPhone in front. Tap the Android in back to swap.'
-              : 'Phone models: Android in front. Tap the iPhone in back to swap.'
+          swapped
+            ? 'Phone models: iPhone in front showing the Sensi app. Tap the Android in back to swap.'
+            : 'Phone models: Android in front showing the Sensi app. Tap the iPhone in back to swap.'
         }
       >
         {shouldRenderScene ? (
