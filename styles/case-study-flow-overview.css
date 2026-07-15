@@ -143,11 +143,10 @@
 
 .case-study-flow-overview .chapter-slide__copy--overview .mobile-prose__p {
   width: 100%;
-  /* Reading measure: the intro previously ran the full overview band
-     (~119ch on desktop). Cap the text at an editorial lede measure; the
-     meta/scope rows below keep the wide band. (!important still needed to
-     beat the upstream prose cap this rule originally fought.) */
-  max-width: 80ch !important;
+  /* The intro deliberately runs the full overview band: every overview
+     element shares one right edge with the chapters (a capped reading
+     measure here breaks that alignment — reverted after review). */
+  max-width: none !important;
   margin-inline: 0 !important;
   margin-bottom: 0;
 }
