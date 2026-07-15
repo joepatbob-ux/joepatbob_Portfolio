@@ -108,7 +108,7 @@
    component's inline padding: 0.) */
 @media (pointer: coarse) {
   .sidebar-main-nav__sentence--mobile-hero .sidebar-main-nav__keyword {
-    padding-block: 10px !important;
+    padding-block: 12px !important;
   }
 }
 
