@@ -231,10 +231,12 @@
     box-shadow 180ms ease;
 }
 
-.sidebar-action--secondary:hover {
-  color: var(--color-nav-faded-selection);
-  background: var(--color-nav-pill-muted-accent-1);
-  box-shadow: 0 0 0 1px var(--color-nav-pill-outline);
+@media (hover: hover) {
+  .sidebar-action--secondary:hover {
+    color: var(--color-nav-faded-selection);
+    background: var(--color-nav-pill-muted-accent-1);
+    box-shadow: 0 0 0 1px var(--color-nav-pill-outline);
+  }
 }
 
 .sidebar-action--secondary:focus-visible {
@@ -290,7 +292,13 @@
     box-shadow 180ms ease;
 }
 
-.sidebar-nav-pill:hover,
+@media (hover: hover) {
+  .sidebar-nav-pill:hover {
+    color: var(--color-accent);
+    box-shadow: 0 0 0 1px var(--color-accent);
+  }
+}
+
 .sidebar-nav-pill:focus-visible {
   color: var(--color-accent);
   box-shadow: 0 0 0 1px var(--color-accent);

@@ -123,9 +123,11 @@
   text-decoration: none;
 }
 
-.eib-practice-close__cta a:hover,
-.eib-practice-close__email:hover {
-  text-decoration: underline;
+@media (hover: hover) {
+  .eib-practice-close__cta a:hover,
+  .eib-practice-close__email:hover {
+    text-decoration: underline;
+  }
 }
 
 .eib-practice-close__sep {

@@ -880,9 +880,11 @@
   transition: background 0.2s ease, color 0.2s ease;
 }
 
-.not-found-page__link:hover {
-  background: #fff;
-  color: var(--color-accent-hover);
+@media (hover: hover) {
+  .not-found-page__link:hover {
+    background: #fff;
+    color: var(--color-accent-hover);
+  }
 }
 
 .not-found-page__link:focus-visible {
@@ -1111,11 +1113,13 @@
   cursor: default;
 }
 
-.sticker-pile:has(.sticker-pile__grab:hover) .sticker-pile__card--top {
-  transform: translate(
-    calc(-50% + var(--stack-x, 0px) * var(--pile-scatter, 1)),
-    calc(-50% + var(--stack-y, 0px) * var(--pile-scatter, 1) - 6px)
-  );
+@media (hover: hover) {
+  .sticker-pile:has(.sticker-pile__grab:hover) .sticker-pile__card--top {
+    transform: translate(
+      calc(-50% + var(--stack-x, 0px) * var(--pile-scatter, 1)),
+      calc(-50% + var(--stack-y, 0px) * var(--pile-scatter, 1) - 6px)
+    );
+  }
 }
 
 .sticker-pile__empty {
@@ -1131,11 +1135,13 @@
     transition: opacity 0.18s ease;
   }
 
-  .sticker-pile:has(.sticker-pile__grab:hover) .sticker-pile__card--top {
-    transform: translate(
-      calc(-50% + var(--stack-x, 0px)),
-      calc(-50% + var(--stack-y, 0px) - 4px)
-    );
+  @media (hover: hover) {
+    .sticker-pile:has(.sticker-pile__grab:hover) .sticker-pile__card--top {
+      transform: translate(
+        calc(-50% + var(--stack-x, 0px)),
+        calc(-50% + var(--stack-y, 0px) - 4px)
+      );
+    }
   }
 }
 
@@ -1664,7 +1670,12 @@ html {
   transition: color 0.15s ease;
 }
 
-.chapter-fact__trigger:hover .chapter-fact__label,
+@media (hover: hover) {
+  .chapter-fact__trigger:hover .chapter-fact__label {
+    color: var(--color-accent-text, var(--color-accent));
+  }
+}
+
 .chapter-fact[data-state='open'] .chapter-fact__label {
   color: var(--color-accent-text, var(--color-accent));
 }
