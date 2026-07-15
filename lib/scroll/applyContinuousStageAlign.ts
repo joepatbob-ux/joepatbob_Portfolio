@@ -220,6 +220,9 @@ function clearStagePin(
   delete stage.dataset.stageCenterHeld
   delete stage.dataset.stageCentered
   stage.style.removeProperty('--stage-artifact-half')
+  // The transition on .chapter-slide__stage (see chapter-slide-base.css) turns
+  // this flip into the dialable fade/blur exit; default duration 0 = hard cut.
+  stage.style.filter = 'blur(var(--stage-exit-blur, 0px))'
   stage.style.opacity = '0'
   stage.style.visibility = 'hidden'
   stage.style.removeProperty('pointer-events')
@@ -441,6 +444,9 @@ function writeStage(m: StageMeasure): void {
   if (stage.dataset.stageOpacity !== opacityKey) {
     stage.dataset.stageOpacity = opacityKey
     stage.style.opacity = opacityKey
+    if (stage.style.filter) {
+      stage.style.filter = ''
+    }
     stage.style.visibility = 'visible'
     const pointerEvents = stagePointerEvents(stage, m.stageOpacity)
     if (stage.style.pointerEvents !== pointerEvents) {

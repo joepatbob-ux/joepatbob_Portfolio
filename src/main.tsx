@@ -73,6 +73,12 @@ function applyFadeTuneOverrides(): { holdMs: number; totalMs: number } {
         s.setProperty('--sticker-exit-duration', `${t.stickerMs}ms`)
       if (typeof t.stickerBlur === 'number')
         s.setProperty('--sticker-exit-blur', `${t.stickerBlur}px`)
+      if (typeof t.copyScrollBlur === 'number')
+        document.documentElement.dataset.copyScrollBlur = String(t.copyScrollBlur)
+      if (typeof t.stageMs === 'number')
+        s.setProperty('--stage-exit-duration', `${t.stageMs}ms`)
+      if (typeof t.stageBlur === 'number')
+        s.setProperty('--stage-exit-blur', `${t.stageBlur}px`)
     }
   } catch {
     /* corrupted overrides are ignored */

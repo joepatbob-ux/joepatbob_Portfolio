@@ -17,6 +17,11 @@ export type FadeTuneState = {
   ghostHold: number
   stickerMs: number
   stickerBlur: number
+  /** Scroll reveal: blur on chapter copy (text). Site default 12. */
+  copyScrollBlur: number
+  /** Stage exit: fade/blur when a chapter's artifact clears. 0ms = hard cut (site default). */
+  stageMs: number
+  stageBlur: number
 }
 
 export const FADE_TUNE_DEFAULTS: FadeTuneState = {
@@ -25,6 +30,9 @@ export const FADE_TUNE_DEFAULTS: FadeTuneState = {
   ghostHold: 0,
   stickerMs: 320,
   stickerBlur: 8,
+  copyScrollBlur: 12,
+  stageMs: 0,
+  stageBlur: 8,
 }
 
 function loadState(): FadeTuneState {
@@ -44,6 +52,10 @@ function applyVars(state: FadeTuneState): void {
   s.setProperty('--ghost-fade-blur', `${state.ghostBlur}px`)
   s.setProperty('--sticker-exit-duration', `${state.stickerMs}ms`)
   s.setProperty('--sticker-exit-blur', `${state.stickerBlur}px`)
+  s.setProperty('--stage-exit-duration', `${state.stageMs}ms`)
+  s.setProperty('--stage-exit-blur', `${state.stageBlur}px`)
+  // The copy blur is read by the rAF writer as a dataset (cheap read).
+  document.documentElement.dataset.copyScrollBlur = String(state.copyScrollBlur)
 }
 
 function replayGhost(state: FadeTuneState): void {
@@ -167,6 +179,11 @@ export function FadeTunePanel() {
       <div style={{ margin: '8px 0 2px', opacity: 0.75 }}>Sticker exit</div>
       <Dial label="Duration" value={state.stickerMs} min={80} max={1200} step={20} unit="ms" onChange={(v) => set({ stickerMs: v })} />
       <Dial label="Blur" value={state.stickerBlur} min={0} max={24} step={1} unit="px" onChange={(v) => set({ stickerBlur: v })} />
+
+      <div style={{ margin: '8px 0 2px', opacity: 0.75 }}>Scroll reveal (desktop)</div>
+      <Dial label="Copy blur" value={state.copyScrollBlur} min={0} max={24} step={1} unit="px" onChange={(v) => set({ copyScrollBlur: v })} />
+      <Dial label="Stage exit duration" value={state.stageMs} min={0} max={1200} step={20} unit="ms" onChange={(v) => set({ stageMs: v })} />
+      <Dial label="Stage exit blur" value={state.stageBlur} min={0} max={24} step={1} unit="px" onChange={(v) => set({ stageBlur: v })} />
 
       <div style={{ display: 'flex', gap: 6, marginTop: 10, flexWrap: 'wrap' }}>
         <button type="button" style={buttonStyle} onClick={() => replayGhost(state)}>

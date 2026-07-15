@@ -63,6 +63,12 @@ export function applyContinuousCopyFade(
 ): void {
   if (!isContinuousChapters() || isTopBarNavViewport()) return
 
+  // ?fadeTune=1 panel override for the copy blur (px); default keeps the const.
+  const copyBlurRaw = document.documentElement.dataset.copyScrollBlur
+  const copyBlurPx = copyBlurRaw
+    ? Math.max(0, parseFloat(copyBlurRaw) || 0)
+    : SCROLL_BLUR_PX
+
   document.querySelectorAll<HTMLElement>(CHAPTER_SLOT_SELECTOR).forEach((slot) => {
     const id = slot.dataset.chapterId
     if (!id) return
@@ -72,7 +78,7 @@ export function applyContinuousCopyFade(
     const reveal = copyRevealMap[id] ?? 0
     const { opacity, filter } = blurOutFromRevealForContinuous(
       reveal,
-      SCROLL_BLUR_PX,
+      copyBlurPx,
     )
     const opacityKey = opacity.toFixed(3)
     const filterKey = filter
