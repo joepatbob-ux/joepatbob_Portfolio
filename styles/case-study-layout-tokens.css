@@ -100,6 +100,13 @@
   --cs-continuous-hero-exit-buffer: clamp(14vh, 18vh, 22vh);
   --cs-continuous-copy-lead: clamp(5vh, 8vh, 11vh);
   --cs-continuous-grid-gap: clamp(28px, 3.5vw, 56px);
+  /* THE band content cap — the width the stage|copy composition actually uses:
+     the copy measure is 6/11 of the band (5fr:6fr grid), so band = measure ×
+     11/6 + gutter. Single source of truth for every centered band (chapters,
+     interlude); consumers pair it with `margin-inline: auto`. */
+  --cs-band-content-cap: calc(
+    var(--cs-copy-measure-px, 712px) * 11 / 6 + var(--cs-continuous-grid-gap)
+  );
 
   /* Extra scroll between snap slides (hold before next screen) */
   --cs-screen-gap: clamp(16px, 3vh, 40px);

@@ -1,5 +1,21 @@
 /* Case study chapter slides — section grid: 3 / 2 / 1 columns (lib/chapter-slide/breakpoints.ts).
-   Site shell tablet (narrow sidebar): 768–1023 in lib/layout/breakpoints.ts */
+   Site shell tablet (narrow sidebar): 768–1023 in lib/layout/breakpoints.ts
+
+   ── THE BAND CONTRACT ──────────────────────────────────────────────────────
+   .chapter-slide__inner is "the band": the stage|copy composition, centered
+   in the content pane. Exactly one rule decides its width + centering per
+   mode — change it there, nowhere else:
+     • base (this file):        max-width: var(--cs-inner-max)   [token above]
+     • continuous flow ≥1024:   chapter-continuous-scroll.css — min(band-max,
+                                100%, --cs-band-content-cap) + margin auto
+     • top-bar nav ≤1023:       chapter-slide-topbar-nav.css — --cs-inner-max
+                                + margin auto (sensi widens to 100% only)
+     • phone ≤767:              chapter-slide-mobile.css
+   The width formula shared with the interlude lives in ONE token:
+   --cs-band-content-cap (case-study-layout-tokens.css). Mode files may
+   override *tokens*; adding a competing max-width/margin-inline/justify
+   declaration on the inner is a bug (check:grid can't catch it — a
+   rendered-geometry diff will). */
 
 .chapter-slide {
   --cs-copy-max-h: min(70dvh, 100%);

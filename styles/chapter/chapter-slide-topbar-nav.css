@@ -254,8 +254,8 @@
     padding-inline: 0 !important;
   }
 
+  /* Full-bleed width only — centering comes from the shared inner rule above */
   .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__inner {
-    justify-content: center;
     max-width: 100%;
     width: 100%;
   }
