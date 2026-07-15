@@ -1167,6 +1167,15 @@
   align-self: center;
 }
 
+/* Phones: the dots rail pins itself to the canonical mobile dimensions (see
+   touch2-carousel.css) — the toggle reads the row's JS-scaled ring var, so pin
+   it to the same token to stay height-matched with the rail. */
+@media (max-width: 767px) {
+  .phone-swap__screen-theme.contact-liquid--segmented {
+    --contact-h: var(--cs-touch2-dot-ring-mobile, 32px);
+  }
+}
+
 .phone-swap__screen-theme.contact-liquid--segmented .contact-liquid__surface,
 .phone-swap__screen-theme.contact-liquid--segmented:hover .contact-liquid__surface,
 .phone-swap__screen-theme.contact-liquid--segmented:focus-within

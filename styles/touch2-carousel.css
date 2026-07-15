@@ -166,7 +166,16 @@
   transition: box-shadow 220ms ease;
 }
 
-.touch2-carousel__dot:not(.touch2-carousel__dot--active):hover .touch2-carousel__dot-ring,
+/* Hover ring only on devices with real hover — iOS keeps :hover stuck on the
+   last-tapped dot, which left a ghost ring that "jumped" as the active pill
+   advanced. Keyboard focus keeps the ring everywhere via :focus-visible. */
+@media (hover: hover) {
+  .touch2-carousel__dot:not(.touch2-carousel__dot--active):hover
+    .touch2-carousel__dot-ring {
+    box-shadow: 0 0 0 1px var(--color-nav-pill-outline);
+  }
+}
+
 .touch2-carousel__dot:not(.touch2-carousel__dot--active):focus-visible
   .touch2-carousel__dot-ring {
   box-shadow: 0 0 0 1px var(--color-nav-pill-outline);
@@ -191,7 +200,12 @@
   opacity: 1;
 }
 
-.touch2-carousel__dot--active:hover,
+@media (hover: hover) {
+  .touch2-carousel__dot--active:hover {
+    box-shadow: 0 0 0 1px var(--color-nav-pill-outline);
+  }
+}
+
 .touch2-carousel__dot--active:focus-visible {
   box-shadow: 0 0 0 1px var(--color-nav-pill-outline);
 }
@@ -256,6 +270,17 @@
   }
 }
 
+/* The muted capsule sizes to the visual slot, not the button — the coarse
+   48px hit box would otherwise inflate it (inset: 0 tracks the hit area). */
+.touch2-carousel__dots--horizontal .touch2-carousel__dot-fill {
+  inset: auto;
+  left: 50%;
+  top: 50%;
+  width: var(--touch2-dot-slot-w);
+  height: var(--touch2-dot-ring-size);
+  transform: translate(-50%, -50%);
+}
+
 .touch2-carousel__dots--horizontal .touch2-carousel__dot-indicator {
   width: var(--touch2-dot-size);
   height: var(--touch2-dot-size);
@@ -304,6 +329,12 @@
   }
 
   .touch2-carousel__dots {
+    /* Canonical phone-rail dimensions — declared here (on the dots container)
+       so they beat the JS fit-scale vars inherited from the carousel root and
+       the phone-swap controls row. Both rails render identically on phones. */
+    --touch2-dot-slot-w: var(--cs-touch2-dot-slot-mobile);
+    --touch2-dot-ring-size: var(--cs-touch2-dot-ring-mobile);
+    --touch2-dot-active-w: var(--cs-touch2-dot-active-mobile);
     flex-direction: row;
     flex-wrap: nowrap;
     justify-content: center;
@@ -328,6 +359,15 @@
   .touch2-carousel__dot--active {
     width: var(--touch2-dot-slot-w);
     height: var(--touch2-dot-ring-size);
+  }
+
+  .touch2-carousel__dot-fill {
+    inset: auto;
+    left: 50%;
+    top: 50%;
+    width: var(--touch2-dot-slot-w);
+    height: var(--touch2-dot-ring-size);
+    transform: translate(-50%, -50%);
   }
 
   .touch2-carousel__dot-indicator {

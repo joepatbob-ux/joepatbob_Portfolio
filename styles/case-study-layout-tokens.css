@@ -135,6 +135,13 @@
   --cs-touch2-dot-slot: 80px;
   --cs-touch2-dot-ring: 40px;
   --cs-touch2-dot-gap: 8px;
+  /* Phone rail (≤767): every horizontal dot rail — the Touch 2 photo switcher
+     and the phone-swap screenshot cycler — renders these fixed dimensions, so
+     the shared dots component looks identical in both. The JS fit-scaling
+     (touch2DotCssMetrics) only decides sizes above the phone breakpoint. */
+  --cs-touch2-dot-slot-mobile: 64px;
+  --cs-touch2-dot-ring-mobile: 32px;
+  --cs-touch2-dot-active-mobile: 44px;
 
   /* Touch 2 outer width = photo column + gap + dot controls (sync Touch2Carousel.tsx) */
   --cs-touch2-rail-h-ref: 432px;
