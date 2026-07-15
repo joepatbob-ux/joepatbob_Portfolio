@@ -365,8 +365,9 @@
   }
 
   .case-study-flow-overview.portfolio-chapter-slot--fill
-    .chapter-slide__copy--overview,
-  .hardware-slideshow.case-study-flow-overview .chapter-slide__copy--overview {
+    .chapter-slide__copy--overview:not(.chapter-slide__copy--overview-center),
+  .hardware-slideshow.case-study-flow-overview
+    .chapter-slide__copy--overview:not(.chapter-slide__copy--overview-center) {
     text-align: left;
   }
 
