@@ -273,6 +273,13 @@
     gap: 2px;
   }
 
+  /* Stacked meta must wrap — nowrap is for the desktop leader-dot row and
+     runs long mono lines off-screen on phones. */
+  .case-study-overview-row__meta {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
   .case-study-overview-row__lead {
     flex-wrap: wrap;
     max-width: 100%;
