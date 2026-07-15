@@ -117,10 +117,10 @@
         var(--cs-continuous-grid-gap, 56px) + var(--cs-copy-measure-px, 712px) -
         var(--cs-overview-narrow, clamp(32px, 4vw, 96px))
     );
-    /* Copy-only inner centers its children; pin the intro to the band's left edge
-       so it lines up with the chapters instead of centering. */
-    align-self: flex-start;
-    margin-inline: 0 auto;
+    /* Center the overview block in the band — same axis as the interlude
+       and the chapter compositions. */
+    align-self: center;
+    margin-inline: auto;
   }
 }
 
