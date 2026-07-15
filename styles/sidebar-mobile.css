@@ -70,8 +70,17 @@
     bottom: 0;
     z-index: var(--z-mobile-chrome, 120);
     isolation: isolate;
+    /* Bottom clearance: the hero is 100lvh, so its bottom edge sits behind the
+     * browser's collapsed-chrome zone. lvh − svh is the height of that zone
+     * (Safari's URL bar on load) — pad past it so the tagline renders above
+     * the nav, with the old 28px / safe-area values as the floor elsewhere. */
     padding: var(--space-4) max(16px, env(safe-area-inset-left))
-      max(28px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-right));
+      max(
+        28px,
+        env(safe-area-inset-bottom),
+        calc(var(--mobile-layout-h, 100lvh) - var(--mobile-scroll-h, 100svh) + 16px)
+      )
+      max(16px, env(safe-area-inset-right));
     box-sizing: border-box;
     visibility: hidden;
     pointer-events: none;
