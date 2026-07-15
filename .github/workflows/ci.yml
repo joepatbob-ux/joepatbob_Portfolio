@@ -42,3 +42,7 @@ jobs:
 
       - name: Bundle guard (3D stack stays lazy)
         run: npm run check:bundle
+
+      # Report-only: flags spacing values off the 4/8pt grid. Does not fail CI.
+      - name: Grid audit (8pt spacing)
+        run: npm run check:grid

@@ -230,7 +230,7 @@
   width: auto;
   height: auto;
   min-height: var(--touch2-dot-slot-w);
-  gap: clamp(6px, 2vw, 10px);
+  gap: clamp(8px, 2vw, 12px);
 }
 
 .touch2-carousel__dots--horizontal .touch2-carousel__dot {
@@ -288,7 +288,7 @@
     max-width: var(--cs-touch2-mobile-max-w);
     height: auto;
     min-height: var(--touch2-dot-slot-w);
-    gap: clamp(6px, 2vw, 10px);
+    gap: clamp(8px, 2vw, 12px);
   }
 
   .touch2-carousel__dot {

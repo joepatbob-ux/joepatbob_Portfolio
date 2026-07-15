@@ -50,7 +50,10 @@
     display: flex !important;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
+    /* Center the stage + copy as one group so the component sits a balanced
+       gap above the headline, with even breathing room top and bottom, instead
+       of the stage stretching to fill and the copy anchoring to the bottom. */
+    justify-content: center;
     gap: var(--cs-mobile-section-gap);
     width: 100%;
     max-width: var(--cs-inner-max);
@@ -91,7 +94,10 @@
     margin-inline: 0;
     margin-top: 0;
     padding-top: 0;
-    flex: 1 1 auto;
+    /* Hug the artifact (min-height keeps a floor for 3D canvas sizing) rather
+       than growing to absorb leftover column height — the inner centers the
+       stage+copy group, keeping the component-to-headline gap consistent. */
+    flex: 0 1 auto;
     min-height: var(--cs-mobile-stage-min-h);
     max-height: var(--cs-mobile-stage-max-h);
     box-sizing: border-box;

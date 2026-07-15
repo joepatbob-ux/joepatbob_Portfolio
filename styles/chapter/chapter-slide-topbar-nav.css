@@ -128,7 +128,10 @@
   .hardware-slideshow
     .chapter-slide__inner:not(.chapter-slide__inner--compact-expand) {
     align-items: center;
-    justify-content: flex-start;
+    /* Center the stage + copy as one group so the component sits a balanced
+       gap above the headline with even breathing room top and bottom, rather
+       than anchoring the group to the top of the viewport. */
+    justify-content: center;
     width: 100%;
     max-width: var(
       --cs-inner-max,
@@ -243,7 +246,7 @@
   }
 
   .hardware-slideshow.mobile-chapter-slot--sensi .chapter-slide__inner {
-    justify-content: flex-start;
+    justify-content: center;
     max-width: 100%;
     width: 100%;
   }

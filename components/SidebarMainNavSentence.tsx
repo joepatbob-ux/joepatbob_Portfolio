@@ -1,4 +1,4 @@
-import { useRef, type Dispatch, ReactNode, SetStateAction } from 'react'
+import { Fragment, useRef, type Dispatch, ReactNode, SetStateAction } from 'react'
 import { useNavSentenceLayout } from '@/components/NavSentenceLayoutProvider'
 import { NAV_SECTIONS, navMainSentenceAriaLabel } from '@/lib/nav'
 import type { NavMainSentenceLine } from '@/lib/navSentenceLayout'
@@ -64,23 +64,45 @@ function MainNavSentenceBody({
                 const isLastInSentence = isLastOnLine && sectionId === LAST_SECTION_ID
                 const showTerminalPeriod =
                   isLastInSentence && lineEndsWithPeriod(line)
+                // Keep the trailing punctuation glued to its keyword (so a wrap
+                // can't orphan the comma onto the next line) while leaving the
+                // following space — and any "and" — free to break.
+                const connector = !isLastOnLine
+                  ? (line.between?.[index] ?? ', ')
+                  : ''
+                const boundPunct = connector.match(/^\S*/)?.[0] ?? ''
+                const breakRest = connector.slice(boundPunct.length)
                 return (
-                  <span key={sectionId} className="sidebar-main-nav__keyword-group">
-                    {keywordFor(sec, isLastInSentence)}
-                    {showTerminalPeriod ? (
-                      <span
-                        className="sidebar-main-nav__connector sidebar-main-nav__period"
-                        aria-hidden="true"
-                      >
-                        .
-                      </span>
-                    ) : null}
-                    {!isLastOnLine ? (
+                  <Fragment key={sectionId}>
+                    <span
+                      className={[
+                        'sidebar-main-nav__keyword-group',
+                        isLastOnLine ? '' : 'sidebar-main-nav__keyword-group--bind',
+                      ]
+                        .filter(Boolean)
+                        .join(' ')}
+                    >
+                      {keywordFor(sec, isLastInSentence)}
+                      {showTerminalPeriod ? (
+                        <span
+                          className="sidebar-main-nav__connector sidebar-main-nav__period"
+                          aria-hidden="true"
+                        >
+                          .
+                        </span>
+                      ) : null}
+                      {boundPunct ? (
+                        <span className="sidebar-main-nav__connector" aria-hidden="true">
+                          {boundPunct}
+                        </span>
+                      ) : null}
+                    </span>
+                    {breakRest ? (
                       <span className="sidebar-main-nav__connector" aria-hidden="true">
-                        {line.between?.[index] ?? ', '}
+                        {breakRest}
                       </span>
                     ) : null}
-                  </span>
+                  </Fragment>
                 )
               })}
               {line.suffix && line.suffix !== '.' ? (
