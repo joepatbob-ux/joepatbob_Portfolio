@@ -15,6 +15,27 @@ const STAGE_INTERACTIVE_OPACITY = 0.38
 const STAGE_CLEAR_THRESHOLD = 0.004
 const VERDANT_INTERACTIVE_SELECTOR = '.verdant-interactive'
 
+/* Exit hysteresis: a visible stage only dissolves out once its reveal drops
+ * this far below the show threshold, so reveal noise at the boundary can't
+ * strobe the (visible, 320ms) transition on and off. */
+const STAGE_EXIT_MARGIN = 0.08
+
+/* Dissolve out as soon as slot containment forces the artifact off its center
+ * lock — waiting for the reveal threshold lets it visibly crawl upward first. */
+const STAGE_PUSH_OFF_PX = 24
+
+/* After a dissolve-out, the scroll must move this far from where the exit
+ * fired before the same stage may re-enter. The reveal curve is a cliff near
+ * a slot's end, so reveal-space hysteresis alone is only a few px of scroll
+ * there — this makes boundary dwell breathe at worst, never strobe. */
+const STAGE_REENTRY_SCROLL_PX = 100
+
+/* Arrivals may materialize this close below the center lock, not only exactly
+ * on it — the 320ms dissolve-in covers the last few px of ride, and a scroll
+ * that stops just shy of the line (or crosses it during the handoff gate and
+ * settles back) still gets its artifact. */
+const STAGE_ENTRY_NEAR_PX = 56
+
 function stagePointerEvents(
   stage: HTMLElement,
   stageOpacity: number,
@@ -29,13 +50,6 @@ const ALIGN_HEIGHT_MIN_PX = 48
 type AlignPhase = 'idle' | 'enter' | 'center' | 'exit'
 
 let committedPinId: string | null = null
-let exitingPinId: string | null = null
-const stageVisibleLatch = new Set<string>()
-
-/** Transforms land on quarter-pixel steps — smooth, but still dedupable. */
-function quant(value: number): number {
-  return Math.round(value * 4) / 4
-}
 
 /* ---------------------------------------------------------------------------
  * Cached environment reads — safe-area insets and artifact heights are layout
@@ -59,6 +73,14 @@ function bindCacheInvalidation(): void {
   const invalidate = () => {
     safeAreaCache = null
     heightGeneration += 1
+    // Centering vars are captured from measured heights — stale after resize.
+    // Tear visible stages down; the next frame re-places and dissolves in.
+    document
+      .querySelectorAll<HTMLElement>(`${STAGE_SELECTOR}[data-stage-fx]`)
+      .forEach((stage) => {
+        cancelStageFadeOut(stage)
+        finalizeStageClear(stage, stageAlignTarget(stage))
+      })
   }
   window.addEventListener('resize', invalidate, { passive: true })
   window.addEventListener('orientationchange', invalidate, { passive: true })
@@ -130,7 +152,6 @@ function artifactHeight(align: HTMLElement): number {
  * Pure geometry helpers — operate on measured numbers, never touch the DOM.
  * ------------------------------------------------------------------------- */
 
-
 function viewportCenterTop(vh: number, artifactH: number): number {
   const { top: safeTop, bottom: safeBottom } = safeAreaInsets()
   const visibleH = vh - safeTop - safeBottom
@@ -170,54 +191,21 @@ function clearPhase(stage: HTMLElement, align: HTMLElement | null): void {
   if (align) delete align.dataset.stagePhase
 }
 
-function applyArtifactTransform(align: HTMLElement, translateY: number): void {
-  const quantized = quant(translateY)
-  const key = String(quantized)
-  if (align.dataset.stageAlignY === key) return
-  align.dataset.stageAlignY = key
-  align.style.transform =
-    quantized === 0 ? '' : `translate3d(0, ${quantized}px, 0)`
-}
+/* ---------------------------------------------------------------------------
+ * Stage FX state machine — the artifact's whole visible life happens at the
+ * viewport center. It dissolves IN once the sticky hold has caught it on the
+ * center line (it is invisible while riding there), holds sharp, then
+ * dissolves OUT in place, with a handoff pause before the next artifact so
+ * the copy transition owns the gap. States (dataset.stageFx):
+ *   (absent) hidden → 'visible' → 'out' → hidden
+ * Opacity is binary; the CSS transition on .chapter-slide__stage animates
+ * every flip, and hysteresis on the thresholds keeps flips rare.
+ * ------------------------------------------------------------------------- */
 
-function clearArtifactTransform(align: HTMLElement): void {
-  if (
-    align.dataset.stageAlignY == null &&
-    align.dataset.stageAlignLatchY == null
-  ) {
-    return
-  }
-  align.style.removeProperty('transform')
-  delete align.dataset.stageAlignY
-  delete align.dataset.stageAlignLatchY
-}
-
-function clearStagePin(
-  stage: HTMLElement,
-  align: HTMLElement | null,
-  chapterId?: string,
-): void {
-  if (chapterId) {
-    stageVisibleLatch.delete(chapterId)
-  }
-  if (stage.dataset.stagePinned == null && stage.dataset.stageOpacity == null) {
-    // Already cleared — keep the frame free of redundant style writes.
-    if (align) clearArtifactTransform(align)
-    return
-  }
-  if (stage.dataset.stageFading === 'true') return
-  beginStageFadeOut(stage)
-}
-
-/* Fade out in place: the stage keeps its pin and viewport-center hold while
- * opacity/blur transition to zero (chapter-slide-base.css supplies the
- * transition), then the positional teardown runs once it's invisible —
- * tearing down immediately snapped the artifact out of center mid-fade. */
 const stageFadeTimers = new WeakMap<HTMLElement, number>()
 
-/* Handoff pause: an ENTERING stage stays hidden (blurred, already positioned
- * at the center) until the outgoing dissolve finishes plus a beat, so the two
- * never overlap and the copy transition gets the room between them. Dialable
- * via ?fadeTune=1 (documentElement.dataset.stagePauseMs). */
+/* Handoff pause: an arriving stage waits until the outgoing dissolve finishes
+ * plus a beat. Dialable via ?fadeTune=1 (documentElement.dataset.stagePauseMs). */
 const STAGE_HANDOFF_PAUSE_MS = 240
 let stageEntryGateUntil = 0
 let gateFlushTimer: number | null = null
@@ -239,23 +227,21 @@ function scheduleGateFlush(): void {
   }, delay)
 }
 
+/* Dissolve out in place: the stage keeps its sticky center hold while
+ * opacity/blur transition to zero (chapter-slide-base.css supplies the
+ * transition), then the positional teardown runs once it's invisible —
+ * tearing down immediately snapped the artifact out of center mid-fade. */
 function beginStageFadeOut(stage: HTMLElement): void {
-  stage.dataset.stageFading = 'true'
-  // Freeze the artifact where it sits: the sticky center hold can't pin past
-  // the slot's bounds, so without this the artifact rides up with the scroll
-  // while dissolving. The fade-hold pass counter-translates to this top.
-  const align = stageAlignTarget(stage)
-  if (align) {
-    stage.dataset.stageFadeTop = align.getBoundingClientRect().top.toFixed(1)
-  }
-  stage.dataset.stageOpacity = '0.000'
+  stage.dataset.stageFx = 'out'
+  stage.dataset.stageOutY = String(Math.round(window.scrollY))
   stage.style.opacity = '0'
   stage.style.filter = 'blur(var(--stage-exit-blur, 0px))'
-  // Behind whatever pins next, so an incoming artifact crossfades on top.
+  // Behind whatever shows next.
   stage.style.zIndex = '1'
   stage.style.pointerEvents = 'none'
 
-  const durationMs = parseFloat(getComputedStyle(stage).transitionDuration) * 1000 || 0
+  const durationMs =
+    parseFloat(getComputedStyle(stage).transitionDuration) * 1000 || 0
   const timer = window.setTimeout(() => {
     finalizeStageClear(stage, stageAlignTarget(stage))
   }, durationMs + 60)
@@ -266,24 +252,18 @@ function beginStageFadeOut(stage: HTMLElement): void {
   )
 }
 
-export function cancelStageFadeOut(stage: HTMLElement): void {
+function cancelStageFadeOut(stage: HTMLElement): void {
   const timer = stageFadeTimers.get(stage)
   if (timer != null) {
     window.clearTimeout(timer)
     stageFadeTimers.delete(stage)
   }
-  delete stage.dataset.stageFading
-  delete stage.dataset.stageFadeTop
 }
 
 function finalizeStageClear(stage: HTMLElement, align: HTMLElement | null): void {
   stageFadeTimers.delete(stage)
-  delete stage.dataset.stageFading
-  delete stage.dataset.stageFadeTop
-  delete stage.dataset.stageEntryHold
+  delete stage.dataset.stageFx
   delete stage.dataset.stagePinned
-  delete stage.dataset.stageOpacity
-  delete stage.dataset.stageCenterHeld
   delete stage.dataset.stageCentered
   stage.style.removeProperty('--stage-artifact-half')
   stage.style.opacity = '0'
@@ -294,26 +274,8 @@ function finalizeStageClear(stage: HTMLElement, align: HTMLElement | null): void
   stage.style.removeProperty('pointer-events')
   stage.style.removeProperty('z-index')
   clearPhase(stage, align)
-  if (!align) return
-  clearArtifactTransform(align)
+  if (align) align.style.removeProperty('transform')
 }
-
-function applyCssViewportCenter(
-  stage: HTMLElement,
-  align: HTMLElement,
-  artifactH: number,
-): void {
-  const halfKey = `${quant(artifactH / 2)}px`
-  if (
-    stage.dataset.stageCentered !== 'true' ||
-    stage.style.getPropertyValue('--stage-artifact-half') !== halfKey
-  ) {
-    stage.dataset.stageCentered = 'true'
-    stage.style.setProperty('--stage-artifact-half', halfKey)
-  }
-  clearArtifactTransform(align)
-}
-
 
 /* ---------------------------------------------------------------------------
  * Per-frame pipeline: one measure pass (all layout reads), one write pass
@@ -324,6 +286,7 @@ type StageEntry = {
   stage: HTMLElement
   align: HTMLElement | null
   copy: HTMLElement | null
+  slot: HTMLElement | null
   chapterId: string | null
   stageReveal: number
   copyReveal: number
@@ -331,12 +294,11 @@ type StageEntry = {
 
 type StageMeasure = {
   entry: StageEntry
-  action: 'clear-if-unlatched' | 'clear' | 'apply' | 'fade-hold'
-  stageOpacity: number
-  isPin: boolean
-  artifactH: number
-  stickTop: number
-  visualTop: number
+  /** Should the artifact be showing this frame (thresholds + pin)? */
+  want: boolean
+  /** Set on a hidden→visible transition: half the artifact height, for the
+   * sticky centering var. null = not ready to show yet. */
+  centerHalf: number | null
 }
 
 function collectStageEntries(
@@ -351,6 +313,7 @@ function collectStageEntries(
       stage,
       align: stageAlignTarget(stage),
       copy: slot?.querySelector<HTMLElement>('.chapter-slide__copy') ?? null,
+      slot: slot ?? null,
       chapterId,
       stageReveal: chapterId ? (stageRevealMap[chapterId] ?? 0) : 0,
       copyReveal: chapterId ? (copyRevealMap[chapterId] ?? 0) : 0,
@@ -400,35 +363,34 @@ function pickStagePinId(
 /** Strip continuous-align inline styles without hiding stages (mobile/tablet in-flow). */
 export function releaseContinuousStageAlignForInFlowNav(): void {
   committedPinId = null
-  exitingPinId = null
-  stageVisibleLatch.clear()
   document.querySelectorAll<HTMLElement>(STAGE_SELECTOR).forEach((stage) => {
     const align = stageAlignTarget(stage)
     cancelStageFadeOut(stage)
+    delete stage.dataset.stageFx
+    delete stage.dataset.stageOutY
     delete stage.dataset.stagePinned
-    delete stage.dataset.stageOpacity
-    delete stage.dataset.stageCenterHeld
     delete stage.dataset.stageCentered
     delete stage.dataset.stagePhase
     stage.style.removeProperty('--stage-artifact-half')
     stage.style.removeProperty('opacity')
+    stage.style.removeProperty('filter')
     stage.style.removeProperty('visibility')
     stage.style.removeProperty('pointer-events')
     stage.style.removeProperty('z-index')
     if (align) {
       delete align.dataset.stagePhase
-      clearArtifactTransform(align)
+      align.style.removeProperty('transform')
     }
   })
 }
 
 export function resetContinuousStageAlign(): void {
   committedPinId = null
-  exitingPinId = null
-  stageVisibleLatch.clear()
   document.querySelectorAll<HTMLElement>(STAGE_SELECTOR).forEach((stage) => {
-    // Mode switches tear down immediately — no lingering fade timers.
+    // Mode switches tear down immediately — no lingering fade timers, and the
+    // re-entry latch is meaningless across a layout change.
     cancelStageFadeOut(stage)
+    delete stage.dataset.stageOutY
     finalizeStageClear(stage, stageAlignTarget(stage))
   })
 }
@@ -438,171 +400,123 @@ function measureStage(
   pinId: string | null,
   vh: number,
 ): StageMeasure | null {
-  const { align, copy, chapterId, stageReveal, copyReveal } = entry
+  const { stage, align, copy, slot, chapterId, stageReveal, copyReveal } = entry
   if (!chapterId || !copy || !align) return null
 
-  const stageOpacity = stageOpacityFromReveal(stageReveal)
+  const fx = stage.dataset.stageFx
   const isPin = chapterId === pinId
-  const painted =
+
+  const shouldShow =
+    isPin &&
     stageReveal >= STAGE_PIN_REVEAL &&
-    stageOpacity > 0 &&
     copyReveal >= CHAPTER_INTERACTIVE_VISIBILITY
+  const shouldKeep =
+    isPin &&
+    stageReveal >= STAGE_PIN_REVEAL - STAGE_EXIT_MARGIN &&
+    copyReveal >= CHAPTER_INTERACTIVE_VISIBILITY - STAGE_EXIT_MARGIN
 
-  if (stageReveal >= STAGE_PIN_REVEAL) {
-    stageVisibleLatch.add(chapterId)
+  let want = fx != null ? shouldKeep : shouldShow
+
+  if (want && fx === 'visible') {
+    // Slot containment has started forcing the clamped artifact above its
+    // center lock — dissolve out now, in place, rather than letting it crawl
+    // upward at full opacity until the reveal threshold catches up. Only the
+    // upward push exits: scrolling back up, the artifact riding down below
+    // center is the natural reverse of its entry and stays visible.
+    const artifactH = artifactHeight(align)
+    const pushedOff =
+      align.getBoundingClientRect().top <
+      viewportCenterTop(vh, artifactH) - STAGE_PUSH_OFF_PX
+    if (pushedOff) want = false
   }
 
-  const cleared: Omit<StageMeasure, 'action'> = {
-    entry,
-    stageOpacity,
-    isPin,
-    artifactH: 0,
-    stickTop: 0,
-    visualTop: 0,
-  }
-
-  if (!painted) {
-    // Mid-dissolve: hold the artifact at its captured viewport position while
-    // the opacity/blur transition runs (see beginStageFadeOut).
-    if (entry.stage.dataset.stageFading === 'true') {
-      return {
-        ...cleared,
-        action: 'fade-hold',
-        visualTop: align.getBoundingClientRect().top,
+  let centerHalf: number | null = null
+  if (want && fx == null) {
+    const artifactH = artifactHeight(align)
+    const outY = parseFloat(stage.dataset.stageOutY ?? '')
+    if (artifactH < ALIGN_HEIGHT_MIN_PX) {
+      // Content hasn't laid out yet — try again next frame.
+      want = false
+    } else if (
+      Number.isFinite(outY) &&
+      Math.abs(window.scrollY - outY) < STAGE_REENTRY_SCROLL_PX
+    ) {
+      // Still within re-entry distance of the last dissolve-out.
+      want = false
+    } else {
+      // Materialize AT the center line: wait until the (still invisible)
+      // artifact's ride has reached it, and until the slot still has room to
+      // clamp the full artifact there (near a slot's end the sticky hold
+      // would immediately push it off again). Visibility is a pure function
+      // of the scroll position, so a stopped scroll can't strand anything —
+      // the artifact simply dissolves in when scrolling resumes past this
+      // line. Approached from below (scrolling up), the align sticky-clamps
+      // at the line the moment it pins, so re-entries appear centered too.
+      const centerTop = viewportCenterTop(vh, artifactH)
+      const engaged =
+        align.getBoundingClientRect().top <= centerTop + STAGE_ENTRY_NEAR_PX
+      const roomToClamp = slot
+        ? slot.getBoundingClientRect().bottom >=
+          centerTop + artifactH + STAGE_PUSH_OFF_PX
+        : true
+      if (engaged && roomToClamp) {
+        centerHalf = artifactH / 2
+      } else {
+        want = false
       }
     }
-    if (!stageVisibleLatch.has(chapterId) && stageReveal < STAGE_PIN_REVEAL) {
-      return { ...cleared, action: 'clear-if-unlatched' }
-    }
-    if (
-      stageReveal <= STAGE_CLEAR_THRESHOLD ||
-      stageOpacity <= 0 ||
-      copyReveal < CHAPTER_INTERACTIVE_VISIBILITY
-    ) {
-      return { ...cleared, action: 'clear' }
-    }
   }
 
-  // Layout reads — grouped here so the write pass never forces a reflow.
-  const artifactH = artifactHeight(align)
-  const visualTop = align.getBoundingClientRect().top
-
-  return {
-    entry,
-    stageOpacity,
-    isPin,
-    action: 'apply',
-    artifactH,
-    stickTop: viewportCenterTop(vh, artifactH),
-    visualTop,
-  }
+  return { entry, want, centerHalf }
 }
 
 function writeStage(m: StageMeasure): void {
   const { stage, align, chapterId } = m.entry
   if (!chapterId || !align) return
 
-  if (m.action === 'fade-hold') {
-    const captured = parseFloat(stage.dataset.stageFadeTop ?? '')
-    if (Number.isFinite(captured)) {
-      const current = parseFloat(align.dataset.stageAlignY ?? '0') || 0
-      const error = captured - m.visualTop
-      if (Math.abs(error) > 0.5) {
-        applyArtifactTransform(align, current + error)
-      }
+  const fx = stage.dataset.stageFx
+
+  if (m.want) {
+    if (fx === 'visible') return
+    // A dissolve-out always completes — flipping it back mid-fade is the
+    // strobe. The stage re-enters through the fresh-arrival path below once
+    // finalized (and past the re-entry latch).
+    if (fx === 'out') return
+    if (m.centerHalf == null) return
+
+    // Handoff pause — checked at write time, after this frame's fade-outs
+    // (first write sub-pass) have extended the gate.
+    if (performance.now() < stageEntryGateUntil) {
+      scheduleGateFlush()
+      return
     }
-    return
-  }
 
-  if (m.action === 'clear-if-unlatched') {
-    clearStagePin(stage, align, chapterId)
-    return
-  }
-
-  if (m.action === 'clear') {
-    clearStagePin(stage, align, chapterId)
-    stageVisibleLatch.delete(chapterId)
-    if (chapterId === exitingPinId) {
-      exitingPinId = null
-    }
-    return
-  }
-
-  // Handoff pause: a stage arriving from hidden waits (positioned at the
-  // center, blurred, opacity 0) until the outgoing dissolve + pause elapse.
-  // A stage returning mid-fade is not an arrival and restores instantly.
-  const arriving =
-    stage.dataset.stageOpacity == null || stage.dataset.stageEntryHold === 'true'
-  const gated =
-    arriving &&
-    stage.dataset.stageFading !== 'true' &&
-    performance.now() < stageEntryGateUntil
-  if (gated) {
-    stage.dataset.stageEntryHold = 'true'
-    scheduleGateFlush()
-  } else if (stage.dataset.stageEntryHold != null) {
-    delete stage.dataset.stageEntryHold
-  }
-  const effectiveOpacity = gated ? 0 : m.stageOpacity
-
-  const opacityKey = effectiveOpacity.toFixed(3)
-  if (stage.dataset.stageFading === 'true') {
-    cancelStageFadeOut(stage)
-  }
-  if (stage.dataset.stageOpacity !== opacityKey) {
-    stage.dataset.stageOpacity = opacityKey
-    stage.style.opacity = opacityKey
-    if (gated) {
-      // Hold the resting blur inline — pinning removes the CSS resting rule,
-      // and the blur must still be there when the gate releases the fade-in.
-      stage.style.filter = 'blur(var(--stage-exit-blur, 0px))'
-    } else if (stage.style.filter) {
-      stage.style.filter = ''
-    }
-    stage.style.visibility = 'visible'
-    const pointerEvents = stagePointerEvents(stage, effectiveOpacity)
-    if (stage.style.pointerEvents !== pointerEvents) {
-      stage.style.pointerEvents = pointerEvents
-    }
-  }
-
-  if (stage.dataset.stagePinned !== 'true') {
+    delete stage.dataset.stageOutY
+    // Sticky centering (compositor-native, jitter-free): the CSS keys off
+    // data-stage-pinned/centered plus the artifact-half var.
+    stage.style.setProperty('--stage-artifact-half', `${m.centerHalf}px`)
+    stage.dataset.stageCentered = 'true'
+    stage.dataset.stageFx = 'visible'
     stage.dataset.stagePinned = 'true'
-  }
-  const zIndex = m.isPin ? '2' : '1'
-  if (stage.style.zIndex !== zIndex) {
-    stage.style.zIndex = zIndex
-  }
-
-  if (m.artifactH < ALIGN_HEIGHT_MIN_PX) {
-    setPhase(stage, align, 'enter')
+    stage.style.opacity = '1'
+    stage.style.filter = ''
+    stage.style.visibility = 'visible'
+    stage.style.zIndex = '2'
+    stage.style.pointerEvents = stagePointerEvents(stage, 1)
+    setPhase(stage, align, 'center')
     return
   }
 
-  // The artifact lives its whole visible life at the viewport center: it
-  // dissolves IN already on the center line (full counter-translate hold — a
-  // full hold reaches zero exactly at the sticky handoff, unlike the old
-  // partial interpolation that outran the scroll and snapped), holds sharp
-  // via position:sticky, then dissolves OUT in place (see beginStageFadeOut)
-  // while the copy scrolls past with its own fade.
-  applyCssViewportCenter(stage, align, m.artifactH)
-  const currentHold = parseFloat(align.dataset.stageAlignY ?? '0') || 0
-  const naturalTop = m.visualTop - currentHold
-  if (naturalTop <= m.stickTop + 1) {
-    setPhase(stage, align, 'center')
-    clearArtifactTransform(align)
-  } else {
-    setPhase(stage, align, 'enter')
-    const error = m.stickTop - m.visualTop
-    if (Math.abs(error) > 0.5) {
-      applyArtifactTransform(align, currentHold + error)
-    }
+  if (fx === 'visible') {
+    beginStageFadeOut(stage)
   }
+  // fx === 'out': teardown timer is already running. fx == null: at rest.
 }
 
 /**
- * Continuous desktop: idle → enter → center (latched) → exit.
- * Center Y is captured once and held until scroll-out — copy scroll must not drag the artifact.
+ * Continuous desktop: the artifact dissolves in at the viewport center, holds
+ * via position:sticky, and dissolves out in place — the copy scrolls past
+ * with its own fade, and a handoff pause separates consecutive artifacts.
  */
 export function applyContinuousStageAlign(
   stageRevealMap: Record<string, number>,
@@ -618,23 +532,7 @@ export function applyContinuousStageAlign(
   if (vh <= 0) return
 
   const entries = collectStageEntries(stageRevealMap, copyRevealMap)
-  const previousPinId = committedPinId
   const pinId = pickStagePinId(entries, stageRevealMap)
-
-  if (
-    exitingPinId &&
-    (stageRevealMap[exitingPinId] ?? 0) <= STAGE_CLEAR_THRESHOLD
-  ) {
-    exitingPinId = null
-  }
-
-  if (
-    previousPinId &&
-    previousPinId !== pinId &&
-    (stageRevealMap[previousPinId] ?? 0) > STAGE_CLEAR_THRESHOLD
-  ) {
-    exitingPinId = previousPinId
-  }
 
   // Measure pass — every layout read for every stage happens here.
   const measures: StageMeasure[] = []
@@ -644,7 +542,11 @@ export function applyContinuousStageAlign(
   }
 
   // Write pass — style/dataset writes only; no reads that force layout.
+  // Fade-outs first: they extend the handoff gate that arrivals check.
   for (const measure of measures) {
-    writeStage(measure)
+    if (!measure.want) writeStage(measure)
+  }
+  for (const measure of measures) {
+    if (measure.want) writeStage(measure)
   }
 }
