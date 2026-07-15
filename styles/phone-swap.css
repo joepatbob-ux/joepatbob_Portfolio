@@ -109,9 +109,17 @@
   cursor: default;
 }
 
+/* Vertical swipes over the tall 3D box must scroll the page. Cover the WHOLE
+   subtree, not just the canvas: drei's OrbitControls and R3F both stamp
+   inline touch-action: none (on the canvas and its wrapper), and !important
+   is what beats an inline style. */
+.phone-swap--in-flow .phone-swap__viewbox,
+.phone-swap--in-flow .phone-swap__viewbox * {
+  touch-action: pan-y !important;
+}
+
 .phone-swap--in-flow .phone-swap__viewbox canvas {
   pointer-events: none !important;
-  touch-action: pan-y !important;
 }
 
 .phone-swap--in-flow .phone-swap__viewbox--live-interactive canvas {
@@ -1134,7 +1142,10 @@
 
 .phone-swap__screenshot-controls-row {
   display: flex;
-  flex-wrap: wrap;
+  /* One line: dots shrink (flex: 1 1 auto / min-width: 0 below) rather than
+     the theme toggle wrapping onto its own row on phones. Cinema (2560+)
+     deliberately stacks via flex-direction: column instead. */
+  flex-wrap: nowrap;
   align-items: center;
   justify-content: center;
   gap: 12px;

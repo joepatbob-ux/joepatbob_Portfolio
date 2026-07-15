@@ -122,7 +122,7 @@
   --cs-touch2-mobile-max-w: min(100%, var(--cs-mobile-inner-max));
   --cs-touch2-mobile-min-h: min(48dvh, 380px);
   --cs-touch2-mobile-max-h: min(56dvh, 440px);
-  --cs-touch2-mobile-gap: clamp(12px, 3vw, 16px);
+  --cs-touch2-mobile-gap: 16px;
   --cs-touch2-dot-size: 8px;
   --cs-touch2-dot-active: 56px;
   --cs-touch2-dot-slot: 80px;
