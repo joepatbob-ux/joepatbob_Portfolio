@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { rotateHandleAtPoint } from '@/lib/stickerHitTest'
 import { useChapterNav } from '@/components/ChapterNavProvider'
 import { Sticker } from '@/components/Sticker'
@@ -80,6 +80,17 @@ export function PlacedStickerControl({ sticker }: Props) {
 
   const selected = selectedInstanceId === sticker.instanceId
   const isDragging = draggingInstanceId === sticker.instanceId
+
+  // Placing a sticker selects it, and trackpad scrolling never fires the
+  // outside-click deselect — without this, a selected sticker stays pinned at
+  // full opacity through every chapter transition (both visibility writers
+  // skip selected stickers). Scrolling its chapter away drops the selection
+  // so the normal fade/blur exit applies.
+  useEffect(() => {
+    if (selected && !isDragging && sticker.chapterId && !chapterInView) {
+      selectSticker(null)
+    }
+  }, [selected, isDragging, sticker.chapterId, chapterInView, selectSticker])
 
   const rootRef = useRef<HTMLDivElement>(null)
   const bodyRef = useRef<HTMLDivElement>(null)

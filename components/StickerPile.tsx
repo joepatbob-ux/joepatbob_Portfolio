@@ -80,11 +80,13 @@ export function StickerPile() {
     )
   }
 
+  // The portal stays mounted and anchor-tracked even while hidden — mounting
+  // it on the visibility flip painted one unpositioned frame (a flash at the
+  // viewport origin) and an unmounted pile can't fade. Visibility is CSS
+  // (data-pile-visible) so the show/hide runs the sticker fade transition.
   const usePortal = !topBarNav
-  const portalRef = useAnchorPortalFollow(
-    anchorRef,
-    mounted && pileVisible && usePortal && !isPrerenderSnapshot(),
-  )
+  const portalActive = mounted && usePortal && !isPrerenderSnapshot()
+  const portalRef = useAnchorPortalFollow(anchorRef, portalActive)
 
   const pileStack = (
     <div
@@ -153,14 +155,15 @@ export function StickerPile() {
   )
 
   const portaledPile =
-    usePortal &&
-    mounted &&
-    pileVisible &&
-    !isPrerenderSnapshot() &&
+    portalActive &&
     createPortal(
       <div
         ref={portalRef}
         data-sticker-managed=""
+        data-pile-visible={pileVisible ? 'true' : 'false'}
+        // React 18 types don't know `inert`; the empty string renders the
+        // bare attribute, keeping the hidden pile out of the tab order.
+        {...(pileVisible ? {} : ({ inert: '' } as Record<string, string>))}
         className={[
           'sticker-pile-portal',
           draggingTop ? 'sticker-pile-portal--pile-drag' : '',
@@ -172,7 +175,7 @@ export function StickerPile() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'flex-start',
-          pointerEvents: draggingTop ? 'none' : 'auto',
+          pointerEvents: !pileVisible || draggingTop ? 'none' : 'auto',
         }}
       >
         {pileStack}
