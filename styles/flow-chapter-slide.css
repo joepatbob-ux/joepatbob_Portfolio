@@ -73,11 +73,20 @@
 }
 
 .flow-chapter-slide .chapter-slide__stage .sticker-pile-wrap,
-.flow-chapter-slide .chapter-slide__stage .formation-lego,
 .flow-chapter-slide .chapter-slide__stage .touch2-carousel,
 .flow-chapter-slide .chapter-slide__stage .mobile-figure__img,
 .flow-chapter-slide .chapter-slide__stage .kelvin-scratch {
   width: var(--scratch-ticket-w, var(--scratch-ticket-w-max));
+  max-width: 100%;
+  margin-inline: auto;
+}
+
+/* Formation lego sizes from its container, not the scratch-ticket tokens —
+   those are unset outside the kelvin chapter, and width: auto collapses a
+   container-type: inline-size element to 0 (its JS measurement then falls
+   back to the 720px floor and bleeds off-screen on phones). */
+.flow-chapter-slide .chapter-slide__stage .formation-lego {
+  width: 100%;
   max-width: 100%;
   margin-inline: auto;
 }

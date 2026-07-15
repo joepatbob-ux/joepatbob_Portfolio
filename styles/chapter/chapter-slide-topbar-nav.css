@@ -109,6 +109,15 @@
     aspect-ratio: 2044 / 1476;
   }
 
+  /* Formation lego: without a definite width the align shrink-wraps around
+     the JS-sized pan layer, whose width floors at 720px before a narrow
+     measurement lands — overflow: visible then bleeds it off-screen right.
+     A definite width both centers the board and gives the ResizeObserver a
+     stable narrow width to measure. */
+  .hardware-slideshow .chapter-slide__stage .chapter-stage-align:has(.formation-lego) {
+    width: min(100%, var(--cs-stage-artifact-w));
+  }
+
   .hardware-slideshow .chapter-slide__inner {
     height: auto !important;
     max-height: none !important;
