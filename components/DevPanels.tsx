@@ -14,6 +14,13 @@ function devFlag(param: string): boolean {
   return new URLSearchParams(window.location.search).get(param) === '1'
 }
 
+/* Unlike devFlag, no NODE_ENV gate — tuning panels have to work on preview
+ * deploys (prod builds). Still lazy, so a normal visit never loads them. */
+function previewFlag(param: string): boolean {
+  if (typeof window === 'undefined') return false
+  return new URLSearchParams(window.location.search).get(param) === '1'
+}
+
 const ContentDebugPanel = dynamic(
   () =>
     import('@/components/ContentDebugPanel').then((m) => ({
@@ -38,9 +45,22 @@ const SensiLiteSegmentAtlas = dynamic(
   { loading: () => null },
 )
 
+const FadeTunePanel = dynamic(
+  () =>
+    import('@/components/FadeTunePanel').then((m) => ({
+      default: m.FadeTunePanel,
+    })),
+  { loading: () => null },
+)
+
 export function DevPanels() {
   const hydrated = useHydrated()
-  const [flags, setFlags] = useState({ content: false, sentence: false, atlas: false })
+  const [flags, setFlags] = useState({
+    content: false,
+    sentence: false,
+    atlas: false,
+    fadeTune: false,
+  })
 
   useEffect(() => {
     if (!hydrated) return
@@ -48,6 +68,7 @@ export function DevPanels() {
       content: devFlag('contentDebug'),
       sentence: devFlag('navSentence'),
       atlas: devFlag('sensiLiteSegments'),
+      fadeTune: previewFlag('fadeTune'),
     })
   }, [hydrated])
 
@@ -56,6 +77,7 @@ export function DevPanels() {
       {flags.content ? <ContentDebugPanel /> : null}
       {flags.sentence ? <NavSentenceEditorPanel /> : null}
       {flags.atlas ? <SensiLiteSegmentAtlas /> : null}
+      {flags.fadeTune ? <FadeTunePanel /> : null}
     </>
   )
 }

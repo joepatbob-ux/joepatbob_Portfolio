@@ -52,15 +52,47 @@ function snapshotGhost(container: HTMLElement, mode: 'clone' | 'move') {
   return ghost
 }
 
+/* ?fadeTune=1 panel overrides — applied before the ghost mounts so a reload
+ * tests the dialed values end to end. Visitor-local (localStorage) only. */
+function applyFadeTuneOverrides(): { holdMs: number; totalMs: number } {
+  let holdMs = 0
+  let durationMs = 320
+  try {
+    const raw = window.localStorage.getItem('fade-tune')
+    if (raw) {
+      const t = JSON.parse(raw) as Record<string, unknown>
+      const s = document.documentElement.style
+      if (typeof t.ghostMs === 'number') {
+        s.setProperty('--ghost-fade-duration', `${t.ghostMs}ms`)
+        durationMs = t.ghostMs
+      }
+      if (typeof t.ghostBlur === 'number')
+        s.setProperty('--ghost-fade-blur', `${t.ghostBlur}px`)
+      if (typeof t.ghostHold === 'number') holdMs = t.ghostHold
+      if (typeof t.stickerMs === 'number')
+        s.setProperty('--sticker-exit-duration', `${t.stickerMs}ms`)
+      if (typeof t.stickerBlur === 'number')
+        s.setProperty('--sticker-exit-blur', `${t.stickerBlur}px`)
+    }
+  } catch {
+    /* corrupted overrides are ignored */
+  }
+  return { holdMs, totalMs: holdMs + durationMs + 150 }
+}
+
+const fadeTune = applyFadeTuneOverrides()
+
 function releaseGhost(ghost: HTMLElement | null): void {
   if (!ghost) return
   // Two frames so the live tree has painted underneath before the fade.
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      ghost.classList.add('prerender-ghost--out')
+      window.setTimeout(() => {
+        ghost.classList.add('prerender-ghost--out')
+      }, fadeTune.holdMs)
     })
   })
-  window.setTimeout(() => ghost.remove(), 700)
+  window.setTimeout(() => ghost.remove(), fadeTune.totalMs)
 }
 
 if (root.hasChildNodes() && snapshotMatchesViewport) {
