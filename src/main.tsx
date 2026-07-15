@@ -29,26 +29,42 @@ const snapshotMatchesViewport = window.matchMedia(
   `(min-width: ${LAYOUT_BP.desktopMin}px)`,
 ).matches
 
-/* Replacing the snapshot with the fresh render is a hard swap — hold the old
- * DOM in a frozen overlay and fade it out over the new tree instead. Only
- * worth doing at the top of the page, where the two renders line up. */
-function fadeOutSnapshot(container: HTMLElement): void {
-  if (!container.hasChildNodes() || window.scrollY > 0) return
+/* Going live from the snapshot is otherwise a hard cut — on phones the fresh
+ * render replaces the baked DOM outright, and on desktop the post-hydration
+ * settle (reveal choreography initializing, effect-driven stage swaps) snaps
+ * in place. Hold a frozen copy of the snapshot in an overlay and fade/blur it
+ * out over the live tree instead. Desktop clones the nodes (hydration adopts
+ * the originals); phones move them (createRoot clears the container anyway).
+ * Only at the top of the page, where the two renders line up. */
+function snapshotGhost(container: HTMLElement, mode: 'clone' | 'move') {
+  if (!container.hasChildNodes() || window.scrollY > 0) return null
   const ghost = document.createElement('div')
   ghost.className = 'prerender-ghost'
   ghost.setAttribute('aria-hidden', 'true')
-  while (container.firstChild) ghost.appendChild(container.firstChild)
+  if (mode === 'clone') {
+    const copy = container.cloneNode(true) as HTMLElement
+    copy.removeAttribute('id')
+    ghost.appendChild(copy)
+  } else {
+    while (container.firstChild) ghost.appendChild(container.firstChild)
+  }
   document.body.appendChild(ghost)
-  // Two frames so the fresh render has painted underneath before the fade.
+  return ghost
+}
+
+function releaseGhost(ghost: HTMLElement | null): void {
+  if (!ghost) return
+  // Two frames so the live tree has painted underneath before the fade.
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       ghost.classList.add('prerender-ghost--out')
     })
   })
-  window.setTimeout(() => ghost.remove(), 600)
+  window.setTimeout(() => ghost.remove(), 700)
 }
 
 if (root.hasChildNodes() && snapshotMatchesViewport) {
+  const ghost = snapshotGhost(root, 'clone')
   // The snapshot bakes the lazy chapters' HTML; resolve their chunks first so
   // every boundary hydrates against real content instead of a fallback (the
   // static prerendered page stays visible while they load).
@@ -62,10 +78,12 @@ if (root.hasChildNodes() && snapshotMatchesViewport) {
         )
       },
     })
+    releaseGhost(ghost)
   })
 } else {
-  fadeOutSnapshot(root)
+  const ghost = snapshotGhost(root, 'move')
   createRoot(root).render(app)
+  releaseGhost(ghost)
 }
 
 inject()
