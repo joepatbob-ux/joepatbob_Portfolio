@@ -12,6 +12,7 @@ import {
 import { isContinuousChapters } from '@/lib/scroll/continuousChapters'
 import { CHAPTER_STICKER_SCROLL_VISIBILITY } from '@/lib/scroll/chapterVisibility'
 import { useChapterReveal, usePublishedActiveSlideId, usePublishedInHero } from '@/lib/hooks/useChapterReveal'
+import { useChapterStageFx } from '@/lib/hooks/useChapterStageFx'
 import { useLayoutTopBarNav } from '@/lib/hooks/useLayoutTopBarNav'
 import {
   pointerAngleDeg,
@@ -70,11 +71,17 @@ export function PlacedStickerControl({ sticker }: Props) {
       : activeSlideId
 
   const reveal = useChapterReveal(sticker.chapterId ?? '')
+  // Continuous desktop: fade on the same beat as the chapter's artifact and
+  // the pile (stage-fx bus); active-slide covers stage-less chapters.
+  const stageFx = useChapterStageFx(sticker.chapterId ?? '')
+  const continuousDesktop = !topBarNav && isContinuousChapters()
   const chapterInView = Boolean(
     sticker.chapterId &&
       !inHero &&
       (inFlowScroll
-        ? effectiveActiveSlideId === sticker.chapterId
+        ? continuousDesktop
+          ? (stageFx ?? effectiveActiveSlideId === sticker.chapterId)
+          : effectiveActiveSlideId === sticker.chapterId
         : reveal > CHAPTER_STICKER_SCROLL_VISIBILITY),
   )
 

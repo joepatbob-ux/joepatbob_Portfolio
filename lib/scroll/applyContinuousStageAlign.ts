@@ -5,6 +5,7 @@ import {
 } from '@/lib/scroll/chapterVisibility'
 import { isContinuousChapters } from '@/lib/scroll/continuousChapters'
 import { flushScrollFrame } from '@/lib/scroll/scrollFrame'
+import { publishChapterStageFx } from '@/lib/scroll/stageFxBus'
 import { isTopBarNavViewport } from '@/lib/layout/isTopBarNavViewport'
 
 const STAGE_SELECTOR = `${CHAPTER_SLOT_SELECTOR} .chapter-slide__stage:not(:has(.flow-chapter-slide__stage--empty))`
@@ -238,9 +239,18 @@ function scheduleGateFlush(): void {
  * opacity/blur transition to zero (chapter-slide-base.css supplies the
  * transition), then the positional teardown runs once it's invisible —
  * tearing down immediately snapped the artifact out of center mid-fade. */
+function stageChapterId(stage: HTMLElement): string | null {
+  return (
+    stage.closest<HTMLElement>('[data-chapter-id]')?.dataset.chapterId ?? null
+  )
+}
+
 function beginStageFadeOut(stage: HTMLElement): void {
   stage.dataset.stageFx = 'out'
   stage.dataset.stageOutY = String(Math.round(window.scrollY))
+  // Companions (placed stickers, the pile) fade out on the same beat.
+  const chapterId = stageChapterId(stage)
+  if (chapterId) publishChapterStageFx(chapterId, false)
   stage.style.opacity = '0'
   stage.style.filter = 'blur(var(--stage-exit-blur, 0px))'
   // Behind whatever shows next.
@@ -270,6 +280,9 @@ function cancelStageFadeOut(stage: HTMLElement): void {
 function finalizeStageClear(stage: HTMLElement, align: HTMLElement | null): void {
   stageFadeTimers.delete(stage)
   delete stage.dataset.stageFx
+  // Idempotent with beginStageFadeOut; covers direct teardowns (resize, reset).
+  const chapterId = stageChapterId(stage)
+  if (chapterId) publishChapterStageFx(chapterId, false)
   delete stage.dataset.stagePinned
   delete stage.dataset.stageCentered
   stage.style.removeProperty('--stage-artifact-half')
@@ -374,6 +387,8 @@ export function releaseContinuousStageAlignForInFlowNav(): void {
     const align = stageAlignTarget(stage)
     cancelStageFadeOut(stage)
     delete stage.dataset.stageFx
+    const chapterId = stageChapterId(stage)
+    if (chapterId) publishChapterStageFx(chapterId, false)
     delete stage.dataset.stageOutY
     delete stage.dataset.stagePinned
     delete stage.dataset.stageCentered
@@ -511,6 +526,8 @@ function writeStage(m: StageMeasure): void {
     stage.style.zIndex = '2'
     stage.style.pointerEvents = stagePointerEvents(stage, 1)
     setPhase(stage, align, 'center')
+    // Companions (placed stickers, the pile) dissolve in on the same beat.
+    publishChapterStageFx(chapterId, true)
     return
   }
 

@@ -9,6 +9,7 @@ import { eibChapterId } from '@/lib/everything-in-between/content'
 import { activeSlideIdPublished, chapterRevealForId } from '@/lib/scroll/chapterSlideshow'
 import { CHAPTER_STAGE_PAINT_VISIBILITY } from '@/lib/scroll/chapterVisibility'
 import { isContinuousChapters } from '@/lib/scroll/continuousChapters'
+import { chapterStageFxVisible } from '@/lib/scroll/stageFxBus'
 import { pileRotationForId, pileScatterOffsetForId } from '@/lib/stickers'
 import { scheduleScrollFrame } from '@/lib/scroll/scrollFrame'
 import { useAnchorPortalFollow } from '@/lib/hooks/useAnchorPortalFollow'
@@ -41,16 +42,9 @@ export function StickerPile() {
     // mirror the stage state machine (data-stage-fx) instead of a raw reveal
     // threshold. Showing on reveal alone flashed the pile in early, at the
     // pre-centered anchor position, then snapped it when the stage engaged.
-    const continuousStageVisible = () => {
-      const stage = anchorRef.current?.closest<HTMLElement>(
-        '.chapter-slide__stage',
-      )
-      if (stage) return stage.dataset.stageFx === 'visible'
-      return (
-        chapterRevealForId(PRACTICE_CHAPTER_ID) >=
-        CHAPTER_STAGE_PAINT_VISIBILITY
-      )
-    }
+    const continuousStageVisible = () =>
+      chapterStageFxVisible(PRACTICE_CHAPTER_ID) ??
+      chapterRevealForId(PRACTICE_CHAPTER_ID) >= CHAPTER_STAGE_PAINT_VISIBILITY
 
     const sync = () => {
       const vis = inFlowScroll
