@@ -6,7 +6,11 @@ import { useStickers } from '@/components/StickerProvider'
 import { useLayoutMobile } from '@/lib/hooks/useLayoutMobile'
 import { useLayoutTopBarNav } from '@/lib/hooks/useLayoutTopBarNav'
 import { eibChapterId } from '@/lib/everything-in-between/content'
-import { activeSlideIdPublished, chapterRevealForId } from '@/lib/scroll/chapterSlideshow'
+import {
+  activeSlideIdPublished,
+  chapterRevealForId,
+  subscribeChapterScrollState,
+} from '@/lib/scroll/chapterSlideshow'
 import { CHAPTER_STAGE_PAINT_VISIBILITY } from '@/lib/scroll/chapterVisibility'
 import { isContinuousChapters } from '@/lib/scroll/continuousChapters'
 import { chapterStageFxVisible } from '@/lib/scroll/stageFxBus'
@@ -47,11 +51,18 @@ export function StickerPile() {
       chapterRevealForId(PRACTICE_CHAPTER_ID) >= CHAPTER_STAGE_PAINT_VISIBILITY
 
     const sync = () => {
-      const vis = inFlowScroll
+      // The stage-fx bus only runs on continuous DESKTOP — on top-bar
+      // viewports the stage machine is released and publishes hidden for
+      // every chapter, so consulting it there hides the pile permanently.
+      // Phones/tablets keep the reveal-fraction check.
+      const vis = topBarNav
         ? isContinuousChapters()
-          ? continuousStageVisible()
+          ? chapterRevealForId(PRACTICE_CHAPTER_ID) >=
+            CHAPTER_STAGE_PAINT_VISIBILITY
           : activeSlideIdPublished() === PRACTICE_CHAPTER_ID
-        : activeSlideId === PRACTICE_CHAPTER_ID
+        : isContinuousChapters()
+          ? continuousStageVisible()
+          : activeSlideId === PRACTICE_CHAPTER_ID
       if (vis !== pileVisibleRef.current) {
         pileVisibleRef.current = vis
         setPileVisible(vis)
@@ -60,8 +71,19 @@ export function StickerPile() {
 
     sync()
     if (!inFlowScroll) return
-    return scheduleScrollFrame(sync)
-  }, [inFlowScroll, activeSlideId])
+    // Both subscriptions: the rAF pass alone can read state from BEFORE this
+    // frame's publish (child effects register their scroll callbacks ahead of
+    // the provider's spy), which strands the pile hidden after a single
+    // programmatic jump — no further frames arrive to catch up. The publish
+    // subscription fires after every store write, so sync always sees fresh
+    // state; it's ref-guarded, so redundant runs are free.
+    const unsubFrame = scheduleScrollFrame(sync)
+    const unsubStore = subscribeChapterScrollState(sync)
+    return () => {
+      unsubFrame()
+      unsubStore()
+    }
+  }, [inFlowScroll, topBarNav, activeSlideId])
 
   const rotationFor = useCallback(
     (id: string) => pileRotationForId(id, layoutMobile),
