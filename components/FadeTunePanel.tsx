@@ -19,6 +19,10 @@ export type FadeTuneState = {
   stickerBlur: number
   /** Scroll reveal: blur on chapter copy (text). Site default 12. */
   copyScrollBlur: number
+  /** Copy fade-in band as %vh — how much scroll the text takes to arrive. */
+  copyEnterSpan: number
+  /** Copy fade-out band as %vh — how much scroll the text takes to leave. */
+  copyExitSpan: number
   /** Stage exit: fade/blur when a chapter's artifact clears. */
   stageMs: number
   stageBlur: number
@@ -39,6 +43,8 @@ export const FADE_TUNE_DEFAULTS: FadeTuneState = {
   stickerMs: 320,
   stickerBlur: 8,
   copyScrollBlur: 12,
+  copyEnterSpan: 18,
+  copyExitSpan: 52,
   stageMs: 320,
   stageBlur: 12,
   stagePauseMs: 240,
@@ -70,6 +76,8 @@ function applyVars(state: FadeTuneState): void {
   // The copy blur, handoff pause, and hero fade params are read by the rAF
   // writers as datasets.
   document.documentElement.dataset.copyScrollBlur = String(state.copyScrollBlur)
+  document.documentElement.dataset.copyEnterVh = String(state.copyEnterSpan / 100)
+  document.documentElement.dataset.copyExitVh = String(state.copyExitSpan / 100)
   document.documentElement.dataset.stagePauseMs = String(state.stagePauseMs)
   document.documentElement.dataset.heroNameBlur = String(state.heroNameBlur)
   document.documentElement.dataset.heroFadeEndVh = String(state.heroFadeEnd / 100)
@@ -204,6 +212,8 @@ export function FadeTunePanel() {
 
       <div style={{ margin: '8px 0 2px', opacity: 0.75 }}>Scroll reveal (desktop)</div>
       <Dial label="Copy blur" value={state.copyScrollBlur} min={0} max={24} step={1} unit="px" onChange={(v) => set({ copyScrollBlur: v })} />
+      <Dial label="Copy fade-in span" value={state.copyEnterSpan} min={8} max={70} step={2} unit="%vh" onChange={(v) => set({ copyEnterSpan: v })} />
+      <Dial label="Copy fade-out span" value={state.copyExitSpan} min={20} max={100} step={2} unit="%vh" onChange={(v) => set({ copyExitSpan: v })} />
       <Dial label="Stage exit duration" value={state.stageMs} min={0} max={1200} step={20} unit="ms" onChange={(v) => set({ stageMs: v })} />
       <Dial label="Stage exit blur" value={state.stageBlur} min={0} max={24} step={1} unit="px" onChange={(v) => set({ stageBlur: v })} />
       <Dial label="Handoff pause" value={state.stagePauseMs} min={0} max={1000} step={20} unit="ms" onChange={(v) => set({ stagePauseMs: v })} />

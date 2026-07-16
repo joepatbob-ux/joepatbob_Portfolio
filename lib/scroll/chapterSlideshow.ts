@@ -211,9 +211,17 @@ const COPY_ENTER_FADE_VH = 0.18
 const COPY_REVEAL_VIEWPORT_FLOOR = 0.04
 /** Fade out as copy tail leaves — fraction of viewport height. */
 const COPY_EXIT_BOTTOM_VH = 0.52
-/** Late assist when copy top clears the upper edge (keeps stage from lingering). */
-const COPY_EXIT_TOP_VH = 0.1
-const COPY_EXIT_TOP_DEPTH_VH = 0.2
+
+/** ?fadeTune=1 overrides for the copy fade bands (fractions of viewport). */
+function copyEnterFadeVh(): number {
+  const parsed = Number(document.documentElement.dataset.copyEnterVh)
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : COPY_ENTER_FADE_VH
+}
+
+function copyExitBottomVh(): number {
+  const parsed = Number(document.documentElement.dataset.copyExitVh)
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : COPY_EXIT_BOTTOM_VH
+}
 /** Stage hidden until copy crosses interactive threshold. */
 const STAGE_HOLD_THRESHOLD = CHAPTER_INTERACTIVE_VISIBILITY
 /** Copy bottom in lower fraction of viewport — stage stays full during text exit. */
@@ -249,10 +257,8 @@ function revealFromCopyInViewport(rect: DOMRect, vh: number): number {
 
   const top = rect.top
   const bottom = rect.bottom
-  const fadeInPx = Math.max(80, vh * COPY_ENTER_FADE_VH)
-  const exitBottomPx = Math.max(120, vh * COPY_EXIT_BOTTOM_VH)
-  const exitTopLine = vh * COPY_EXIT_TOP_VH
-  const exitTopDepth = Math.max(80, vh * COPY_EXIT_TOP_DEPTH_VH)
+  const fadeInPx = Math.max(80, vh * copyEnterFadeVh())
+  const exitBottomPx = Math.max(120, vh * copyExitBottomVh())
 
   if (bottom <= 0) return 0
 
@@ -265,16 +271,15 @@ function revealFromCopyInViewport(rect: DOMRect, vh: number): number {
     enter = Math.max(0, (vh - top) / fadeInPx)
   }
 
-  // Primary exit: trailing copy leaving the viewport (slow, wide band).
+  // Exit: trailing copy leaving the viewport (slow, wide band). A former
+  // top-edge "assist" (min with a ramp on rect.top) hard-cut reveal 1 → 0 in
+  // one step for any copy taller than ~1.1 viewports — its two gate
+  // conditions became true simultaneously with top already far above the
+  // screen. The bottom band alone fades every copy length smoothly; the
+  // stage has its own exit choreography and doesn't need the copy's help.
   let exit = 1
   if (bottom < exitBottomPx) {
     exit = easeChapterReveal(Math.max(0, bottom / exitBottomPx))
-  }
-
-  // Assist only when copy is mostly gone — avoids an abrupt stage hang.
-  if (top < exitTopLine && bottom < vh * 0.5) {
-    const topExit = Math.max(0, (top + exitTopDepth) / (exitTopLine + exitTopDepth))
-    exit = Math.min(exit, easeChapterReveal(topExit))
   }
 
   const raw = Math.max(0, Math.min(enter, exit))
