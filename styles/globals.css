@@ -2120,6 +2120,17 @@ html {
   filter: blur(var(--ghost-fade-blur));
 }
 
+/* The snapshot is desktop-captured; its sidebar sentence carries a
+   JS-computed desktop position that lands mid-screen at top-bar widths,
+   while the live mobile tagline anchors to the hero's bottom. Hide it in
+   the ghost so the tagline dissolves in with the live tree instead of
+   morphing across the screen. */
+@media (max-width: 1023px) {
+  .prerender-ghost [data-sidebar-main-nav] {
+    display: none;
+  }
+}
+
 /* ── Reduced motion (global) ─────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   *,
