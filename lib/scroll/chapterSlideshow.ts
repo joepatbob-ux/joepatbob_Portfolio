@@ -206,11 +206,11 @@ export function computeChapterRevealMap(): Record<string, number> {
 }
 
 /** Fade band as copy enters from the bottom of the viewport. */
-const COPY_ENTER_FADE_VH = 0.18
+const COPY_ENTER_FADE_VH = 0.6
 /** Minimum copy weight while copy intersects viewport (reduces grey bands between chapters). */
 const COPY_REVEAL_VIEWPORT_FLOOR = 0.04
 /** Fade out as copy tail leaves — fraction of viewport height. */
-const COPY_EXIT_BOTTOM_VH = 0.52
+const COPY_EXIT_BOTTOM_VH = 0.7
 
 /** ?fadeTune=1 overrides for the copy fade bands (fractions of viewport). */
 function copyEnterFadeVh(): number {

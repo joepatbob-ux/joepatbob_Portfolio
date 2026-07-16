@@ -2099,7 +2099,7 @@ html {
   --sticker-exit-duration: 320ms;
   --sticker-exit-blur: 8px;
   --stage-exit-duration: 320ms;
-  --stage-exit-blur: 12px;
+  --stage-exit-blur: 16px;
 }
 
 .prerender-ghost {
