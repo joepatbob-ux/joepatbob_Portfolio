@@ -86,7 +86,7 @@ function fixGhostNavRest(container: HTMLElement, copy: HTMLElement): void {
 /* ?fadeTune=1 panel overrides — applied before the ghost mounts so a reload
  * tests the dialed values end to end. Visitor-local (localStorage) only. */
 function applyFadeTuneOverrides(): { holdMs: number; totalMs: number } {
-  let holdMs = 0
+  let holdMs = 600
   let durationMs = 320
   try {
     const raw = window.localStorage.getItem('fade-tune')
