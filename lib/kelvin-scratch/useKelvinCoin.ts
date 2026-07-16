@@ -5,6 +5,7 @@ import {
 } from '@/lib/kelvin-scratch/ticket'
 import { useElementSize } from '@/lib/hooks/useElementSize'
 import { useCallback, useEffect, useMemo, useState, type RefObject } from 'react'
+import { trackEventOnce } from '@/lib/analytics'
 
 export function useKelvinCoin(
   stageRef: RefObject<HTMLElement | null>,
@@ -27,6 +28,7 @@ export function useKelvinCoin(
 
   const pickUp = useCallback(
     (clientX: number, clientY: number) => {
+      trackEventOnce('scratch:start', 'scratch', { action: 'pick-up-coin' })
       setCoinInTray(false)
       setCursorPos(clientX, clientY)
       if (document.activeElement instanceof HTMLElement) {
@@ -54,7 +56,10 @@ export function useKelvinCoin(
   }, [coinOut, setCursorPos])
 
   const onScratchProgress = useCallback<ScratchProgressHandler>(
-    (_percent, _point, global) => {
+    (percent, _point, global) => {
+      if (percent >= 60) {
+        trackEventOnce('scratch:reveal', 'scratch', { action: 'reveal' })
+      }
       setCursorPos(global.x, global.y)
     },
     [setCursorPos],

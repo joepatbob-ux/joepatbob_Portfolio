@@ -1,5 +1,6 @@
 import { inject } from '@vercel/analytics'
 import { injectSpeedInsights } from '@vercel/speed-insights'
+import { initChapterViewTracking } from '@/lib/analytics'
 import { initContinuousChaptersClass } from '@/lib/scroll/continuousChapters'
 import { initDeckModeClass } from '@/lib/deck/deckMode'
 import { LAYOUT_BP } from '@/lib/layout/breakpoints'
@@ -182,3 +183,4 @@ const dropIfOptedOut = <T,>(event: T): T | null => {
 }
 inject({ beforeSend: dropIfOptedOut })
 injectSpeedInsights({ beforeSend: dropIfOptedOut })
+initChapterViewTracking()

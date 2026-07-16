@@ -29,6 +29,7 @@ import {
   type StickerAsset,
   type StickerHeights,
 } from '@/lib/stickers'
+import { trackEvent } from '@/lib/analytics'
 
 /** Desktop defaults — on phone use `useStickers().zIndices` (matches globals.css). */
 export const STICKER_Z_BASE = 116
@@ -225,6 +226,7 @@ export function StickerProvider({ children }: { children: ReactNode }) {
       chapterId: string,
     ) => {
       const instanceId = nextInstanceId()
+      trackEvent('sticker-place', { sticker: asset.id, chapter: chapterId })
       setPlaced((prev) => {
         const next: PlacedSticker = {
           instanceId,

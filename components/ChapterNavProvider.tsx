@@ -40,6 +40,7 @@ import {
   type ReactNode,
 } from 'react'
 import { flushSync } from 'react-dom'
+import { trackEvent } from '@/lib/analytics'
 
 export const CHAPTER_NAV_FADE_IN_MS = 360
 
@@ -363,17 +364,20 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
   )
 
   const navigateToChapter = useCallback(
-    (chapterId: string) =>
-      runNavigate(
+    (chapterId: string) => {
+      trackEvent('nav-jump', { target: chapterId })
+      return runNavigate(
         `.portfolio-chapter-slot[data-chapter-id="${chapterId}"]`,
         chapterId,
-      ),
+      )
+    },
     [runNavigate],
   )
 
   const navigateToSection = useCallback(
     (sectionId: string) => {
       const entryId = sectionEntryChapterId(sectionId)
+      trackEvent('nav-jump', { target: entryId, section: sectionId })
       return runNavigate(
         `.portfolio-chapter-slot[data-chapter-id="${entryId}"]`,
         entryId,
