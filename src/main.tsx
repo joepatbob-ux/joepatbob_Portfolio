@@ -161,5 +161,24 @@ if (root.hasChildNodes() && snapshotMatchesViewport) {
   releaseGhost(ghost)
 }
 
-inject()
-injectSpeedInsights()
+// Own-device opt-out so testing doesn't pollute analytics: visit ?track=off
+// once per browser to set a sticky flag (?track=on to undo), and beforeSend
+// drops every event client-side while it's set.
+const TRACK_OPT_OUT_KEY = 'va-disable'
+try {
+  const track = new URLSearchParams(window.location.search).get('track')
+  if (track === 'off') window.localStorage.setItem(TRACK_OPT_OUT_KEY, '1')
+  if (track === 'on') window.localStorage.removeItem(TRACK_OPT_OUT_KEY)
+} catch {
+  // Storage unavailable (private mode) — events just send normally.
+}
+const dropIfOptedOut = <T,>(event: T): T | null => {
+  try {
+    if (window.localStorage.getItem(TRACK_OPT_OUT_KEY)) return null
+  } catch {
+    // Storage unavailable — treat as opted in.
+  }
+  return event
+}
+inject({ beforeSend: dropIfOptedOut })
+injectSpeedInsights({ beforeSend: dropIfOptedOut })
