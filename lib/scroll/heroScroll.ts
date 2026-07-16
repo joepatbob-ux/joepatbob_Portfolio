@@ -83,9 +83,23 @@ function heroPinBottom(hero: HTMLElement): number {
   return pin?.getBoundingClientRect().bottom ?? hero.getBoundingClientRect().bottom
 }
 
+/** ?fadeTune=1 override for the fade band length (fraction of viewport). */
+function heroFadeEndVh(): number {
+  if (typeof document === 'undefined') return HERO_PIN_FADE_END_VH
+  const parsed = Number(document.documentElement.dataset.heroFadeEndVh)
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : HERO_PIN_FADE_END_VH
+}
+
+/** ?fadeTune=1 override for the sidebar name blur (px). */
+export function heroNameBlurPx(fallback: number): number {
+  if (typeof document === 'undefined') return fallback
+  const parsed = Number(document.documentElement.dataset.heroNameBlur)
+  return Number.isFinite(parsed) && parsed >= 0 ? parsed : fallback
+}
+
 /** 0 = fully faded, 1 = full hero portrait. */
 export function getHeroPinFadeOut(scrollY: number, viewportH: number): number {
-  const end = viewportH * HERO_PIN_FADE_END_VH
+  const end = viewportH * heroFadeEndVh()
   const span = Math.max(1, end - HERO_PIN_FADE_START_PX)
   const linear = Math.min(
     1,

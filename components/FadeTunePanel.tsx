@@ -24,6 +24,12 @@ export type FadeTuneState = {
   stageBlur: number
   /** Gap between one artifact's dissolve-out and the next one's dissolve-in. */
   stagePauseMs: number
+  /** Hero portrait blur at full fade (the pre-blurred layer's radius). */
+  heroBlur: number
+  /** Sidebar "Hello, I am" name blur at full fade. */
+  heroNameBlur: number
+  /** Scroll depth where the hero fade completes, as % of viewport height. */
+  heroFadeEnd: number
 }
 
 export const FADE_TUNE_DEFAULTS: FadeTuneState = {
@@ -36,6 +42,9 @@ export const FADE_TUNE_DEFAULTS: FadeTuneState = {
   stageMs: 320,
   stageBlur: 12,
   stagePauseMs: 240,
+  heroBlur: 10,
+  heroNameBlur: 6,
+  heroFadeEnd: 58,
 }
 
 function loadState(): FadeTuneState {
@@ -57,9 +66,13 @@ function applyVars(state: FadeTuneState): void {
   s.setProperty('--sticker-exit-blur', `${state.stickerBlur}px`)
   s.setProperty('--stage-exit-duration', `${state.stageMs}ms`)
   s.setProperty('--stage-exit-blur', `${state.stageBlur}px`)
-  // The copy blur and handoff pause are read by the rAF writer as datasets.
+  s.setProperty('--hero-blur', `${state.heroBlur}px`)
+  // The copy blur, handoff pause, and hero fade params are read by the rAF
+  // writers as datasets.
   document.documentElement.dataset.copyScrollBlur = String(state.copyScrollBlur)
   document.documentElement.dataset.stagePauseMs = String(state.stagePauseMs)
+  document.documentElement.dataset.heroNameBlur = String(state.heroNameBlur)
+  document.documentElement.dataset.heroFadeEndVh = String(state.heroFadeEnd / 100)
 }
 
 function replayGhost(state: FadeTuneState): void {
@@ -179,6 +192,11 @@ export function FadeTunePanel() {
       <Dial label="Duration" value={state.ghostMs} min={80} max={1600} step={20} unit="ms" onChange={(v) => set({ ghostMs: v })} />
       <Dial label="Blur" value={state.ghostBlur} min={0} max={32} step={1} unit="px" onChange={(v) => set({ ghostBlur: v })} />
       <Dial label="Hold before fade" value={state.ghostHold} min={0} max={1500} step={50} unit="ms" onChange={(v) => set({ ghostHold: v })} />
+
+      <div style={{ margin: '8px 0 2px', opacity: 0.75 }}>Hero fade</div>
+      <Dial label="Portrait blur" value={state.heroBlur} min={0} max={32} step={1} unit="px" onChange={(v) => set({ heroBlur: v })} />
+      <Dial label="Name blur" value={state.heroNameBlur} min={0} max={24} step={1} unit="px" onChange={(v) => set({ heroNameBlur: v })} />
+      <Dial label="Fade ends at" value={state.heroFadeEnd} min={20} max={120} step={2} unit="%vh" onChange={(v) => set({ heroFadeEnd: v })} />
 
       <div style={{ margin: '8px 0 2px', opacity: 0.75 }}>Sticker exit</div>
       <Dial label="Duration" value={state.stickerMs} min={80} max={1200} step={20} unit="ms" onChange={(v) => set({ stickerMs: v })} />
