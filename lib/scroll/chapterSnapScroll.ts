@@ -51,8 +51,21 @@ export function chapterSlotScrollTop(slot: HTMLElement): number {
   // viewport, but phone/tablet keep top-align + scroll-margin (the margin
   // accounts for the fixed mobile rail).
   if (isContinuousChapters() && !isTopBarNavViewport()) {
+    // Stage chapters: center the COPY column, not the whole band — a
+    // materialized stage inflates the band to ~viewport height (its centered
+    // min-height), so band-centering pins the copy to the viewport top. The
+    // artifact holds its own center via the sticky lock regardless of where
+    // the scroll lands. Overviews (no stage) keep band centering.
+    const hasStage = slot.querySelector(
+      '.chapter-slide__stage:not(:has(.flow-chapter-slide__stage--empty))',
+    )
+    const copy = hasStage
+      ? slot.querySelector<HTMLElement>('.chapter-slide__copy')
+      : null
     const band =
-      slot.querySelector<HTMLElement>('.chapter-slide__inner') ?? slot
+      copy ??
+      slot.querySelector<HTMLElement>('.chapter-slide__inner') ??
+      slot
     const rect = band.getBoundingClientRect()
     if (rect.height > 0) {
       const bandTop = rect.top + window.scrollY
@@ -64,10 +77,10 @@ export function chapterSlotScrollTop(slot: HTMLElement): number {
           : bandTop
 
       const maxScroll = maxDocumentScrollY()
-      // Centering the last chapter can overshoot into the site footer — top-align instead.
-      if (top > maxScroll || (lastChapterSlot() === slot && top > maxScroll - 8)) {
-        top = Math.min(bandTop, maxScroll)
-      }
+      // Past document end there's nothing more to scroll — land as close to
+      // the desired centering as the page allows (top-aligning instead left
+      // the last chapter's content stuck high in the viewport).
+      if (top > maxScroll) top = maxScroll
       return clampChapterScrollTop(top)
     }
   }

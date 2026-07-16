@@ -212,6 +212,10 @@ function clearPhase(stage: HTMLElement, align: HTMLElement | null): void {
 
 const stageFadeTimers = new WeakMap<HTMLElement, number>()
 
+/** Last measured align top per visible stage — displacement exits fire only
+ * while moving away from the lock (see measureStage). */
+const lastAlignTopByStage = new WeakMap<HTMLElement, number>()
+
 /* Handoff pause: an arriving stage waits until the outgoing dissolve finishes
  * plus a beat. Dialable via ?fadeTune=1 (documentElement.dataset.stagePauseMs). */
 const STAGE_HANDOFF_PAUSE_MS = 240
@@ -279,6 +283,7 @@ function cancelStageFadeOut(stage: HTMLElement): void {
 
 function finalizeStageClear(stage: HTMLElement, align: HTMLElement | null): void {
   stageFadeTimers.delete(stage)
+  lastAlignTopByStage.delete(stage)
   delete stage.dataset.stageFx
   // Idempotent with beginStageFadeOut; covers direct teardowns (resize, reset).
   const chapterId = stageChapterId(stage)
@@ -319,6 +324,8 @@ type StageMeasure = {
   /** Set on a hidden→visible transition: half the artifact height, for the
    * sticky centering var. null = not ready to show yet. */
   centerHalf: number | null
+  /** This chapter is the active sidebar-nav destination. */
+  isNavTarget: boolean
 }
 
 function collectStageEntries(
@@ -421,6 +428,7 @@ function measureStage(
   entry: StageEntry,
   pinId: string | null,
   vh: number,
+  navTargetId: string | null,
 ): StageMeasure | null {
   const { stage, align, copy, slot, chapterId, stageReveal, copyReveal } = entry
   if (!chapterId || !copy || !align) return null
@@ -437,18 +445,33 @@ function measureStage(
     stageReveal >= STAGE_PIN_REVEAL - STAGE_EXIT_MARGIN &&
     copyReveal >= CHAPTER_INTERACTIVE_VISIBILITY - STAGE_EXIT_MARGIN
 
+  // Sidebar-nav destination: the visitor asked for this chapter, so the
+  // scroll-driven ceremony (re-entry latch, strict engagement, displacement
+  // exits) yields — the artifact must be there when the jump lands, even
+  // when the landing geometry can't clamp it exactly on the lock.
+  const isNavTarget = navTargetId != null && chapterId === navTargetId
+
   let want = fx != null ? shouldKeep : shouldShow
 
-  if (want && fx === 'visible') {
+  if (want && fx === 'visible' && !isNavTarget) {
     // The artifact has left its center lock — dissolve out near the lock, in
     // place, rather than letting it travel with the text until the reveal
     // threshold catches up. Upward: slot containment forcing it off at the
     // chapter's end. Downward: reverse scroll releasing the sticky clamp.
+    // Both fire only while moving AWAY from the lock — a nav landing can
+    // materialize the artifact off-lock, and scrolling from there converges
+    // it onto the clamp; exiting mid-convergence would pulse it out and in.
     const artifactH = artifactHeight(align)
     const centerTop = viewportCenterTop(vh, artifactH)
     const alignTop = align.getBoundingClientRect().top
-    const pushedOff = alignTop < centerTop - STAGE_PUSH_OFF_PX
-    const rodeAway = alignTop > centerTop + STAGE_RIDE_AWAY_PX
+    const prevTop = lastAlignTopByStage.get(stage)
+    lastAlignTopByStage.set(stage, alignTop)
+    const movingUp = prevTop != null && alignTop < prevTop - 1
+    const movingDown = prevTop != null && alignTop > prevTop + 1
+    const pushedOff =
+      alignTop < centerTop - STAGE_PUSH_OFF_PX && movingUp
+    const rodeAway =
+      alignTop > centerTop + STAGE_RIDE_AWAY_PX && movingDown
     if (pushedOff || rodeAway) want = false
   }
 
@@ -460,6 +483,7 @@ function measureStage(
       // Content hasn't laid out yet — try again next frame.
       want = false
     } else if (
+      !isNavTarget &&
       Number.isFinite(outY) &&
       Math.abs(window.scrollY - outY) < STAGE_REENTRY_SCROLL_PX
     ) {
@@ -481,7 +505,7 @@ function measureStage(
         ? slot.getBoundingClientRect().bottom >=
           centerTop + artifactH + STAGE_PUSH_OFF_PX
         : true
-      if (engaged && roomToClamp) {
+      if ((engaged && roomToClamp) || isNavTarget) {
         centerHalf = artifactH / 2
       } else {
         want = false
@@ -489,10 +513,10 @@ function measureStage(
     }
   }
 
-  return { entry, want, centerHalf }
+  return { entry, want, centerHalf, isNavTarget }
 }
 
-function writeStage(m: StageMeasure): void {
+function writeStage(m: StageMeasure, navActive: boolean): void {
   const { stage, align, chapterId } = m.entry
   if (!chapterId || !align) return
 
@@ -502,13 +526,20 @@ function writeStage(m: StageMeasure): void {
     if (fx === 'visible') return
     // A dissolve-out always completes — flipping it back mid-fade is the
     // strobe. The stage re-enters through the fresh-arrival path below once
-    // finalized (and past the re-entry latch).
-    if (fx === 'out') return
+    // finalized (and past the re-entry latch). Nav destinations don't wait:
+    // the jump left the fade invisible anyway.
+    if (fx === 'out') {
+      if (!m.isNavTarget) return
+      cancelStageFadeOut(stage)
+      finalizeStageClear(stage, align)
+    }
     if (m.centerHalf == null) return
 
     // Handoff pause — checked at write time, after this frame's fade-outs
-    // (first write sub-pass) have extended the gate.
-    if (performance.now() < stageEntryGateUntil) {
+    // (first write sub-pass) have extended the gate. Nav landings skip the
+    // pause: the ceremony belongs to scroll transitions, and deferring the
+    // slot's height growth here would go stale under the nav's re-aim.
+    if (!m.isNavTarget && performance.now() < stageEntryGateUntil) {
       scheduleGateFlush()
       return
     }
@@ -531,6 +562,18 @@ function writeStage(m: StageMeasure): void {
     return
   }
 
+  if (navActive) {
+    // A nav jump left this chapter's viewport entirely — its dissolve can't
+    // be seen, and deferring the teardown keeps its slot inflated (the
+    // centered stage's min-height), which strands the nav's landing target.
+    // Resolve immediately so geometry is final within the landing frame.
+    if (fx != null) {
+      cancelStageFadeOut(stage)
+      finalizeStageClear(stage, align)
+    }
+    return
+  }
+
   if (fx === 'visible') {
     beginStageFadeOut(stage)
   }
@@ -546,6 +589,8 @@ export function applyContinuousStageAlign(
   stageRevealMap: Record<string, number>,
   copyRevealMap: Record<string, number>,
   _activeSlideId: string | null,
+  /** Active sidebar-nav destination — jumps resolve stages immediately. */
+  navTargetId: string | null = null,
 ): void {
   if (!isContinuousChapters() || isTopBarNavViewport()) {
     resetContinuousStageAlign()
@@ -561,16 +606,18 @@ export function applyContinuousStageAlign(
   // Measure pass — every layout read for every stage happens here.
   const measures: StageMeasure[] = []
   for (const entry of entries) {
-    const measure = measureStage(entry, pinId, vh)
+    const measure = measureStage(entry, pinId, vh, navTargetId)
     if (measure) measures.push(measure)
   }
+
+  const navActive = navTargetId != null
 
   // Write pass — style/dataset writes only; no reads that force layout.
   // Fade-outs first: they extend the handoff gate that arrivals check.
   for (const measure of measures) {
-    if (!measure.want) writeStage(measure)
+    if (!measure.want) writeStage(measure, navActive)
   }
   for (const measure of measures) {
-    if (measure.want) writeStage(measure)
+    if (measure.want) writeStage(measure, navActive)
   }
 }
