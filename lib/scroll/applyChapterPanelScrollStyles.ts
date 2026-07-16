@@ -5,6 +5,7 @@ import { CHAPTER_SLOT_SELECTOR } from '@/lib/scroll/chapterSlideshow'
 import { isLayoutMobileViewport } from '@/lib/layout/isLayoutMobileViewport'
 import { isTopBarNavViewport } from '@/lib/layout/isTopBarNavViewport'
 import { panelZFromScrollReveal } from '@/lib/layout/stacking'
+import { chapterStageFxVisible } from '@/lib/scroll/stageFxBus'
 import { SCROLL_BLUR_PX, blurOutFromRevealForContinuous } from '@/lib/scroll/scrollBlur'
 
 const PANEL_SELECTOR = `${CHAPTER_SLOT_SELECTOR} .portfolio-chapter-panel`
@@ -153,7 +154,8 @@ export function applyPlacedStickerScrollVisibility(
   activeSlideId: string | null,
   inHero = false,
 ): void {
-  const topBarNav = isTopBarNavViewport() || isContinuousChapters()
+  const topBarNav = isTopBarNavViewport()
+  const continuous = !topBarNav && isContinuousChapters()
 
   document.querySelectorAll<HTMLElement>('.sticker-placed').forEach((root) => {
     if (root.classList.contains('sticker-placed--selected')) return
@@ -163,7 +165,13 @@ export function applyPlacedStickerScrollVisibility(
     if (!chapterId) return
 
     let visible: boolean
-    if (topBarNav) {
+    if (continuous) {
+      // Fade on the same beat as the chapter's artifact and the pile; the
+      // active-slide fallback covers stage-less chapters (overviews).
+      visible =
+        !inHero &&
+        (chapterStageFxVisible(chapterId) ?? activeSlideId === chapterId)
+    } else if (topBarNav) {
       visible = !inHero && activeSlideId === chapterId
     } else {
       const reveal = revealMap[chapterId] ?? 0

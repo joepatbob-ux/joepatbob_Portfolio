@@ -1182,7 +1182,14 @@
 }
 
 /* Fading in: visibility must flip immediately or the fade paints nothing. */
-.sticker-placed[data-sticker-visible='true']:not([data-sticker-scroll-visible='false']) {
+/* Visibility flips immediately on SHOW (either writer), so the fade-in is
+   visible from its first frame. The scroll writer runs after the stage-fx
+   publish in the same frame and React commits later, so scroll-visible='true'
+   with a stale React 'false' only ever means "showing, React catching up" —
+   never a hide in progress. Hides keep the delayed visibility of the base
+   rule; selected/ghost keep their transition: none override. */
+.sticker-placed[data-sticker-visible='true']:not([data-sticker-scroll-visible='false']),
+.sticker-placed[data-sticker-scroll-visible='true']:not(.sticker-placed--selected):not(.sticker-placed--ghost) {
   transition:
     opacity var(--sticker-exit-duration) ease,
     filter var(--sticker-exit-duration) ease,
