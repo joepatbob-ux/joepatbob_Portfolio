@@ -212,7 +212,24 @@ export function isInHeroScrollZone(): boolean {
   return false
 }
 
-/** Scroll-linked fade on `.hero-pin` (`.hero-media` canvas + portrait together). */
+/** `.hero-media-blur` lookup per pin — avoids a per-frame querySelector. */
+const heroBlurLayerByPin = new WeakMap<HTMLElement, HTMLElement | null>()
+
+function heroBlurLayer(pin: HTMLElement): HTMLElement | null {
+  let layer = heroBlurLayerByPin.get(pin)
+  if (layer === undefined) {
+    layer = pin.querySelector<HTMLElement>('.hero-media-blur')
+    heroBlurLayerByPin.set(pin, layer)
+  }
+  return layer
+}
+
+/**
+ * Scroll-linked fade on `.hero-pin` (`.hero-media` canvas + portrait together).
+ * The blur ramp crossfades a statically pre-blurred copy (`.hero-media-blur`)
+ * over the sharp portrait — animating the blur RADIUS instead re-rasterizes
+ * the full-viewport layer on every scroll frame and visibly stutters.
+ */
 export function applyHeroPinFade(
   el: HTMLElement | null,
   scrollY: number,
@@ -229,22 +246,23 @@ export function applyHeroPinFade(
   const fadeOut = getHeroPinFadeOut(scrollY, viewportH)
   const reveal = 1 - fadeOut
   const reduced = prefersReducedMotion()
-  const blur = reduced || fadeOut < 0.02 ? 0 : fadeOut * blurPx
+  const blurMix = reduced || blurPx <= 0 || fadeOut < 0.02 ? 0 : fadeOut
   const opacityStr = String(reveal)
-  const filterStr = blur > 0 ? `blur(${blur}px)` : 'none'
+  const blurMixStr = String(blurMix)
   const pointerEvents = reveal < 0.02 ? 'none' : ''
 
   if (
     el.style.opacity === opacityStr &&
-    el.style.filter === filterStr &&
-    el.style.pointerEvents === pointerEvents
+    el.style.pointerEvents === pointerEvents &&
+    (heroBlurLayer(el)?.style.opacity ?? blurMixStr) === blurMixStr
   ) {
     return
   }
 
   el.style.opacity = opacityStr
-  el.style.filter = filterStr
   el.style.pointerEvents = pointerEvents
+  const blurLayer = heroBlurLayer(el)
+  if (blurLayer) blurLayer.style.opacity = blurMixStr
 
   if (typeof document !== 'undefined') {
     document.documentElement.style.setProperty('--hero-canvas-opacity', opacityStr)
@@ -256,6 +274,8 @@ export function resetHeroPinFade(el: HTMLElement | null): void {
   el.style.opacity = '1'
   el.style.filter = 'none'
   el.style.pointerEvents = ''
+  const blurLayer = heroBlurLayer(el)
+  if (blurLayer) blurLayer.style.opacity = '0'
   if (typeof document !== 'undefined') {
     document.documentElement.style.setProperty('--hero-canvas-opacity', '1')
   }

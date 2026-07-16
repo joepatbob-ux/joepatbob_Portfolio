@@ -76,6 +76,29 @@ export function Hero() {
                 draggable={false}
                 aria-hidden
               />
+              {/* Statically pre-blurred copy — the scroll fade crossfades its
+                  opacity instead of animating a blur radius, which would
+                  re-rasterize the full-viewport layer every frame. */}
+              <div className="hero-media-blur" aria-hidden>
+                <img
+                  className="hero-portrait hero-portrait--light"
+                  src={PORTRAIT_LIGHT}
+                  alt=""
+                  width={3200}
+                  height={2560}
+                  decoding="async"
+                  draggable={false}
+                />
+                <img
+                  className="hero-portrait hero-portrait--dark"
+                  src={PORTRAIT_DARK}
+                  alt=""
+                  width={3200}
+                  height={2560}
+                  decoding="async"
+                  draggable={false}
+                />
+              </div>
               <div
                 className={`hero-mobile-scrim hero-mobile-scrim--${resolvedTheme}`}
                 aria-hidden
