@@ -53,6 +53,14 @@ const FadeTunePanel = dynamic(
   { loading: () => null },
 )
 
+const FadeDebugPanel = dynamic(
+  () =>
+    import('@/components/FadeDebugPanel').then((m) => ({
+      default: m.FadeDebugPanel,
+    })),
+  { loading: () => null },
+)
+
 export function DevPanels() {
   const hydrated = useHydrated()
   const [flags, setFlags] = useState({
@@ -60,6 +68,7 @@ export function DevPanels() {
     sentence: false,
     atlas: false,
     fadeTune: false,
+    fadeDebug: false,
   })
 
   useEffect(() => {
@@ -69,6 +78,7 @@ export function DevPanels() {
       sentence: devFlag('navSentence'),
       atlas: devFlag('sensiLiteSegments'),
       fadeTune: previewFlag('fadeTune'),
+      fadeDebug: previewFlag('fadeDebug'),
     })
   }, [hydrated])
 
@@ -78,6 +88,7 @@ export function DevPanels() {
       {flags.sentence ? <NavSentenceEditorPanel /> : null}
       {flags.atlas ? <SensiLiteSegmentAtlas /> : null}
       {flags.fadeTune ? <FadeTunePanel /> : null}
+      {flags.fadeDebug ? <FadeDebugPanel /> : null}
     </>
   )
 }
