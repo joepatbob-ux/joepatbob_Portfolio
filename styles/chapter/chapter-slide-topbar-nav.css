@@ -272,4 +272,23 @@
     padding-inline: var(--content-pad-x, 16px);
     box-sizing: border-box;
   }
+
+  /* Phones: overviews size to their content — a ~500px summary centered in a
+     forced full-viewport panel read as a page of empty space. Interactive
+     chapters keep their full-screen stage presence. */
+  @media (max-width: 767px) {
+    .case-study-flow-overview.portfolio-chapter-slot--fill {
+      min-height: 0;
+    }
+
+    .portfolio-chapter-slot--fill.hardware-slideshow.case-study-flow-overview
+      .portfolio-chapter-panel {
+      min-height: 0 !important;
+    }
+
+    .hardware-slideshow.case-study-flow-overview .chapter-slide__inner {
+      min-height: 0;
+      padding-bottom: clamp(24px, 4vh, 40px);
+    }
+  }
 }
