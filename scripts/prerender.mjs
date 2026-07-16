@@ -98,6 +98,10 @@ function waitForUrl(target, timeoutMs = 60_000) {
 }
 
 function spawnPreview() {
+  // detached puts npx AND the vite grandchild in their own process group so
+  // killPreview can take out both — SIGTERM to npx alone orphans the actual
+  // server, which then squats the port for the next build and holds this
+  // process's stdio pipes open (the build used to hang right after "Wrote").
   const child = spawn(
     process.platform === 'win32' ? 'npx.cmd' : 'npx',
     ['vite', 'preview', '--port', String(port), '--host', '127.0.0.1', '--strictPort'],
@@ -105,6 +109,7 @@ function spawnPreview() {
       cwd: root,
       stdio: ['ignore', 'pipe', 'pipe'],
       env: { ...process.env, PRERENDER: '1' },
+      detached: process.platform !== 'win32',
     },
   )
 
@@ -121,7 +126,16 @@ async function main() {
   const preview = spawnPreview()
 
   const killPreview = () => {
-    if (!preview.killed) preview.kill('SIGTERM')
+    if (preview.killed) return
+    if (process.platform === 'win32') {
+      preview.kill('SIGTERM')
+      return
+    }
+    try {
+      process.kill(-preview.pid, 'SIGTERM')
+    } catch {
+      preview.kill('SIGTERM')
+    }
   }
   process.on('exit', killPreview)
   process.on('SIGINT', () => {
@@ -219,7 +233,10 @@ async function main() {
   }
 }
 
-main().catch((err) => {
-  console.error('[prerender] Failed:', err)
-  process.exit(1)
-})
+main().then(
+  () => process.exit(0),
+  (err) => {
+    console.error('[prerender] Failed:', err)
+    process.exit(1)
+  },
+)

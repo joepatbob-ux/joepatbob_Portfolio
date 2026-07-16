@@ -1,4 +1,5 @@
 import { inject } from '@vercel/analytics'
+import { injectSpeedInsights } from '@vercel/speed-insights'
 import { initContinuousChaptersClass } from '@/lib/scroll/continuousChapters'
 import { initDeckModeClass } from '@/lib/deck/deckMode'
 import { LAYOUT_BP } from '@/lib/layout/breakpoints'
@@ -127,3 +128,4 @@ if (root.hasChildNodes() && snapshotMatchesViewport) {
 }
 
 inject()
+injectSpeedInsights()
