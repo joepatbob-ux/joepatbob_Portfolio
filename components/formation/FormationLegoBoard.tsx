@@ -11,6 +11,7 @@ import { useFormationLegoBoard } from '@/lib/formation/useFormationLegoBoard'
 import { FormationLegoBrickPiece } from '@/components/formation/FormationLegoBrickPiece'
 import { BRICK_Z_INDEX_SELECT_BOOST, legoBoardSrc } from '@/lib/formation/legoBricks'
 import '@/styles/formation-lego-board.css'
+import { trackEventOnce } from '@/lib/analytics'
 
 function FormationBrickStack({
   board,
@@ -41,7 +42,10 @@ function FormationBrickStack({
               ? BRICK_Z_INDEX_SELECT_BOOST
               : 0)
           }
-          onPointerDown={board.onBrickPointerDown(p.id)}
+          onPointerDown={(e) => {
+            trackEventOnce('formation:drag', 'formation', { action: 'brick-drag' })
+            board.onBrickPointerDown(p.id)(e)
+          }}
         />
       ))}
     </>
