@@ -50,6 +50,12 @@ export function applySlideScrollFromMeasure(
 
   publishSlideScrollState(state)
 
+  // Active sidebar-nav destination — the stage machine resolves entries and
+  // exits immediately for it instead of running the scroll choreography.
+  const navTargetId =
+    lockedSlideId ??
+    (navGuard && performance.now() < navGuard.until ? navGuard.chapterId : null)
+
   if (isContinuousChapters() && !isTopBarNavViewport()) {
     if (phase === 'idle') {
       applyContinuousCopyFade(state.revealMap)
@@ -57,6 +63,7 @@ export function applySlideScrollFromMeasure(
         state.stageRevealMap,
         state.revealMap,
         state.activeSlideId,
+        navTargetId,
       )
     } else {
       resetContinuousCopyFade()

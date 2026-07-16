@@ -271,6 +271,19 @@ export function ChapterNavProvider({ children }: { children: ReactNode }) {
         activeRef.current = chapterId
         setActiveSlideId(chapterId)
 
+        // Land first, then resolve stages IMMEDIATELY (nav mode finalizes the
+        // departed chapter's stage and materializes the destination's in one
+        // frame): both change flow heights via the centered stage's
+        // min-height, and settling before those reflows produced a visible
+        // corrective lurch seconds after the landing.
+        navGuardRef.current = {
+          chapterId,
+          until: performance.now() + CHAPTER_NAV_FADE_IN_MS + 200,
+        }
+        scrollDocumentToChapterSlot(target, { asyncSettle: false })
+        applySlideScrollFromMeasure('idle', chapterId, navGuardRef.current)
+
+        // Geometry is final now — re-aim against it and settle.
         scrollDocumentToChapterSlot(target)
         await waitForChapterScrollSettle(target)
         if (Math.abs(window.scrollY - chapterSlotScrollTop(target)) > 8) {
