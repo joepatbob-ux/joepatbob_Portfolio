@@ -16,6 +16,7 @@ import { getDocumentScrollY } from '@/lib/scroll/documentScrollY'
 import {
   applySidebarHeroNameFade,
   applySidebarShellFade,
+  heroNameBlurPx,
   isInBreatherScrollZone,
   isInHeroScrollZone,
   isInInterludeScrollZone,
@@ -429,7 +430,7 @@ export function useSidebarNavState() {
     const { viewportH, navRestTop, threshold } = layoutRef.current
     const safeThreshold = threshold > 0 ? threshold : 1
 
-    applySidebarHeroNameFade(heroRef.current, y, viewportH, BLUR_PX)
+    applySidebarHeroNameFade(heroRef.current, y, viewportH, heroNameBlurPx(BLUR_PX))
 
     const travelT = Math.min(1, y / safeThreshold)
     const navTop =

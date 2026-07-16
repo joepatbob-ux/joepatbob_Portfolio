@@ -112,6 +112,12 @@ function applyFadeTuneOverrides(): { holdMs: number; totalMs: number } {
         s.setProperty('--stage-exit-blur', `${t.stageBlur}px`)
       if (typeof t.stagePauseMs === 'number')
         document.documentElement.dataset.stagePauseMs = String(t.stagePauseMs)
+      if (typeof t.heroBlur === 'number')
+        s.setProperty('--hero-blur', `${t.heroBlur}px`)
+      if (typeof t.heroNameBlur === 'number')
+        document.documentElement.dataset.heroNameBlur = String(t.heroNameBlur)
+      if (typeof t.heroFadeEnd === 'number')
+        document.documentElement.dataset.heroFadeEndVh = String(t.heroFadeEnd / 100)
     }
   } catch {
     /* corrupted overrides are ignored */
