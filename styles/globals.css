@@ -2095,7 +2095,11 @@ html {
    overrides applied in main.tsx before the ghost mounts). */
 :root {
   --ghost-fade-duration: 320ms;
-  --ghost-fade-blur: 8px;
+  /* 0: the ghost is a pixel-twin of the live tree after the alignment fixes,
+     so a blur ramp is the ONLY thing the dissolve paints — a full-page
+     defocus pulse on every refresh. Pure opacity crossfade is invisible
+     when aligned. Dial back via ?fadeTune=1 if ever wanted. */
+  --ghost-fade-blur: 0px;
   --sticker-exit-duration: 320ms;
   --sticker-exit-blur: 8px;
   --stage-exit-duration: 320ms;
