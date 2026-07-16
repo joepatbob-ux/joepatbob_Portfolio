@@ -1,5 +1,6 @@
 import { useId, useState } from 'react'
 import { formatChapterInline } from '@/lib/chapter-slide/formatChapterInline'
+import { trackEvent } from '@/lib/analytics'
 
 export interface ExpandableFactItem {
   /** Collapsed trigger line — rendered in the micro-label treatment. */
@@ -31,6 +32,9 @@ export function ExpandableFacts({
   const [closing, setClosing] = useState<number | null>(null)
 
   const toggle = (index: number) => {
+    if (index !== open) {
+      trackEvent('callout-expand', { callout: facts[index]?.header ?? String(index) })
+    }
     setClosing(index === open ? index : open)
     setOpen(index === open ? null : index)
   }

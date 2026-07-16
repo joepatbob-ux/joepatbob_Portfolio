@@ -22,6 +22,7 @@ import { PHONE_MODEL_TARGET_MAX } from '@/lib/phone-swap/normalizeModel'
 import { EMPTY_PHONE_MATERIAL_TUNES } from '@/lib/phone-swap/phoneMaterialTune'
 import { useChapterActive } from '@/lib/chapterActiveContext'
 import { usePhoneScreenshotControls } from '@/lib/phone-swap/usePhoneScreenshotControls'
+import { trackEvent } from '@/lib/analytics'
 import { usePhoneSwapTouchScroll } from '@/lib/phone-swap/usePhoneSwapTouchScroll'
 import { useLayoutTopBarNav } from '@/lib/hooks/useLayoutTopBarNav'
 import { useHydrated } from '@/lib/hooks/useHydrated'
@@ -104,6 +105,7 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
   const triggerSwap = useCallback(() => {
     if (busy.current) return
     busy.current = true
+    trackEvent('phone-swap', { action: 'swap' })
     setSwapped((s) => !s)
     setAnimSession((n) => n + 1)
     setAnimating(true)
@@ -307,8 +309,14 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
         screenTheme={screenshot.screenTheme}
         indicatorProgress={screenshot.indicatorProgress}
         pauseHandlers={screenshot.pauseHandlers}
-        onSelectSlide={screenshot.selectSlide}
-        onScreenThemeChange={screenshot.setScreenTheme}
+        onSelectSlide={(i) => {
+          trackEvent('phone-swap', { action: 'screenshot', index: i })
+          screenshot.selectSlide(i)
+        }}
+        onScreenThemeChange={(theme) => {
+          trackEvent('phone-swap', { action: 'theme', theme })
+          screenshot.setScreenTheme(theme)
+        }}
       />
     </div>
   )

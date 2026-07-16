@@ -11,6 +11,7 @@ import {
 } from '@/lib/touch2/touch2StageMetrics'
 import { useTouch2CarouselPlayback } from '@/lib/touch2/useTouch2CarouselPlayback'
 import { memo, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { trackEvent } from '@/lib/analytics'
 
 function railMetricsEqual(a: Touch2RailMetrics, b: Touch2RailMetrics): boolean {
   return a.railH === b.railH && a.slideW === b.slideW && a.scale === b.scale
@@ -236,7 +237,10 @@ function Touch2CarouselInner({
         activeIndex={index}
         slideKeys={slides.map((slide) => slide.src)}
         activeProgress={indicatorProgress}
-        onSelect={selectSlide}
+        onSelect={(i) => {
+          trackEvent('carousel', { component: 'touch2', index: i })
+          selectSlide(i)
+        }}
       />
     </div>
   )

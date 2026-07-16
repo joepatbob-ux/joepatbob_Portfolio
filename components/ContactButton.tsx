@@ -2,6 +2,10 @@ import {
   CONTACT_EMAIL_MAILTO,
   CONTACT_LINKEDIN_URL,
 } from '@/lib/contact'
+import { trackEvent } from '@/lib/analytics'
+
+const trackContact = (channel: 'email' | 'linkedin') => () =>
+  trackEvent('contact', { channel })
 
 interface Props {
   /** `liquid` — desktop sidebar hover split; `panel` — mobile drawer chapter pills */
@@ -15,6 +19,7 @@ export function ContactButton({ variant = 'liquid' }: Props) {
         <a
           className="sidebar-nav-pill sidebar-subnav__chapter"
           href={CONTACT_EMAIL_MAILTO}
+          onClick={trackContact('email')}
         >
           Email
         </a>
@@ -23,6 +28,7 @@ export function ContactButton({ variant = 'liquid' }: Props) {
           href={CONTACT_LINKEDIN_URL}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={trackContact('linkedin')}
         >
           LinkedIn
         </a>
@@ -40,6 +46,7 @@ export function ContactButton({ variant = 'liquid' }: Props) {
           <a
             className="contact-liquid__btn contact-liquid__btn--email"
             href={CONTACT_EMAIL_MAILTO}
+            onClick={trackContact('email')}
           >
             Email
           </a>
@@ -48,6 +55,7 @@ export function ContactButton({ variant = 'liquid' }: Props) {
             href={CONTACT_LINKEDIN_URL}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={trackContact('linkedin')}
           >
             LinkedIn
           </a>
