@@ -106,7 +106,7 @@ html[data-theme='dark'] .hero-portrait--dark {
   position: absolute;
   inset: 0;
   z-index: 1;
-  filter: blur(10px);
+  filter: blur(var(--hero-blur, 10px));
   opacity: 0;
   pointer-events: none;
   will-change: opacity;
