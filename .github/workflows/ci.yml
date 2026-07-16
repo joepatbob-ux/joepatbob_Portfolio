@@ -46,3 +46,29 @@ jobs:
       # Report-only: flags spacing values off the 4/8pt grid. Does not fail CI.
       - name: Grid audit (8pt spacing)
         run: npm run check:grid
+
+  # Report-only behavioral drive: builds the real prerendered site and drives
+  # it in headless Chromium (scroll choreography, stickers, nav landings,
+  # CSP conformance, hydration). Promote to blocking once it proves stable.
+  drive:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    env:
+      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+      PUPPETEER_SKIP_DOWNLOAD: '1'
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Full build (prerender + deploy guards)
+        run: npm run build
+
+      - name: Behavioral drive suite
+        run: npm run check:drive

@@ -166,13 +166,6 @@ function viewportCenterTop(vh: number, artifactH: number): number {
   return safeTop + visibleH / 2 - artifactH / 2
 }
 
-/** Opacity tracks reveal linearly — pow curves linger then snap on fast exit. */
-export function stageOpacityFromReveal(reveal: number): number {
-  const t = Math.max(0, Math.min(1, reveal))
-  if (t <= STAGE_CLEAR_THRESHOLD) return 0
-  return t
-}
-
 /* ---------------------------------------------------------------------------
  * DOM lookups (no layout) and guarded style writes.
  * ------------------------------------------------------------------------- */

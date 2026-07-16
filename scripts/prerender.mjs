@@ -221,7 +221,10 @@ async function main() {
       }, shippedPreloads)
       await page.waitForFunction(() => window.scrollY <= 4, { timeout: 10_000 })
 
-      const html = await page.content()
+      // Vite's lazy-CSS injection writes absolute hrefs against the preview
+      // origin; shipped verbatim they'd point every visitor at 127.0.0.1.
+      const previewOrigin = new URL(url).origin
+      const html = (await page.content()).replaceAll(previewOrigin, '')
       const outPath = path.join(root, 'dist/index.html')
       writeFileSync(outPath, html, 'utf8')
       console.log(`[prerender] Wrote ${outPath} (${html.length} bytes)`)

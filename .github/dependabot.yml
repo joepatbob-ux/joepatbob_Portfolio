@@ -11,6 +11,15 @@ updates:
         update-types:
           - minor
           - patch
+    # Majors are deliberate migrations (React 19 + fiber 9 + drei 10 must land
+    # together; Tailwind 4 and TypeScript 7 change the toolchain), so their
+    # auto-PRs can never build — every one arrives as a red Vercel deploy.
+    # Ignoring them here stops the noise; security advisories still surface in
+    # the repo's Security tab regardless.
+    ignore:
+      - dependency-name: '*'
+        update-types:
+          - version-update:semver-major
 
   - package-ecosystem: github-actions
     directory: /
