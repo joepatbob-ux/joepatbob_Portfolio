@@ -198,11 +198,13 @@
       100%,
       clamp(200px, 92vw, var(--cs-mobile-inner-max))
     );
-    /* Generous scroll pauses on phone — in-flow chapters, margin-based gaps */
-    --cs-screen-gap: clamp(96px, 24vh, 200px);
-    --cs-section-scroll-gap: clamp(200px, 42vh, 400px);
+    /* Scroll pauses on phone — in-flow chapters, margin-based gaps. Kept to
+       a beat, not a blank screen: the old 38vh/42vh gaps put ~320px of dead
+       space between every chapter. */
+    --cs-screen-gap: clamp(72px, 14vh, 140px);
+    --cs-section-scroll-gap: clamp(112px, 22vh, 220px);
     --cs-hero-exit-gap: clamp(48px, 12vh, 96px);
-    --cs-inter-chapter-gap: clamp(168px, 38vh, 380px);
+    --cs-inter-chapter-gap: clamp(88px, 16vh, 160px);
   }
 }
 
