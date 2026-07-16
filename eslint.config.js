@@ -40,9 +40,13 @@ export default tseslint.config(
     },
   },
 
-  // Prerender/OG scripts serialize browser-context code into page.evaluate().
+  // Prerender/OG/drive scripts serialize browser-context code into page.evaluate().
   {
-    files: ['scripts/prerender.mjs', 'scripts/generate-og-share.mjs'],
+    files: [
+      'scripts/prerender.mjs',
+      'scripts/generate-og-share.mjs',
+      'scripts/drive/**/*.mjs',
+    ],
     languageOptions: {
       globals: { ...globals.node, ...globals.browser },
     },
