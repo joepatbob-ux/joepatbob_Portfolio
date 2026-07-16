@@ -166,3 +166,8 @@ probes:
    `no-preference`.
 2. There is no GPU/WebGL in the sandbox, so 3D content can't render — WebGL
    paths get synthetic probes (see `csp.mjs`), not visual assertions.
+3. Pace drives and samplers on `requestAnimationFrame`, not wall-clock
+   timers. The stage machine runs on rAF; on a slow runner (CI's software
+   rendering) timer-paced scrolling makes the machine see huge jumps between
+   its frames while an interval sampler starves — artifacts that centered
+   perfectly get recorded as never holding the lock (see `choreography.mjs`).
