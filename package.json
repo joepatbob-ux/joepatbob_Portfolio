@@ -6,7 +6,7 @@
     "dev": "vite",
     "watch": "vite",
     "dev:clean": "rm -rf node_modules/.vite dist && vite",
-    "build": "vite build && node scripts/check-bundle.mjs && node scripts/prerender.mjs && node scripts/strip-deploy-assets.mjs",
+    "build": "vite build && node scripts/check-bundle.mjs && node scripts/prerender.mjs && node scripts/strip-deploy-assets.mjs && node scripts/check-csp-hash.mjs",
     "preview": "vite preview",
     "rebuild": "npm run build && npm run preview",
     "lint": "tsc --noEmit && eslint .",
