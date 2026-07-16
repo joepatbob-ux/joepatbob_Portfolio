@@ -17,7 +17,7 @@
     "generate:og-share": "node scripts/generate-og-share.mjs"
   },
   "dependencies": {
-    "@react-three/drei": "^9.122.0",
+    "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^8.18.0",
     "@vercel/analytics": "^2.0.1",
     "html-to-image": "^1.11.13",
