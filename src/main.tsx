@@ -93,15 +93,20 @@ const fadeTune = applyFadeTuneOverrides()
 
 function releaseGhost(ghost: HTMLElement | null): void {
   if (!ghost) return
-  // Two frames so the live tree has painted underneath before the fade.
+  // Two frames so the live tree has painted underneath before the fade. The
+  // removal is chained off the fade start, NOT scheduled in parallel: the
+  // initial render can block the main thread for hundreds of ms (phones
+  // especially), during which rAF can't fire but a wall-clock timer keeps
+  // counting — a parallel remove then yanks the ghost the moment the thread
+  // frees, cutting the dissolve to a hard jump.
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       window.setTimeout(() => {
         ghost.classList.add('prerender-ghost--out')
+        window.setTimeout(() => ghost.remove(), fadeTune.totalMs - fadeTune.holdMs)
       }, fadeTune.holdMs)
     })
   })
-  window.setTimeout(() => ghost.remove(), fadeTune.totalMs)
 }
 
 if (root.hasChildNodes() && snapshotMatchesViewport) {
