@@ -9,6 +9,7 @@ import {
   type VerdantSelection,
   type VerdantViewKind,
 } from '@/lib/verdant/characterSelector'
+import { trackEvent } from '@/lib/analytics'
 
 type Props = {
   selection: VerdantSelection
@@ -54,7 +55,10 @@ function CharacterKey({
         .join(' ')}
       aria-label={characterKeyAriaLabel(keyDef)}
       aria-pressed={selected}
-      onClick={() => onSelect(code)}
+      onClick={() => {
+        trackEvent('verdant', { action: 'character', character: code })
+        onSelect(code)
+      }}
     >
       {keyDef.kind === 'char' ? keyDef.label : <SegmentIcon kind={keyDef.kind} />}
     </button>

@@ -1,4 +1,5 @@
 // components/SensiLiteProto.tsx
+import { trackEventOnce } from '@/lib/analytics'
 // Sensi Lite — segment LCD prototype (home / homeowner rings)
 
 import {
@@ -295,6 +296,7 @@ export function SensiLiteProto({
   }, [])
 
   const handleUp = useCallback(() => {
+    trackEventOnce('sensi-proto:up', 'sensi-proto', { action: 'up' })
     triggerFlash()
 
     if (flow.ring === 'homeowner') {
@@ -324,6 +326,7 @@ export function SensiLiteProto({
   }, [beginSetpointEdit, flow.mode, flow.ring, triggerFlash])
 
   const handleDown = useCallback(() => {
+    trackEventOnce('sensi-proto:down', 'sensi-proto', { action: 'down' })
     triggerFlash()
 
     if (flow.ring === 'homeowner') {
@@ -353,6 +356,7 @@ export function SensiLiteProto({
   }, [beginSetpointEdit, flow.mode, flow.ring, triggerFlash])
 
   const handleMenuTap = useCallback(() => {
+    trackEventOnce('sensi-proto:menu', 'sensi-proto', { action: 'menu' })
     triggerFlash()
     setFlow((s) => {
       if (s.ring === 'main') {

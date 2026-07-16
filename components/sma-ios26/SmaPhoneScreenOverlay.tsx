@@ -8,6 +8,7 @@ import {
 } from '@/lib/sma-ios26/screen-spec'
 import { createPortal } from 'react-dom'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { trackEventOnce } from '@/lib/analytics'
 
 type SmaPhoneScreenOverlayProps = {
   rect: DisplayScreenRect | null
@@ -71,7 +72,14 @@ export function SmaPhoneScreenOverlay({
       onPointerDown={active ? handlePointerDown : undefined}
       onPointerUp={active ? handlePointerUp : undefined}
       onPointerCancel={active ? handlePointerUp : undefined}
-      onClick={active ? bumpCapture : undefined}
+      onClick={
+        active
+          ? () => {
+              trackEventOnce('sma-proto:tap', 'sma-proto', { action: 'tap' })
+              bumpCapture()
+            }
+          : undefined
+      }
       onWheel={active ? bumpCapture : undefined}
     >
       <div
