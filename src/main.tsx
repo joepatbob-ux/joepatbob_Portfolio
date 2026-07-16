@@ -3,6 +3,7 @@ import { injectSpeedInsights } from '@vercel/speed-insights'
 import { initContinuousChaptersClass } from '@/lib/scroll/continuousChapters'
 import { initDeckModeClass } from '@/lib/deck/deckMode'
 import { LAYOUT_BP } from '@/lib/layout/breakpoints'
+import { EMAIL_BOTTOM_PX } from '@/components/sidebar/constants'
 import { StrictMode } from 'react'
 import { createRoot, hydrateRoot } from 'react-dom/client'
 import { preloadDynamicsForHydration } from '@/lib/dynamic'
@@ -45,12 +46,40 @@ function snapshotGhost(container: HTMLElement, mode: 'clone' | 'move') {
   if (mode === 'clone') {
     const copy = container.cloneNode(true) as HTMLElement
     copy.removeAttribute('id')
+    fixGhostNavRest(container, copy)
     ghost.appendChild(copy)
   } else {
     while (container.firstChild) ghost.appendChild(container.firstChild)
   }
   document.body.appendChild(ghost)
   return ghost
+}
+
+/* The snapshot bakes the sidebar nav sentence with an inline `top` computed
+ * for the 900px-tall capture viewport. On any other viewport height the
+ * ghost paints it mid-screen and the dissolve visibly morphs it down to the
+ * live hero rest position. Recompute that rest position for THIS viewport —
+ * same formula as useSidebarNavState's measureLayout, measured against the
+ * already-laid-out baked DOM. */
+function fixGhostNavRest(container: HTMLElement, copy: HTMLElement): void {
+  const navWrap = container.querySelector<HTMLElement>('[data-sidebar-main-nav]')
+  const contact = container.querySelector<HTMLElement>('.sidebar-contact')
+  const cloneNav = copy.querySelector<HTMLElement>('[data-sidebar-main-nav]')
+  if (!navWrap || !contact || !cloneNav) return
+  const safeBottom =
+    parseFloat(
+      getComputedStyle(document.documentElement).getPropertyValue(
+        '--safe-area-bottom',
+      ),
+    ) || 0
+  const rest =
+    window.innerHeight -
+    EMAIL_BOTTOM_PX -
+    safeBottom -
+    contact.clientHeight -
+    12 -
+    navWrap.clientHeight
+  if (rest > 0) cloneNav.style.top = `${rest}px`
 }
 
 /* ?fadeTune=1 panel overrides — applied before the ghost mounts so a reload
