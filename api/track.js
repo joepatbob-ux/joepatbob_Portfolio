@@ -57,10 +57,18 @@ export default async function handler(req, res) {
   }
 
   const ua = String(req.headers['user-agent'] || '')
+  // Automated browsers execute the page like a visitor (e.g. Vercel's
+  // deployment-screenshot bot, from a CA data center) — keep them out of
+  // the data. Real browsers never carry these UA markers.
+  if (/headless|bot|crawl|spider|lighthouse|prerender/i.test(ua)) {
+    res.status(204).end()
+    return
+  }
   const event = {
     ts: Date.now(),
     name: data.name,
     props,
+    sid: typeof data.sid === 'string' ? data.sid.slice(0, 16) : undefined,
     path: typeof data.path === 'string' ? data.path.slice(0, 128) : undefined,
     ref: typeof data.ref === 'string' ? data.ref.slice(0, 128) : undefined,
     country: geoHeader(req, 'x-vercel-ip-country'),

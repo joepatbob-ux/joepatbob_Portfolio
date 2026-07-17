@@ -41,8 +41,25 @@ function optedOut(): boolean {
 }
 
 /**
+ * Random per-load id so the portal can stitch one visit's events into a
+ * story (geo + source + duration + what they did). Not persisted anywhere —
+ * it identifies a page load, not a person.
+ */
+let sessionId: string | null = null
+function getSessionId(): string {
+  if (sessionId == null) {
+    try {
+      sessionId = crypto.randomUUID().slice(0, 8)
+    } catch {
+      sessionId = Math.random().toString(36).slice(2, 10)
+    }
+  }
+  return sessionId
+}
+
+/**
  * First-party copy of every event → /api/track, feeding the private
- * dashboard at /api/portal. Independent of the Vercel Analytics plan.
+ * dashboard at /analytics. Independent of the Vercel Analytics plan.
  * sendBeacon so exit-time events (session-end) survive the page going away.
  */
 function sendFirstParty(name: string, props?: EventProps): void {
@@ -51,6 +68,7 @@ function sendFirstParty(name: string, props?: EventProps): void {
     const body = JSON.stringify({
       name,
       props: props ?? {},
+      sid: getSessionId(),
       path: window.location.pathname,
       ref: document.referrer,
     })
