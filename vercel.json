@@ -10,6 +10,7 @@
     { "source": "/apply", "destination": "/?utm_source=application" },
     { "source": "/li", "destination": "/?utm_source=linkedin" }
   ],
+  "rewrites": [{ "source": "/analytics", "destination": "/api/portal" }],
   "headers": [
     {
       "source": "/(.*)",
