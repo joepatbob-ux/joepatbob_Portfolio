@@ -807,6 +807,7 @@
   margin: 0 auto;
   max-width: 22em;
   font-family: var(--font-body);
+  font-style: italic;
   font-weight: 400;
   font-size: clamp(20px, 2vw, 32px);
   line-height: 1.45;
