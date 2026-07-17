@@ -157,13 +157,17 @@ function minuteOfDay(ts) {
   return Number(h) * 60 + Number(m)
 }
 
+const MAP_DAYS = 7
+const MAX_WEEK = Math.ceil(WINDOW_DAYS / MAP_DAYS) - 1
+
 /**
  * The visit map: one row per day (newest on top), a 24h track, and each
  * visit drawn at its start time — line length ≈ stay, color = layout,
  * filled = dark mode / outline = light. Pre-story page-views (no sid)
- * render as small neutral ticks so older data still shows.
+ * render as small neutral ticks so older data still shows. Paged 7 days
+ * at a time via plain ?week=N links (no client JS under the CSP).
  */
-function dayGrid(events, visits, now) {
+function dayGrid(events, visits, now, week, link) {
   const dots = new Map()
   const add = (key, html) => {
     if (!dots.has(key)) dots.set(key, [])
@@ -189,21 +193,24 @@ function dayGrid(events, visits, now) {
         title="${esc(`${fmtWhen(e.ts)}${e.city ? ` · ${e.city}` : ''}`)}"></i>`,
     )
   }
+  const dayLabel = (ts) =>
+    new Date(ts).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      timeZone: TZ,
+    })
+  const start = week * MAP_DAYS
+  const end = Math.min(start + MAP_DAYS, WINDOW_DAYS)
   const rows = []
-  for (let i = 0; i < WINDOW_DAYS; i++) {
+  for (let i = start; i < end; i++) {
     const ts = now - i * DAY_MS
     const weekday = new Date(ts).toLocaleDateString('en-US', {
       weekday: 'short',
       timeZone: TZ,
     })
     const weekend = weekday === 'Sat' || weekday === 'Sun'
-    const label = new Date(ts).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      timeZone: TZ,
-    })
     rows.push(`<div class="dg-row">
-      <span class="dg-day">${i === 0 ? '<b>today</b>' : esc(label)}</span>
+      <span class="dg-day">${i === 0 ? '<b>today</b>' : `${esc(weekday)} ${esc(dayLabel(ts))}`}</span>
       <div class="dg-track${weekend ? ' weekend' : ''}">${(dots.get(dayKey(ts)) ?? []).join('')}</div>
     </div>`)
   }
@@ -217,7 +224,13 @@ function dayGrid(events, visits, now) {
     <span><i class="sw d-desktop f-dark"></i>dark mode</span>
     <span><i class="sw d-desktop f-light"></i>light mode</span>
     <span class="hint">line length ≈ time on page</span></div>`
-  return `<section><h2>Visit map <span class="hint">(hour of day, Central · newest day on top)</span></h2>
+  const range = `${dayLabel(now - (end - 1) * DAY_MS)} – ${week === 0 ? 'today' : dayLabel(now - start * DAY_MS)}`
+  const pager = `<nav class="dg-pager">
+    ${week < MAX_WEEK ? `<a href="${link(week + 1)}">‹ older</a>` : '<span class="off">‹ older</span>'}
+    <span class="range">${esc(range)}</span>
+    ${week > 0 ? `<a href="${link(week - 1)}">newer ›</a>` : '<span class="off">newer ›</span>'}
+  </nav>`
+  return `<section><div class="sechead"><h2>Visit map <span class="hint">(hour of day, Central)</span></h2>${pager}</div>
     <div class="card">${head}${rows.join('')}${legend}</div></section>`
 }
 
@@ -368,6 +381,7 @@ export default async function handler(req, res) {
 
   // Accept the key from the login form (POST), a ?key= link, or the cookie
   // set on a previous successful login.
+  const reqUrl = new URL(req.url, 'http://x')
   let candidate
   let fromForm = false
   if (req.method === 'POST') {
@@ -378,7 +392,7 @@ export default async function handler(req, res) {
     }
     candidate = typeof body?.key === 'string' ? body.key : ''
   } else {
-    candidate = new URL(req.url, 'http://x').searchParams.get('key')
+    candidate = reqUrl.searchParams.get('key')
     if (candidate == null) candidate = parseCookies(req)[AUTH_COOKIE] ?? null
   }
 
@@ -397,6 +411,15 @@ export default async function handler(req, res) {
     res.status(303).end()
     return
   }
+
+  const week = Math.min(
+    MAX_WEEK,
+    Math.max(0, Math.trunc(Number(reqUrl.searchParams.get('week')) || 0)),
+  )
+  // Keep ?key= access working across pager links; cookie users get clean URLs.
+  const viaQueryKey = reqUrl.searchParams.get('key') != null
+  const pageLink = (n) =>
+    `/analytics?week=${n}${viaQueryKey ? `&key=${encodeURIComponent(candidate)}` : ''}`
 
   const listRes = await fetch(`${store.url}/lrange/${EVENTS_KEY}/0/-1`, {
     headers: { Authorization: `Bearer ${store.token}` },
@@ -473,14 +496,21 @@ export default async function handler(req, res) {
   .contact{color:var(--accent);font-weight:600;white-space:nowrap}
   .bar{width:40%}
   .bar div{height:10px;border-radius:5px;background:var(--accent);min-width:2px}
-  .dg-row{display:flex;align-items:center;gap:12px;height:17px}
-  .dg-row.head{height:22px}
-  .dg-day{width:52px;flex-shrink:0;font-size:11px;color:var(--mut);text-align:right;white-space:nowrap}
+  .sechead{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:8px;flex-wrap:wrap}
+  .sechead h2{margin:0}
+  .dg-pager{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--mut)}
+  .dg-pager a{color:var(--accent);text-decoration:none;border:1px solid var(--line);border-radius:8px;padding:3px 10px;background:var(--card)}
+  .dg-pager a:hover{border-color:var(--accent)}
+  .dg-pager .off{opacity:.4;padding:3px 10px}
+  .dg-pager .range{font-variant-numeric:tabular-nums}
+  .dg-row{display:flex;align-items:center;gap:12px;height:26px}
+  .dg-row.head{height:24px}
+  .dg-day{width:72px;flex-shrink:0;font-size:12px;color:var(--mut);text-align:right;white-space:nowrap}
   .dg-day b{color:var(--ink)}
-  .dg-track{position:relative;flex:1;height:11px;border-radius:5px;background:var(--row);background-image:linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:25% 100%}
+  .dg-track{position:relative;flex:1;height:16px;border-radius:8px;background:var(--row);background-image:linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:25% 100%}
   .dg-track.weekend{background-color:color-mix(in srgb, var(--row) 55%, var(--card))}
   .dg-labels{flex:1;display:flex;justify-content:space-between;font-size:10px;color:var(--mut)}
-  .dot{position:absolute;top:1.5px;height:8px;border-radius:4px;box-sizing:border-box}
+  .dot{position:absolute;top:3px;height:10px;border-radius:5px;box-sizing:border-box}
   .d-desktop{--c:var(--accent)}
   .d-mobile{--c:#3f82f6}
   .d-tablet{--c:#0f9d6d}
@@ -507,7 +537,7 @@ export default async function handler(req, res) {
     ${stat('contact clicks', contacts.length)}
     ${stat('top state', topState)}
   </div>
-  <div class="block">${dayGrid(events, visits, now)}</div>
+  <div class="block">${dayGrid(events, visits, now, week, pageLink)}</div>
   <div class="pair">
     ${funnelSection(visits)}
     ${sourceTable(visits)}
