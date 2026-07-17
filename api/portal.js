@@ -93,7 +93,7 @@ function countBy(items, pick) {
 
 function barTable(title, rows, limit = 12) {
   const top = rows.slice(0, limit)
-  const max = top[0]?.[1] ?? 1
+  const max = Math.max(1, ...top.map((r) => r[1]))
   const body = top.length
     ? top
         .map(
@@ -222,6 +222,76 @@ function buildVisits(events) {
     })
   }
   return visits.sort((a, b) => b.ts - a.ts)
+}
+
+/** Duration buckets that count as a real stay (see durationBucket client-side). */
+const SHORT_STAYS = new Set(['—', '<10s', '10-30s'])
+
+/**
+ * Visit → contact funnel over the stitched visits. Stages aren't strict
+ * subsets of each other (someone can contact in 20 seconds) — each bar is
+ * simply the share of visits that reached that behavior.
+ */
+function funnelSection(visits) {
+  const total = visits.length
+  const stages = [
+    ['Visited', total],
+    [
+      'Engaged — 30s+ or started reading',
+      visits.filter((v) => v.chapters >= 1 || !SHORT_STAYS.has(v.stay)).length,
+    ],
+    ['Deep read — 3+ chapters', visits.filter((v) => v.chapters >= 3).length],
+    ['Hands-on — played with something', visits.filter((v) => v.played > 0).length],
+    ['Contact clicked', visits.filter((v) => v.contact).length],
+  ]
+  const bars = stages
+    .map(([label, count], i) => {
+      const pct = total ? Math.round((count / total) * 100) : 0
+      const width = total ? Math.max(22, (count / total) * 100) : 22
+      return `<div class="fbar${count ? '' : ' zero'}" style="width:${width}%">
+        ${esc(label)} · ${count}${i ? ` (${pct}%)` : ''}</div>`
+    })
+    .join('')
+  return `<section><h2>Visit funnel <span class="hint">(visits with stories)</span></h2>
+    <div class="card"><div class="funnel">${total ? bars : '<p class="empty-note">appears as new visits arrive</p>'}</div></div></section>`
+}
+
+/** Which arrival channels produce readers and contacts, not just clicks. */
+function sourceTable(visits) {
+  const bySource = new Map()
+  for (const v of visits) {
+    if (!bySource.has(v.via)) {
+      bySource.set(v.via, { visits: 0, deep: 0, contact: 0 })
+    }
+    const row = bySource.get(v.via)
+    row.visits += 1
+    if (v.chapters >= 3) row.deep += 1
+    if (v.contact) row.contact += 1
+  }
+  const rows = [...bySource.entries()]
+    .sort((a, b) => b[1].visits - a[1].visits)
+    .map(
+      ([source, r]) => `<tr>
+      <td class="label">${esc(source)}</td>
+      <td class="num">${r.visits} visit${r.visits === 1 ? '' : 's'}</td>
+      <td class="num">${r.deep} deep read${r.deep === 1 ? '' : 's'}</td>
+      <td class="num">${r.contact} contact${r.contact === 1 ? '' : 's'}</td>
+      <td class="num">${r.visits ? Math.round((r.contact / r.visits) * 100) : 0}%</td>
+    </tr>`,
+    )
+    .join('')
+  return `<section><h2>Conversion by source</h2><table>
+    ${rows || '<tr><td class="label empty">no visits with stories yet</td></tr>'}</table></section>`
+}
+
+function depthRows(visits) {
+  const buckets = [
+    ['0 chapters', (v) => v.chapters === 0],
+    ['1–2 chapters', (v) => v.chapters >= 1 && v.chapters <= 2],
+    ['3–4 chapters', (v) => v.chapters >= 3 && v.chapters <= 4],
+    ['5+ chapters', (v) => v.chapters >= 5],
+  ]
+  return buckets.map(([label, test]) => [label, visits.filter(test).length])
 }
 
 function visitsTable(visits, limit = 20) {
@@ -364,6 +434,10 @@ export default async function handler(req, res) {
   .contact{color:var(--accent);font-weight:600;white-space:nowrap}
   .bar{width:40%}
   .bar div{height:10px;border-radius:5px;background:var(--accent);min-width:2px}
+  .funnel{display:flex;flex-direction:column;align-items:center;gap:5px}
+  .fbar{background:var(--accent);color:#fff;border-radius:6px;text-align:center;font-size:13px;padding:6px 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .fbar.zero{background:var(--row);color:var(--mut)}
+  .empty-note{color:var(--mut);margin:0;text-align:center}
   .cols{display:flex;align-items:flex-end;gap:3px;height:96px}
   .col{flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;position:relative}
   .col div{background:var(--accent);border-radius:3px 3px 0 0}
@@ -386,10 +460,13 @@ export default async function handler(req, res) {
     ${stat('contact clicks', contacts.length)}
     ${stat('top state', topState)}
   </div>
+  ${funnelSection(visits)}
   ${columnChart(views, now)}
   ${hourStrip(views)}
   ${visitsTable(visits)}
+  ${sourceTable(visits)}
   <div class="grid">
+  ${barTable('Read depth (per visit)', depthRows(visits))}
   ${barTable('States', countBy(views, (e) => (e.state ? `${e.state}${e.country && e.country !== 'US' ? ` (${e.country})` : ''}` : null)))}
   ${barTable('Cities', countBy(views, (e) => e.city))}
   ${barTable('Arrived via', countBy(events.filter((e) => e.name === 'arrival'), (e) => e.props?.source))}
