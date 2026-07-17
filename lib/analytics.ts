@@ -1,7 +1,6 @@
 import { track } from '@vercel/analytics'
 
 import { isPrerenderSnapshot } from '@/lib/isPrerenderSnapshot'
-import { DECK_MODE_CLASS } from '@/lib/deck/deckMode'
 import { LAYOUT_MQ } from '@/lib/layout/breakpoints'
 import {
   chapterRevealForId,
@@ -20,7 +19,10 @@ type EventProps = Record<string, string | number | boolean>
 const PASSIVE_EVENTS = new Set([
   'chapter-view',
   'chapter-complete',
-  'session-state',
+  'arrival',
+  'session-geo',
+  'session-context',
+  'session-return',
   'session-end',
   'client-error',
 ])
@@ -48,7 +50,7 @@ export function trackEventOnce(key: string, name: string, props?: EventProps): v
 
 /**
  * Dashboard-friendly duration: the Events panel groups by property value, so
- * raw seconds would fragment into one-off rows. Raw seconds ride along too.
+ * raw seconds would fragment into one-off rows.
  */
 function durationBucket(seconds: number): string {
   if (seconds < 10) return '<10s'
@@ -65,14 +67,14 @@ function chaptersViewedCount(): number {
   return count
 }
 
-/** How engaged this visit is right now — shared by contact and session-end. */
-export function engagementProps(): EventProps {
+/**
+ * How engaged this visit is right now, packed into one value — the Pro plan
+ * keeps at most 2 properties per event, so events that also carry their own
+ * dimension (e.g. contact's channel) get engagement as a single prop.
+ */
+export function engagementSummary(): string {
   const seconds = Math.round(performance.now() / 1000)
-  return {
-    seconds,
-    duration: durationBucket(seconds),
-    chaptersViewed: chaptersViewedCount(),
-  }
+  return `${durationBucket(seconds)} · ${chaptersViewedCount()}ch`
 }
 
 /** Vercel populates these from the visitor's IP on real deployments. */
@@ -99,16 +101,38 @@ async function fetchGeo(): Promise<GeoResponse | null> {
 
 const RETURNING_KEY = 'has-visited'
 
+function daysBucket(days: number): string {
+  if (days < 1) return 'same-day'
+  if (days === 1) return '1d'
+  if (days <= 7) return '2-7d'
+  if (days <= 30) return '8-30d'
+  return '30d+'
+}
+
 /**
- * One `session-state` event per load describing who's visiting and in what
- * state they experience the site — geography down to state/city (the Vercel
- * dashboard only shows country on its own), resolved theme, layout band,
- * pointer, motion, deck, timezone/language, and first-time vs returning.
- * Deferred to idle so it never competes with boot/hydration work; the theme is
- * read from `html[data-theme]`, which ThemeProvider has set by then.
+ * Per-visit context, split into small events because the Pro plan keeps at
+ * most 2 properties per event (one fat event would arrive with most of its
+ * dimensions stripped):
+ *
+ * - `arrival {source}` — utm_source from the landing URL. Stands in for the
+ *   plan-gated UTM dashboard panel; only fires on tagged visits.
+ * - `session-geo {state, city}` — from /api/geo (country is already a
+ *   built-in dashboard panel).
+ * - `session-context {theme, layout}` — dark/light and viewport band.
+ * - `session-return {returning, gap}` — revisit flag + bucketed gap since
+ *   the last visit.
+ *
+ * Deferred to idle so it never competes with boot/hydration work; the theme
+ * is read from `html[data-theme]`, which ThemeProvider has set by then.
  */
 export function initSessionStateTracking(): void {
   if (isPrerenderSnapshot()) return
+  try {
+    const source = new URLSearchParams(window.location.search).get('utm_source')
+    if (source) trackEventOnce('arrival', 'arrival', { source })
+  } catch {
+    // Malformed query string — skip attribution.
+  }
   const fire = async () => {
     const mq = (q: string) => window.matchMedia(q).matches
     const layout = mq(LAYOUT_MQ.cinema)
@@ -121,45 +145,33 @@ export function initSessionStateTracking(): void {
     const theme =
       document.documentElement.dataset.theme ??
       (mq('(prefers-color-scheme: dark)') ? 'dark' : 'light')
+    trackEventOnce('session-context', 'session-context', { theme, layout })
 
     // Stored value is the last visit's epoch-ms (legacy '1' from the first
     // rollout still counts as returning, just without a gap).
-    let returning = false
-    let daysSinceLast: number | null = null
     try {
       const raw = window.localStorage.getItem(RETURNING_KEY)
-      returning = raw != null
+      const props: EventProps = { returning: raw != null }
       const last = Number(raw)
       if (Number.isFinite(last) && last > 1e12) {
-        daysSinceLast = Math.max(0, Math.round((Date.now() - last) / 86_400_000))
+        props.gap = daysBucket(
+          Math.max(0, Math.round((Date.now() - last) / 86_400_000)),
+        )
       }
       window.localStorage.setItem(RETURNING_KEY, String(Date.now()))
+      trackEventOnce('session-return', 'session-return', props)
     } catch {
       // Storage unavailable — counts as a first visit.
-    }
-
-    const props: EventProps = {
-      theme,
-      layout,
-      pointer: mq('(pointer: coarse)') ? 'coarse' : 'fine',
-      reducedMotion: mq('(prefers-reduced-motion: reduce)'),
-      deck: document.documentElement.classList.contains(DECK_MODE_CLASS),
-      returning,
-      lang: navigator.language,
-    }
-    if (daysSinceLast != null) props.daysSinceLast = daysSinceLast
-    try {
-      props.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
-    } catch {
-      // Timezone stays unset.
+      trackEventOnce('session-return', 'session-return', { returning: false })
     }
 
     const geo = await fetchGeo()
-    if (geo?.country) props.country = geo.country
-    if (geo?.region) props.region = geo.region
-    if (geo?.city) props.city = geo.city
-
-    trackEventOnce('session-state', 'session-state', props)
+    if (geo?.region || geo?.city) {
+      trackEventOnce('session-geo', 'session-geo', {
+        state: geo.region ?? 'unknown',
+        city: geo.city ?? 'unknown',
+      })
+    }
   }
   if (typeof window.requestIdleCallback === 'function') {
     window.requestIdleCallback(() => void fire(), { timeout: 4000 })
@@ -210,10 +222,12 @@ export function initChapterViewTracking(): void {
 export function initSessionEndTracking(): void {
   if (isPrerenderSnapshot()) return
   const fire = () => {
+    const seconds = Math.round(performance.now() / 1000)
     trackEventOnce('session-end', 'session-end', {
-      ...engagementProps(),
-      interacted: interactionCount > 0,
-      interactions: interactionCount,
+      duration: durationBucket(seconds),
+      // Chapters read and whether they touched anything, in one packed prop
+      // (2-property plan limit; duration deserves its own breakdown).
+      engagement: `${chaptersViewedCount()}ch · ${interactionCount}int`,
     })
   }
   document.addEventListener('visibilitychange', () => {
