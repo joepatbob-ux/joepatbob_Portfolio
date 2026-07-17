@@ -114,16 +114,6 @@ function dayKey(ts) {
   return new Date(ts).toLocaleDateString('en-CA', { timeZone: TZ })
 }
 
-function hourOf(ts) {
-  return Number(
-    new Date(ts).toLocaleString('en-US', {
-      timeZone: TZ,
-      hour12: false,
-      hour: 'numeric',
-    }),
-  )
-}
-
 function fmtWhen(ts) {
   return new Date(ts).toLocaleString('en-US', {
     timeZone: TZ,
@@ -144,50 +134,91 @@ function refHost(ref) {
   }
 }
 
-/** One column per day across the window, tooltips carry the exact date. */
-function columnChart(views, now) {
-  const perDay = new Map(countBy(views, (e) => dayKey(e.ts)))
-  const days = []
-  for (let i = WINDOW_DAYS - 1; i >= 0; i--) {
-    const ts = now - i * DAY_MS
-    const key = dayKey(ts)
-    const date = new Date(ts)
-    days.push({
-      key,
-      count: perDay.get(key) ?? 0,
-      label:
-        i % 5 === 0
-          ? date.toLocaleDateString('en-US', { timeZone: TZ, day: 'numeric' })
-          : '',
-    })
-  }
-  const max = Math.max(1, ...days.map((d) => d.count))
-  const cols = days
-    .map(
-      (d) => `<div class="col" title="${d.key}: ${d.count}">
-        <div style="height:${d.count ? Math.max(4, Math.round((d.count / max) * 100)) : 0}%"></div>
-        <span>${d.label}</span></div>`,
-    )
-    .join('')
-  return `<section><h2>Visits by day</h2><div class="card"><div class="cols">${cols}</div></div></section>`
+/** Symbolic line length per stay bucket — literal minutes on a 24h axis
+ * would be invisible, so longer stay = visibly longer line. */
+const STAY_PX = {
+  '<10s': 7,
+  '10-30s': 11,
+  '30-60s': 15,
+  '1-3m': 21,
+  '3-10m': 29,
+  '10m+': 40,
 }
 
-/** 24-cell heat strip of visit start times, in home-timezone hours. */
-function hourStrip(views) {
-  const perHour = new Map(countBy(views, (e) => hourOf(e.ts)))
-  const max = Math.max(1, ...perHour.values())
-  const cells = []
-  for (let h = 0; h < 24; h++) {
-    const count = perHour.get(h) ?? 0
-    const alpha = count ? 0.15 + 0.85 * (count / max) : 0
-    cells.push(
-      `<div class="hour" title="${h}:00 — ${count} visit${count === 1 ? '' : 's'}"
-        style="background:${count ? `color-mix(in srgb, var(--accent) ${Math.round(alpha * 100)}%, transparent)` : 'transparent'}"></div>`,
+function minuteOfDay(ts) {
+  const [h, m] = new Date(ts)
+    .toLocaleTimeString('en-GB', {
+      timeZone: TZ,
+      hour12: false,
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+    .split(':')
+  return Number(h) * 60 + Number(m)
+}
+
+/**
+ * The visit map: one row per day (newest on top), a 24h track, and each
+ * visit drawn at its start time — line length ≈ stay, color = layout,
+ * filled = dark mode / outline = light. Pre-story page-views (no sid)
+ * render as small neutral ticks so older data still shows.
+ */
+function dayGrid(events, visits, now) {
+  const dots = new Map()
+  const add = (key, html) => {
+    if (!dots.has(key)) dots.set(key, [])
+    dots.get(key).push(html)
+  }
+  const KNOWN = new Set(['mobile', 'tablet', 'desktop', 'cinema'])
+  for (const v of visits) {
+    const pct = ((minuteOfDay(v.ts) / 1440) * 100).toFixed(1)
+    const w = STAY_PX[v.stay] ?? 8
+    const cls = `dot d-${KNOWN.has(v.layout) ? v.layout : 'unknown'} ${v.theme === 'dark' ? 'f-dark' : 'f-light'}`
+    add(
+      dayKey(v.ts),
+      `<i class="${cls}" style="left:min(${pct}%, calc(100% - ${w}px));width:${w}px"
+        title="${esc(`${fmtWhen(v.ts)} · ${v.where} · ${v.device} · ${v.stay}${v.contact ? ' · contacted' : ''}`)}"></i>`,
     )
   }
-  return `<section><h2>Time of day <span class="hint">(Central)</span></h2>
-    <div class="card"><div class="hours">${cells.join('')}</div>
-    <div class="hourlabels"><span>12a</span><span>6a</span><span>12p</span><span>6p</span><span>11p</span></div></div></section>`
+  for (const e of events) {
+    if (e.name !== 'page-view' || e.sid) continue
+    const pct = ((minuteOfDay(e.ts) / 1440) * 100).toFixed(1)
+    add(
+      dayKey(e.ts),
+      `<i class="dot d-unknown f-dark" style="left:min(${pct}%, calc(100% - 8px));width:8px"
+        title="${esc(`${fmtWhen(e.ts)}${e.city ? ` · ${e.city}` : ''}`)}"></i>`,
+    )
+  }
+  const rows = []
+  for (let i = 0; i < WINDOW_DAYS; i++) {
+    const ts = now - i * DAY_MS
+    const weekday = new Date(ts).toLocaleDateString('en-US', {
+      weekday: 'short',
+      timeZone: TZ,
+    })
+    const weekend = weekday === 'Sat' || weekday === 'Sun'
+    const label = new Date(ts).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      timeZone: TZ,
+    })
+    rows.push(`<div class="dg-row">
+      <span class="dg-day">${i === 0 ? '<b>today</b>' : esc(label)}</span>
+      <div class="dg-track${weekend ? ' weekend' : ''}">${(dots.get(dayKey(ts)) ?? []).join('')}</div>
+    </div>`)
+  }
+  const head = `<div class="dg-row head"><span class="dg-day"></span>
+    <div class="dg-labels"><span>12a</span><span>6a</span><span>12p</span><span>6p</span><span>11p</span></div></div>`
+  const legend = `<div class="dg-legend">
+    <span><i class="sw d-desktop f-dark"></i>desktop</span>
+    <span><i class="sw d-mobile f-dark"></i>mobile</span>
+    <span><i class="sw d-tablet f-dark"></i>tablet</span>
+    <span><i class="sw d-cinema f-dark"></i>cinema</span>
+    <span><i class="sw d-desktop f-dark"></i>dark mode</span>
+    <span><i class="sw d-desktop f-light"></i>light mode</span>
+    <span class="hint">line length ≈ time on page</span></div>`
+  return `<section><h2>Visit map <span class="hint">(hour of day, Central · newest day on top)</span></h2>
+    <div class="card">${head}${rows.join('')}${legend}</div></section>`
 }
 
 /** Stitch each session id's events into one visit story. */
@@ -205,12 +236,16 @@ function buildVisits(events) {
     const first = (name) => list.find((e) => e.name === name)
     const ctx = first('session-context')?.props
     const end = first('session-end')?.props
+    const layout = ctx?.layout ?? pv.device
+    const theme = ctx?.theme
     visits.push({
       ts: pv.ts,
       where: pv.city
         ? `${pv.city}, ${pv.state ?? pv.country ?? ''}`
         : (pv.state ?? pv.country ?? 'unknown'),
-      device: [ctx?.layout ?? pv.device, ctx?.theme].filter(Boolean).join(' · '),
+      layout,
+      theme,
+      device: [layout, theme].filter(Boolean).join(' · '),
       via: first('arrival')?.props?.source ?? refHost(pv.ref) ?? 'direct',
       returning: first('session-return')?.props?.returning === 'true',
       stay: end?.duration ?? '—',
@@ -418,9 +453,8 @@ export default async function handler(req, res) {
   .stat span{color:var(--mut);font-size:13px}
   section{margin:0;min-width:0}
   .block{margin-bottom:24px}
-  .duo{display:grid;grid-template-columns:2fr 1fr;gap:20px;margin-bottom:24px}
   .pair{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;align-items:start}
-  @media (max-width:860px){.duo,.pair{grid-template-columns:1fr}}
+  @media (max-width:860px){.pair{grid-template-columns:1fr}}
   h2{font-size:12.5px;margin:0 0 8px;color:var(--mut);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
   .hint{color:var(--mut);font-weight:400;text-transform:none;letter-spacing:0}
   .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px}
@@ -439,18 +473,27 @@ export default async function handler(req, res) {
   .contact{color:var(--accent);font-weight:600;white-space:nowrap}
   .bar{width:40%}
   .bar div{height:10px;border-radius:5px;background:var(--accent);min-width:2px}
+  .dg-row{display:flex;align-items:center;gap:12px;height:17px}
+  .dg-row.head{height:22px}
+  .dg-day{width:52px;flex-shrink:0;font-size:11px;color:var(--mut);text-align:right;white-space:nowrap}
+  .dg-day b{color:var(--ink)}
+  .dg-track{position:relative;flex:1;height:11px;border-radius:5px;background:var(--row);background-image:linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:25% 100%}
+  .dg-track.weekend{background-color:color-mix(in srgb, var(--row) 55%, var(--card))}
+  .dg-labels{flex:1;display:flex;justify-content:space-between;font-size:10px;color:var(--mut)}
+  .dot{position:absolute;top:1.5px;height:8px;border-radius:4px;box-sizing:border-box}
+  .d-desktop{--c:var(--accent)}
+  .d-mobile{--c:#3f82f6}
+  .d-tablet{--c:#0f9d6d}
+  .d-cinema{--c:#8b5cf6}
+  .d-unknown{--c:var(--mut)}
+  .f-dark{background:var(--c)}
+  .f-light{background:transparent;border:2px solid var(--c)}
+  .dg-legend{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-top:12px;font-size:12px;color:var(--mut)}
+  .sw{display:inline-block;width:14px;height:8px;border-radius:4px;box-sizing:border-box;margin-right:5px;vertical-align:middle}
   .funnel{display:flex;flex-direction:column;align-items:center;gap:5px}
-  .fbar{background:var(--accent);color:#fff;border-radius:6px;text-align:center;font-size:13px;padding:6px 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .fbar{background:var(--accent);color:#fff;border-radius:6px;text-align:center;font-size:13px;padding:6px 12px;white-space:nowrap;min-width:fit-content}
   .fbar.zero{background:var(--row);color:var(--mut)}
   .empty-note{color:var(--mut);margin:0;text-align:center}
-  .cols{display:flex;align-items:flex-end;gap:3px;height:130px}
-  .col{flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;position:relative}
-  .col div{background:var(--accent);border-radius:3px 3px 0 0}
-  .col span{position:absolute;top:100%;left:0;right:0;text-align:center;font-size:10px;color:var(--mut)}
-  .cols{margin-bottom:16px}
-  .hours{display:flex;gap:3px}
-  .hour{flex:1;height:26px;border:1px solid var(--row);border-radius:4px}
-  .hourlabels{display:flex;justify-content:space-between;color:var(--mut);font-size:11px;margin-top:4px}
   .scroll{overflow-x:auto}
   .scroll table{min-width:720px}
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;align-items:start}
@@ -464,10 +507,7 @@ export default async function handler(req, res) {
     ${stat('contact clicks', contacts.length)}
     ${stat('top state', topState)}
   </div>
-  <div class="duo">
-    ${columnChart(views, now)}
-    ${hourStrip(views)}
-  </div>
+  <div class="block">${dayGrid(events, visits, now)}</div>
   <div class="pair">
     ${funnelSection(visits)}
     ${sourceTable(visits)}
