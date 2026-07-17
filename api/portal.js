@@ -309,8 +309,8 @@ function dayDetail(events, visits, dayStr, now, backLink, dayLink) {
     <span><i class="sw d-mobile f-dark"></i>mobile</span>
     <span><i class="sw d-tablet f-dark"></i>tablet</span>
     <span><i class="sw d-cinema f-dark"></i>cinema</span>
-    <span><i class="sw d-desktop f-dark"></i>dark mode</span>
-    <span><i class="sw d-desktop f-light"></i>light mode</span>
+    <span><i class="sw d-mode f-dark"></i>dark mode</span>
+    <span><i class="sw d-mode f-light"></i>light mode</span>
     <span class="hint">line length ≈ time on page</span></div>`
   return `<section><div class="sechead"><h2>${esc(label)} <span class="hint">· ${lanes.length} session${lanes.length === 1 ? '' : 's'} (Central)</span></h2>${pager}</div>
     <div class="card">${lanes.length ? `<div class="scroll-lanes">${head}${rows}</div>${legend}` : '<p class="empty-note">no visits this day</p>'}</div></section>`
@@ -612,6 +612,7 @@ export default async function handler(req, res) {
   .d-tablet{--c:#0f9d6d}
   .d-cinema{--c:#8b5cf6}
   .d-unknown{--c:var(--mut)}
+  .d-mode{--c:var(--ink)}
   .f-dark{background:var(--c)}
   .f-light{background:transparent;border:2px solid var(--c)}
   .dg-legend{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-top:12px;font-size:12px;color:var(--mut)}
