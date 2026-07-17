@@ -2,10 +2,12 @@ import {
   CONTACT_EMAIL_MAILTO,
   CONTACT_LINKEDIN_URL,
 } from '@/lib/contact'
-import { trackEvent } from '@/lib/analytics'
+import { engagementProps, trackEvent } from '@/lib/analytics'
 
+// Engagement props ride along so the dashboard shows what a converting
+// visit looks like (time on site + chapters read before reaching out).
 const trackContact = (channel: 'email' | 'linkedin') => () =>
-  trackEvent('contact', { channel })
+  trackEvent('contact', { channel, ...engagementProps() })
 
 interface Props {
   /** `liquid` — desktop sidebar hover split; `panel` — mobile drawer chapter pills */

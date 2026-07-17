@@ -16,8 +16,20 @@ import {
  */
 type EventProps = Record<string, string | number | boolean>
 
+/** Events that describe the session rather than a visitor action. */
+const PASSIVE_EVENTS = new Set([
+  'chapter-view',
+  'chapter-complete',
+  'session-state',
+  'session-end',
+  'client-error',
+])
+
+let interactionCount = 0
+
 export function trackEvent(name: string, props?: EventProps): void {
   if (isPrerenderSnapshot()) return
+  if (!PASSIVE_EVENTS.has(name)) interactionCount += 1
   try {
     track(name, props)
   } catch {
@@ -32,6 +44,35 @@ export function trackEventOnce(key: string, name: string, props?: EventProps): v
   if (firedOnce.has(key)) return
   firedOnce.add(key)
   trackEvent(name, props)
+}
+
+/**
+ * Dashboard-friendly duration: the Events panel groups by property value, so
+ * raw seconds would fragment into one-off rows. Raw seconds ride along too.
+ */
+function durationBucket(seconds: number): string {
+  if (seconds < 10) return '<10s'
+  if (seconds < 30) return '10-30s'
+  if (seconds < 60) return '30-60s'
+  if (seconds < 180) return '1-3m'
+  if (seconds < 600) return '3-10m'
+  return '10m+'
+}
+
+function chaptersViewedCount(): number {
+  let count = 0
+  for (const key of firedOnce) if (key.startsWith('chapter:')) count += 1
+  return count
+}
+
+/** How engaged this visit is right now — shared by contact and session-end. */
+export function engagementProps(): EventProps {
+  const seconds = Math.round(performance.now() / 1000)
+  return {
+    seconds,
+    duration: durationBucket(seconds),
+    chaptersViewed: chaptersViewedCount(),
+  }
 }
 
 /** Vercel populates these from the visitor's IP on real deployments. */
@@ -81,10 +122,18 @@ export function initSessionStateTracking(): void {
       document.documentElement.dataset.theme ??
       (mq('(prefers-color-scheme: dark)') ? 'dark' : 'light')
 
+    // Stored value is the last visit's epoch-ms (legacy '1' from the first
+    // rollout still counts as returning, just without a gap).
     let returning = false
+    let daysSinceLast: number | null = null
     try {
-      returning = window.localStorage.getItem(RETURNING_KEY) === '1'
-      window.localStorage.setItem(RETURNING_KEY, '1')
+      const raw = window.localStorage.getItem(RETURNING_KEY)
+      returning = raw != null
+      const last = Number(raw)
+      if (Number.isFinite(last) && last > 1e12) {
+        daysSinceLast = Math.max(0, Math.round((Date.now() - last) / 86_400_000))
+      }
+      window.localStorage.setItem(RETURNING_KEY, String(Date.now()))
     } catch {
       // Storage unavailable — counts as a first visit.
     }
@@ -98,6 +147,7 @@ export function initSessionStateTracking(): void {
       returning,
       lang: navigator.language,
     }
+    if (daysSinceLast != null) props.daysSinceLast = daysSinceLast
     try {
       props.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
     } catch {
@@ -120,12 +170,15 @@ export function initSessionStateTracking(): void {
 
 /** A chapter counts as viewed once its copy reveal crosses this fraction. */
 const CHAPTER_VIEWED_REVEAL = 0.5
+/** …and complete once the copy has (nearly) fully revealed — view vs complete
+ * is the per-chapter drop-off funnel. */
+const CHAPTER_COMPLETE_REVEAL = 0.95
 
 /**
- * Fire `chapter-view` once per chapter per load, driven by the scroll
- * system's published reveal map (works on continuous desktop and top-bar
- * mobile alike). Subscribe-only and Set-guarded — nothing measurable on the
- * scroll hot path.
+ * Fire `chapter-view` / `chapter-complete` once per chapter per load, driven
+ * by the scroll system's published reveal map (works on continuous desktop
+ * and top-bar mobile alike). Subscribe-only and Set-guarded — nothing
+ * measurable on the scroll hot path.
  */
 export function initChapterViewTracking(): void {
   if (isPrerenderSnapshot()) return
@@ -135,10 +188,59 @@ export function initChapterViewTracking(): void {
       document.querySelectorAll<HTMLElement>(CHAPTER_SLOT_SELECTOR),
     ).map((slot) => slot.dataset.chapterId ?? '')
     for (const id of ids) {
-      if (!id || firedOnce.has(`chapter:${id}`)) continue
-      if (chapterRevealForId(id) >= CHAPTER_VIEWED_REVEAL) {
+      if (!id || firedOnce.has(`chapter-done:${id}`)) continue
+      const reveal = chapterRevealForId(id)
+      if (reveal >= CHAPTER_VIEWED_REVEAL) {
         trackEventOnce(`chapter:${id}`, 'chapter-view', { chapter: id })
+      }
+      if (reveal >= CHAPTER_COMPLETE_REVEAL) {
+        trackEventOnce(`chapter-done:${id}`, 'chapter-complete', { chapter: id })
       }
     }
   })
+}
+
+/**
+ * One `session-end` snapshot per load: time engaged, chapters viewed, and
+ * whether/how much they interacted. Fired on the first tab-hide
+ * (visibilitychange → hidden is the only leave signal mobile reliably
+ * delivers), with pagehide as a fallback — so a visit that tabs away and
+ * returns reports its state as of the first leave.
+ */
+export function initSessionEndTracking(): void {
+  if (isPrerenderSnapshot()) return
+  const fire = () => {
+    trackEventOnce('session-end', 'session-end', {
+      ...engagementProps(),
+      interacted: interactionCount > 0,
+      interactions: interactionCount,
+    })
+  }
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') fire()
+  })
+  window.addEventListener('pagehide', fire)
+}
+
+/**
+ * One `client-error` per load if anything throws uncaught — insurance so a
+ * browser-specific breakage shows up in the dashboard instead of never being
+ * known. Message only (truncated); Vercel's built-in dimensions carry the
+ * browser/OS.
+ */
+export function initClientErrorTracking(): void {
+  if (isPrerenderSnapshot()) return
+  const report = (kind: 'error' | 'rejection', message: unknown) => {
+    trackEventOnce('client-error', 'client-error', {
+      kind,
+      message: String(message ?? 'unknown').slice(0, 120),
+    })
+  }
+  window.addEventListener('error', (event) => report('error', event.message))
+  window.addEventListener('unhandledrejection', (event) =>
+    report(
+      'rejection',
+      event.reason instanceof Error ? event.reason.message : event.reason,
+    ),
+  )
 }

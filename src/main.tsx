@@ -1,6 +1,11 @@
 import { inject } from '@vercel/analytics'
 import { injectSpeedInsights } from '@vercel/speed-insights'
-import { initChapterViewTracking, initSessionStateTracking } from '@/lib/analytics'
+import {
+  initChapterViewTracking,
+  initClientErrorTracking,
+  initSessionEndTracking,
+  initSessionStateTracking,
+} from '@/lib/analytics'
 import { initContinuousChaptersClass } from '@/lib/scroll/continuousChapters'
 import { initDeckModeClass } from '@/lib/deck/deckMode'
 import { LAYOUT_BP } from '@/lib/layout/breakpoints'
@@ -195,3 +200,5 @@ inject({ beforeSend: dropIfOptedOut })
 injectSpeedInsights({ beforeSend: dropIfOptedOut })
 initChapterViewTracking()
 initSessionStateTracking()
+initSessionEndTracking()
+initClientErrorTracking()
