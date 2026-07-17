@@ -119,7 +119,10 @@ export function VerdantCharacterSelector({
             key={kind}
             label={label}
             selected={isViewSelected(selection, kind)}
-            onSelect={() => onSelectView(kind)}
+            onSelect={() => {
+              trackEvent('verdant', { action: 'view', view: kind })
+              onSelectView(kind)
+            }}
           />
         ))}
       </div>

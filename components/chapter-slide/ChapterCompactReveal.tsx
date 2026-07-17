@@ -6,6 +6,7 @@ import {
   CHAPTER_COMPACT_COLLAPSE_LABEL,
   CHAPTER_COMPACT_EXPAND_LABEL,
 } from '@/lib/chapter-slide/compactView'
+import { trackEvent } from '@/lib/analytics'
 
 /** 768–1023 — headline + More/Less expands story in place (requires compact provider). */
 export function ChapterCompactReveal({
@@ -37,7 +38,12 @@ export function ChapterCompactReveal({
       <OverlayActionPill
         variant={compactView.expanded ? 'secondary' : 'primary'}
         aria-expanded={compactView.expanded}
-        onClick={compactView.toggleExpanded}
+        onClick={() => {
+          if (!compactView.expanded) {
+            trackEvent('learn-more', { chapter: headline, surface: 'inline' })
+          }
+          compactView.toggleExpanded()
+        }}
       >
         {compactView.expanded
           ? CHAPTER_COMPACT_COLLAPSE_LABEL

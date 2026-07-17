@@ -14,6 +14,7 @@ import { SidebarMobileRail } from '@/components/sidebar/SidebarMobileRail'
 import { SidebarSubnav } from '@/components/sidebar/SidebarSubnav'
 import { BLUR_PX, INK, navKeywordStyle } from '@/components/sidebar/constants'
 import { useSidebarNavState } from '@/components/sidebar/useSidebarNavState'
+import { trackEvent } from '@/lib/analytics'
 
 function SidebarOverlayClose({
   onClose,
@@ -68,7 +69,10 @@ export function SidebarNav() {
         drawerOpen={mobileDrawerOpen}
         showRail={nav.showMobileRail}
         sectionLabel={nav.currentSection.label}
-        onOpen={() => setMobileDrawerOpen(true)}
+        onOpen={() => {
+          trackEvent('nav-open', { section: nav.currentSection.label })
+          setMobileDrawerOpen(true)
+        }}
         onClose={closeOverlays}
       />
 

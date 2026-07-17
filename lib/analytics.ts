@@ -1,6 +1,8 @@
 import { track } from '@vercel/analytics'
 
 import { isPrerenderSnapshot } from '@/lib/isPrerenderSnapshot'
+import { DECK_MODE_CLASS } from '@/lib/deck/deckMode'
+import { LAYOUT_MQ } from '@/lib/layout/breakpoints'
 import {
   chapterRevealForId,
   subscribeChapterScrollState,
@@ -30,6 +32,42 @@ export function trackEventOnce(key: string, name: string, props?: EventProps): v
   if (firedOnce.has(key)) return
   firedOnce.add(key)
   trackEvent(name, props)
+}
+
+/**
+ * One `session-state` event per load describing the state the visitor actually
+ * experiences the site in — resolved theme, layout band, pointer, motion, deck.
+ * Vercel's built-in dimensions (device, OS, geo) don't cover any of these.
+ * Deferred to idle so it never competes with boot/hydration work; the theme is
+ * read from `html[data-theme]`, which ThemeProvider has set by then.
+ */
+export function initSessionStateTracking(): void {
+  if (isPrerenderSnapshot()) return
+  const fire = () => {
+    const mq = (q: string) => window.matchMedia(q).matches
+    const layout = mq(LAYOUT_MQ.cinema)
+      ? 'cinema'
+      : mq(LAYOUT_MQ.desktop)
+        ? 'desktop'
+        : mq(LAYOUT_MQ.tablet)
+          ? 'tablet'
+          : 'mobile'
+    const theme =
+      document.documentElement.dataset.theme ??
+      (mq('(prefers-color-scheme: dark)') ? 'dark' : 'light')
+    trackEventOnce('session-state', 'session-state', {
+      theme,
+      layout,
+      pointer: mq('(pointer: coarse)') ? 'coarse' : 'fine',
+      reducedMotion: mq('(prefers-reduced-motion: reduce)'),
+      deck: document.documentElement.classList.contains(DECK_MODE_CLASS),
+    })
+  }
+  if (typeof window.requestIdleCallback === 'function') {
+    window.requestIdleCallback(fire, { timeout: 4000 })
+  } else {
+    window.setTimeout(fire, 2000)
+  }
 }
 
 /** A chapter counts as viewed once its copy reveal crosses this fraction. */
