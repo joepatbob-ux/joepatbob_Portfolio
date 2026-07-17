@@ -814,7 +814,7 @@ export default async function handler(req, res) {
   summary.dg-row:hover .dg-track{box-shadow:inset 0 0 0 1px var(--accent)}
   .dg-details[open]>summary .dg-track{box-shadow:inset 0 0 0 1px var(--accent)}
   .dg-day-detail{padding:6px 0 12px}
-  .tick{position:absolute;top:0;width:2px;height:16px;background:var(--ink);border-radius:1px}
+  .tick{position:absolute;top:50%;width:5px;height:5px;border-radius:50%;background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.25);transform:translate(-50%,-50%)}
   .dg-track.zoom{height:16px;background-image:none}
   .zoom .dot{top:3px;height:10px}
   .zoom-axis{position:relative;flex:1;height:14px;font-size:10px;color:var(--mut)}
