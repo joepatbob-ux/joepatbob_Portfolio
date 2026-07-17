@@ -5,6 +5,53 @@
 import { EVENTS_KEY, redisEnv } from './track.js'
 
 const WINDOW_DAYS = 30
+const AUTH_COOKIE = 'pa_key'
+
+const PAGE_CSS = `
+  body{font:15px/1.5 ui-sans-serif,system-ui,sans-serif;margin:0;background:#faf7f2;color:#1d1a16;padding:32px 20px 64px}
+  main{max-width:760px;margin:0 auto}
+  h1{font-size:22px;margin:0 0 4px}
+  .sub{color:#6b6459;margin:0 0 24px}`
+
+function parseCookies(req) {
+  const cookies = {}
+  for (const part of String(req.headers.cookie || '').split(';')) {
+    const eq = part.indexOf('=')
+    if (eq > 0) {
+      try {
+        cookies[part.slice(0, eq).trim()] = decodeURIComponent(
+          part.slice(eq + 1).trim(),
+        )
+      } catch {
+        // Skip undecodable cookie values.
+      }
+    }
+  }
+  return cookies
+}
+
+/** Password form served at /analytics — POST keeps the key out of URLs. */
+function loginPage(showError) {
+  return `<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Portfolio analytics</title>
+<style>${PAGE_CSS}
+  form{background:#fff;border:1px solid #e6e0d6;border-radius:10px;padding:20px;max-width:360px;display:flex;flex-direction:column;gap:12px}
+  input{font:inherit;padding:9px 12px;border:1px solid #e6e0d6;border-radius:8px}
+  button{font:inherit;font-weight:600;padding:9px 12px;border:0;border-radius:8px;background:#c93512;color:#fff;cursor:pointer}
+  .error{color:#c93512;margin:0}
+</style></head><body><main>
+  <h1>Portfolio analytics</h1>
+  <p class="sub">Private dashboard — enter the password to continue.</p>
+  <form method="post" action="/analytics">
+    ${showError ? '<p class="error">That password didn’t match.</p>' : ''}
+    <input type="password" name="key" placeholder="Password" autocomplete="current-password" autofocus>
+    <button type="submit">View analytics</button>
+  </form>
+</main></body></html>`
+}
 
 function esc(value) {
   return String(value)
@@ -55,9 +102,35 @@ export default async function handler(req, res) {
       )
     return
   }
-  const key = new URL(req.url, 'http://x').searchParams.get('key')
-  if (key !== statsKey) {
-    res.status(401).send('Missing or wrong key.')
+  // Accept the key from the login form (POST), a ?key= link, or the cookie
+  // set on a previous successful login.
+  let candidate
+  let fromForm = false
+  if (req.method === 'POST') {
+    fromForm = true
+    let body = req.body
+    if (typeof body === 'string') {
+      body = Object.fromEntries(new URLSearchParams(body))
+    }
+    candidate = typeof body?.key === 'string' ? body.key : ''
+  } else {
+    candidate = new URL(req.url, 'http://x').searchParams.get('key')
+    if (candidate == null) candidate = parseCookies(req)[AUTH_COOKIE] ?? null
+  }
+
+  if (candidate !== statsKey) {
+    res.setHeader('Content-Type', 'text/html; charset=utf-8')
+    res.status(401).send(loginPage(candidate != null && candidate !== ''))
+    return
+  }
+  if (fromForm) {
+    // Post/redirect/get: remember the login, then land on the clean URL.
+    res.setHeader(
+      'Set-Cookie',
+      `${AUTH_COOKIE}=${encodeURIComponent(candidate)}; Path=/; Max-Age=7776000; HttpOnly; Secure; SameSite=Lax`,
+    )
+    res.setHeader('Location', '/analytics')
+    res.status(303).end()
     return
   }
 
@@ -108,11 +181,7 @@ export default async function handler(req, res) {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>Portfolio analytics</title>
-<style>
-  body{font:15px/1.5 ui-sans-serif,system-ui,sans-serif;margin:0;background:#faf7f2;color:#1d1a16;padding:32px 20px 64px}
-  main{max-width:760px;margin:0 auto}
-  h1{font-size:22px;margin:0 0 4px}
-  .sub{color:#6b6459;margin:0 0 24px}
+<style>${PAGE_CSS}
   .stats{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:28px}
   .stat{background:#fff;border:1px solid #e6e0d6;border-radius:10px;padding:12px 18px;min-width:120px}
   .stat strong{display:block;font-size:22px}
