@@ -29,9 +29,48 @@ const PASSIVE_EVENTS = new Set([
 
 let interactionCount = 0
 
+/** Sticky device opt-out flag — set via ?track=off (src/main.tsx). */
+export const TRACK_OPT_OUT_KEY = 'va-disable'
+
+function optedOut(): boolean {
+  try {
+    return window.localStorage.getItem(TRACK_OPT_OUT_KEY) != null
+  } catch {
+    return false
+  }
+}
+
+/**
+ * First-party copy of every event → /api/track, feeding the private
+ * dashboard at /api/portal. Independent of the Vercel Analytics plan.
+ * sendBeacon so exit-time events (session-end) survive the page going away.
+ */
+function sendFirstParty(name: string, props?: EventProps): void {
+  if (optedOut()) return
+  try {
+    const body = JSON.stringify({
+      name,
+      props: props ?? {},
+      path: window.location.pathname,
+      ref: document.referrer,
+    })
+    const blob = new Blob([body], { type: 'application/json' })
+    if (navigator.sendBeacon?.('/api/track', blob)) return
+    void fetch('/api/track', {
+      method: 'POST',
+      keepalive: true,
+      headers: { 'content-type': 'application/json' },
+      body,
+    }).catch(() => {})
+  } catch {
+    // Analytics must never break the site.
+  }
+}
+
 export function trackEvent(name: string, props?: EventProps): void {
   if (isPrerenderSnapshot()) return
   if (!PASSIVE_EVENTS.has(name)) interactionCount += 1
+  sendFirstParty(name, props)
   try {
     track(name, props)
   } catch {
@@ -127,6 +166,9 @@ function daysBucket(days: number): string {
  */
 export function initSessionStateTracking(): void {
   if (isPrerenderSnapshot()) return
+  // First-party only — Vercel counts pageviews natively; the portal needs its
+  // own visit marker (and it carries the geo/device columns server-side).
+  sendFirstParty('page-view')
   try {
     const source = new URLSearchParams(window.location.search).get('utm_source')
     if (source) trackEventOnce('arrival', 'arrival', { source })
