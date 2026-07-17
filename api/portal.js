@@ -360,6 +360,7 @@ function buildVisits(events) {
         list.filter((e) => e.name === 'chapter-view').map((e) => e.props?.chapter),
       ).size,
       played: list.filter((e) => !PASSIVE.has(e.name)).length,
+      finished: list.some((e) => e.name === 'chapter-complete'),
       contact: first('contact')?.props?.channel ?? null,
       endTs: Math.max(...list.map((e) => e.ts)),
       marks: list
@@ -380,32 +381,63 @@ function buildVisits(events) {
 const SHORT_STAYS = new Set(['—', '<10s', '10-30s'])
 
 /**
- * Visit → contact funnel over the stitched visits. Stages aren't strict
- * subsets of each other (someone can contact in 20 seconds) — each bar is
- * simply the share of visits that reached that behavior.
+ * Layers the owner can stack into a funnel. Each is a predicate over a
+ * stitched visit; stages apply cumulatively, so every bar is a strict
+ * subset of the one above it.
  */
-function funnelSection(visits) {
+const FUNNEL_LAYERS = {
+  stay30: ['stayed 30s+', (v) => !SHORT_STAYS.has(v.stay)],
+  ch1: ['read a chapter', (v) => v.chapters >= 1],
+  ch3: ['read 3+ chapters', (v) => v.chapters >= 3],
+  finished: ['finished a chapter', (v) => v.finished],
+  played: ['played with a component', (v) => v.played > 0],
+  return: ['returning visitor', (v) => v.returning],
+  mobile: ['on mobile', (v) => v.layout === 'mobile'],
+  desktop: ['on desktop', (v) => v.layout === 'desktop'],
+  dark: ['in dark mode', (v) => v.theme === 'dark'],
+  resume: ['came via resume', (v) => v.via === 'resume'],
+  linkedin: ['came via linkedin', (v) => v.via === 'linkedin'],
+  application: ['came via application', (v) => v.via === 'application'],
+  contact: ['clicked contact', (v) => Boolean(v.contact)],
+}
+const MAX_LAYERS = 6
+
+/**
+ * User-built funnel: starts from all visits, and every layer the owner
+ * adds filters the pool that survived the previous layer. Built with GET
+ * links and a plain form — no client JS under the CSP.
+ */
+function funnelSection(visits, keys, hrefFor, hiddenInputs) {
   const total = visits.length
-  const stages = [
-    ['Visited', total],
-    [
-      'Engaged — 30s+ or started reading',
-      visits.filter((v) => v.chapters >= 1 || !SHORT_STAYS.has(v.stay)).length,
-    ],
-    ['Deep read — 3+ chapters', visits.filter((v) => v.chapters >= 3).length],
-    ['Hands-on — played with something', visits.filter((v) => v.played > 0).length],
-    ['Contact clicked', visits.filter((v) => v.contact).length],
-  ]
-  const bars = stages
-    .map(([label, count], i) => {
-      const pct = total ? Math.round((count / total) * 100) : 0
-      const width = total ? Math.max(22, (count / total) * 100) : 22
-      return `<div class="fbar${count ? '' : ' zero'}" style="width:${width}%">
-        ${esc(label)} · ${count}${i ? ` (${pct}%)` : ''}</div>`
-    })
-    .join('')
-  return `<section><h2>Visit funnel <span class="hint">(visits with stories)</span></h2>
-    <div class="card"><div class="funnel">${total ? bars : '<p class="empty-note">appears as new visits arrive</p>'}</div></div></section>`
+  let pool = visits
+  let prev = total
+  const bars = [`<div class="fbar" style="width:100%">All visits · ${total}</div>`]
+  for (const key of keys) {
+    const [label, test] = FUNNEL_LAYERS[key]
+    pool = pool.filter(test)
+    const pctAll = total ? Math.round((pool.length / total) * 100) : 0
+    const pctPrev = prev ? Math.round((pool.length / prev) * 100) : 0
+    const width = total ? Math.max(18, (pool.length / total) * 100) : 18
+    bars.push(`<div class="fbar${pool.length ? '' : ' zero'}" style="width:${width}%">
+      ${esc(label)} · ${pool.length} (${pctAll}%${keys.length > 1 ? ` · ${pctPrev}% of prev` : ''})
+      <a class="fx" href="${hrefFor(keys.filter((k) => k !== key))}" title="remove this layer">×</a></div>`)
+    prev = pool.length
+  }
+  const unused = Object.entries(FUNNEL_LAYERS).filter(([k]) => !keys.includes(k))
+  const form =
+    keys.length >= MAX_LAYERS || !unused.length
+      ? ''
+      : `<form class="fadd" method="GET" action="/analytics">${hiddenInputs}
+        <input type="hidden" name="funnel" value="${keys.join(',')}">
+        <select name="add">${unused.map(([k, [label]]) => `<option value="${k}">${esc(label)}</option>`).join('')}</select>
+        <button>add layer</button>
+        ${keys.length ? `<a class="fclear" href="${hrefFor([])}">clear</a>` : ''}</form>`
+  const hint = keys.length
+    ? ''
+    : `<p class="fhint">Stack layers to build a funnel — each one filters the visits that made it through the layer above.
+      Try <a href="${hrefFor(['stay30', 'ch3', 'contact'])}">engaged&nbsp;→ deep&nbsp;read&nbsp;→ contact</a>.</p>`
+  return `<section><h2>Visit funnel <span class="hint">(each layer filters the previous)</span></h2>
+    <div class="card"><div class="funnel">${bars.join('')}</div>${hint}${form}</div></section>`
 }
 
 /** Which arrival channels produce readers and contacts, not just clicks. */
@@ -615,7 +647,32 @@ export default async function handler(req, res) {
   const viaQueryKey = reqUrl.searchParams.get('key') != null
   const keyQS = viaQueryKey ? `&key=${encodeURIComponent(candidate)}` : ''
   const demo = reqUrl.searchParams.get('demo') === '1'
-  const pageLink = (n) => `/analytics?week=${n}${demo ? '&demo=1' : ''}${keyQS}`
+  // Funnel layers come from ?funnel=a,b,c plus an optional ?add= from the
+  // add-layer form; validate against the known set (Object.hasOwn guards
+  // against prototype keys) and cap the depth.
+  const funnelKeys = [
+    ...new Set(
+      `${reqUrl.searchParams.get('funnel') ?? ''},${reqUrl.searchParams.get('add') ?? ''}`
+        .split(',')
+        .map((k) => k.trim())
+        .filter((k) => Object.hasOwn(FUNNEL_LAYERS, k)),
+    ),
+  ].slice(0, MAX_LAYERS)
+  const funnelQS = funnelKeys.length ? `&funnel=${funnelKeys.join(',')}` : ''
+  const pageLink = (n) => `/analytics?week=${n}${demo ? '&demo=1' : ''}${funnelQS}${keyQS}`
+  const funnelHref = (keys) => {
+    const parts = []
+    if (week) parts.push(`week=${week}`)
+    if (demo) parts.push('demo=1')
+    if (keys.length) parts.push(`funnel=${keys.join(',')}`)
+    if (viaQueryKey) parts.push(`key=${encodeURIComponent(candidate)}`)
+    return `/analytics${parts.length ? `?${parts.join('&')}` : ''}`
+  }
+  const hiddenInputs = [
+    week ? `<input type="hidden" name="week" value="${week}">` : '',
+    demo ? '<input type="hidden" name="demo" value="1">' : '',
+    viaQueryKey ? `<input type="hidden" name="key" value="${esc(candidate)}">` : '',
+  ].join('')
 
   const now = Date.now()
   const cutoff = now - WINDOW_DAYS * DAY_MS
@@ -789,6 +846,14 @@ export default async function handler(req, res) {
   .funnel{display:flex;flex-direction:column;align-items:center;gap:5px}
   .fbar{background:var(--accent);color:#fff;border-radius:6px;text-align:center;font-size:13px;padding:6px 12px;white-space:nowrap;min-width:fit-content}
   .fbar.zero{background:var(--row);color:var(--mut)}
+  .fx{color:inherit;text-decoration:none;opacity:.65;margin-left:6px;font-weight:600}
+  .fx:hover{opacity:1}
+  .fadd{display:flex;gap:8px;align-items:center;justify-content:center;margin-top:14px;flex-wrap:wrap}
+  .fadd select,.fadd button{font:inherit;font-size:13px;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:5px 10px}
+  .fadd button{cursor:pointer;color:var(--accent);border-color:var(--accent)}
+  .fclear{font-size:12px;color:var(--mut)}
+  .fhint{color:var(--mut);font-size:13px;text-align:center;margin:12px 0 0}
+  .fhint a{color:var(--accent)}
   .empty-note{color:var(--mut);margin:0;text-align:center}
   .scroll{overflow-x:auto}
   .scroll table{min-width:720px}
@@ -806,7 +871,7 @@ export default async function handler(req, res) {
   </div>
   <div class="block">${dayGrid(events, visits, now, week, pageLink)}</div>
   <div class="pair">
-    ${funnelSection(visits)}
+    ${funnelSection(visits, funnelKeys, funnelHref, hiddenInputs)}
     ${sourceTable(visits)}
   </div>
   <div class="block">${visitsTable(visits)}</div>
