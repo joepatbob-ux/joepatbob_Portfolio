@@ -469,6 +469,97 @@ function visitsTable(visits, limit = 20) {
     ${rows}</table></div></section>`
 }
 
+// Vercel's preview/screenshot crawlers (California datacenters) polluted the
+// stats until the ingest bot filter shipped on Jul 17 2026. Anything from CA
+// before this cutoff is crawler traffic — the owner's real visitors weren't
+// in CA in that window. One-time cleanup via ?scrub=ca-bots.
+const SCRUB_BEFORE = Date.UTC(2026, 6, 18)
+
+function isVercelBot(e) {
+  return e.state === 'CA' && typeof e.ts === 'number' && e.ts < SCRUB_BEFORE
+}
+
+/** Tiny deterministic PRNG so ?demo=1 renders the same dataset every load. */
+function mulberry32(seed) {
+  return function () {
+    seed = (seed + 0x6d2b79f5) | 0
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed)
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  }
+}
+
+/**
+ * Generated 30-day dataset for ?demo=1 — validates the dashboard design at
+ * realistic volume without touching stored data. Mirrors the stored event
+ * shape exactly (props are strings, sids stitch into visit stories).
+ */
+function demoEvents(now) {
+  const rnd = mulberry32(42)
+  const pick = (arr) => arr[Math.floor(rnd() * arr.length)]
+  const CITIES = [
+    ['Austin', 'TX'], ['Dallas', 'TX'], ['New York', 'NY'], ['Seattle', 'WA'],
+    ['Chicago', 'IL'], ['Boston', 'MA'], ['Denver', 'CO'], ['Atlanta', 'GA'],
+    ['Portland', 'OR'], ['San Francisco', 'CA'], ['Raleigh', 'NC'], ['Columbus', 'OH'],
+  ]
+  const LAYOUTS = ['desktop', 'desktop', 'desktop', 'mobile', 'mobile', 'tablet', 'cinema']
+  const SOURCES = [null, null, null, 'resume', 'linkedin', 'application']
+  const CHAPTERS = ['verdant', 'formation', 'sma', 'eim', 'wr', 'about']
+  const COMPONENTS = ['scratch', 'phone-swap', 'carousel', 'wr-board', 'sticker-place', 'verdant']
+  const DURS = [
+    ['<10s', 0.15, 0], ['10-30s', 0.4, 0], ['30-60s', 0.9, 1],
+    ['1-3m', 2.2, 2], ['3-10m', 6.5, 3], ['10m+', 16, 5],
+  ]
+  const events = []
+  let sidN = 0
+  for (let d = 0; d < WINDOW_DAYS; d++) {
+    const dayTs = now - d * DAY_MS
+    const weekday = new Date(dayTs).toLocaleDateString('en-US', { weekday: 'short', timeZone: TZ })
+    const isWeekend = weekday === 'Sat' || weekday === 'Sun'
+    const count = d === 0 ? 5 : Math.floor(rnd() * (isWeekend ? 4 : 6))
+    for (let v = 0; v < count; v++) {
+      const sid = `demo${++sidN}`
+      let targetMin = (8 + Math.floor(rnd() * 14)) * 60 + Math.floor(rnd() * 60)
+      // Keep today's demo sessions in the past so lanes read naturally.
+      if (d === 0) targetMin = Math.max(0, Math.min(targetMin, minuteOfDay(now) - 20))
+      const start = dayTs + (targetMin - minuteOfDay(dayTs)) * 60_000
+      const [city, state] = pick(CITIES)
+      const layout = pick(LAYOUTS)
+      const theme = rnd() < 0.4 ? 'dark' : 'light'
+      const source = pick(SOURCES)
+      const [dur, durMin, chMax] = DURS[Math.floor(rnd() * DURS.length)]
+      const base = {
+        sid, path: '/', country: 'US', state, city,
+        device: layout === 'mobile' ? 'mobile' : 'desktop',
+        ref: source === 'linkedin' ? 'https://www.linkedin.com/' : rnd() < 0.12 ? 'https://www.google.com/' : '',
+      }
+      const push = (offMin, name, props = {}) =>
+        events.push({ ...base, ts: Math.round(start + offMin * 60_000), name, props })
+      push(0, 'page-view')
+      if (source) push(0.02, 'arrival', { source })
+      push(0.03, 'session-context', { theme, layout })
+      if (rnd() < 0.15) push(0.04, 'session-return', { returning: 'true', gap: pick(['<1d', '1-2d', '2-7d']) })
+      const nch = Math.min(CHAPTERS.length, Math.floor(rnd() * (chMax + 2.2)))
+      let plays = 0
+      for (let c = 0; c < nch; c++) {
+        const at = ((c + 1) / (nch + 1)) * durMin
+        push(at, 'chapter-view', { chapter: CHAPTERS[c] })
+        if (rnd() < 0.5) push(at + durMin * 0.05, 'chapter-complete', { chapter: CHAPTERS[c] })
+        if (rnd() < 0.7) {
+          push(at + durMin * 0.03, pick(COMPONENTS), { action: 'play' })
+          plays++
+        }
+      }
+      push(durMin, 'session-end', { duration: dur, engagement: `${nch}ch · ${plays}int` })
+      if (nch >= 2 && rnd() < 0.3) {
+        push(durMin * 0.97, 'contact', { channel: rnd() < 0.6 ? 'email' : 'linkedin', engaged: `${dur} · ${nch}ch` })
+      }
+    }
+  }
+  events.push({ ts: now - 4 * DAY_MS, name: 'client-error', props: { message: 'demo: sample error' }, sid: 'demoerr', path: '/', state: 'TX', city: 'Austin', device: 'desktop' })
+  return events
+}
+
 export default async function handler(req, res) {
   const statsKey = process.env.STATS_KEY
   const store = redisEnv()
@@ -523,23 +614,54 @@ export default async function handler(req, res) {
   // Keep ?key= access working across pager links; cookie users get clean URLs.
   const viaQueryKey = reqUrl.searchParams.get('key') != null
   const keyQS = viaQueryKey ? `&key=${encodeURIComponent(candidate)}` : ''
-  const pageLink = (n) => `/analytics?week=${n}${keyQS}`
+  const demo = reqUrl.searchParams.get('demo') === '1'
+  const pageLink = (n) => `/analytics?week=${n}${demo ? '&demo=1' : ''}${keyQS}`
 
-  const listRes = await fetch(`${store.url}/lrange/${EVENTS_KEY}/0/-1`, {
-    headers: { Authorization: `Bearer ${store.token}` },
-  })
-  const raw = listRes.ok ? ((await listRes.json()).result ?? []) : []
   const now = Date.now()
   const cutoff = now - WINDOW_DAYS * DAY_MS
-  const events = []
-  for (const item of raw) {
-    try {
-      const event = JSON.parse(item)
-      if (event && typeof event.ts === 'number' && event.ts >= cutoff) {
-        events.push(event)
+  let events = []
+  let scrubbed = 0
+  let botCount = 0
+  if (demo) {
+    events = demoEvents(now)
+  } else {
+    const listRes = await fetch(`${store.url}/lrange/${EVENTS_KEY}/0/-1`, {
+      headers: { Authorization: `Bearer ${store.token}` },
+    })
+    const raw = listRes.ok ? ((await listRes.json()).result ?? []) : []
+    const doScrub = reqUrl.searchParams.get('scrub') === 'ca-bots'
+    const kept = []
+    for (const item of raw) {
+      try {
+        const event = JSON.parse(item)
+        if (!event) continue
+        if (isVercelBot(event)) {
+          botCount += 1
+          if (doScrub) {
+            scrubbed += 1
+            continue
+          }
+        }
+        kept.push(item)
+        if (typeof event.ts === 'number' && event.ts >= cutoff) {
+          events.push(event)
+        }
+      } catch {
+        // Skip malformed entries.
       }
-    } catch {
-      // Skip malformed entries.
+    }
+    if (doScrub && scrubbed > 0) {
+      // Rewrite the list without the crawler events (kept is head→tail
+      // order, so RPUSH rebuilds it identically).
+      botCount = 0
+      await fetch(`${store.url}/pipeline`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${store.token}` },
+        body: JSON.stringify([
+          ['DEL', EVENTS_KEY],
+          ...(kept.length ? [['RPUSH', EVENTS_KEY, ...kept]] : []),
+        ]),
+      })
     }
   }
 
@@ -566,6 +688,23 @@ export default async function handler(req, res) {
   const stat = (label, value) =>
     `<div class="stat"><strong>${esc(value)}</strong><span>${esc(label)}</span></div>`
   const topState = countBy(views, (e) => e.state)[0]?.[0] ?? '—'
+
+  const realLink = `/analytics${viaQueryKey ? `?key=${encodeURIComponent(candidate)}` : ''}`
+  const notices = []
+  if (demo) {
+    notices.push(
+      `<p class="notice">Generated demo data for design validation — nothing here is real. <a href="${realLink}">Back to real data</a></p>`,
+    )
+  } else if (scrubbed > 0) {
+    notices.push(
+      `<p class="notice">Scrubbed ${scrubbed} Vercel preview-bot event${scrubbed === 1 ? '' : 's'} (CA, pre-filter). They're gone for good.</p>`,
+    )
+  } else if (botCount > 0) {
+    notices.push(
+      `<p class="notice">${botCount} stored event${botCount === 1 ? ' looks' : 's look'} like Vercel preview bots (California, from before the bot filter) —
+        <a href="/analytics?scrub=ca-bots${keyQS}">scrub them</a></p>`,
+    )
+  }
 
   res.setHeader('Content-Type', 'text/html; charset=utf-8')
   res.status(200).send(`<!doctype html>
@@ -600,6 +739,9 @@ export default async function handler(req, res) {
   .contact{color:var(--accent);font-weight:600;white-space:nowrap}
   .bar{width:40%}
   .bar div{height:10px;border-radius:5px;background:var(--accent);min-width:2px}
+  .notice{background:var(--card);border:1px solid var(--accent);border-radius:10px;padding:10px 14px;margin:0 0 20px;font-size:14px}
+  .notice a{color:var(--accent)}
+  .demo-link{color:var(--mut)}
   .sechead{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:8px;flex-wrap:wrap}
   .sechead h2{margin:0}
   .dg-pager{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--mut)}
@@ -652,8 +794,9 @@ export default async function handler(req, res) {
   .scroll table{min-width:720px}
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;align-items:start}
 </style></head><body><main>
-  <h1>Portfolio analytics</h1>
-  <p class="sub">Last ${WINDOW_DAYS} days · ${events.length} events</p>
+  <h1>Portfolio analytics${demo ? ' <span class="tag">demo</span>' : ''}</h1>
+  <p class="sub">Last ${WINDOW_DAYS} days · ${events.length} events${demo ? '' : ` · <a class="demo-link" href="/analytics?demo=1${keyQS}">demo data</a>`}</p>
+  ${notices.join('')}
   <div class="stats">
     ${stat('today', views.filter((e) => dayKey(e.ts) === today).length)}
     ${stat('this week', views.filter((e) => e.ts >= weekAgo).length)}
