@@ -1957,24 +1957,27 @@ html {
   pointer-events: none;
 }
 
+/* Safari: keep this subtree cheap to composite. Per-dash animated filters +
+   will-change promoted ~100 layers, and when the stage's own blur/opacity
+   dissolve ran over that stack Safari skipped the transition and the art
+   snapped. Dashes transition opacity only; the glow lives on the group as a
+   single static filter. */
 .eim-path-art__dash {
   opacity: 0;
-  filter: brightness(0.88);
-  transition:
-    opacity var(--dash-fade) var(--dash-ease),
-    filter var(--dash-fade) var(--dash-ease);
+  transition: opacity var(--dash-fade) var(--dash-ease);
   transition-delay: calc(var(--dash-index, 0) * var(--dash-stagger));
-  will-change: opacity, filter;
+}
+
+.eim-path-art__dashes[data-phase='on'] {
+  filter: brightness(1.06) drop-shadow(0 0 2px var(--dash-glow));
 }
 
 .eim-path-art__dashes[data-phase='on'] .eim-path-art__dash {
   opacity: 1;
-  filter: brightness(1.06) drop-shadow(0 0 2px var(--dash-glow));
 }
 
 .eim-path-art__dashes[data-phase='off'] .eim-path-art__dash {
   opacity: 0;
-  filter: brightness(0.88);
 }
 
 .eim-path-art--instant .eim-path-art__dash {
