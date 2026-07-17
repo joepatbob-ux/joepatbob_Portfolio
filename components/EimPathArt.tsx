@@ -290,18 +290,10 @@ export function EimPathArt({
       return clearTimers
     }
 
-    const loop = () => {
-      if (cancelled || !active) return
-      runTurnOn(() => {
-        if (cancelled || !active) return
-        runTurnOff(() => {
-          if (cancelled || !active) return
-          loop()
-        })
-      })
-    }
-
-    loop()
+    // Draw once and hold. The art fades in/out with the chapter like every
+    // other stage artifact (stage fx / panel opacity) — no self-cycling while
+    // the chapter is on screen. `!active` above resets, so re-entry re-draws.
+    runTurnOn(() => {})
 
     return clearTimers
   }, [
