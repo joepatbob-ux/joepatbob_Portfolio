@@ -3,8 +3,8 @@ import { ANDROID_MESH } from '@/lib/phone-swap/applyScreenTextures'
 import { IPHONE16_FRONT_OVERLAY_OBJECTS, IPHONE16_MESH } from '@/lib/phone-swap/iphone16Assets'
 import { PIXEL8_MESH } from '@/lib/phone-swap/pixel8Assets'
 
-/** Site accent — keep in sync with `--color-accent` in globals.css */
-export const PHONE_SWAP_ACCENT = '#DE3E18'
+/** Site accent — keep in sync with `--color-accent` (light) in globals.css */
+export const PHONE_SWAP_ACCENT = '#C93512'
 
 export const PHONE_SWAP_ACCENT_COLOR = new THREE.Color(PHONE_SWAP_ACCENT)
 

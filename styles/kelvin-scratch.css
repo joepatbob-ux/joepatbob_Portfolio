@@ -182,7 +182,7 @@
 }
 
 .kelvin-scratch__tray--below .kelvin-scratch__tray-bar:focus-visible {
-  outline: 2px solid var(--color-accent, #de3e18);
+  outline: 2px solid var(--color-accent, #c93512);
   outline-offset: 2px;
 }
 
@@ -315,12 +315,12 @@
 
 .kelvin-scratch__tray-bar.web-apps-scratch__tray-bar--ready
   .web-apps-scratch__tray-phrase--take {
-  color: var(--color-accent, #de3e18);
+  color: var(--color-accent, #c93512);
 }
 
 .kelvin-scratch__tray-bar.web-apps-scratch__tray-bar--drop
   .web-apps-scratch__tray-phrase--leave {
-  color: var(--color-accent, #de3e18);
+  color: var(--color-accent, #c93512);
 }
 
 .kelvin-scratch__tray .web-apps-scratch__tray-coin {
@@ -361,7 +361,7 @@
   height: clamp(2rem, 12cqi, 3rem);
   background: color-mix(
     in srgb,
-    var(--color-accent, #de3e18) 22%,
+    var(--color-accent, #c93512) 22%,
     transparent
   );
 }

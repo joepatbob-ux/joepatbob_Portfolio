@@ -140,6 +140,7 @@ export function SidebarNav() {
             data-sidebar-main-nav
             data-sidebar-nav-hit
             aria-hidden={usesTopBarNav && !mobileDrawerOpen ? true : undefined}
+            inert={usesTopBarNav && !mobileDrawerOpen ? '' : undefined}
             style={{
               position: 'absolute',
               transition: 'none',

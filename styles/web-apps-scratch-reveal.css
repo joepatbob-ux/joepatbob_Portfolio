@@ -199,7 +199,7 @@
   .web-apps-scratch__tray-bar--drop:hover {
     background: color-mix(
       in srgb,
-      var(--color-accent, #de3e18) 16%,
+      var(--color-accent, #c93512) 16%,
       var(--color-nav-pill-muted-accent-1)
     );
   }
@@ -210,7 +210,7 @@
 }
 
 .web-apps-scratch__tray-bar:focus-visible {
-  outline: 2px solid var(--color-accent, #de3e18);
+  outline: 2px solid var(--color-accent, #c93512);
   outline-offset: 3px;
 }
 
@@ -236,12 +236,12 @@
 
 .web-apps-scratch__tray-bar--ready .web-apps-scratch__tray-phrase--take {
   opacity: 1;
-  color: var(--color-accent, #de3e18);
+  color: var(--color-accent, #c93512);
 }
 
 .web-apps-scratch__tray-bar--drop .web-apps-scratch__tray-phrase--leave {
   opacity: 1;
-  color: var(--color-accent, #de3e18);
+  color: var(--color-accent, #c93512);
 }
 
 .web-apps-scratch__tray-coin {
@@ -263,7 +263,7 @@
 .web-apps-scratch__tray-coin--empty .web-apps-scratch__tray-coin-slot {
   background: color-mix(
     in srgb,
-    var(--color-accent, #de3e18) 32%,
+    var(--color-accent, #c93512) 32%,
     transparent
   );
 }
@@ -275,7 +275,7 @@
   border-radius: 50%;
   background: color-mix(
     in srgb,
-    var(--color-accent, #de3e18) 28%,
+    var(--color-accent, #c93512) 28%,
     transparent
   );
 }

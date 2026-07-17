@@ -106,8 +106,12 @@
     --color-hero-canvas: #f4f4f4;
     --hero-canvas-opacity: 1;
     --color-paper:      #f0f0f0;
-    /* Base accent: slightly darker than legacy #F2411B for better contrast (incl. white UI text on pill). */
-    --color-accent:     #DE3E18;
+    /* Base accent: AA (>=4.5:1) for normal text on hero canvas and paper.
+       Dark theme brightens to #F2411B (legacy flame) — see overrides below. */
+    --color-accent:     #C93512;
+    /* Text set ON an accent-filled surface (pill labels, 404, error buttons).
+       White passes on the light accent; dark theme flips to ink. */
+    --color-accent-contrast: #ffffff;
     /* Links / nav hovers: darker still for ~AA against paper and clear focus/hover signal. */
     --color-accent-hover: #B73412;
     /* Accent for SMALL text (10-11px microlabels/eyebrows): base accent is
@@ -117,11 +121,11 @@
     /* ~4.5:1 vs paper for 14px body (was 0.45 alpha — too light). */
     --color-muted:      rgba(13, 13, 13, 0.72);
     /* Nav “de-selected while exploring” — same hue as accent, not grey. */
-    --color-nav-faded-selection: rgba(222, 62, 24, 0.4);
+    --color-nav-faded-selection: rgba(201, 53, 18, 0.4);
     --color-accent-nav-hover:    #5a2410;
     /* Subnav: selected row fill; hover = accent outline ring. */
-    --color-nav-pill-muted-accent-1: rgba(222, 62, 24, 0.12);
-    --color-nav-pill-outline:        rgba(222, 62, 24, 0.42);
+    --color-nav-pill-muted-accent-1: rgba(201, 53, 18, 0.12);
+    --color-nav-pill-outline:        rgba(201, 53, 18, 0.42);
     /* Alias — prefer --color-nav-faded-selection for new code */
     --color-chapter-dim: var(--color-nav-faded-selection);
     --sidebar-width:    280px;
@@ -159,11 +163,13 @@
       --color-paper:      #101010;
       --color-rule:       rgba(255, 255, 255, 0.12);
       --color-muted:      rgba(240, 238, 234, 0.78);
+      --color-accent:     #F2411B;
+      --color-accent-contrast: #0d0d0d;
       --color-accent-nav-hover:    #ff9a7a;
       --color-accent-text: #E8552F;
-      --color-nav-faded-selection: rgba(222, 62, 24, 0.45);
-      --color-nav-pill-muted-accent-1: rgba(222, 62, 24, 0.16);
-      --color-nav-pill-outline:        rgba(222, 62, 24, 0.48);
+      --color-nav-faded-selection: rgba(242, 65, 27, 0.45);
+      --color-nav-pill-muted-accent-1: rgba(242, 65, 27, 0.16);
+      --color-nav-pill-outline:        rgba(242, 65, 27, 0.48);
       --color-chapter-dim: var(--color-nav-faded-selection);
       --tablet-backdrop-scrim: rgba(4, 4, 4, 0.58);
     }
@@ -175,11 +181,13 @@
     --color-paper:      #101010;
     --color-rule:       rgba(255, 255, 255, 0.12);
     --color-muted:      rgba(240, 238, 234, 0.78);
+    --color-accent:     #F2411B;
+    --color-accent-contrast: #0d0d0d;
     --color-accent-nav-hover:    #ff9a7a;
     --color-accent-text: #E8552F;
-    --color-nav-faded-selection: rgba(222, 62, 24, 0.45);
-    --color-nav-pill-muted-accent-1: rgba(222, 62, 24, 0.16);
-    --color-nav-pill-outline:        rgba(222, 62, 24, 0.48);
+    --color-nav-faded-selection: rgba(242, 65, 27, 0.45);
+    --color-nav-pill-muted-accent-1: rgba(242, 65, 27, 0.16);
+    --color-nav-pill-outline:        rgba(242, 65, 27, 0.48);
     --color-chapter-dim: var(--color-nav-faded-selection);
     --tablet-backdrop-scrim: rgba(4, 4, 4, 0.58);
   }
@@ -190,10 +198,12 @@
     --color-paper:      #f0f0f0;
     --color-rule:       rgba(0, 0, 0, 0.1);
     --color-muted:      rgba(13, 13, 13, 0.72);
+    --color-accent:     #C93512;
+    --color-accent-contrast: #ffffff;
     --color-accent-nav-hover:    #5a2410;
-    --color-nav-faded-selection: rgba(222, 62, 24, 0.4);
-    --color-nav-pill-muted-accent-1: rgba(222, 62, 24, 0.12);
-    --color-nav-pill-outline:        rgba(222, 62, 24, 0.42);
+    --color-nav-faded-selection: rgba(201, 53, 18, 0.4);
+    --color-nav-pill-muted-accent-1: rgba(201, 53, 18, 0.12);
+    --color-nav-pill-outline:        rgba(201, 53, 18, 0.42);
     --color-chapter-dim: var(--color-nav-faded-selection);
     --tablet-backdrop-scrim: rgba(240, 240, 240, 0.62);
   }
@@ -450,7 +460,7 @@
   font-size: var(--text-label);
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #fff;
+  color: var(--color-accent-contrast, #fff);
   pointer-events: none;
   transition:
     opacity 0.28s ease,
@@ -828,7 +838,7 @@
   padding: 40px;
   box-sizing: border-box;
   background: var(--color-accent);
-  color: #fff;
+  color: var(--color-accent-contrast, #fff);
   text-align: center;
 }
 
@@ -928,20 +938,20 @@
   padding: 0.45rem 0.85rem;
   font-size: 0.8125rem;
   font-weight: 600;
-  border: 1px solid var(--color-accent, #de3e18);
+  border: 1px solid var(--color-accent, #c93512);
   border-radius: 4px;
-  background: var(--color-accent, #de3e18);
-  color: #fff;
+  background: var(--color-accent, #c93512);
+  color: var(--color-accent-contrast, #fff);
   cursor: pointer;
 }
 
 .chapter-error__btn--secondary {
   background: transparent;
-  color: var(--color-accent, #de3e18);
+  color: var(--color-accent, #c93512);
 }
 
 .chapter-error__btn:focus-visible {
-  outline: 2px solid var(--color-accent, #de3e18);
+  outline: 2px solid var(--color-accent, #c93512);
   outline-offset: 2px;
 }
 

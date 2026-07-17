@@ -38,7 +38,7 @@
 
 .overlay-action-pill--primary {
   background: var(--color-accent);
-  color: #fff;
+  color: var(--color-accent-contrast, #fff);
   box-shadow: none;
 }
 

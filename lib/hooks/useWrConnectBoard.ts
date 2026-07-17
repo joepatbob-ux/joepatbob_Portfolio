@@ -25,7 +25,7 @@ import {
 
 const OFFSCREEN = { x: -1000, y: -1000 }
 const PROGRESS_DONE = 0.004
-const FALLBACK_GLYPH = '#DE3E18'
+const FALLBACK_GLYPH = '#C93512'
 const FALLBACK_MONO =
   'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace'
 
