@@ -28,8 +28,8 @@ const PASSIVE = new Set([
 const PAGE_CSS = `
   :root{--bg:#faf7f2;--card:#fff;--ink:#1d1a16;--mut:#6b6459;--line:#e6e0d6;--row:#f0ebe2;--accent:#c93512}
   @media (prefers-color-scheme: dark){:root{--bg:#191613;--card:#211d19;--ink:#f0ebe2;--mut:#a49a8b;--line:#38322b;--row:#2b2620;--accent:#f2411b}}
-  body{font:15px/1.5 ui-sans-serif,system-ui,sans-serif;margin:0;background:var(--bg);color:var(--ink);padding:32px 20px 64px}
-  main{max-width:880px;margin:0 auto}
+  body{font:15px/1.5 ui-sans-serif,system-ui,sans-serif;margin:0;background:var(--bg);color:var(--ink);padding:28px 28px 64px}
+  main{max-width:1600px;margin:0 auto}
   h1{font-size:22px;margin:0 0 4px}
   .sub{color:var(--mut);margin:0 0 24px}`
 
@@ -210,7 +210,7 @@ function buildVisits(events) {
       where: pv.city
         ? `${pv.city}, ${pv.state ?? pv.country ?? ''}`
         : (pv.state ?? pv.country ?? 'unknown'),
-      device: [pv.device, ctx?.theme].filter(Boolean).join(' · '),
+      device: [ctx?.layout ?? pv.device, ctx?.theme].filter(Boolean).join(' · '),
       via: first('arrival')?.props?.source ?? refHost(pv.ref) ?? 'direct',
       returning: first('session-return')?.props?.returning === 'true',
       stay: end?.duration ?? '—',
@@ -412,17 +412,22 @@ export default async function handler(req, res) {
 <meta name="robots" content="noindex">
 <title>Portfolio analytics</title>
 <style>${PAGE_CSS}
-  .stats{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:28px}
-  .stat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 18px;min-width:110px}
-  .stat strong{display:block;font-size:22px}
+  .stats{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:24px}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 22px;flex:1;min-width:130px}
+  .stat strong{display:block;font-size:28px;line-height:1.2}
   .stat span{color:var(--mut);font-size:13px}
-  section{margin-bottom:26px}
-  h2{font-size:15px;margin:0 0 8px}
-  .hint{color:var(--mut);font-weight:400}
+  section{margin:0;min-width:0}
+  .block{margin-bottom:24px}
+  .duo{display:grid;grid-template-columns:2fr 1fr;gap:20px;margin-bottom:24px}
+  .pair{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;align-items:start}
+  @media (max-width:860px){.duo,.pair{grid-template-columns:1fr}}
+  h2{font-size:12.5px;margin:0 0 8px;color:var(--mut);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+  .hint{color:var(--mut);font-weight:400;text-transform:none;letter-spacing:0}
   .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px}
   table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden}
-  td{padding:7px 12px;border-top:1px solid var(--row);vertical-align:middle}
+  td{padding:8px 14px;border-top:1px solid var(--row);vertical-align:middle}
   tr:first-child td{border-top:0}
+  tr:not(.head):hover td{background:var(--row)}
   tr.head td{color:var(--mut);font-size:12px;text-transform:uppercase;letter-spacing:.04em}
   .label{max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .label.empty{color:var(--mut)}
@@ -438,7 +443,7 @@ export default async function handler(req, res) {
   .fbar{background:var(--accent);color:#fff;border-radius:6px;text-align:center;font-size:13px;padding:6px 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .fbar.zero{background:var(--row);color:var(--mut)}
   .empty-note{color:var(--mut);margin:0;text-align:center}
-  .cols{display:flex;align-items:flex-end;gap:3px;height:96px}
+  .cols{display:flex;align-items:flex-end;gap:3px;height:130px}
   .col{flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;position:relative}
   .col div{background:var(--accent);border-radius:3px 3px 0 0}
   .col span{position:absolute;top:100%;left:0;right:0;text-align:center;font-size:10px;color:var(--mut)}
@@ -448,8 +453,7 @@ export default async function handler(req, res) {
   .hourlabels{display:flex;justify-content:space-between;color:var(--mut);font-size:11px;margin-top:4px}
   .scroll{overflow-x:auto}
   .scroll table{min-width:720px}
-  .grid{display:grid;grid-template-columns:1fr 1fr;gap:0 20px}
-  @media (max-width:640px){.grid{grid-template-columns:1fr}}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;align-items:start}
 </style></head><body><main>
   <h1>Portfolio analytics</h1>
   <p class="sub">Last ${WINDOW_DAYS} days · ${events.length} events</p>
@@ -460,11 +464,15 @@ export default async function handler(req, res) {
     ${stat('contact clicks', contacts.length)}
     ${stat('top state', topState)}
   </div>
-  ${funnelSection(visits)}
-  ${columnChart(views, now)}
-  ${hourStrip(views)}
-  ${visitsTable(visits)}
-  ${sourceTable(visits)}
+  <div class="duo">
+    ${columnChart(views, now)}
+    ${hourStrip(views)}
+  </div>
+  <div class="pair">
+    ${funnelSection(visits)}
+    ${sourceTable(visits)}
+  </div>
+  <div class="block">${visitsTable(visits)}</div>
   <div class="grid">
   ${barTable('Read depth (per visit)', depthRows(visits))}
   ${barTable('States', countBy(views, (e) => (e.state ? `${e.state}${e.country && e.country !== 'US' ? ` (${e.country})` : ''}` : null)))}
