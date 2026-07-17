@@ -61,6 +61,7 @@ export default async function handler(req, res) {
     ts: Date.now(),
     name: data.name,
     props,
+    sid: typeof data.sid === 'string' ? data.sid.slice(0, 16) : undefined,
     path: typeof data.path === 'string' ? data.path.slice(0, 128) : undefined,
     ref: typeof data.ref === 'string' ? data.ref.slice(0, 128) : undefined,
     country: geoHeader(req, 'x-vercel-ip-country'),
