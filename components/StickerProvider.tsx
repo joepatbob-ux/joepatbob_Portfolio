@@ -29,7 +29,7 @@ import {
   type StickerAsset,
   type StickerHeights,
 } from '@/lib/stickers'
-import { trackEvent } from '@/lib/analytics'
+import { trackEvent, trackEventOnce } from '@/lib/analytics'
 
 /** Desktop defaults — on phone use `useStickers().zIndices` (matches globals.css). */
 export const STICKER_Z_BASE = 116
@@ -311,6 +311,7 @@ export function StickerProvider({ children }: { children: ReactNode }) {
       rotation = randomRotation(),
     ) => {
       if (deckRef.current[0]?.id !== asset.id) return
+      trackEventOnce('sticker:pickup', 'sticker-pickup', { sticker: asset.id })
       setSelectedInstanceId(null)
       dragPointerRef.current = { x: clientX, y: clientY }
       const drag: ActiveDrag = {

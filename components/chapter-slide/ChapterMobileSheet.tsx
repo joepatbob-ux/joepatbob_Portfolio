@@ -3,6 +3,7 @@ import type { ChapterCopyRevealProps } from '@/components/chapter-slide/chapterC
 import { MobileLearnMoreSheet } from '@/components/mobile/MobileLearnMoreSheet'
 import { OverlayActionPill } from '@/components/ui/OverlayActionPill'
 import { CHAPTER_COMPACT_EXPAND_LABEL } from '@/lib/chapter-slide/compactView'
+import { trackEvent } from '@/lib/analytics'
 import { useState } from 'react'
 
 /** ≤767 — headline + More opens full-screen sheet. */
@@ -21,7 +22,10 @@ export function ChapterMobileSheet({
       <OverlayActionPill
         variant="primary"
         aria-expanded={open}
-        onClick={() => setOpen(true)}
+        onClick={() => {
+          trackEvent('learn-more', { chapter: headline, surface: 'sheet' })
+          setOpen(true)
+        }}
       >
         {triggerLabel}
       </OverlayActionPill>

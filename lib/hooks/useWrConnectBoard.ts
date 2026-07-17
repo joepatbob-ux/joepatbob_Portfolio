@@ -22,6 +22,7 @@ import {
   useState,
   type PointerEvent,
 } from 'react'
+import { trackEventOnce } from '@/lib/analytics'
 
 const OFFSCREEN = { x: -1000, y: -1000 }
 const PROGRESS_DONE = 0.004
@@ -293,6 +294,7 @@ export function useWrConnectBoard(src: string) {
 
   const onPointerEnter = useCallback(() => {
     if (!canvasReadyRef.current || prefersReducedMotion()) return
+    trackEventOnce('wr-board:dissolve', 'wr-board', { action: 'dissolve' })
     hoverRef.current = true
     readStyles()
     setLive(true)

@@ -5,6 +5,11 @@
   "devCommand": "npm run dev",
   "installCommand": "npm install",
   "outputDirectory": "dist",
+  "redirects": [
+    { "source": "/resume", "destination": "/?utm_source=resume" },
+    { "source": "/apply", "destination": "/?utm_source=application" },
+    { "source": "/li", "destination": "/?utm_source=linkedin" }
+  ],
   "headers": [
     {
       "source": "/(.*)",

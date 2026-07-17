@@ -1,6 +1,8 @@
 import { track } from '@vercel/analytics'
 
 import { isPrerenderSnapshot } from '@/lib/isPrerenderSnapshot'
+import { DECK_MODE_CLASS } from '@/lib/deck/deckMode'
+import { LAYOUT_MQ } from '@/lib/layout/breakpoints'
 import {
   chapterRevealForId,
   subscribeChapterScrollState,
@@ -30,6 +32,90 @@ export function trackEventOnce(key: string, name: string, props?: EventProps): v
   if (firedOnce.has(key)) return
   firedOnce.add(key)
   trackEvent(name, props)
+}
+
+/** Vercel populates these from the visitor's IP on real deployments. */
+type GeoResponse = {
+  country?: string | null
+  region?: string | null
+  city?: string | null
+}
+
+async function fetchGeo(): Promise<GeoResponse | null> {
+  try {
+    const signal =
+      typeof AbortSignal.timeout === 'function'
+        ? AbortSignal.timeout(3000)
+        : undefined
+    const res = await fetch('/api/geo', { signal })
+    if (!res.ok) return null
+    return (await res.json()) as GeoResponse
+  } catch {
+    // Local dev / preview has no function — the event just goes out without geo.
+    return null
+  }
+}
+
+const RETURNING_KEY = 'has-visited'
+
+/**
+ * One `session-state` event per load describing who's visiting and in what
+ * state they experience the site — geography down to state/city (the Vercel
+ * dashboard only shows country on its own), resolved theme, layout band,
+ * pointer, motion, deck, timezone/language, and first-time vs returning.
+ * Deferred to idle so it never competes with boot/hydration work; the theme is
+ * read from `html[data-theme]`, which ThemeProvider has set by then.
+ */
+export function initSessionStateTracking(): void {
+  if (isPrerenderSnapshot()) return
+  const fire = async () => {
+    const mq = (q: string) => window.matchMedia(q).matches
+    const layout = mq(LAYOUT_MQ.cinema)
+      ? 'cinema'
+      : mq(LAYOUT_MQ.desktop)
+        ? 'desktop'
+        : mq(LAYOUT_MQ.tablet)
+          ? 'tablet'
+          : 'mobile'
+    const theme =
+      document.documentElement.dataset.theme ??
+      (mq('(prefers-color-scheme: dark)') ? 'dark' : 'light')
+
+    let returning = false
+    try {
+      returning = window.localStorage.getItem(RETURNING_KEY) === '1'
+      window.localStorage.setItem(RETURNING_KEY, '1')
+    } catch {
+      // Storage unavailable — counts as a first visit.
+    }
+
+    const props: EventProps = {
+      theme,
+      layout,
+      pointer: mq('(pointer: coarse)') ? 'coarse' : 'fine',
+      reducedMotion: mq('(prefers-reduced-motion: reduce)'),
+      deck: document.documentElement.classList.contains(DECK_MODE_CLASS),
+      returning,
+      lang: navigator.language,
+    }
+    try {
+      props.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+    } catch {
+      // Timezone stays unset.
+    }
+
+    const geo = await fetchGeo()
+    if (geo?.country) props.country = geo.country
+    if (geo?.region) props.region = geo.region
+    if (geo?.city) props.city = geo.city
+
+    trackEventOnce('session-state', 'session-state', props)
+  }
+  if (typeof window.requestIdleCallback === 'function') {
+    window.requestIdleCallback(() => void fire(), { timeout: 4000 })
+  } else {
+    window.setTimeout(() => void fire(), 2000)
+  }
 }
 
 /** A chapter counts as viewed once its copy reveal crosses this fraction. */
