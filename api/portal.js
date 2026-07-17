@@ -167,52 +167,35 @@ const MAX_WEEK = Math.ceil(WINDOW_DAYS / MAP_DAYS) - 1
  * render as small neutral ticks so older data still shows. Paged 7 days
  * at a time via plain ?week=N links (no client JS under the CSP).
  */
+/** Heat opacity for n visits, normalized against the busiest hour. */
+function heatAlpha(n, max) {
+  return (0.3 + 0.7 * (n / max)).toFixed(2)
+}
+
 function dayGrid(events, visits, now, week, link, dayLink) {
-  const dots = new Map()
+  // Pure heat map: rows carry only per-hour intensity; the individual
+  // sessions live one click away in the day drill-in.
   const heat = new Map()
-  const add = (key, html) => {
-    if (!dots.has(key)) dots.set(key, [])
-    dots.get(key).push(html)
-  }
   const warm = (ts) => {
     const key = `${dayKey(ts)}|${Math.floor(minuteOfDay(ts) / 60)}`
     heat.set(key, (heat.get(key) ?? 0) + 1)
   }
-  const KNOWN = new Set(['mobile', 'tablet', 'desktop', 'cinema'])
-  for (const v of visits) {
-    const pct = ((minuteOfDay(v.ts) / 1440) * 100).toFixed(1)
-    const w = STAY_PX[v.stay] ?? 8
-    const cls = `dot d-${KNOWN.has(v.layout) ? v.layout : 'unknown'} ${v.theme === 'dark' ? 'f-dark' : 'f-light'}`
-    warm(v.ts)
-    add(
-      dayKey(v.ts),
-      `<i class="${cls}" style="left:min(${pct}%, calc(100% - ${w}px));width:${w}px"
-        title="${esc(`${fmtWhen(v.ts)} · ${v.where} · ${v.device} · ${v.stay}${v.contact ? ' · contacted' : ''}`)}"></i>`,
-    )
-  }
+  for (const v of visits) warm(v.ts)
   for (const e of events) {
-    if (e.name !== 'page-view' || e.sid) continue
-    const pct = ((minuteOfDay(e.ts) / 1440) * 100).toFixed(1)
-    warm(e.ts)
-    add(
-      dayKey(e.ts),
-      `<i class="dot d-unknown f-dark" style="left:min(${pct}%, calc(100% - 8px));width:8px"
-        title="${esc(`${fmtWhen(e.ts)}${e.city ? ` · ${e.city}` : ''}`)}"></i>`,
-    )
+    if (e.name === 'page-view' && !e.sid) warm(e.ts)
   }
-  // Hours where visits overlap get a tinted band under the dots — the
-  // busier the hour, the deeper the tint.
-  const heatBlocks = (key) => {
-    const blocks = []
+  const max = Math.max(1, ...heat.values())
+  const heatCells = (key) => {
+    const cells = []
     for (let h = 0; h < 24; h++) {
       const n = heat.get(`${key}|${h}`) ?? 0
-      if (n < 2) continue
-      blocks.push(
-        `<i class="heat" style="left:${((h / 24) * 100).toFixed(2)}%;width:${(100 / 24).toFixed(2)}%;opacity:${Math.min(0.18 + 0.14 * n, 0.62).toFixed(2)}"
-          title="${n} visits this hour"></i>`,
+      if (!n) continue
+      cells.push(
+        `<i class="heat" style="left:${((h / 24) * 100).toFixed(2)}%;width:${(100 / 24).toFixed(2)}%;opacity:${heatAlpha(n, max)}"
+          title="${n} visit${n === 1 ? '' : 's'}"></i>`,
       )
     }
-    return blocks.join('')
+    return cells.join('')
   }
   const dayLabel = (ts) =>
     new Date(ts).toLocaleDateString('en-US', {
@@ -231,21 +214,20 @@ function dayGrid(events, visits, now, week, link, dayLink) {
     })
     const weekend = weekday === 'Sat' || weekday === 'Sun'
     const key = dayKey(ts)
-    rows.push(`<div class="dg-row">
-      <a class="dg-day" href="${dayLink(key)}" title="all sessions this day">${i === 0 ? '<b>today</b>' : `${esc(weekday)} ${esc(dayLabel(ts))}`}</a>
-      <div class="dg-track${weekend ? ' weekend' : ''}">${heatBlocks(key)}${(dots.get(key) ?? []).join('')}</div>
-    </div>`)
+    rows.push(`<a class="dg-row" href="${dayLink(key)}" title="see this day's sessions">
+      <span class="dg-day">${i === 0 ? '<b>today</b>' : `${esc(weekday)} ${esc(dayLabel(ts))}`}</span>
+      <div class="dg-track${weekend ? ' weekend' : ''}">${heatCells(key)}</div>
+    </a>`)
   }
   const head = `<div class="dg-row head"><span class="dg-day"></span>
     <div class="dg-labels"><span>12a</span><span>6a</span><span>12p</span><span>6p</span><span>11p</span></div></div>`
   const legend = `<div class="dg-legend">
-    <span><i class="sw d-desktop f-dark"></i>desktop</span>
-    <span><i class="sw d-mobile f-dark"></i>mobile</span>
-    <span><i class="sw d-tablet f-dark"></i>tablet</span>
-    <span><i class="sw d-cinema f-dark"></i>cinema</span>
-    <span><i class="sw d-desktop f-dark"></i>dark mode</span>
-    <span><i class="sw d-desktop f-light"></i>light mode</span>
-    <span class="hint">line length ≈ time on page</span></div>`
+    <span class="hint">fewer</span>
+    <span><i class="sw heat-sw" style="opacity:${heatAlpha(1, max)}"></i></span>
+    <span><i class="sw heat-sw" style="opacity:${heatAlpha(Math.max(1, Math.round(max / 2)), max)}"></i></span>
+    <span><i class="sw heat-sw" style="opacity:1"></i></span>
+    <span class="hint">more visits per hour</span>
+    <span class="hint">· click a day to see its individual sessions</span></div>`
   const range = `${dayLabel(now - (end - 1) * DAY_MS)} – ${week === 0 ? 'today' : dayLabel(now - start * DAY_MS)}`
   const pager = `<nav class="dg-pager">
     ${week < MAX_WEEK ? `<a href="${link(week + 1)}">‹ older</a>` : '<span class="off">‹ older</span>'}
@@ -322,8 +304,16 @@ function dayDetail(events, visits, dayStr, now, backLink, dayLink) {
       : `<span class="off">${offset > 0 ? '‹ prev day' : 'next day ›'}</span>`
   }
   const pager = `<nav class="dg-pager">${neighbor(1)}<a href="${backLink}">week view</a>${neighbor(-1)}</nav>`
+  const legend = `<div class="dg-legend">
+    <span><i class="sw d-desktop f-dark"></i>desktop</span>
+    <span><i class="sw d-mobile f-dark"></i>mobile</span>
+    <span><i class="sw d-tablet f-dark"></i>tablet</span>
+    <span><i class="sw d-cinema f-dark"></i>cinema</span>
+    <span><i class="sw d-desktop f-dark"></i>dark mode</span>
+    <span><i class="sw d-desktop f-light"></i>light mode</span>
+    <span class="hint">line length ≈ time on page</span></div>`
   return `<section><div class="sechead"><h2>${esc(label)} <span class="hint">· ${lanes.length} session${lanes.length === 1 ? '' : 's'} (Central)</span></h2>${pager}</div>
-    <div class="card">${lanes.length ? `<div class="scroll-lanes">${head}${rows}</div>` : '<p class="empty-note">no visits this day</p>'}</div></section>`
+    <div class="card">${lanes.length ? `<div class="scroll-lanes">${head}${rows}</div>${legend}` : '<p class="empty-note">no visits this day</p>'}</div></section>`
 }
 
 /** Stitch each session id's events into one visit story. */
@@ -599,12 +589,14 @@ export default async function handler(req, res) {
   .dg-pager a:hover{border-color:var(--accent)}
   .dg-pager .off{opacity:.4;padding:3px 10px}
   .dg-pager .range{font-variant-numeric:tabular-nums}
-  .dg-row{display:flex;align-items:center;gap:12px;height:26px}
+  .dg-row{display:flex;align-items:center;gap:12px;height:26px;text-decoration:none;color:inherit;border-radius:8px}
   .dg-row.head{height:24px}
-  .dg-day{width:72px;flex-shrink:0;font-size:12px;color:var(--mut);text-align:right;white-space:nowrap;text-decoration:none}
-  a.dg-day:hover{color:var(--accent);text-decoration:underline}
+  a.dg-row:hover .dg-day{color:var(--accent)}
+  a.dg-row:hover .dg-track{box-shadow:inset 0 0 0 1px var(--accent)}
+  .dg-day{width:72px;flex-shrink:0;font-size:12px;color:var(--mut);text-align:right;white-space:nowrap}
   .dg-day b{color:var(--ink)}
   .heat{position:absolute;top:0;height:100%;background:var(--accent)}
+  .heat-sw{background:var(--accent);margin-right:0}
   .lane{display:flex;align-items:center;gap:12px;height:30px}
   .lane.head{height:24px}
   .lane-info{width:160px;flex-shrink:0;font-size:12px;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
