@@ -1176,7 +1176,7 @@
 .phone-swap__screen-theme.contact-liquid--segmented:focus-within
   .contact-liquid__btn--active {
   background: var(--color-accent);
-  color: #fff;
+  color: var(--color-accent-contrast, #fff);
   box-shadow: none;
 }
 

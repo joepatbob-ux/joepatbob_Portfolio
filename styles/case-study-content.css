@@ -150,7 +150,7 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --cs-grid-cell-bg: rgba(255, 255, 255, 0.045);
-    --cs-callout-bg: rgba(222, 62, 24, 0.08);
-    --cs-quote-bg: rgba(222, 62, 24, 0.1);
+    --cs-callout-bg: rgba(242, 65, 27, 0.08);
+    --cs-quote-bg: rgba(242, 65, 27, 0.1);
   }
 }

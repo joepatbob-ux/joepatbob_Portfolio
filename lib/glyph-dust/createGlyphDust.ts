@@ -318,8 +318,8 @@ export function createGlyphDust(
   }
 
   // ── accent (cached, updated on theme change) ────────────────────
-  let accentHex = '#DE3E18'
-  let accentRGB: [number, number, number] = [222, 62, 24]
+  let accentHex = '#C93512'
+  let accentRGB: [number, number, number] = [201, 53, 18]
   function refreshAccent() {
     const v = getComputedStyle(document.documentElement).getPropertyValue('--color-accent').trim()
     if (v) {

@@ -10,7 +10,7 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        accent: '#DE3E18',
+        accent: '#C93512',
         'accent-hover': '#B73412',
         ink: '#0d0d0d',
         paper: '#f0f0f0',
