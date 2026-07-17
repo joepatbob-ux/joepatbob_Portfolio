@@ -37,7 +37,7 @@ export function ContactButton({ variant = 'liquid' }: Props) {
   }
 
   return (
-    <div className="contact-liquid" aria-label="Contact — email or LinkedIn">
+    <nav className="contact-liquid" aria-label="Contact">
       <div className="contact-liquid__surface">
         <span className="contact-liquid__label" aria-hidden>
           Contact
@@ -61,6 +61,6 @@ export function ContactButton({ variant = 'liquid' }: Props) {
           </a>
         </div>
       </div>
-    </div>
+    </nav>
   )
 }
