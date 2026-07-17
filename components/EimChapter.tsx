@@ -6,7 +6,9 @@ import { useChapterStageFx } from '@/lib/hooks/useChapterStageFx'
 import type { Chapter } from '@/lib/types'
 
 const CHAPTER_ID = 'hardware-eim'
-const DRAW_MS = 3000
+/* The cascade must land inside the chapter's ~320-600ms crossfade — a slow
+ * draw leaves the artifact half-dark through a normal scroll pass. */
+const DRAW_MS = 450
 
 interface Props {
   chapter: Chapter

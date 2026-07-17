@@ -14,7 +14,7 @@ const PATH_FILL = '#F5431B'
 const CYCLE_HOLD_MS = 600
 const DASH_FADE_MIN_MS = 360
 const DASH_FADE_MAX_MS = 520
-const DASH_STAGGER_MIN_MS = 28
+const DASH_STAGGER_MIN_MS = 4
 
 type DebugLabel = { order: number; x: number; y: number }
 
@@ -247,35 +247,47 @@ export function EimPathArt({
       }, alreadyOff ? 0 : 32)
     }
 
-    const runTurnOff = (then: () => void) => {
-      if (!illuminatedRef.current) {
-        then()
-        return
-      }
-      setDashPhase('off')
-      schedule(() => {
-        illuminatedRef.current = false
-        then()
-      }, phaseDuration)
-    }
-
     const clearTimers = () => {
       cancelled = true
       timers.forEach((id) => window.clearTimeout(id))
     }
 
     if (!active) {
-      if (dashDebug) {
+      if (dashDebug || !illuminatedRef.current) {
         resetDashes()
         return clearTimers
       }
 
-      if (illuminatedRef.current) {
-        runTurnOff(() => resetDashes())
-        return clearTimers
+      // Exit is passive: the chapter's own blur/fade carries the lit art out —
+      // de-drawing (or snapping dark) while still on screen reads as the art
+      // ignoring the fade. Reset instantly, but only once genuinely hidden,
+      // so the next entry re-draws from dark.
+      const host = svgHostRef.current
+      const hidden = () => {
+        if (!host || !host.isConnected) return true
+        const rect = host.getBoundingClientRect()
+        if (rect.bottom < 0 || rect.top > window.innerHeight) return true
+        for (
+          let el: HTMLElement | null = host;
+          el && !el.classList.contains('portfolio-chapter-slot');
+          el = el.parentElement
+        ) {
+          const cs = getComputedStyle(el)
+          if (Number(cs.opacity) <= 0.05 || cs.visibility === 'hidden') {
+            return true
+          }
+        }
+        return false
       }
-
-      resetDashes()
+      const waitForHidden = () => {
+        if (cancelled) return
+        if (hidden()) {
+          resetDashes()
+          return
+        }
+        schedule(waitForHidden, 160)
+      }
+      waitForHidden()
       return clearTimers
     }
 
@@ -290,9 +302,17 @@ export function EimPathArt({
       return clearTimers
     }
 
+    // Still lit from a passive exit that never fully hid (reveal jitter around
+    // the stage-fx threshold): hold steady — never snap dark and re-draw while
+    // on screen.
+    if (illuminatedRef.current) {
+      setDashPhase('on')
+      return clearTimers
+    }
+
     // Draw once and hold. The art fades in/out with the chapter like every
     // other stage artifact (stage fx / panel opacity) — no self-cycling while
-    // the chapter is on screen. `!active` above resets, so re-entry re-draws.
+    // the chapter is on screen. The passive-exit reset above re-arms the draw.
     runTurnOn(() => {})
 
     return clearTimers
