@@ -423,6 +423,8 @@ html.sidebar-tablet-hero-active .sidebar-desktop-shell {
 
 .portfolio-interlude__headline {
   font-family: var(--font-ahg);
+  /* Synthesized oblique — AHG ships no italic face. */
+  font-style: italic;
   text-wrap: balance;
 }
 

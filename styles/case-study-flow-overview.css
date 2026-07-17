@@ -328,6 +328,7 @@
   margin: 0;
   width: 100%;
   font-family: var(--font-body);
+  font-style: italic;
   font-weight: 600;
   font-size: 1em;
   line-height: inherit;
