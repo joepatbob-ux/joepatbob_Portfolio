@@ -1,6 +1,12 @@
 import { inject } from '@vercel/analytics'
 import { injectSpeedInsights } from '@vercel/speed-insights'
-import { initChapterViewTracking, initSessionStateTracking } from '@/lib/analytics'
+import {
+  initChapterViewTracking,
+  initClientErrorTracking,
+  initSessionEndTracking,
+  initSessionStateTracking,
+  TRACK_OPT_OUT_KEY,
+} from '@/lib/analytics'
 import { initContinuousChaptersClass } from '@/lib/scroll/continuousChapters'
 import { initDeckModeClass } from '@/lib/deck/deckMode'
 import { LAYOUT_BP } from '@/lib/layout/breakpoints'
@@ -175,7 +181,6 @@ if (root.hasChildNodes() && snapshotMatchesViewport) {
 // Own-device opt-out so testing doesn't pollute analytics: visit ?track=off
 // once per browser to set a sticky flag (?track=on to undo), and beforeSend
 // drops every event client-side while it's set.
-const TRACK_OPT_OUT_KEY = 'va-disable'
 try {
   const track = new URLSearchParams(window.location.search).get('track')
   if (track === 'off') window.localStorage.setItem(TRACK_OPT_OUT_KEY, '1')
@@ -195,3 +200,5 @@ inject({ beforeSend: dropIfOptedOut })
 injectSpeedInsights({ beforeSend: dropIfOptedOut })
 initChapterViewTracking()
 initSessionStateTracking()
+initSessionEndTracking()
+initClientErrorTracking()

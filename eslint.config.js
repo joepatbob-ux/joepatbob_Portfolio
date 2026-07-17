@@ -28,10 +28,11 @@ export default tseslint.config(
     },
   },
 
-  // Node-context files (build scripts, config).
+  // Node-context files (build scripts, config, Vercel functions).
   {
     files: [
       'scripts/**/*.{mjs,js}',
+      'api/**/*.js',
       '**/*.config.{ts,js,mjs,cjs}',
       'vite/**/*.{ts,tsx,mjs}',
     ],
