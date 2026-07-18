@@ -4,7 +4,11 @@ import {
   CONTACT_LINKEDIN_URL,
   CONTACT_RESUME_URL,
 } from '@/lib/contact'
+import { engagementSummary, trackEvent } from '@/lib/analytics'
 import { parseChapterBody } from '@/lib/chapter-slide/parseChapterBody'
+
+const trackContact = (channel: 'email' | 'linkedin' | 'resume') => () =>
+  trackEvent('contact', { channel, engaged: engagementSummary() })
 
 export function EibIntroProse({ text }: { text: string }) {
   return (
@@ -70,19 +74,30 @@ export function EibPracticeClose({ statement }: { statement: string }) {
           className="eib-practice-close__email"
           href={CONTACT_EMAIL_MAILTO}
           aria-label={`Email ${CONTACT_EMAIL}`}
+          onClick={trackContact('email')}
         >
           Email
         </a>
         <span className="eib-practice-close__sep" aria-hidden>
           ·
         </span>
-        <a href={CONTACT_LINKEDIN_URL} target="_blank" rel="noopener noreferrer">
+        <a
+          href={CONTACT_LINKEDIN_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={trackContact('linkedin')}
+        >
           LinkedIn
         </a>
         <span className="eib-practice-close__sep" aria-hidden>
           ·
         </span>
-        <a href={CONTACT_RESUME_URL} target="_blank" rel="noopener noreferrer">
+        <a
+          href={CONTACT_RESUME_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={trackContact('resume')}
+        >
           Resume
         </a>
       </p>

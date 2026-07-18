@@ -3,6 +3,7 @@ import { injectSpeedInsights } from '@vercel/speed-insights'
 import {
   initChapterViewTracking,
   initClientErrorTracking,
+  initIntentSignalTracking,
   initSessionEndTracking,
   initSessionStateTracking,
   TRACK_OPT_OUT_KEY,
@@ -201,4 +202,5 @@ injectSpeedInsights({ beforeSend: dropIfOptedOut })
 initChapterViewTracking()
 initSessionStateTracking()
 initSessionEndTracking()
+initIntentSignalTracking()
 initClientErrorTracking()

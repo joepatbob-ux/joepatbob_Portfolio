@@ -1,5 +1,6 @@
 import { track } from '@vercel/analytics'
 
+import { CONTACT_EMAIL } from '@/lib/contact'
 import { isPrerenderSnapshot } from '@/lib/isPrerenderSnapshot'
 import { LAYOUT_MQ } from '@/lib/layout/breakpoints'
 import {
@@ -25,9 +26,12 @@ const PASSIVE_EVENTS = new Set([
   'session-return',
   'session-end',
   'client-error',
+  'tab-return',
 ])
 
 let interactionCount = 0
+/** Seconds from load to the first real interaction — session-end reports it. */
+let firstInteractionSec: number | null = null
 
 /** Sticky device opt-out flag — set via ?track=off (src/main.tsx). */
 export const TRACK_OPT_OUT_KEY = 'va-disable'
@@ -87,7 +91,10 @@ function sendFirstParty(name: string, props?: EventProps): void {
 
 export function trackEvent(name: string, props?: EventProps): void {
   if (isPrerenderSnapshot()) return
-  if (!PASSIVE_EVENTS.has(name)) interactionCount += 1
+  if (!PASSIVE_EVENTS.has(name)) {
+    interactionCount += 1
+    firstInteractionSec ??= Math.round(performance.now() / 1000)
+  }
   sendFirstParty(name, props)
   try {
     track(name, props)
@@ -205,7 +212,13 @@ export function initSessionStateTracking(): void {
     const theme =
       document.documentElement.dataset.theme ??
       (mq('(prefers-color-scheme: dark)') ? 'dark' : 'light')
-    trackEventOnce('session-context', 'session-context', { theme, layout })
+    // motion is a third prop — Vercel's 2-prop plan limit strips it there,
+    // but the first-party portal keeps every prop.
+    trackEventOnce('session-context', 'session-context', {
+      theme,
+      layout,
+      motion: mq('(prefers-reduced-motion: reduce)') ? 'reduced' : 'full',
+    })
 
     // Stored value is the last visit's epoch-ms (legacy '1' from the first
     // rollout still counts as returning, just without a gap).
@@ -288,12 +301,50 @@ export function initSessionEndTracking(): void {
       // Chapters read and whether they touched anything, in one packed prop
       // (2-property plan limit; duration deserves its own breakdown).
       engagement: `${chaptersViewedCount()}ch · ${interactionCount}int`,
+      // Third prop, portal-only (Vercel strips past two): how long until
+      // they first touched something — 'never' is a pure read-only visit.
+      firstInt:
+        firstInteractionSec == null ? 'never' : durationBucket(firstInteractionSec),
     })
   }
+  let wasHidden = false
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden') fire()
+    if (document.visibilityState === 'hidden') {
+      wasHidden = true
+      fire()
+    } else if (wasHidden) {
+      // They tabbed away and came back — the session continued past its
+      // session-end snapshot. Passive marker for the visit story.
+      trackEventOnce('tab-return', 'tab-return')
+    }
   })
   window.addEventListener('pagehide', fire)
+}
+
+/**
+ * High-intent signals that would otherwise be invisible:
+ * - `print` — someone printing the portfolio.
+ * - `contact {channel: email-copy}` — copying the email address instead of
+ *   clicking the mailto link (how many people actually reach out).
+ */
+export function initIntentSignalTracking(): void {
+  if (isPrerenderSnapshot()) return
+  window.addEventListener('beforeprint', () =>
+    trackEventOnce('print', 'print', { engaged: engagementSummary() }),
+  )
+  document.addEventListener('copy', () => {
+    try {
+      const text = String(window.getSelection() ?? '')
+      if (text.toLowerCase().includes(CONTACT_EMAIL.toLowerCase())) {
+        trackEventOnce('email-copy', 'contact', {
+          channel: 'email-copy',
+          engaged: engagementSummary(),
+        })
+      }
+    } catch {
+      // Analytics must never break the site.
+    }
+  })
 }
 
 /**
