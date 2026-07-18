@@ -149,9 +149,10 @@ function minuteOfDay(ts) {
 const MAP_DAYS = 7
 const MAX_WEEK = Math.ceil(WINDOW_DAYS / MAP_DAYS) - 1
 
-/** Heat opacity for n visits, normalized against the busiest hour. */
-function heatAlpha(n, max) {
-  return (0.3 + 0.7 * (n / max)).toFixed(2)
+/** Heat strength (as a color-mix percentage) for n visits, normalized
+ * against the busiest hour in view. */
+function heatPct(n, max) {
+  return n ? Math.round((0.25 + 0.75 * (n / max)) * 100) : 0
 }
 
 /**
@@ -160,7 +161,7 @@ function heatAlpha(n, max) {
  * expands that day's individual sessions inline (native disclosure, no
  * client JS under the CSP). Paged 7 days at a time via ?week=N links.
  */
-function dayGrid(events, visits, now, week, link) {
+function dayGrid(events, visits, now, week, link, dayLink) {
   // Pure heat map: rows carry only per-hour intensity; the individual
   // sessions live one click away in the day drill-in.
   const heat = new Map()
@@ -173,17 +174,28 @@ function dayGrid(events, visits, now, week, link) {
     if (e.name === 'page-view' && !e.sid) warm(e.ts)
   }
   const max = Math.max(1, ...heat.values())
+  // One continuous gradient per row: a color stop at every hour center,
+  // so activity blooms and fades smoothly instead of stepping per cell.
+  // Invisible per-hour cells on top keep the exact counts on hover.
   const heatCells = (key) => {
-    const cells = []
-    for (let h = 0; h < 24; h++) {
-      const n = heat.get(`${key}|${h}`) ?? 0
-      if (!n) continue
-      cells.push(
-        `<i class="heat" style="left:${((h / 24) * 100).toFixed(2)}%;width:${(100 / 24).toFixed(2)}%;opacity:${heatAlpha(n, max)}"
-          title="${n} visit${n === 1 ? '' : 's'}"></i>`,
+    const counts = Array.from({ length: 24 }, (_, h) => heat.get(`${key}|${h}`) ?? 0)
+    if (!counts.some(Boolean)) return ''
+    const stopAt = (n, posPct) =>
+      `color-mix(in srgb, var(--accent) ${heatPct(n, max)}%, transparent) ${posPct.toFixed(2)}%`
+    const stops = [
+      stopAt(counts[0], 0),
+      ...counts.map((n, h) => stopAt(n, ((h + 0.5) / 24) * 100)),
+      stopAt(counts[23], 100),
+    ]
+    const hovers = counts
+      .map((n, h) =>
+        n
+          ? `<i class="heat-hover" style="left:${((h / 24) * 100).toFixed(2)}%;width:${(100 / 24).toFixed(2)}%"
+            title="${n} visit${n === 1 ? '' : 's'}"></i>`
+          : '',
       )
-    }
-    return cells.join('')
+      .join('')
+    return `<div class="heatline" style="background:linear-gradient(90deg, ${stops.join(', ')})"></div>${hovers}`
   }
   const dayLabel = (ts) =>
     new Date(ts).toLocaleDateString('en-US', {
@@ -202,30 +214,18 @@ function dayGrid(events, visits, now, week, link) {
     })
     const weekend = weekday === 'Sat' || weekday === 'Sun'
     const key = dayKey(ts)
-    const active = [...heat.keys()].some((k) => k.startsWith(`${key}|`))
-    rows.push(`<details class="dg-details"${i === 0 && active ? ' open' : ''}>
-      <summary class="dg-row" title="click for this day's sessions">
-        <span class="dg-day">${i === 0 ? '<b>today</b>' : `${esc(weekday)} ${esc(dayLabel(ts))}`}</span>
-        <div class="dg-track${weekend ? ' weekend' : ''}">${heatCells(key)}</div>
-      </summary>
-      <div class="dg-day-detail">${daySessions(events, visits, key)}</div>
-    </details>`)
+    rows.push(`<a class="dg-row" href="${dayLink(key)}" title="see this day's sessions">
+      <span class="dg-day">${i === 0 ? '<b>today</b>' : `${esc(weekday)} ${esc(dayLabel(ts))}`}</span>
+      <div class="dg-track${weekend ? ' weekend' : ''}">${heatCells(key)}</div>
+    </a>`)
   }
   const head = `<div class="dg-row head"><span class="dg-day"></span>
     <div class="dg-labels"><span>12a</span><span>6a</span><span>12p</span><span>6p</span><span>11p</span></div></div>`
   const legend = `<div class="dg-legend">
     <span class="hint">fewer</span>
-    <span><i class="sw heat-sw" style="opacity:${heatAlpha(1, max)}"></i></span>
-    <span><i class="sw heat-sw" style="opacity:${heatAlpha(Math.max(1, Math.round(max / 2)), max)}"></i></span>
-    <span><i class="sw heat-sw" style="opacity:1"></i></span>
+    <i class="heat-scale"></i>
     <span class="hint">more visits per hour</span>
-    <span><i class="sw d-desktop f-dark"></i>desktop</span>
-    <span><i class="sw d-mobile f-dark"></i>mobile</span>
-    <span><i class="sw d-tablet f-dark"></i>tablet</span>
-    <span><i class="sw d-cinema f-dark"></i>cinema</span>
-    <span><i class="sw d-mode f-dark"></i>dark mode</span>
-    <span><i class="sw d-mode f-light"></i>light mode</span>
-    <span class="hint">ticks = interactions · click a day to expand its sessions</span></div>`
+    <span class="hint">· click a day to see its sessions</span></div>`
   const range = `${dayLabel(now - (end - 1) * DAY_MS)} – ${week === 0 ? 'today' : dayLabel(now - start * DAY_MS)}`
   const pager = `<nav class="dg-pager">
     ${week < MAX_WEEK ? `<a href="${link(week + 1)}">‹ older</a>` : '<span class="off">‹ older</span>'}
@@ -250,11 +250,13 @@ function fmtHour(h) {
 }
 
 /**
- * One day's sessions as swimlanes, zoomed to the day's active hours so
- * short sessions are visible: the line spans the session's real start →
- * last-event time, and each interaction draws a tick at its moment.
+ * Day drill-in that replaces the map panel: one swimlane per session,
+ * zoomed to the day's active hours. The line spans the session's real
+ * start → last-event time with a dot per interaction; clicking a
+ * session's "events" reveals a box under the line with its full
+ * chronological trail (native <details>, no client JS).
  */
-function daySessions(events, visits, key) {
+function dayPanel(events, visits, key, now, backLink, dayLink) {
   const KNOWN = new Set(['mobile', 'tablet', 'desktop', 'cinema'])
   const lanes = [
     ...visits
@@ -270,6 +272,7 @@ function daySessions(events, visits, key) {
           where: v.where,
           cls: `d-${KNOWN.has(v.layout) ? v.layout : 'unknown'} ${v.theme === 'dark' ? 'f-dark' : 'f-light'}`,
           marks: v.marks,
+          trail: v.trail,
           meta: [v.device, v.via, v.stay, `${v.chapters}ch · ${v.played} played`, v.contact ? `✉ ${v.contact}` : null]
             .filter(Boolean)
             .join(' · '),
@@ -284,49 +287,95 @@ function daySessions(events, visits, key) {
         where: e.city ? `${e.city}, ${e.state ?? ''}` : (e.state ?? 'unknown'),
         cls: 'd-unknown f-dark',
         marks: [],
+        trail: [],
         meta: 'before visit stories',
       })),
   ].sort((a, b) => a.ts - b.ts)
-  if (!lanes.length) return '<p class="empty-note">no visits this day</p>'
 
-  // Zoom window: the day's active hours, padded to hour boundaries and at
-  // least an hour wide — this is what makes ticks legible.
-  const zs = Math.floor(Math.min(...lanes.map((l) => l.start)) / 60) * 60
-  let ze = Math.ceil(Math.max(...lanes.map((l) => l.end)) / 60) * 60
-  if (ze - zs < 60) ze = Math.min(1440, zs + 60)
-  const span = ze - zs
-  const pos = (min) => (((min - zs) / span) * 100).toFixed(2)
+  let body = '<p class="empty-note">no visits this day</p>'
+  if (lanes.length) {
+    // Zoom window: the day's active hours, padded to hour boundaries and
+    // at least an hour wide — this is what makes the dots legible.
+    const zs = Math.floor(Math.min(...lanes.map((l) => l.start)) / 60) * 60
+    let ze = Math.ceil(Math.max(...lanes.map((l) => l.end)) / 60) * 60
+    if (ze - zs < 60) ze = Math.min(1440, zs + 60)
+    const span = ze - zs
+    const pos = (min) => (((min - zs) / span) * 100).toFixed(2)
 
-  const hours = span / 60
-  const step = hours <= 4 ? 1 : hours <= 8 ? 2 : hours <= 14 ? 3 : 6
-  const labels = []
-  for (let h = zs / 60; h <= ze / 60; h += step) {
-    labels.push(`<span style="left:${pos(h * 60)}%">${fmtHour(h)}</span>`)
+    const hours = span / 60
+    const step = hours <= 4 ? 1 : hours <= 8 ? 2 : hours <= 14 ? 3 : 6
+    const labels = []
+    for (let h = zs / 60; h <= ze / 60; h += step) {
+      labels.push(`<span style="left:${pos(h * 60)}%">${fmtHour(h)}</span>`)
+    }
+
+    const rows = lanes
+      .map((l) => {
+        const ticks = l.marks
+          .map((m) => {
+            const at = Math.min(Math.max(minuteOfDay(m.ts), l.start), l.end)
+            return `<i class="tick" style="left:${pos(at)}%" title="${esc(`${m.label} · ${clockTime(m.ts)}`)}"></i>`
+          })
+          .join('')
+        const laneRow = `
+        <span class="lane-info">${esc(clockTime(l.ts))} · ${esc(l.where)}</span>
+        <div class="dg-track zoom">
+          <i class="dot ${l.cls}" style="left:${pos(l.start)}%;width:max(8px, ${(((l.end - l.start) / span) * 100).toFixed(2)}%)"
+            title="${esc(`${clockTime(l.ts)} · ${l.where} · ${l.meta}`)}"></i>${ticks}
+        </div>`
+        if (!l.trail.length) {
+          return `<div class="lane">${laneRow}<span class="lane-more hint">${esc(l.meta)}</span></div>`
+        }
+        const box = `<div class="lane-box">
+          <p class="lane-sum">${esc(l.meta)}</p>
+          ${l.trail.map((t) => `<div class="trail-row"><span>${esc(clockTime(t.ts))}</span>${esc(t.label)}</div>`).join('')}
+        </div>`
+        return `<details class="lane-d">
+          <summary class="lane">${laneRow}<span class="lane-more">${l.trail.length} event${l.trail.length === 1 ? '' : 's'} ▾</span></summary>
+          ${box}
+        </details>`
+      })
+      .join('')
+    const axis = `<div class="lane head"><span class="lane-info"></span>
+      <div class="zoom-axis">${labels.join('')}</div>
+      <span class="lane-more"></span></div>`
+    body = `<div class="scroll-lanes">${axis}${rows}</div>
+      <div class="dg-legend">
+        <span><i class="sw d-desktop f-dark"></i>desktop</span>
+        <span><i class="sw d-mobile f-dark"></i>mobile</span>
+        <span><i class="sw d-tablet f-dark"></i>tablet</span>
+        <span><i class="sw d-cinema f-dark"></i>cinema</span>
+        <span><i class="sw d-mode f-dark"></i>dark mode</span>
+        <span><i class="sw d-mode f-light"></i>light mode</span>
+        <span class="hint">line = session span · dots = interactions · click a session for its events</span></div>`
   }
 
-  const rows = lanes
-    .map((l) => {
-      const ticks = l.marks
-        .map((m) => {
-          const at = Math.min(Math.max(minuteOfDay(m.ts), l.start), l.end)
-          return `<i class="tick" style="left:${pos(at)}%" title="${esc(`${m.label} · ${clockTime(m.ts)}`)}"></i>`
-        })
-        .join('')
-      return `<div class="lane">
-      <span class="lane-info">${esc(clockTime(l.ts))} · ${esc(l.where)}</span>
-      <div class="dg-track zoom">
-        <i class="dot ${l.cls}" style="left:${pos(l.start)}%;width:max(8px, ${(((l.end - l.start) / span) * 100).toFixed(2)}%)"
-          title="${esc(`${clockTime(l.ts)} · ${l.where} · ${l.meta}`)}"></i>${ticks}
-      </div>
-      <span class="lane-meta">${esc(l.meta)}</span>
-    </div>`
-    })
-    .join('')
-  const axis = `<div class="lane head"><span class="lane-info"></span>
-    <div class="zoom-axis">${labels.join('')}</div>
-    <span class="lane-meta hint">line = session span · ticks = interactions</span></div>`
-  return `<div class="scroll-lanes">${axis}${rows}</div>`
+  const dayIndex =
+    [...Array(WINDOW_DAYS).keys()].find((i) => dayKey(now - i * DAY_MS) === key) ?? 0
+  const label = new Date(now - dayIndex * DAY_MS).toLocaleDateString('en-US', {
+    timeZone: TZ,
+    weekday: 'long',
+    month: 'short',
+    day: 'numeric',
+  })
+  const neighbor = (offset) => {
+    const i = dayIndex + offset
+    return i >= 0 && i < WINDOW_DAYS
+      ? `<a href="${dayLink(dayKey(now - i * DAY_MS))}">${offset > 0 ? '‹ prev day' : 'next day ›'}</a>`
+      : `<span class="off">${offset > 0 ? '‹ prev day' : 'next day ›'}</span>`
+  }
+  const pager = `<nav class="dg-pager">${neighbor(1)}<a href="${backLink}">week view</a>${neighbor(-1)}</nav>`
+  return `<section><div class="sechead"><h2>${esc(label)} <span class="hint">· ${lanes.length} session${lanes.length === 1 ? '' : 's'} (Central)</span></h2>${pager}</div>
+    <div class="card">${body}</div></section>`
 }
+
+/** Bookkeeping events that don't belong in a session's event trail. */
+const TRAIL_SKIP = new Set([
+  'page-view',
+  'session-context',
+  'session-return',
+  'session-geo',
+])
 
 /** Stitch each session id's events into one visit story. */
 function buildVisits(events) {
@@ -372,6 +421,24 @@ function buildVisits(events) {
             .join(' · '),
         }))
         .sort((a, b) => a.ts - b.ts),
+      // Full chronological story for the per-session events box —
+      // everything except the bookkeeping events.
+      trail: list
+        .filter((e) => !TRAIL_SKIP.has(e.name))
+        .map((e) => ({
+          ts: e.ts,
+          label: [
+            e.name,
+            e.props?.chapter ??
+              e.props?.action ??
+              e.props?.source ??
+              e.props?.channel ??
+              e.props?.duration,
+          ]
+            .filter(Boolean)
+            .join(' · '),
+        }))
+        .sort((a, b) => a.ts - b.ts),
     })
   }
   return visits.sort((a, b) => b.ts - a.ts)
@@ -398,6 +465,8 @@ const FUNNEL_LAYERS = {
   resume: ['came via resume', (v) => v.via === 'resume'],
   linkedin: ['came via linkedin', (v) => v.via === 'linkedin'],
   application: ['came via application', (v) => v.via === 'application'],
+  threads: ['came via threads', (v) => v.via === 'threads'],
+  instagram: ['came via instagram', (v) => v.via === 'instagram'],
   contact: ['clicked contact', (v) => Boolean(v.contact)],
 }
 const MAX_LAYERS = 6
@@ -673,6 +742,11 @@ export default async function handler(req, res) {
     demo ? '<input type="hidden" name="demo" value="1">' : '',
     viaQueryKey ? `<input type="hidden" name="key" value="${esc(candidate)}">` : '',
   ].join('')
+  const dayParam = reqUrl.searchParams.get('day')
+  const validDay =
+    dayParam && /^\d{4}-\d{2}-\d{2}$/.test(dayParam) ? dayParam : null
+  const dayLink = (d) =>
+    `/analytics?day=${d}${demo ? '&demo=1' : ''}${funnelQS}${keyQS}`
 
   const now = Date.now()
   const cutoff = now - WINDOW_DAYS * DAY_MS
@@ -806,14 +880,18 @@ export default async function handler(req, res) {
   .dg-pager a:hover{border-color:var(--accent)}
   .dg-pager .off{opacity:.4;padding:3px 10px}
   .dg-pager .range{font-variant-numeric:tabular-nums}
-  .dg-row{display:flex;align-items:center;gap:12px;height:26px;border-radius:8px}
+  .dg-row{display:flex;align-items:center;gap:12px;height:26px;border-radius:8px;text-decoration:none;color:inherit}
   .dg-row.head{height:24px}
-  summary.dg-row{cursor:pointer;list-style:none}
-  summary.dg-row::-webkit-details-marker{display:none}
-  summary.dg-row:hover .dg-day{color:var(--accent)}
-  summary.dg-row:hover .dg-track{box-shadow:inset 0 0 0 1px var(--accent)}
-  .dg-details[open]>summary .dg-track{box-shadow:inset 0 0 0 1px var(--accent)}
-  .dg-day-detail{padding:6px 0 12px}
+  a.dg-row:hover .dg-day{color:var(--accent)}
+  a.dg-row:hover .dg-track{box-shadow:inset 0 0 0 1px var(--accent)}
+  .lane-d summary{list-style:none;cursor:pointer}
+  .lane-d summary::-webkit-details-marker{display:none}
+  .lane-d summary:hover .lane-more{color:var(--accent)}
+  .lane-d[open] .lane-more{color:var(--accent)}
+  .lane-box{margin:2px 0 12px 172px;padding:10px 14px;background:var(--row);border-radius:10px;font-size:13px;max-width:560px}
+  .lane-sum{margin:0 0 8px;color:var(--ink)}
+  .trail-row{display:flex;gap:12px;padding:2px 0;color:var(--mut)}
+  .trail-row span{width:70px;flex-shrink:0;text-align:right;font-variant-numeric:tabular-nums}
   .tick{position:absolute;top:50%;width:5px;height:5px;border-radius:50%;background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.25);transform:translate(-50%,-50%)}
   .dg-track.zoom{height:16px;background-image:none}
   .zoom .dot{top:3px;height:10px}
@@ -821,14 +899,15 @@ export default async function handler(req, res) {
   .zoom-axis span{position:absolute;top:0;transform:translateX(-50%)}
   .dg-day{width:72px;flex-shrink:0;font-size:12px;color:var(--mut);text-align:right;white-space:nowrap}
   .dg-day b{color:var(--ink)}
-  .heat{position:absolute;top:0;height:100%;background:var(--accent)}
-  .heat-sw{background:var(--accent);margin-right:0}
+  .heatline{position:absolute;inset:0;border-radius:8px}
+  .heat-hover{position:absolute;top:0;height:100%}
+  .heat-scale{display:inline-block;width:90px;height:8px;border-radius:4px;background:linear-gradient(90deg, transparent, var(--accent));vertical-align:middle}
   .lane{display:flex;align-items:center;gap:12px;height:30px}
   .lane.head{height:24px}
   .lane-info{width:160px;flex-shrink:0;font-size:12px;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .lane-meta{width:310px;flex-shrink:0;font-size:12px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .scroll-lanes{overflow-x:auto;min-width:0}
-  @media (max-width:720px){.lane-meta{display:none}}
+  .lane-more{width:110px;flex-shrink:0;font-size:12px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left}
+  .scroll-lanes{min-width:0}
+  @media (max-width:720px){.lane-more{display:none}.lane-box{margin-left:0}}
   .dg-track{position:relative;flex:1;height:16px;border-radius:8px;background:var(--row);background-image:linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:25% 100%}
   .dg-track.weekend{background-color:color-mix(in srgb, var(--row) 55%, var(--card))}
   .dg-labels{flex:1;display:flex;justify-content:space-between;font-size:10px;color:var(--mut)}
@@ -869,7 +948,11 @@ export default async function handler(req, res) {
     ${stat('contact clicks', contacts.length)}
     ${stat('top state', topState)}
   </div>
-  <div class="block">${dayGrid(events, visits, now, week, pageLink)}</div>
+  <div class="block">${
+    validDay
+      ? dayPanel(events, visits, validDay, now, pageLink(week), dayLink)
+      : dayGrid(events, visits, now, week, pageLink, dayLink)
+  }</div>
   <div class="pair">
     ${funnelSection(visits, funnelKeys, funnelHref, hiddenInputs)}
     ${sourceTable(visits)}
