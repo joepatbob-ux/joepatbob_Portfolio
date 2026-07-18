@@ -149,9 +149,10 @@ function minuteOfDay(ts) {
 const MAP_DAYS = 7
 const MAX_WEEK = Math.ceil(WINDOW_DAYS / MAP_DAYS) - 1
 
-/** Heat opacity for n visits, normalized against the busiest hour. */
-function heatAlpha(n, max) {
-  return (0.3 + 0.7 * (n / max)).toFixed(2)
+/** Heat strength (as a color-mix percentage) for n visits, normalized
+ * against the busiest hour in view. */
+function heatPct(n, max) {
+  return n ? Math.round((0.25 + 0.75 * (n / max)) * 100) : 0
 }
 
 /**
@@ -173,17 +174,28 @@ function dayGrid(events, visits, now, week, link, dayLink) {
     if (e.name === 'page-view' && !e.sid) warm(e.ts)
   }
   const max = Math.max(1, ...heat.values())
+  // One continuous gradient per row: a color stop at every hour center,
+  // so activity blooms and fades smoothly instead of stepping per cell.
+  // Invisible per-hour cells on top keep the exact counts on hover.
   const heatCells = (key) => {
-    const cells = []
-    for (let h = 0; h < 24; h++) {
-      const n = heat.get(`${key}|${h}`) ?? 0
-      if (!n) continue
-      cells.push(
-        `<i class="heat" style="left:${((h / 24) * 100).toFixed(2)}%;width:${(100 / 24).toFixed(2)}%;opacity:${heatAlpha(n, max)}"
-          title="${n} visit${n === 1 ? '' : 's'}"></i>`,
+    const counts = Array.from({ length: 24 }, (_, h) => heat.get(`${key}|${h}`) ?? 0)
+    if (!counts.some(Boolean)) return ''
+    const stopAt = (n, posPct) =>
+      `color-mix(in srgb, var(--accent) ${heatPct(n, max)}%, transparent) ${posPct.toFixed(2)}%`
+    const stops = [
+      stopAt(counts[0], 0),
+      ...counts.map((n, h) => stopAt(n, ((h + 0.5) / 24) * 100)),
+      stopAt(counts[23], 100),
+    ]
+    const hovers = counts
+      .map((n, h) =>
+        n
+          ? `<i class="heat-hover" style="left:${((h / 24) * 100).toFixed(2)}%;width:${(100 / 24).toFixed(2)}%"
+            title="${n} visit${n === 1 ? '' : 's'}"></i>`
+          : '',
       )
-    }
-    return cells.join('')
+      .join('')
+    return `<div class="heatline" style="background:linear-gradient(90deg, ${stops.join(', ')})"></div>${hovers}`
   }
   const dayLabel = (ts) =>
     new Date(ts).toLocaleDateString('en-US', {
@@ -211,9 +223,7 @@ function dayGrid(events, visits, now, week, link, dayLink) {
     <div class="dg-labels"><span>12a</span><span>6a</span><span>12p</span><span>6p</span><span>11p</span></div></div>`
   const legend = `<div class="dg-legend">
     <span class="hint">fewer</span>
-    <span><i class="sw heat-sw" style="opacity:${heatAlpha(1, max)}"></i></span>
-    <span><i class="sw heat-sw" style="opacity:${heatAlpha(Math.max(1, Math.round(max / 2)), max)}"></i></span>
-    <span><i class="sw heat-sw" style="opacity:1"></i></span>
+    <i class="heat-scale"></i>
     <span class="hint">more visits per hour</span>
     <span class="hint">· click a day to see its sessions</span></div>`
   const range = `${dayLabel(now - (end - 1) * DAY_MS)} – ${week === 0 ? 'today' : dayLabel(now - start * DAY_MS)}`
@@ -887,8 +897,9 @@ export default async function handler(req, res) {
   .zoom-axis span{position:absolute;top:0;transform:translateX(-50%)}
   .dg-day{width:72px;flex-shrink:0;font-size:12px;color:var(--mut);text-align:right;white-space:nowrap}
   .dg-day b{color:var(--ink)}
-  .heat{position:absolute;top:0;height:100%;background:var(--accent)}
-  .heat-sw{background:var(--accent);margin-right:0}
+  .heatline{position:absolute;inset:0;border-radius:8px}
+  .heat-hover{position:absolute;top:0;height:100%}
+  .heat-scale{display:inline-block;width:90px;height:8px;border-radius:4px;background:linear-gradient(90deg, transparent, var(--accent));vertical-align:middle}
   .lane{display:flex;align-items:center;gap:12px;height:30px}
   .lane.head{height:24px}
   .lane-info{width:160px;flex-shrink:0;font-size:12px;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
