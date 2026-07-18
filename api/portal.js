@@ -465,6 +465,8 @@ const FUNNEL_LAYERS = {
   resume: ['came via resume', (v) => v.via === 'resume'],
   linkedin: ['came via linkedin', (v) => v.via === 'linkedin'],
   application: ['came via application', (v) => v.via === 'application'],
+  threads: ['came via threads', (v) => v.via === 'threads'],
+  instagram: ['came via instagram', (v) => v.via === 'instagram'],
   contact: ['clicked contact', (v) => Boolean(v.contact)],
 }
 const MAX_LAYERS = 6
