@@ -23,6 +23,7 @@ const PASSIVE = new Set([
   'chapter-view',
   'chapter-complete',
   'client-error',
+  'tab-return',
 ])
 
 const PAGE_CSS = `
@@ -91,7 +92,7 @@ function countBy(items, pick) {
   return [...counts.entries()].sort((a, b) => b[1] - a[1])
 }
 
-function barTable(title, rows, limit = 12) {
+function barTable(title, rows, limit = 12, fmt = (n) => n) {
   const top = rows.slice(0, limit)
   const max = Math.max(1, ...top.map((r) => r[1]))
   const body = top.length
@@ -100,13 +101,84 @@ function barTable(title, rows, limit = 12) {
           ([label, count]) => `
       <tr>
         <td class="label">${esc(label)}</td>
-        <td class="count">${count}</td>
+        <td class="count">${esc(String(fmt(count)))}</td>
         <td class="bar"><div style="width:${Math.max(2, Math.round((count / max) * 100))}%"></div></td>
       </tr>`,
         )
         .join('')
     : '<tr><td class="label empty">no data yet</td></tr>'
   return `<section><h2>${esc(title)}</h2><table>${body}</table></section>`
+}
+
+function fmtSecs(s) {
+  return s < 60 ? `${s}s` : `${Math.floor(s / 60)}m ${s % 60}s`
+}
+
+/**
+ * Average dwell per chapter, derived from timestamps already stored: the
+ * gap between consecutive chapter-views in a session (the last chapter's
+ * dwell runs to session-end). Gaps under 5s or over 15m are discarded as
+ * scroll-through / walked-away noise.
+ */
+function dwellRows(events) {
+  const bySid = new Map()
+  for (const e of events) {
+    if (!e.sid || (e.name !== 'chapter-view' && e.name !== 'session-end')) continue
+    if (!bySid.has(e.sid)) bySid.set(e.sid, [])
+    bySid.get(e.sid).push(e)
+  }
+  const agg = new Map()
+  for (const list of bySid.values()) {
+    const sorted = [...list].sort((a, b) => a.ts - b.ts)
+    for (let i = 0; i < sorted.length; i++) {
+      const cur = sorted[i]
+      if (cur.name !== 'chapter-view') continue
+      const next = sorted[i + 1]
+      if (!next) continue
+      const secs = Math.round((next.ts - cur.ts) / 1000)
+      if (secs < 5 || secs > 900) continue
+      const chapter = cur.props?.chapter ?? '?'
+      if (!agg.has(chapter)) agg.set(chapter, { sum: 0, n: 0 })
+      const a = agg.get(chapter)
+      a.sum += secs
+      a.n += 1
+    }
+  }
+  return [...agg.entries()]
+    .map(([chapter, { sum, n }]) => [chapter, Math.round(sum / n)])
+    .sort((a, b) => b[1] - a[1])
+}
+
+/** Where visits end: the last chapter each session viewed. */
+function exitRows(events) {
+  const lastBySid = new Map()
+  for (const e of events) {
+    if (!e.sid || e.name !== 'chapter-view') continue
+    const prev = lastBySid.get(e.sid)
+    if (!prev || e.ts > prev.ts) lastBySid.set(e.sid, e)
+  }
+  return countBy([...lastBySid.values()], (e) => e.props?.chapter)
+}
+
+/** First-timers vs returners: does coming back change behavior? */
+function returnSplit(visits) {
+  const rows = [
+    ['first visit', visits.filter((v) => !v.returning)],
+    ['returning', visits.filter((v) => v.returning)],
+  ]
+    .map(([label, group]) => {
+      const deep = group.filter((v) => v.chapters >= 3).length
+      const contact = group.filter((v) => v.contact).length
+      return `<tr>
+      <td class="label">${label}</td>
+      <td class="num">${group.length} visit${group.length === 1 ? '' : 's'}</td>
+      <td class="num">${deep} deep read${deep === 1 ? '' : 's'}</td>
+      <td class="num">${contact} contact${contact === 1 ? '' : 's'}</td>
+      <td class="num">${group.length ? Math.round((contact / group.length) * 100) : 0}%</td>
+    </tr>`
+    })
+    .join('')
+  return `<section class="wide"><h2>First visit vs returning</h2><table>${rows}</table></section>`
 }
 
 /** YYYY-MM-DD in the dashboard's home timezone. */
@@ -653,8 +725,12 @@ function demoEvents(now) {
       }
       push(durMin, 'session-end', { duration: dur, engagement: `${nch}ch · ${plays}int` })
       if (nch >= 2 && rnd() < 0.3) {
-        push(durMin * 0.97, 'contact', { channel: rnd() < 0.6 ? 'email' : 'linkedin', engaged: `${dur} · ${nch}ch` })
+        push(durMin * 0.97, 'contact', {
+          channel: pick(['email', 'email', 'linkedin', 'resume', 'email-copy']),
+          engaged: `${dur} · ${nch}ch`,
+        })
       }
+      if (rnd() < 0.12) push(durMin * 0.5, 'tab-return', {})
     }
   }
   events.push({ ts: now - 4 * DAY_MS, name: 'client-error', props: { message: 'demo: sample error' }, sid: 'demoerr', path: '/', state: 'TX', city: 'Austin', device: 'desktop' })
@@ -937,6 +1013,8 @@ export default async function handler(req, res) {
   .scroll{overflow-x:auto}
   .scroll table{min-width:720px}
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;align-items:start}
+  .grid .wide{grid-column:span 2}
+  @media (max-width:720px){.grid .wide{grid-column:span 1}}
 </style></head><body><main>
   <h1>Portfolio analytics${demo ? ' <span class="tag">demo</span>' : ''}</h1>
   <p class="sub">Last ${WINDOW_DAYS} days · ${events.length} events${demo ? '' : ` · <a class="demo-link" href="/analytics?demo=1${keyQS}">demo data</a>`}</p>
@@ -959,6 +1037,9 @@ export default async function handler(req, res) {
   </div>
   <div class="block">${visitsTable(visits)}</div>
   <div class="grid">
+  ${returnSplit(visits)}
+  ${barTable('Time in chapter (avg)', dwellRows(events), 12, fmtSecs)}
+  ${barTable('Where visits end (last chapter)', exitRows(events))}
   ${barTable('Read depth (per visit)', depthRows(visits))}
   ${barTable('States', countBy(views, (e) => (e.state ? `${e.state}${e.country && e.country !== 'US' ? ` (${e.country})` : ''}` : null)))}
   ${barTable('Cities', countBy(views, (e) => e.city))}
