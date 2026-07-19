@@ -1,5 +1,5 @@
 /** Max blur for scroll-driven chapter panels and placed stickers. */
-export const SCROLL_BLUR_PX = 12
+export const SCROLL_BLUR_PX = 10
 
 /** Opacity + blur for scroll-driven blur-out (reveal 0 = hidden/blurred, 1 = sharp/clear). */
 export function blurOutFromReveal(

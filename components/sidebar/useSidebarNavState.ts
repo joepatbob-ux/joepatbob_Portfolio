@@ -31,8 +31,8 @@ import { LAYOUT_MQ } from '@/lib/layout/breakpoints'
 import { scheduleScrollFrame } from '@/lib/scroll/scrollFrame'
 import { useChapterNav } from '@/components/ChapterNavProvider'
 import {
-  BLUR_PX,
   EMAIL_BOTTOM_PX,
+  HERO_NAME_BLUR_PX,
   MOBILE_SIDEBAR_MS,
   NAV_TOP_PX,
   STAGGER_MS,
@@ -430,7 +430,7 @@ export function useSidebarNavState() {
     const { viewportH, navRestTop, threshold } = layoutRef.current
     const safeThreshold = threshold > 0 ? threshold : 1
 
-    applySidebarHeroNameFade(heroRef.current, y, viewportH, heroNameBlurPx(BLUR_PX))
+    applySidebarHeroNameFade(heroRef.current, y, viewportH, heroNameBlurPx(HERO_NAME_BLUR_PX))
 
     const travelT = Math.min(1, y / safeThreshold)
     const navTop =

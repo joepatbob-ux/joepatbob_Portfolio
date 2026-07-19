@@ -2108,16 +2108,14 @@ html {
 /* Fade-tune tokens — dialable live via the ?fadeTune=1 panel (localStorage
    overrides applied in main.tsx before the ghost mounts). */
 :root {
-  --ghost-fade-duration: 320ms;
-  /* 0: the ghost is a pixel-twin of the live tree after the alignment fixes,
-     so a blur ramp is the ONLY thing the dissolve paints — a full-page
-     defocus pulse on every refresh. Pure opacity crossfade is invisible
-     when aligned. Dial back via ?fadeTune=1 if ever wanted. */
-  --ghost-fade-blur: 0px;
-  --sticker-exit-duration: 320ms;
-  --sticker-exit-blur: 8px;
-  --stage-exit-duration: 320ms;
-  --stage-exit-blur: 16px;
+  --ghost-fade-duration: 860ms;
+  /* Owner-tuned (2026-07 fadeTune session): the load dissolve reads as a
+     deliberate defocus-in rather than a pure crossfade. */
+  --ghost-fade-blur: 16px;
+  --sticker-exit-duration: 240ms;
+  --sticker-exit-blur: 10px;
+  --stage-exit-duration: 560ms;
+  --stage-exit-blur: 10px;
 }
 
 .prerender-ghost {

@@ -14,6 +14,9 @@ export const TRANSITION_MS = 320
 export const MOBILE_SIDEBAR_MS = 420
 export const SUBNAV_DELAY_MS = 280
 export const BLUR_PX = 6
+/* Sidebar hero-name scroll fade — owner-tuned (fadeTune), separate from the
+ * divider blur above. */
+export const HERO_NAME_BLUR_PX = 8
 export const NAV_TOP_PX = 24
 export const EMAIL_BOTTOM_PX = 24
 
