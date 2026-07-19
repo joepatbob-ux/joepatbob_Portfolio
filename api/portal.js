@@ -33,13 +33,23 @@ const PASSIVE = new Set([
   'tab-return',
 ])
 
+// Self-hosted site fonts (same-origin /fonts/ — allowed by the site CSP's
+// font-src 'self'): Alte Haas Grotesk for display, Lato for body, JetBrains
+// Mono for numbers and micro-labels. Palette mirrors styles/globals.css.
 const PAGE_CSS = `
-  :root{--bg:#faf7f2;--card:#fff;--ink:#1d1a16;--mut:#6b6459;--line:#e6e0d6;--row:#f0ebe2;--accent:#c93512}
-  @media (prefers-color-scheme: dark){:root{--bg:#191613;--card:#211d19;--ink:#f0ebe2;--mut:#a49a8b;--line:#38322b;--row:#2b2620;--accent:#f2411b}}
-  body{font:15px/1.5 ui-sans-serif,system-ui,sans-serif;margin:0;background:var(--bg);color:var(--ink);padding:28px 28px 64px}
-  main{max-width:1600px;margin:0 auto}
-  h1{font-size:22px;margin:0 0 4px}
-  .sub{color:var(--mut);margin:0 0 24px}`
+  @font-face{font-family:'Alte Haas';src:url('/fonts/AlteHaasGroteskBold.woff2') format('woff2');font-weight:700;font-display:swap}
+  @font-face{font-family:'Lato';src:url('/fonts/Lato-400-latin.woff2') format('woff2');font-weight:400;font-display:swap}
+  @font-face{font-family:'JetBrains Mono';src:url('/fonts/JetBrainsMono-400-latin.woff2') format('woff2');font-weight:400;font-display:swap}
+  @font-face{font-family:'JetBrains Mono';src:url('/fonts/JetBrainsMono-700-latin.woff2') format('woff2');font-weight:700;font-display:swap}
+  :root{--bg:#f0f0f0;--card:#f8f7f5;--ink:#0d0d0d;--mut:rgba(13,13,13,0.66);--line:rgba(0,0,0,0.11);--row:rgba(0,0,0,0.05);--accent:#c93512;--on-accent:#fff;
+    --sans:'Lato',ui-sans-serif,system-ui,sans-serif;--display:'Alte Haas',ui-sans-serif,sans-serif;--mono:'JetBrains Mono',ui-monospace,monospace}
+  @media (prefers-color-scheme: dark){:root{--bg:#101010;--card:#191919;--ink:#f0eeea;--mut:rgba(240,238,234,0.6);--line:rgba(255,255,255,0.13);--row:rgba(255,255,255,0.05);--accent:#f2411b;--on-accent:#0d0d0d}}
+  *{box-sizing:border-box}
+  body{font:15px/1.55 var(--sans);margin:0;background:var(--bg);color:var(--ink);padding:32px 30px 72px;-webkit-font-smoothing:antialiased}
+  main{max-width:1500px;margin:0 auto}
+  h1{font-family:var(--display);font-size:26px;letter-spacing:-.01em;margin:0 0 3px;font-weight:700}
+  .sub{color:var(--mut);margin:0 0 26px;font-size:14px}
+  a{color:var(--accent)}`
 
 function parseCookies(req) {
   const cookies = {}
@@ -94,19 +104,46 @@ function countBy(items, pick) {
   return [...counts.entries()].sort((a, b) => b[1] - a[1])
 }
 
-function barTable(title, rows, limit = 12, fmt = (n) => n) {
+/**
+ * Filter dimensions. Each maps a URL param (f_<key>) to a per-visit
+ * predicate; clicking any breakdown row scopes the whole page to that
+ * value. Single value per dimension, AND across dimensions.
+ */
+const FILTER_DIMS = {
+  country: { label: 'country', test: (v, x) => v.country === x },
+  state: { label: 'state', test: (v, x) => v.state === x },
+  city: { label: 'city', test: (v, x) => v.city === x },
+  source: { label: 'source', test: (v, x) => v.via === x },
+  device: { label: 'device', test: (v, x) => v.layout === x },
+  theme: { label: 'theme', test: (v, x) => v.theme === x },
+  chapter: { label: 'chapter', test: (v, x) => v.chapterSet.has(x) },
+  ref: { label: 'referrer', test: (v, x) => v.refHost === x },
+  stay: { label: 'stay', test: (v, x) => v.stay === x },
+}
+
+/**
+ * Breakdown card. Rows are [value, count]; when `dim` is given (and a
+ * `flt` link builder is in scope), each row links to scope the page to
+ * that value. `fmt` formats the count (e.g. durations).
+ */
+function barTable(title, rows, opts = {}) {
+  const { limit = 12, fmt = (n) => n, dim = null, flt = null } = opts
   const top = rows.slice(0, limit)
   const max = Math.max(1, ...top.map((r) => r[1]))
   const body = top.length
     ? top
-        .map(
-          ([label, count]) => `
+        .map(([label, count]) => {
+          const cell =
+            dim && flt
+              ? `<a class="flt" href="${flt(dim, label)}">${esc(label)}</a>`
+              : esc(label)
+          return `
       <tr>
-        <td class="label">${esc(label)}</td>
+        <td class="label">${cell}</td>
         <td class="count">${esc(String(fmt(count)))}</td>
         <td class="bar"><div style="width:${Math.max(2, Math.round((count / max) * 100))}%"></div></td>
-      </tr>`,
-        )
+      </tr>`
+        })
         .join('')
     : '<tr><td class="label empty">no data yet</td></tr>'
   return `<section><h2>${esc(title)}</h2><table>${body}</table></section>`
@@ -526,20 +563,27 @@ function buildVisits(events) {
     const end = first('session-end')?.props
     const layout = ctx?.layout ?? pv.device
     const theme = ctx?.theme
+    const chapterSet = new Set(
+      list.filter((e) => e.name === 'chapter-view').map((e) => e.props?.chapter),
+    )
     visits.push({
+      sid: pv.sid,
       ts: pv.ts,
       where: pv.city
         ? `${pv.city}, ${pv.state ?? pv.country ?? ''}`
         : (pv.state ?? pv.country ?? 'unknown'),
+      country: pv.country ?? null,
+      state: pv.state ?? null,
+      city: pv.city ?? null,
+      refHost: refHost(pv.ref),
       layout,
       theme,
       device: [layout, theme].filter(Boolean).join(' · '),
       via: first('arrival')?.props?.source ?? refHost(pv.ref) ?? 'direct',
       returning: first('session-return')?.props?.returning === 'true',
       stay: end?.duration ?? '—',
-      chapters: new Set(
-        list.filter((e) => e.name === 'chapter-view').map((e) => e.props?.chapter),
-      ).size,
+      chapterSet,
+      chapters: chapterSet.size,
       played: list.filter((e) => !PASSIVE.has(e.name)).length,
       finished: list.some((e) => e.name === 'chapter-complete'),
       contact: first('contact')?.props?.channel ?? null,
@@ -646,7 +690,7 @@ function funnelSection(visits, keys, hrefFor, hiddenInputs) {
 }
 
 /** Which arrival channels produce readers and contacts, not just clicks. */
-function sourceTable(visits) {
+function sourceTable(visits, flt = null) {
   const bySource = new Map()
   for (const v of visits) {
     if (!bySource.has(v.via)) {
@@ -659,15 +703,18 @@ function sourceTable(visits) {
   }
   const rows = [...bySource.entries()]
     .sort((a, b) => b[1].visits - a[1].visits)
-    .map(
-      ([source, r]) => `<tr>
-      <td class="label">${esc(source)}</td>
+    .map(([source, r]) => {
+      const cell = flt
+        ? `<a class="flt" href="${flt('source', source)}">${esc(source)}</a>`
+        : esc(source)
+      return `<tr>
+      <td class="label">${cell}</td>
       <td class="num">${r.visits} visit${r.visits === 1 ? '' : 's'}</td>
-      <td class="num">${r.deep} deep read${r.deep === 1 ? '' : 's'}</td>
+      <td class="num">${r.deep} deep</td>
       <td class="num">${r.contact} contact${r.contact === 1 ? '' : 's'}</td>
       <td class="num">${r.visits ? Math.round((r.contact / r.visits) * 100) : 0}%</td>
-    </tr>`,
-    )
+    </tr>`
+    })
     .join('')
   return `<section><h2>Conversion by source</h2><table>
     ${rows || '<tr><td class="label empty">no visits with stories yet</td></tr>'}</table></section>`
@@ -929,25 +976,36 @@ const FORM_CSS = `
   .error{color:var(--accent);margin:0}`
 
 const DASH_CSS = `
-  .stats{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:24px}
-  .stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 22px;flex:1;min-width:130px}
-  .stat strong{display:block;font-size:28px;line-height:1.2}
-  .stat span{color:var(--mut);font-size:13px}
+  .stats{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:26px}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 22px;flex:1;min-width:132px}
+  .stat strong{display:block;font-family:var(--display);font-size:32px;line-height:1.1;letter-spacing:-.02em}
+  .stat span{color:var(--mut);font-size:11px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.05em}
   section{margin:0;min-width:0}
   .block{margin-bottom:24px}
   .pair{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;align-items:start}
   @media (max-width:860px){.pair{grid-template-columns:1fr}}
-  h2{font-size:12.5px;margin:0 0 8px;color:var(--mut);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
-  .hint{color:var(--mut);font-weight:400;text-transform:none;letter-spacing:0}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px}
-  table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden}
-  td{padding:8px 14px;border-top:1px solid var(--row);vertical-align:middle}
+  h2{font-family:var(--mono);font-size:11px;margin:0 0 10px;color:var(--mut);text-transform:uppercase;letter-spacing:.09em;font-weight:400}
+  .hint{color:var(--mut);font-weight:400;text-transform:none;letter-spacing:0;font-family:var(--sans)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+  table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  td{padding:9px 15px;border-top:1px solid var(--line);vertical-align:middle}
   tr:first-child td{border-top:0}
   tr:not(.head):hover td{background:var(--row)}
-  tr.head td{color:var(--mut);font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+  tr.head td{color:var(--mut);font-size:10px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.07em}
   .label{max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .label.empty{color:var(--mut)}
-  .count,.num{text-align:right;color:var(--mut);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .count,.num{text-align:right;color:var(--mut);font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap;font-size:13px}
+  a.flt{color:inherit;text-decoration:none}
+  a.flt:hover{color:var(--accent)}
+  td.label a.flt{border-bottom:1px solid transparent}
+  td.label a.flt:hover{border-bottom-color:var(--accent)}
+  .filterbar{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:-6px 0 24px}
+  .fbar-eyebrow{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--mut)}
+  .chip{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:12px;color:var(--accent);border:1px solid var(--accent);border-radius:99px;padding:3px 11px;text-decoration:none;background:color-mix(in srgb, var(--accent) 8%, transparent)}
+  .chip b{font-weight:400;opacity:.7}
+  .chip:hover{background:color-mix(in srgb, var(--accent) 16%, transparent)}
+  .chip-clear{color:var(--mut);border-color:var(--line);background:none}
+  .fbar-count{font-family:var(--mono);font-size:11px;color:var(--mut);margin-left:2px}
   .count{width:48px}
   .mut{color:var(--mut)}
   .when{white-space:nowrap}
@@ -1099,27 +1157,47 @@ export default async function handler(req, res) {
         .filter((k) => Object.hasOwn(FUNNEL_LAYERS, k)),
     ),
   ].slice(0, MAX_LAYERS)
-  const funnelQS = funnelKeys.length ? `&funnel=${funnelKeys.join(',')}` : ''
-  const pageLink = (n) => `/analytics?week=${n}${demo ? '&demo=1' : ''}${funnelQS}${keyQS}`
-  const funnelHref = (keys) => {
-    const parts = []
-    if (week) parts.push(`week=${week}`)
-    if (demo) parts.push('demo=1')
-    if (keys.length) parts.push(`funnel=${keys.join(',')}`)
-    if (viaQueryKey) parts.push(`key=${encodeURIComponent(candidate)}`)
-    return `/analytics${parts.length ? `?${parts.join('&')}` : ''}`
+  // Active segment filters (f_<dim>=value): one value per dim, AND across.
+  const filters = {}
+  for (const dim of Object.keys(FILTER_DIMS)) {
+    const val = reqUrl.searchParams.get(`f_${dim}`)
+    if (val != null && val !== '') filters[dim] = val
   }
-  const hiddenInputs = [
-    week ? `<input type="hidden" name="week" value="${week}">` : '',
-    demo ? '<input type="hidden" name="demo" value="1">' : '',
-    viaQueryKey ? `<input type="hidden" name="key" value="${esc(candidate)}">` : '',
-  ].join('')
   const dayParam = reqUrl.searchParams.get('day')
   const validDay =
     dayParam && /^\d{4}-\d{2}-\d{2}$/.test(dayParam) ? dayParam : null
   const dataView = reqUrl.searchParams.get('data') === '1'
-  const dayLink = (d) =>
-    `/analytics?day=${d}${demo ? '&demo=1' : ''}${funnelQS}${keyQS}`
+
+  // Single source of truth for portal URLs — every link merges the current
+  // view state (week/day/demo/funnel/filters/key) with its overrides.
+  const cur = { week, demo, funnel: funnelKeys, filters, key: viaQueryKey ? candidate : null }
+  const makeHref = (o) => {
+    const parts = []
+    if (o.week) parts.push(`week=${o.week}`)
+    if (o.day) parts.push(`day=${o.day}`)
+    if (o.demo) parts.push('demo=1')
+    if (o.funnel?.length) parts.push(`funnel=${o.funnel.join(',')}`)
+    for (const [d, v] of Object.entries(o.filters || {})) parts.push(`f_${d}=${encodeURIComponent(v)}`)
+    if (o.key) parts.push(`key=${encodeURIComponent(o.key)}`)
+    return `/analytics${parts.length ? `?${parts.join('&')}` : ''}`
+  }
+  const pageLink = (n) => makeHref({ ...cur, week: n })
+  const dayLink = (d) => makeHref({ ...cur, day: d })
+  const funnelHref = (keys) => makeHref({ ...cur, funnel: keys })
+  const filterHref = (dim, val) => makeHref({ ...cur, filters: { ...filters, [dim]: String(val) } })
+  const removeFilterHref = (dim) => {
+    const f = { ...filters }
+    delete f[dim]
+    return makeHref({ ...cur, filters: f })
+  }
+  const hiddenInputs = [
+    week ? `<input type="hidden" name="week" value="${week}">` : '',
+    demo ? '<input type="hidden" name="demo" value="1">' : '',
+    ...Object.entries(filters).map(
+      ([d, v]) => `<input type="hidden" name="f_${d}" value="${esc(v)}">`,
+    ),
+    viaQueryKey ? `<input type="hidden" name="key" value="${esc(candidate)}">` : '',
+  ].join('')
 
   const now = Date.now()
   const cutoff = now - WINDOW_DAYS * DAY_MS
@@ -1169,18 +1247,28 @@ export default async function handler(req, res) {
     }
   }
 
-  const views = events.filter((e) => e.name === 'page-view')
-  const contacts = events.filter((e) => e.name === 'contact')
-  const visits = buildVisits(events)
+  const allVisits = buildVisits(events)
+  const activeFilters = Object.entries(filters)
+  // Scope the whole dashboard: keep visits matching every active filter,
+  // then keep the events belonging to those visits.
+  const visits = activeFilters.length
+    ? allVisits.filter((v) => activeFilters.every(([d, val]) => FILTER_DIMS[d].test(v, val)))
+    : allVisits
+  const sids = new Set(visits.map((v) => v.sid))
+  const scoped = activeFilters.length
+    ? events.filter((e) => e.sid && sids.has(e.sid))
+    : events
+  const views = scoped.filter((e) => e.name === 'page-view')
+  const contacts = scoped.filter((e) => e.name === 'contact')
   const today = dayKey(now)
   const weekAgo = now - 7 * DAY_MS
   const chapterViews = countBy(
-    events.filter((e) => e.name === 'chapter-view'),
+    scoped.filter((e) => e.name === 'chapter-view'),
     (e) => e.props?.chapter,
   )
   const chapterDone = new Map(
     countBy(
-      events.filter((e) => e.name === 'chapter-complete'),
+      scoped.filter((e) => e.name === 'chapter-complete'),
       (e) => e.props?.chapter,
     ),
   )
@@ -1192,6 +1280,17 @@ export default async function handler(req, res) {
   const stat = (label, value) =>
     `<div class="stat"><strong>${esc(value)}</strong><span>${esc(label)}</span></div>`
   const topState = countBy(views, (e) => e.state)[0]?.[0] ?? '—'
+
+  // Active-filter chips: each removes itself; "clear" drops all.
+  const filterBar = activeFilters.length
+    ? `<div class="filterbar"><span class="fbar-eyebrow">filtered to</span>${activeFilters
+        .map(
+          ([d, v]) =>
+            `<a class="chip" href="${removeFilterHref(d)}" title="remove">${esc(FILTER_DIMS[d].label)} · ${esc(v)} <b>✕</b></a>`,
+        )
+        .join('')}<a class="chip chip-clear" href="${makeHref({ ...cur, filters: {} })}">clear all</a>
+        <span class="fbar-count">${visits.length} visit${visits.length === 1 ? '' : 's'}</span></div>`
+    : ''
 
   const realLink = `/analytics${viaQueryKey ? `?key=${encodeURIComponent(candidate)}` : ''}`
   const notices = []
@@ -1218,7 +1317,7 @@ export default async function handler(req, res) {
 <meta name="robots" content="noindex">
 <title>Portfolio analytics — data check</title>
 <style>${PAGE_CSS}${DASH_CSS}</style></head><body><main>
-${dataCheckPage(events, visits, funnelHref(funnelKeys), notices.join(''))}
+${dataCheckPage(events, allVisits, funnelHref(funnelKeys), notices.join(''))}
 </main></body></html>`)
     return
   }
@@ -1238,33 +1337,34 @@ ${dataCheckPage(events, visits, funnelHref(funnelKeys), notices.join(''))}
     ${stat('contact clicks', contacts.length)}
     ${stat('top state', topState)}
   </div>
+  ${filterBar}
   <div class="block">${
     validDay
-      ? dayPanel(events, visits, validDay, now, pageLink(week), dayLink)
-      : dayGrid(events, visits, now, week, pageLink, dayLink)
+      ? dayPanel(scoped, visits, validDay, now, pageLink(week), dayLink)
+      : dayGrid(scoped, visits, now, week, pageLink, dayLink)
   }</div>
-  ${worldMap(events)}
+  ${worldMap(scoped)}
   <div class="pair">
     ${funnelSection(visits, funnelKeys, funnelHref, hiddenInputs)}
-    ${sourceTable(visits)}
+    ${sourceTable(visits, filterHref)}
   </div>
   <div class="block">${visitsTable(visits)}</div>
   <div class="grid">
   ${returnSplit(visits)}
-  ${barTable('Time in chapter (avg)', dwellRows(events), 12, fmtSecs)}
-  ${barTable('Where visits end (last chapter)', exitRows(events))}
-  ${barTable('Read depth (per visit)', depthRows(visits))}
-  ${barTable('States', countBy(views, (e) => (e.state ? `${e.state}${e.country && e.country !== 'US' ? ` (${e.country})` : ''}` : null)))}
-  ${barTable('Cities', countBy(views, (e) => e.city))}
-  ${barTable('Arrived via', countBy(events.filter((e) => e.name === 'arrival'), (e) => e.props?.source))}
-  ${barTable('Referrers', countBy(views, (e) => refHost(e.ref)))}
-  ${barTable('Experience', countBy(events.filter((e) => e.name === 'session-context'), (e) => `${e.props?.theme ?? '?'} · ${e.props?.layout ?? '?'}`))}
-  ${barTable('Devices', countBy(views, (e) => e.device))}
-  ${barTable('Time on site', countBy(events.filter((e) => e.name === 'session-end'), (e) => e.props?.duration))}
-  ${barTable('Chapter funnel (viewed → finished)', funnelRows)}
+  ${barTable('Time in chapter (avg)', dwellRows(scoped), { fmt: fmtSecs, dim: 'chapter', flt: filterHref })}
+  ${barTable('Where visits end', exitRows(scoped), { dim: 'chapter', flt: filterHref })}
+  ${barTable('Read depth', depthRows(visits))}
+  ${barTable('States', countBy(visits, (v) => v.state), { dim: 'state', flt: filterHref })}
+  ${barTable('Cities', countBy(visits, (v) => v.city), { dim: 'city', flt: filterHref })}
+  ${barTable('Arrived via', countBy(visits, (v) => v.via), { dim: 'source', flt: filterHref })}
+  ${barTable('Referrers', countBy(visits, (v) => v.refHost), { dim: 'ref', flt: filterHref })}
+  ${barTable('Devices', countBy(visits, (v) => v.layout), { dim: 'device', flt: filterHref })}
+  ${barTable('Theme', countBy(visits, (v) => v.theme), { dim: 'theme', flt: filterHref })}
+  ${barTable('Time on site', countBy(visits, (v) => v.stay), { dim: 'stay', flt: filterHref })}
+  ${barTable('Chapter funnel', funnelRows)}
   ${barTable('Contact', countBy(contacts, (e) => `${e.props?.channel ?? '?'} after ${e.props?.engaged ?? '?'}`))}
-  ${barTable('All events', countBy(events, (e) => e.name), 24)}
-  ${barTable('Client errors', countBy(events.filter((e) => e.name === 'client-error'), (e) => e.props?.message), 8)}
+  ${barTable('All events', countBy(scoped, (e) => e.name), { limit: 24 })}
+  ${barTable('Client errors', countBy(scoped.filter((e) => e.name === 'client-error'), (e) => e.props?.message), { limit: 8 })}
   </div>
 </main></body></html>`)
 }
