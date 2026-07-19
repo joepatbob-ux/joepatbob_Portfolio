@@ -27,6 +27,7 @@ import { usePhoneSwapTouchScroll } from '@/lib/phone-swap/usePhoneSwapTouchScrol
 import { useLayoutTopBarNav } from '@/lib/hooks/useLayoutTopBarNav'
 import { useHydrated } from '@/lib/hooks/useHydrated'
 import { isPrerenderSnapshot } from '@/lib/isPrerenderSnapshot'
+import { webglSupported } from '@/lib/webglSupported'
 import type { PhoneSwapSceneApi } from '@/components/phone-swap/PhoneSwapScene'
 import {
   Suspense,
@@ -117,7 +118,10 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
   }, [triggerSwap])
 
   const inFlowChapter = topBarNav
-  const shouldRenderScene = sceneLatchedRef.current
+  // iOS in-app browsers that can't do WebGL must never mount the scene — its
+  // rAF render loop would throw uncaught. Detected once, client-side.
+  const webglOk = useMemo(() => webglSupported(), [])
+  const shouldRenderScene = sceneLatchedRef.current && webglOk
   const runSceneLoop = chapterActive
   const useScrollPassthrough = inFlowChapter
   const invalidateCanvasRef = useRef<(() => void) | null>(null)
@@ -287,6 +291,10 @@ export function PhoneSwap({ liveScreen = false }: { liveScreen?: boolean }) {
               </StageSceneReady>
             </Suspense>
           </Canvas>
+        ) : !webglOk ? (
+          <p className="phone-swap__fallback">
+            3D preview isn’t available in this browser.
+          </p>
         ) : (
           <div className="phone-swap__viewbox-placeholder">
             <PhoneSwapGooLoader label="Loading 3D preview…" />

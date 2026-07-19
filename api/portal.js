@@ -856,9 +856,10 @@ function dataCheckPage(events, visits, backLink, scrubNote) {
   for (const e of events) {
     if (e.name !== 'client-error') continue
     const msg = String(e.props?.message ?? 'unknown')
-    if (!byMsg.has(msg)) byMsg.set(msg, { n: 0, last: 0, kind: e.props?.kind ?? '?' })
+    if (!byMsg.has(msg)) byMsg.set(msg, { n: 0, last: 0, where: e.props?.where ?? '' })
     const r = byMsg.get(msg)
     r.n += 1
+    if (e.props?.where && !r.where) r.where = e.props.where
     if (e.ts > r.last) r.last = e.ts
   }
   const errRows = [...byMsg.entries()]
@@ -867,13 +868,13 @@ function dataCheckPage(events, visits, backLink, scrubNote) {
       ([msg, r]) => `<tr>
         <td class="num">${r.n}</td>
         <td class="when mut">${esc(fmtWhen(r.last))}</td>
-        <td class="errmsg">${esc(msg)}</td></tr>`,
+        <td class="errmsg">${esc(msg)}${r.where ? `<span class="err-where">${esc(r.where)}</span>` : ''}</td></tr>`,
     )
     .join('')
   const errSection = byMsg.size
-    ? `<section class="block"><h2>Client errors <span class="hint">(full message, most frequent first)</span></h2>
+    ? `<section class="block"><h2>Client errors <span class="hint">(full message + source, most frequent first)</span></h2>
       <div class="scroll"><table>
-      <tr class="head"><td>Count</td><td>Last seen</td><td>Message (as the browser reported it)</td></tr>
+      <tr class="head"><td>Count</td><td>Last seen</td><td>Message &amp; source</td></tr>
       ${errRows}</table></div></section>`
     : ''
 
@@ -1166,6 +1167,7 @@ const DASH_CSS = `
   .raw td{font-size:12.5px}
   .raw .props{font-family:ui-monospace,SFMono-Regular,monospace;font-size:11px;max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .errmsg{font-family:ui-monospace,SFMono-Regular,monospace;font-size:12px;white-space:normal;word-break:break-word;color:var(--accent)}
+  .err-where{display:block;color:var(--mut);margin-top:2px}
   .sechead h1{margin:0}`
 
 export default async function handler(req, res) {
