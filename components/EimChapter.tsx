@@ -23,11 +23,17 @@ export function EimChapter({ chapter, isLast }: Props) {
   const isEnteringOnOffCycle =
     (phase === 'out' || phase === 'in') && targetId === CHAPTER_ID
 
-  // Dash cycle rides the stage's actual dissolve (same beat as stickers), not
-  // the reveal threshold — otherwise the draw runs before the artifact is
-  // visible and the art arrives pre-lit. Falls back to isActive where no
-  // stage machine runs (mobile, deck).
-  const pathActive = (stageFxVisible ?? isActive) || isEnteringOnOffCycle
+  // The draw *starts* once the entrance settles: stage-fx "visible" means the
+  // artifact has arrived on its center lock — its blur/fade has ended — which
+  // is later than the reveal threshold, so the art never arrives pre-lit.
+  // Falls back to isActive where no stage machine runs (mobile, deck).
+  const drawSettled = (stageFxVisible ?? isActive) || isEnteringOnOffCycle
+  // Presence is reveal-based, so the slot-end exit dissolve — which now flips
+  // stage-fx off well before the chapter leaves (#100's scroll-yank fix) —
+  // can't undraw the art while it's still on screen. It holds, then exits
+  // passively with the chapter's own fade. Splitting these two is what keeps
+  // the draw from being cut short the moment the exit lead fires.
+  const present = isActive || isEnteringOnOffCycle
 
   return (
     <ChapterSlideLayout
@@ -38,8 +44,8 @@ export function EimChapter({ chapter, isLast }: Props) {
       stageAriaLabel={chapter.imageAlt}
       stage={
         <EimPathArt
-          active={pathActive}
-          triggerDraw={pathActive}
+          active={present}
+          triggerDraw={drawSettled}
           drawDurationMs={DRAW_MS}
         />
       }
