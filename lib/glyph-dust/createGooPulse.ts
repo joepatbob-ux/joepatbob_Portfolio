@@ -74,7 +74,15 @@ export function createGooPulse(
   canvas: HTMLCanvasElement,
   recipe: GooPulseRecipe,
 ): GooPulseHandle {
-  const ctx = canvas.getContext('2d')!
+  const ctx2d = canvas.getContext('2d')
+  if (!ctx2d) {
+    // iOS in-app browsers (Threads/Instagram WebViews) can refuse a 2D
+    // context under memory pressure. This runs in a rAF loop outside React,
+    // so a null here would surface as an uncaught "null is not an object"
+    // — degrade to a no-op loader instead.
+    return { start() {}, stop() {}, renderStatic() {}, destroy() {} }
+  }
+  const ctx = ctx2d
   const W = canvas.width
   const H = canvas.height
   const cx = W / 2
