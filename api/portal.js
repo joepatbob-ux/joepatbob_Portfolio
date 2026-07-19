@@ -500,7 +500,11 @@ function buildVisits(events) {
               e.props?.action ??
               e.props?.source ??
               e.props?.channel ??
-              e.props?.duration,
+              e.props?.duration ??
+              // client-error carries its message — surface what broke.
+              (e.props?.message != null
+                ? String(e.props.message).slice(0, 70)
+                : null),
           ]
             .filter(Boolean)
             .join(' · '),
@@ -697,11 +701,39 @@ function dataCheckPage(events, visits, backLink, scrubNote) {
     )
     .join('')
 
+  // Client errors grouped by full stored message (not CSS-clipped), so the
+  // WebKit "(evaluating '…')" culprit is readable on any device.
+  const byMsg = new Map()
+  for (const e of events) {
+    if (e.name !== 'client-error') continue
+    const msg = String(e.props?.message ?? 'unknown')
+    if (!byMsg.has(msg)) byMsg.set(msg, { n: 0, last: 0, kind: e.props?.kind ?? '?' })
+    const r = byMsg.get(msg)
+    r.n += 1
+    if (e.ts > r.last) r.last = e.ts
+  }
+  const errRows = [...byMsg.entries()]
+    .sort((a, b) => b[1].n - a[1].n)
+    .map(
+      ([msg, r]) => `<tr>
+        <td class="num">${r.n}</td>
+        <td class="when mut">${esc(fmtWhen(r.last))}</td>
+        <td class="errmsg">${esc(msg)}</td></tr>`,
+    )
+    .join('')
+  const errSection = byMsg.size
+    ? `<section class="block"><h2>Client errors <span class="hint">(full message, most frequent first)</span></h2>
+      <div class="scroll"><table>
+      <tr class="head"><td>Count</td><td>Last seen</td><td>Message (as the browser reported it)</td></tr>
+      ${errRows}</table></div></section>`
+    : ''
+
   return `
   <div class="sechead"><h1>Data check</h1>
     <nav class="dg-pager"><a href="${backLink}">‹ back to dashboard</a></nav></div>
   <p class="sub">Everything stored in the last ${WINDOW_DAYS} days, and what looks off.</p>
   ${scrubNote}
+  ${errSection}
   <div class="stats">
     ${tile('events stored', events.length)}
     ${tile('sessions with stories', bySid.size)}
@@ -917,6 +949,7 @@ const DASH_CSS = `
   @media (max-width:720px){.grid .wide{grid-column:span 1}}
   .raw td{font-size:12.5px}
   .raw .props{font-family:ui-monospace,SFMono-Regular,monospace;font-size:11px;max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .errmsg{font-family:ui-monospace,SFMono-Regular,monospace;font-size:12px;white-space:normal;word-break:break-word;color:var(--accent)}
   .sechead h1{margin:0}`
 
 export default async function handler(req, res) {
