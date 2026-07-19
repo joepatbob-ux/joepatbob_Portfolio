@@ -247,6 +247,18 @@ export function EimPathArt({
       }, alreadyOff ? 0 : 32)
     }
 
+    const runTurnOff = (then: () => void) => {
+      if (!illuminatedRef.current) {
+        then()
+        return
+      }
+      setDashPhase('off')
+      schedule(() => {
+        illuminatedRef.current = false
+        then()
+      }, phaseDuration)
+    }
+
     const clearTimers = () => {
       cancelled = true
       timers.forEach((id) => window.clearTimeout(id))
@@ -302,18 +314,22 @@ export function EimPathArt({
       return clearTimers
     }
 
-    // Still lit from a passive exit that never fully hid (reveal jitter around
-    // the stage-fx threshold): hold steady — never snap dark and re-draw while
-    // on screen.
-    if (illuminatedRef.current) {
-      setDashPhase('on')
-      return clearTimers
+    // Cycle while the chapter is on screen: draw the cascade on, hold, fade it
+    // back off, then redraw — repeating until the chapter leaves (active flips
+    // false), at which point the passive-exit branch above lets the chapter's
+    // own fade carry out whatever state the loop is in.
+    const loop = () => {
+      if (cancelled || !active) return
+      runTurnOn(() => {
+        if (cancelled || !active) return
+        runTurnOff(() => {
+          if (cancelled || !active) return
+          loop()
+        })
+      })
     }
 
-    // Draw once and hold. The art fades in/out with the chapter like every
-    // other stage artifact (stage fx / panel opacity) — no self-cycling while
-    // the chapter is on screen. The passive-exit reset above re-arms the draw.
-    runTurnOn(() => {})
+    loop()
 
     return clearTimers
   }, [
