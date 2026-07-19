@@ -20,6 +20,20 @@ export function publishChapterStageFx(
   listeners.forEach((listener) => listener())
 }
 
+/**
+ * Drop a chapter's stage-fx state back to "no machine" (undefined). Publishing
+ * `false` here would lie — consumers read `false` as "the machine ran and the
+ * artifact is off its lock" and skip their reveal-threshold fallback, so on
+ * layouts where the continuous machine never runs (mobile / top-bar nav) the
+ * companion art would stay dark. The reset/teardown path calls this so those
+ * consumers see `undefined` and fall back correctly.
+ */
+export function clearChapterStageFx(chapterId: string): void {
+  if (!visibleByChapter.has(chapterId)) return
+  visibleByChapter.delete(chapterId)
+  listeners.forEach((listener) => listener())
+}
+
 /** undefined = this chapter has no stage machine (overviews, other modes). */
 export function chapterStageFxVisible(chapterId: string): boolean | undefined {
   return visibleByChapter.get(chapterId)

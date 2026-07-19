@@ -1,19 +1,20 @@
 import { isPrerenderSnapshot } from '@/lib/isPrerenderSnapshot'
 import {
   EIM_PATH_VIEWBOX,
+  EIM_TIMING_RANGE,
   EIM_TOUCH2_ORIGIN,
   isEimDashDebugEnabled,
+  isEimTimingDebugEnabled,
+  readEimTiming,
   sortSubpathsByRevealOrder,
   splitPathSubpaths,
   subpathStartPoint,
+  type EimTiming,
 } from '@/lib/eimPathSegments'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 const SVG_SRC = '/images/devices/eimpath.svg'
 const PATH_FILL = '#F5431B'
-const CYCLE_HOLD_MS = 600
-const DASH_FADE_MIN_MS = 240
-const DASH_FADE_MAX_MS = 520
 const DASH_STAGGER_MIN_MS = 4
 
 type DebugLabel = { order: number; x: number; y: number }
@@ -21,26 +22,27 @@ type DebugLabel = { order: number; x: number; y: number }
 interface Props {
   active?: boolean
   triggerDraw?: boolean
-  drawDurationMs?: number
   className?: string
 }
 
 export function EimPathArt({
   active = true,
   triggerDraw = true,
-  drawDurationMs = 3000,
   className,
 }: Props) {
   const svgHostRef = useRef<HTMLDivElement>(null)
   const dashRefs = useRef<SVGPathElement[]>([])
   const illuminatedRef = useRef(false)
   const [dashDebug, setDashDebug] = useState(false)
+  const [timingDebug, setTimingDebug] = useState(false)
+  const [timing, setTiming] = useState<EimTiming>(readEimTiming)
   const [dashCount, setDashCount] = useState(0)
   const [debugLabels, setDebugLabels] = useState<DebugLabel[]>([])
   const [svgReady, setSvgReady] = useState(false)
 
   useEffect(() => {
     setDashDebug(isEimDashDebugEnabled())
+    setTimingDebug(isEimTimingDebugEnabled())
   }, [])
 
   const getDashGroup = useCallback(() => {
@@ -213,14 +215,11 @@ export function EimPathArt({
 
     const staggerMs = Math.max(
       DASH_STAGGER_MIN_MS,
-      drawDurationMs / Math.max(dashCount, 1),
+      timing.drawMs / Math.max(dashCount, 1),
     )
-    const fadeMs = Math.min(
-      DASH_FADE_MAX_MS,
-      Math.max(DASH_FADE_MIN_MS, staggerMs * 3.6),
-    )
+    const fadeMs = timing.fadeMs
     const phaseDuration =
-      (dashCount - 1) * staggerMs + fadeMs + CYCLE_HOLD_MS
+      (dashCount - 1) * staggerMs + fadeMs + timing.holdMs
 
     root.style.setProperty('--dash-stagger', `${staggerMs}ms`)
     root.style.setProperty('--dash-fade', `${fadeMs}ms`)
@@ -245,6 +244,18 @@ export function EimPathArt({
         illuminatedRef.current = true
         schedule(then, phaseDuration)
       }, alreadyOff ? 0 : 32)
+    }
+
+    const runTurnOff = (then: () => void) => {
+      if (!illuminatedRef.current) {
+        then()
+        return
+      }
+      setDashPhase('off')
+      schedule(() => {
+        illuminatedRef.current = false
+        then()
+      }, phaseDuration)
     }
 
     const clearTimers = () => {
@@ -302,18 +313,22 @@ export function EimPathArt({
       return clearTimers
     }
 
-    // Still lit from a passive exit that never fully hid (reveal jitter around
-    // the stage-fx threshold): hold steady — never snap dark and re-draw while
-    // on screen.
-    if (illuminatedRef.current) {
-      setDashPhase('on')
-      return clearTimers
+    // Cycle while the chapter is on screen: draw the cascade on, hold, fade it
+    // back off, then redraw — repeating until the chapter leaves (active flips
+    // false), at which point the passive-exit branch above lets the chapter's
+    // own fade carry out whatever state the loop is in.
+    const loop = () => {
+      if (cancelled || !active) return
+      runTurnOn(() => {
+        if (cancelled || !active) return
+        runTurnOff(() => {
+          if (cancelled || !active) return
+          loop()
+        })
+      })
     }
 
-    // Draw once and hold. The art fades in/out with the chapter like every
-    // other stage artifact (stage fx / panel opacity) — no self-cycling while
-    // the chapter is on screen. The passive-exit reset above re-arms the draw.
-    runTurnOn(() => {})
+    loop()
 
     return clearTimers
   }, [
@@ -321,7 +336,7 @@ export function EimPathArt({
     triggerDraw,
     svgReady,
     dashCount,
-    drawDurationMs,
+    timing,
     resetDashes,
     dashDebug,
     setDashPhase,
@@ -343,6 +358,44 @@ export function EimPathArt({
           Dash debug — reveal order 1→{dashCount || '…'}. Remove{' '}
           <code>?eimDashDebug=1</code> from the URL when done.
         </p>
+      ) : null}
+      {timingDebug ? (
+        <div className="eim-path-art__timing" role="group" aria-label="EIM timing tuner">
+          <p className="eim-path-art__timing-title">EIM timing</p>
+          {(
+            [
+              ['drawMs', 'Draw sweep'],
+              ['holdMs', 'Hold'],
+              ['fadeMs', 'Fade'],
+            ] as const
+          ).map(([key, label]) => (
+            <label key={key} className="eim-path-art__timing-row">
+              <span className="eim-path-art__timing-label">{label}</span>
+              <input
+                type="range"
+                min={EIM_TIMING_RANGE[key].min}
+                max={EIM_TIMING_RANGE[key].max}
+                step={EIM_TIMING_RANGE[key].step}
+                value={timing[key]}
+                onChange={(e) =>
+                  setTiming((t) => ({ ...t, [key]: Number(e.target.value) }))
+                }
+              />
+              <span className="eim-path-art__timing-value">{timing[key]}ms</span>
+            </label>
+          ))}
+          <p className="eim-path-art__timing-share">
+            Cycle ≈{' '}
+            {Math.round(
+              (Math.max(DASH_STAGGER_MIN_MS, timing.drawMs / Math.max(dashCount, 1)) *
+                (dashCount - 1) +
+                timing.fadeMs +
+                timing.holdMs) *
+                2,
+            )}
+            ms · <code>?eimTiming=1&amp;eimDraw={timing.drawMs}&amp;eimHold={timing.holdMs}&amp;eimFade={timing.fadeMs}</code>
+          </p>
+        </div>
       ) : null}
       <div className="eim-path-art__stage-wrap">
         <div
