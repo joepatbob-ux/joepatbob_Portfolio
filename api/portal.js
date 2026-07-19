@@ -58,12 +58,7 @@ function loginPage(showError) {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>Portfolio analytics</title>
-<style>${PAGE_CSS}
-  form{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px;max-width:360px;display:flex;flex-direction:column;gap:12px}
-  input{font:inherit;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
-  button{font:inherit;font-weight:600;padding:9px 12px;border:0;border-radius:8px;background:var(--accent);color:#fff;cursor:pointer}
-  .error{color:var(--accent);margin:0}
-</style></head><body><main>
+<style>${PAGE_CSS}${FORM_CSS}</style></head><body><main>
   <h1>Portfolio analytics</h1>
   <p class="sub">Private dashboard — enter the password to continue.</p>
   <form method="post" action="/analytics">
@@ -642,6 +637,87 @@ function visitsTable(visits, limit = 20) {
     ${rows}</table></div></section>`
 }
 
+/**
+ * Data-quality audit (?data=1): what's literally stored, and which of it
+ * looks off. Three suspect classes — pre-story page-views (no sid),
+ * ghost sessions (a sid whose only event is the page-view: a crawler that
+ * beaconed once, or an instant bounce), and sessions with no
+ * session-context (left before the idle-deferred setup fired — usually a
+ * quick human bounce, occasionally a partial bot).
+ */
+function dataCheckPage(events, visits, backLink, scrubNote) {
+  const bySid = new Map()
+  for (const e of events) {
+    if (!e.sid) continue
+    if (!bySid.has(e.sid)) bySid.set(e.sid, [])
+    bySid.get(e.sid).push(e)
+  }
+  const where = (e) =>
+    e.city ? `${e.city}, ${e.state ?? ''}` : (e.state ?? e.country ?? '—')
+  const suspects = []
+  for (const [sid, list] of bySid) {
+    const pv = list.find((e) => e.name === 'page-view')
+    if (!pv) continue
+    if (list.length === 1) {
+      suspects.push([pv, sid, 'ghost — page-view only, then silence (crawler or instant bounce)'])
+    } else if (!list.some((e) => e.name === 'session-context')) {
+      suspects.push([pv, sid, 'no context — left before setup finished (quick bounce, or partial bot)'])
+    }
+  }
+  const preStory = events.filter((e) => e.name === 'page-view' && !e.sid)
+  for (const e of preStory) suspects.push([e, '—', 'pre-story page-view (before session ids shipped)'])
+  suspects.sort((a, b) => b[0].ts - a[0].ts)
+
+  const tile = (label, value) =>
+    `<div class="stat"><strong>${esc(String(value))}</strong><span>${esc(label)}</span></div>`
+  const suspectRows = suspects.length
+    ? suspects
+        .slice(0, 40)
+        .map(
+          ([e, sid, reason]) => `<tr>
+          <td class="when mut">${esc(fmtWhen(e.ts))}</td>
+          <td class="label">${esc(where(e))}</td>
+          <td class="mut">${esc(sid)}</td>
+          <td>${esc(reason)}</td></tr>`,
+        )
+        .join('')
+    : '<tr><td class="label empty">nothing looks suspicious</td></tr>'
+
+  const raw = [...events]
+    .sort((a, b) => b.ts - a.ts)
+    .slice(0, 150)
+    .map(
+      (e) => `<tr>
+      <td class="when mut">${esc(fmtWhen(e.ts))}</td>
+      <td class="label">${esc(e.name)}</td>
+      <td class="mut">${esc(e.sid ?? '—')}</td>
+      <td>${esc(where(e))}</td>
+      <td class="mut">${esc(e.device ?? '—')}</td>
+      <td class="props mut">${esc(JSON.stringify(e.props ?? {}).slice(0, 80))}</td></tr>`,
+    )
+    .join('')
+
+  return `
+  <div class="sechead"><h1>Data check</h1>
+    <nav class="dg-pager"><a href="${backLink}">‹ back to dashboard</a></nav></div>
+  <p class="sub">Everything stored in the last ${WINDOW_DAYS} days, and what looks off.</p>
+  ${scrubNote}
+  <div class="stats">
+    ${tile('events stored', events.length)}
+    ${tile('sessions with stories', bySid.size)}
+    ${tile('suspect entries', suspects.length)}
+    ${tile('pre-story page-views', preStory.length)}
+  </div>
+  <section class="block"><h2>Suspects <span class="hint">(newest first, top 40)</span></h2>
+    <div class="scroll"><table>
+    <tr class="head"><td>When (Central)</td><td>Where</td><td>Session</td><td>Why it's flagged</td></tr>
+    ${suspectRows}</table></div></section>
+  <section class="block"><h2>Raw events <span class="hint">(newest 150, exactly as stored)</span></h2>
+    <div class="scroll"><table class="raw">
+    <tr class="head"><td>When</td><td>Event</td><td>Session</td><td>Where</td><td>Device</td><td>Props</td></tr>
+    ${raw || '<tr><td class="label empty">no data yet</td></tr>'}</table></div></section>`
+}
+
 // Vercel's preview/screenshot crawlers (California datacenters) polluted the
 // stats until the ingest bot filter shipped on Jul 17 2026. Anything from CA
 // before this cutoff is crawler traffic — the owner's real visitors weren't
@@ -737,189 +813,13 @@ function demoEvents(now) {
   return events
 }
 
-export default async function handler(req, res) {
-  const statsKey = process.env.STATS_KEY
-  const store = redisEnv()
-  res.setHeader('Cache-Control', 'private, no-store')
-  res.setHeader('X-Robots-Tag', 'noindex')
-  if (!statsKey || !store) {
-    res
-      .status(503)
-      .send(
-        'Portal not configured yet: connect an Upstash Redis store and set a STATS_KEY environment variable in Vercel, then redeploy.',
-      )
-    return
-  }
+const FORM_CSS = `
+  form{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px;max-width:360px;display:flex;flex-direction:column;gap:12px}
+  input{font:inherit;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+  button{font:inherit;font-weight:600;padding:9px 12px;border:0;border-radius:8px;background:var(--accent);color:#fff;cursor:pointer}
+  .error{color:var(--accent);margin:0}`
 
-  // Accept the key from the login form (POST), a ?key= link, or the cookie
-  // set on a previous successful login.
-  const reqUrl = new URL(req.url, 'http://x')
-  let candidate
-  let fromForm = false
-  if (req.method === 'POST') {
-    fromForm = true
-    let body = req.body
-    if (typeof body === 'string') {
-      body = Object.fromEntries(new URLSearchParams(body))
-    }
-    candidate = typeof body?.key === 'string' ? body.key : ''
-  } else {
-    candidate = reqUrl.searchParams.get('key')
-    if (candidate == null) candidate = parseCookies(req)[AUTH_COOKIE] ?? null
-  }
-
-  if (candidate !== statsKey) {
-    res.setHeader('Content-Type', 'text/html; charset=utf-8')
-    res.status(401).send(loginPage(candidate != null && candidate !== ''))
-    return
-  }
-  if (fromForm) {
-    // Post/redirect/get: remember the login, then land on the clean URL.
-    res.setHeader(
-      'Set-Cookie',
-      `${AUTH_COOKIE}=${encodeURIComponent(candidate)}; Path=/; Max-Age=7776000; HttpOnly; Secure; SameSite=Lax`,
-    )
-    res.setHeader('Location', '/analytics')
-    res.status(303).end()
-    return
-  }
-
-  const week = Math.min(
-    MAX_WEEK,
-    Math.max(0, Math.trunc(Number(reqUrl.searchParams.get('week')) || 0)),
-  )
-  // Keep ?key= access working across pager links; cookie users get clean URLs.
-  const viaQueryKey = reqUrl.searchParams.get('key') != null
-  const keyQS = viaQueryKey ? `&key=${encodeURIComponent(candidate)}` : ''
-  const demo = reqUrl.searchParams.get('demo') === '1'
-  // Funnel layers come from ?funnel=a,b,c plus an optional ?add= from the
-  // add-layer form; validate against the known set (Object.hasOwn guards
-  // against prototype keys) and cap the depth.
-  const funnelKeys = [
-    ...new Set(
-      `${reqUrl.searchParams.get('funnel') ?? ''},${reqUrl.searchParams.get('add') ?? ''}`
-        .split(',')
-        .map((k) => k.trim())
-        .filter((k) => Object.hasOwn(FUNNEL_LAYERS, k)),
-    ),
-  ].slice(0, MAX_LAYERS)
-  const funnelQS = funnelKeys.length ? `&funnel=${funnelKeys.join(',')}` : ''
-  const pageLink = (n) => `/analytics?week=${n}${demo ? '&demo=1' : ''}${funnelQS}${keyQS}`
-  const funnelHref = (keys) => {
-    const parts = []
-    if (week) parts.push(`week=${week}`)
-    if (demo) parts.push('demo=1')
-    if (keys.length) parts.push(`funnel=${keys.join(',')}`)
-    if (viaQueryKey) parts.push(`key=${encodeURIComponent(candidate)}`)
-    return `/analytics${parts.length ? `?${parts.join('&')}` : ''}`
-  }
-  const hiddenInputs = [
-    week ? `<input type="hidden" name="week" value="${week}">` : '',
-    demo ? '<input type="hidden" name="demo" value="1">' : '',
-    viaQueryKey ? `<input type="hidden" name="key" value="${esc(candidate)}">` : '',
-  ].join('')
-  const dayParam = reqUrl.searchParams.get('day')
-  const validDay =
-    dayParam && /^\d{4}-\d{2}-\d{2}$/.test(dayParam) ? dayParam : null
-  const dayLink = (d) =>
-    `/analytics?day=${d}${demo ? '&demo=1' : ''}${funnelQS}${keyQS}`
-
-  const now = Date.now()
-  const cutoff = now - WINDOW_DAYS * DAY_MS
-  let events = []
-  let scrubbed = 0
-  let botCount = 0
-  if (demo) {
-    events = demoEvents(now)
-  } else {
-    const listRes = await fetch(`${store.url}/lrange/${EVENTS_KEY}/0/-1`, {
-      headers: { Authorization: `Bearer ${store.token}` },
-    })
-    const raw = listRes.ok ? ((await listRes.json()).result ?? []) : []
-    const doScrub = reqUrl.searchParams.get('scrub') === 'ca-bots'
-    const kept = []
-    for (const item of raw) {
-      try {
-        const event = JSON.parse(item)
-        if (!event) continue
-        if (isVercelBot(event)) {
-          botCount += 1
-          if (doScrub) {
-            scrubbed += 1
-            continue
-          }
-        }
-        kept.push(item)
-        if (typeof event.ts === 'number' && event.ts >= cutoff) {
-          events.push(event)
-        }
-      } catch {
-        // Skip malformed entries.
-      }
-    }
-    if (doScrub && scrubbed > 0) {
-      // Rewrite the list without the crawler events (kept is head→tail
-      // order, so RPUSH rebuilds it identically).
-      botCount = 0
-      await fetch(`${store.url}/pipeline`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${store.token}` },
-        body: JSON.stringify([
-          ['DEL', EVENTS_KEY],
-          ...(kept.length ? [['RPUSH', EVENTS_KEY, ...kept]] : []),
-        ]),
-      })
-    }
-  }
-
-  const views = events.filter((e) => e.name === 'page-view')
-  const contacts = events.filter((e) => e.name === 'contact')
-  const visits = buildVisits(events)
-  const today = dayKey(now)
-  const weekAgo = now - 7 * DAY_MS
-  const chapterViews = countBy(
-    events.filter((e) => e.name === 'chapter-view'),
-    (e) => e.props?.chapter,
-  )
-  const chapterDone = new Map(
-    countBy(
-      events.filter((e) => e.name === 'chapter-complete'),
-      (e) => e.props?.chapter,
-    ),
-  )
-  const funnelRows = chapterViews.map(([chapter, viewed]) => [
-    `${chapter} — ${chapterDone.get(chapter) ?? 0}/${viewed} finished`,
-    viewed,
-  ])
-
-  const stat = (label, value) =>
-    `<div class="stat"><strong>${esc(value)}</strong><span>${esc(label)}</span></div>`
-  const topState = countBy(views, (e) => e.state)[0]?.[0] ?? '—'
-
-  const realLink = `/analytics${viaQueryKey ? `?key=${encodeURIComponent(candidate)}` : ''}`
-  const notices = []
-  if (demo) {
-    notices.push(
-      `<p class="notice">Generated demo data for design validation — nothing here is real. <a href="${realLink}">Back to real data</a></p>`,
-    )
-  } else if (scrubbed > 0) {
-    notices.push(
-      `<p class="notice">Scrubbed ${scrubbed} Vercel preview-bot event${scrubbed === 1 ? '' : 's'} (CA, pre-filter). They're gone for good.</p>`,
-    )
-  } else if (botCount > 0) {
-    notices.push(
-      `<p class="notice">${botCount} stored event${botCount === 1 ? ' looks' : 's look'} like Vercel preview bots (California, from before the bot filter) —
-        <a href="/analytics?scrub=ca-bots${keyQS}">scrub them</a></p>`,
-    )
-  }
-
-  res.setHeader('Content-Type', 'text/html; charset=utf-8')
-  res.status(200).send(`<!doctype html>
-<html lang="en"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="noindex">
-<title>Portfolio analytics</title>
-<style>${PAGE_CSS}
+const DASH_CSS = `
   .stats{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:24px}
   .stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 22px;flex:1;min-width:130px}
   .stat strong{display:block;font-size:28px;line-height:1.2}
@@ -1015,9 +915,207 @@ export default async function handler(req, res) {
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;align-items:start}
   .grid .wide{grid-column:span 2}
   @media (max-width:720px){.grid .wide{grid-column:span 1}}
-</style></head><body><main>
+  .raw td{font-size:12.5px}
+  .raw .props{font-family:ui-monospace,SFMono-Regular,monospace;font-size:11px;max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .sechead h1{margin:0}`
+
+export default async function handler(req, res) {
+  const statsKey = process.env.STATS_KEY
+  const store = redisEnv()
+  res.setHeader('Cache-Control', 'private, no-store')
+  res.setHeader('X-Robots-Tag', 'noindex')
+  if (!statsKey || !store) {
+    res
+      .status(503)
+      .send(
+        'Portal not configured yet: connect an Upstash Redis store and set a STATS_KEY environment variable in Vercel, then redeploy.',
+      )
+    return
+  }
+
+  // Accept the key from the login form (POST), a ?key= link, or the cookie
+  // set on a previous successful login.
+  const reqUrl = new URL(req.url, 'http://x')
+  let candidate
+  let fromForm = false
+  if (req.method === 'POST') {
+    fromForm = true
+    let body = req.body
+    if (typeof body === 'string') {
+      body = Object.fromEntries(new URLSearchParams(body))
+    }
+    candidate = typeof body?.key === 'string' ? body.key : ''
+  } else {
+    candidate = reqUrl.searchParams.get('key')
+    if (candidate == null) candidate = parseCookies(req)[AUTH_COOKIE] ?? null
+  }
+
+  if (candidate !== statsKey) {
+    res.setHeader('Content-Type', 'text/html; charset=utf-8')
+    res.status(401).send(loginPage(candidate != null && candidate !== ''))
+    return
+  }
+  if (fromForm) {
+    // Post/redirect/get: remember the login, then land on the clean URL.
+    res.setHeader(
+      'Set-Cookie',
+      `${AUTH_COOKIE}=${encodeURIComponent(candidate)}; Path=/; Max-Age=7776000; HttpOnly; Secure; SameSite=Lax`,
+    )
+    res.setHeader('Location', '/analytics')
+    res.status(303).end()
+    return
+  }
+
+  const week = Math.min(
+    MAX_WEEK,
+    Math.max(0, Math.trunc(Number(reqUrl.searchParams.get('week')) || 0)),
+  )
+  // Keep ?key= access working across pager links; cookie users get clean URLs.
+  const viaQueryKey = reqUrl.searchParams.get('key') != null
+  const keyQS = viaQueryKey ? `&key=${encodeURIComponent(candidate)}` : ''
+  const demo = reqUrl.searchParams.get('demo') === '1'
+  // Funnel layers come from ?funnel=a,b,c plus an optional ?add= from the
+  // add-layer form; validate against the known set (Object.hasOwn guards
+  // against prototype keys) and cap the depth.
+  const funnelKeys = [
+    ...new Set(
+      `${reqUrl.searchParams.get('funnel') ?? ''},${reqUrl.searchParams.get('add') ?? ''}`
+        .split(',')
+        .map((k) => k.trim())
+        .filter((k) => Object.hasOwn(FUNNEL_LAYERS, k)),
+    ),
+  ].slice(0, MAX_LAYERS)
+  const funnelQS = funnelKeys.length ? `&funnel=${funnelKeys.join(',')}` : ''
+  const pageLink = (n) => `/analytics?week=${n}${demo ? '&demo=1' : ''}${funnelQS}${keyQS}`
+  const funnelHref = (keys) => {
+    const parts = []
+    if (week) parts.push(`week=${week}`)
+    if (demo) parts.push('demo=1')
+    if (keys.length) parts.push(`funnel=${keys.join(',')}`)
+    if (viaQueryKey) parts.push(`key=${encodeURIComponent(candidate)}`)
+    return `/analytics${parts.length ? `?${parts.join('&')}` : ''}`
+  }
+  const hiddenInputs = [
+    week ? `<input type="hidden" name="week" value="${week}">` : '',
+    demo ? '<input type="hidden" name="demo" value="1">' : '',
+    viaQueryKey ? `<input type="hidden" name="key" value="${esc(candidate)}">` : '',
+  ].join('')
+  const dayParam = reqUrl.searchParams.get('day')
+  const validDay =
+    dayParam && /^\d{4}-\d{2}-\d{2}$/.test(dayParam) ? dayParam : null
+  const dataView = reqUrl.searchParams.get('data') === '1'
+  const dayLink = (d) =>
+    `/analytics?day=${d}${demo ? '&demo=1' : ''}${funnelQS}${keyQS}`
+
+  const now = Date.now()
+  const cutoff = now - WINDOW_DAYS * DAY_MS
+  let events = []
+  let scrubbed = 0
+  let botCount = 0
+  if (demo) {
+    events = demoEvents(now)
+  } else {
+    const listRes = await fetch(`${store.url}/lrange/${EVENTS_KEY}/0/-1`, {
+      headers: { Authorization: `Bearer ${store.token}` },
+    })
+    const raw = listRes.ok ? ((await listRes.json()).result ?? []) : []
+    const doScrub = reqUrl.searchParams.get('scrub') === 'ca-bots'
+    const kept = []
+    for (const item of raw) {
+      try {
+        const event = JSON.parse(item)
+        if (!event) continue
+        if (isVercelBot(event)) {
+          botCount += 1
+          if (doScrub) {
+            scrubbed += 1
+            continue
+          }
+        }
+        kept.push(item)
+        if (typeof event.ts === 'number' && event.ts >= cutoff) {
+          events.push(event)
+        }
+      } catch {
+        // Skip malformed entries.
+      }
+    }
+    if (doScrub && scrubbed > 0) {
+      // Rewrite the list without the crawler events (kept is head→tail
+      // order, so RPUSH rebuilds it identically).
+      botCount = 0
+      await fetch(`${store.url}/pipeline`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${store.token}` },
+        body: JSON.stringify([
+          ['DEL', EVENTS_KEY],
+          ...(kept.length ? [['RPUSH', EVENTS_KEY, ...kept]] : []),
+        ]),
+      })
+    }
+  }
+
+  const views = events.filter((e) => e.name === 'page-view')
+  const contacts = events.filter((e) => e.name === 'contact')
+  const visits = buildVisits(events)
+  const today = dayKey(now)
+  const weekAgo = now - 7 * DAY_MS
+  const chapterViews = countBy(
+    events.filter((e) => e.name === 'chapter-view'),
+    (e) => e.props?.chapter,
+  )
+  const chapterDone = new Map(
+    countBy(
+      events.filter((e) => e.name === 'chapter-complete'),
+      (e) => e.props?.chapter,
+    ),
+  )
+  const funnelRows = chapterViews.map(([chapter, viewed]) => [
+    `${chapter} — ${chapterDone.get(chapter) ?? 0}/${viewed} finished`,
+    viewed,
+  ])
+
+  const stat = (label, value) =>
+    `<div class="stat"><strong>${esc(value)}</strong><span>${esc(label)}</span></div>`
+  const topState = countBy(views, (e) => e.state)[0]?.[0] ?? '—'
+
+  const realLink = `/analytics${viaQueryKey ? `?key=${encodeURIComponent(candidate)}` : ''}`
+  const notices = []
+  if (demo) {
+    notices.push(
+      `<p class="notice">Generated demo data for design validation — nothing here is real. <a href="${realLink}">Back to real data</a></p>`,
+    )
+  } else if (scrubbed > 0) {
+    notices.push(
+      `<p class="notice">Scrubbed ${scrubbed} Vercel preview-bot event${scrubbed === 1 ? '' : 's'} (CA, pre-filter). They're gone for good.</p>`,
+    )
+  } else if (botCount > 0) {
+    notices.push(
+      `<p class="notice">${botCount} stored event${botCount === 1 ? ' looks' : 's look'} like Vercel preview bots (California, from before the bot filter) —
+        <a href="/analytics?scrub=ca-bots${keyQS}">scrub them</a></p>`,
+    )
+  }
+
+  res.setHeader('Content-Type', 'text/html; charset=utf-8')
+  if (dataView) {
+    res.status(200).send(`<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Portfolio analytics — data check</title>
+<style>${PAGE_CSS}${DASH_CSS}</style></head><body><main>
+${dataCheckPage(events, visits, funnelHref(funnelKeys), notices.join(''))}
+</main></body></html>`)
+    return
+  }
+  res.status(200).send(`<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Portfolio analytics</title>
+<style>${PAGE_CSS}${DASH_CSS}</style></head><body><main>
   <h1>Portfolio analytics${demo ? ' <span class="tag">demo</span>' : ''}</h1>
-  <p class="sub">Last ${WINDOW_DAYS} days · ${events.length} events${demo ? '' : ` · <a class="demo-link" href="/analytics?demo=1${keyQS}">demo data</a>`}</p>
+  <p class="sub">Last ${WINDOW_DAYS} days · ${events.length} events${demo ? '' : ` · <a class="demo-link" href="/analytics?demo=1${keyQS}">demo data</a>`} · <a class="demo-link" href="/analytics?data=1${demo ? '&demo=1' : ''}${keyQS}">data check</a></p>
   ${notices.join('')}
   <div class="stats">
     ${stat('today', views.filter((e) => dayKey(e.ts) === today).length)}
