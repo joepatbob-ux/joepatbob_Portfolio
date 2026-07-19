@@ -37,20 +37,20 @@ export type FadeTuneState = {
 }
 
 export const FADE_TUNE_DEFAULTS: FadeTuneState = {
-  ghostMs: 320,
-  ghostBlur: 0,
-  ghostHold: 600,
-  stickerMs: 320,
-  stickerBlur: 8,
-  copyScrollBlur: 12,
-  copyEnterSpan: 60,
-  copyExitSpan: 70,
-  stageMs: 320,
-  stageBlur: 16,
-  stagePauseMs: 120,
-  heroBlur: 10,
-  heroNameBlur: 6,
-  heroFadeEnd: 58,
+  ghostMs: 860,
+  ghostBlur: 16,
+  ghostHold: 0,
+  stickerMs: 240,
+  stickerBlur: 10,
+  copyScrollBlur: 10,
+  copyEnterSpan: 30,
+  copyExitSpan: 54,
+  stageMs: 560,
+  stageBlur: 10,
+  stagePauseMs: 460,
+  heroBlur: 3,
+  heroNameBlur: 8,
+  heroFadeEnd: 40,
 }
 
 function loadState(): FadeTuneState {

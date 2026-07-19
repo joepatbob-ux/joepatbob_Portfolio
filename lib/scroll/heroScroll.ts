@@ -29,7 +29,7 @@ const HERO_REENTER_BOTTOM_MIN_PX = 120
 /** Scroll (px) before hero portrait begins to fade. */
 const HERO_PIN_FADE_START_PX = 24
 /** Fade completes by this fraction of viewport height (before first chapter crossfade). */
-const HERO_PIN_FADE_END_VH = 0.58
+const HERO_PIN_FADE_END_VH = 0.4
 /** Portrait considered gone below this — sidebar divider + chapter handoff. */
 export const HERO_PIN_CHAPTER_REVEAL_THRESHOLD = 0.02
 /** Scroll past hero fade before the first hardware panel ramps in (vh). */

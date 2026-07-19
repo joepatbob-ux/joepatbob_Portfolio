@@ -17,7 +17,10 @@ import { newDrivePage, report, sleep } from './harness.mjs'
 
 const VIEWPORT = { width: 1440, height: 900 }
 const CENTER = VIEWPORT.height / 2
-const STEP_PX = 16
+/* Paced to the owner-tuned dissolve (560ms fade + 460ms handoff pause):
+ * artifacts need ~1s to materialize, so the drive scrolls at a reading pace
+ * (~8px/frame ≈ 480px/s) rather than the old 16px/frame sprint. */
+const STEP_PX = 8
 
 export async function run({ browser, baseUrl }) {
   const failures = []
