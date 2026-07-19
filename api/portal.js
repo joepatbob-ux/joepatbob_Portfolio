@@ -414,7 +414,7 @@ function dayPanel(events, visits, key, now, backLink, dayLink) {
         <span><i class="sw d-cinema f-dark"></i>cinema</span>
         <span><i class="sw d-mode f-dark"></i>dark mode</span>
         <span><i class="sw d-mode f-light"></i>light mode</span>
-        <span class="hint">line = session span · dots = interactions · click a session for its events</span></div>`
+        <span class="hint">line = session span · diamonds = interactions · click a session for its events</span></div>`
   }
 
   const dayIndex =
@@ -868,7 +868,7 @@ const DASH_CSS = `
   .lane-sum{margin:0 0 8px;color:var(--ink)}
   .trail-row{display:flex;gap:12px;padding:2px 0;color:var(--mut)}
   .trail-row span{width:70px;flex-shrink:0;text-align:right;font-variant-numeric:tabular-nums}
-  .tick{position:absolute;top:50%;width:5px;height:5px;border-radius:50%;background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.25);transform:translate(-50%,-50%)}
+  .tick{position:absolute;top:50%;width:5.5px;height:5.5px;border-radius:1px;background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.25);transform:translate(-50%,-50%) rotate(45deg)}
   .dg-track.zoom{height:16px;background-image:none}
   .zoom .dot{top:3px;height:10px}
   .zoom-axis{position:relative;flex:1;height:14px;font-size:10px;color:var(--mut)}
