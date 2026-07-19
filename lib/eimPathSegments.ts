@@ -43,11 +43,11 @@ export function isEimTimingDebugEnabled(): boolean {
  * dialed-in setting is shareable as a link. */
 export const EIM_TIMING_DEFAULTS = {
   /** Full-cascade sweep-on duration (ms) — larger = slower draw. */
-  drawMs: 900,
+  drawMs: 2200,
   /** Dwell at each end of the cycle before the next phase (ms). */
-  holdMs: 900,
+  holdMs: 0,
   /** Per-dash fade duration (ms). */
-  fadeMs: 480,
+  fadeMs: 160,
 } as const
 
 export type EimTiming = { drawMs: number; holdMs: number; fadeMs: number }
