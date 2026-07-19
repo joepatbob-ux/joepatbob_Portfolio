@@ -76,6 +76,14 @@ export default async function handler(req, res) {
     city: geoHeader(req, 'x-vercel-ip-city'),
     device: /Mobi|Android|iPhone|iPad/i.test(ua) ? 'mobile' : 'desktop',
   }
+  // Approximate coordinates for the portal's world map. Vercel derives these
+  // from the visitor IP; keep them coarse (2 dp ≈ 1km) — city-level already.
+  const lat = Number(geoHeader(req, 'x-vercel-ip-latitude'))
+  const lon = Number(geoHeader(req, 'x-vercel-ip-longitude'))
+  if (Number.isFinite(lat) && Number.isFinite(lon) && (lat !== 0 || lon !== 0)) {
+    event.lat = Math.round(lat * 100) / 100
+    event.lon = Math.round(lon * 100) / 100
+  }
   const payload = JSON.stringify(event)
   if (payload.length > 2000) {
     res.status(413).end()
