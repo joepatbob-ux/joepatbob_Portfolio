@@ -124,7 +124,21 @@ export function createGlyphDust(
   canvas: HTMLCanvasElement,
   recipe: GlyphDustRecipe,
 ): GlyphDustHandle {
-  const ctx = canvas.getContext('2d')!
+  const ctx2d = canvas.getContext('2d')
+  if (!ctx2d) {
+    // Null on memory-starved iOS in-app browsers; this animates in a rAF
+    // loop outside React's error boundary, so guard rather than throw.
+    return {
+      start() {},
+      stop() {},
+      renderStatic() {},
+      seekPhase() {},
+      resumeCycle() {},
+      isPaused: () => true,
+      destroy() {},
+    }
+  }
+  const ctx = ctx2d
   const W = canvas.width
   const SCALE = W / VIEW
   const w2c = (x: number, y: number): [number, number] => [SCALE * (x + 2), SCALE * (y + 2)]
