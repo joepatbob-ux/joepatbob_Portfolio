@@ -489,13 +489,16 @@ const TRAIL_SKIP = new Set([
 ])
 
 /**
- * World map of where visits came from. Each page-view is placed by its
- * stored lat/lon when present (Vercel-derived, precise); older events fall
- * back to a US-state or country centroid so they still appear. Nearby
- * points bucket together and the dot grows with the visit count. Pure
- * inline SVG — no client JS, no map tiles.
+ * Where visits came from, as a rotating globe with a ranked top-locations
+ * list. Each page-view is placed by its stored lat/lon (Vercel-derived,
+ * precise); older events fall back to a US-state or country centroid.
+ *
+ * The globe is pure CSS/SVG — two copies of the equirectangular map scroll
+ * behind a circular mask with radial sphere shading, so the land and the
+ * real data dots rotate together with no client JS. The list restores
+ * at-a-glance reading and lets a city be clicked to filter the page.
  */
-function worldMap(events) {
+function worldMap(events, flt = null) {
   const px = (lon) => ((lon + 180) / 360) * WORLD_W
   const py = (lat) => ((90 - lat) / 180) * WORLD_H
   const spots = new Map()
@@ -522,28 +525,62 @@ function worldMap(events) {
       continue
     }
     located += 1
-    const spot = spots.get(key) ?? { lat, lon, n: 0, label }
+    const spot = spots.get(key) ?? { lat, lon, n: 0, label, city: e.city ?? null }
     spot.n += 1
     spot.label = label
     spots.set(key, spot)
   }
-  const maxN = Math.max(1, ...[...spots.values()].map((s) => s.n))
-  const dots = [...spots.values()]
-    .sort((a, b) => b.n - a.n)
+  const sorted = [...spots.values()].sort((a, b) => b.n - a.n)
+  const maxN = Math.max(1, ...sorted.map((s) => s.n))
+  const dots = sorted
     .map((s) => {
-      const r = (3 + 3.5 * Math.sqrt((s.n - 1) / maxN)).toFixed(1)
+      const r = (3.5 + 4 * Math.sqrt((s.n - 1) / maxN)).toFixed(1)
       return `<circle class="world-dot" cx="${px(s.lon).toFixed(1)}" cy="${py(s.lat).toFixed(1)}" r="${r}"><title>${esc(`${s.label} · ${s.n} visit${s.n === 1 ? '' : 's'}`)}</title></circle>`
     })
     .join('')
+  // viewBox crops to the inhabited band so it fills the circle; the two SVG
+  // copies scroll seamlessly (translateX -50% loops one full map width).
+  // Explicit width/height give the SVG an intrinsic aspect ratio — iOS
+  // Safari otherwise computes width:auto as 0 here, leaving an empty globe.
+  const mapSvg = `<svg class="globe-map" width="${WORLD_W}" height="360" viewBox="0 55 ${WORLD_W} 360" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><path class="world-land" d="${WORLD_PATH}"/>${dots}</svg>`
+  const globe = `<div class="globe" role="img" aria-label="Rotating globe of visitor locations">
+    <div class="globe-spin">${mapSvg}${mapSvg}</div>
+    <div class="globe-shade"></div>
+  </div>`
+  // Merge spots sharing a label (nearby lat/lon buckets of the same place)
+  // so the readout lists each location once.
+  const byLabel = new Map()
+  for (const s of sorted) {
+    const row = byLabel.get(s.label) ?? { label: s.label, city: s.city, n: 0 }
+    row.n += s.n
+    byLabel.set(s.label, row)
+  }
+  const list = [...byLabel.values()]
+    .sort((a, b) => b.n - a.n)
+    .slice(0, 8)
+    .map((s) => {
+      const name =
+        flt && s.city
+          ? `<a class="flt" href="${flt('city', s.city)}">${esc(s.label)}</a>`
+          : esc(s.label)
+      return `<li><span class="loc-name">${name}</span><span class="loc-n">${s.n}</span></li>`
+    })
+    .join('')
   const note = located
-    ? `${located} of ${views.length} visit${views.length === 1 ? '' : 's'} placed${unlocated ? ` · ${unlocated} location unknown` : ''}`
+    ? `${located} of ${views.length} placed${unlocated ? ` · ${unlocated} unknown` : ''}`
     : 'appears as located visits arrive'
-  return `<section class="block"><h2>Where visitors are <span class="hint">(${esc(note)})</span></h2>
-    <div class="card worldcard">
+  // Flat map on desktop (room to see every dot at once); rotating globe on
+  // mobile (a squished flat map is unreadable). Toggled by CSS media query.
+  const flatCard = `<div class="card worldcard flat-only">
     <svg class="worldmap" viewBox="0 18 ${WORLD_W} 392" preserveAspectRatio="xMidYMid meet" role="img" aria-label="World map of visitor locations">
-      <path class="world-land" d="${WORLD_PATH}"/>
-      ${dots}
-    </svg></div></section>`
+      <path class="world-land" d="${WORLD_PATH}"/>${dots}
+    </svg></div>`
+  const globeCard = `<div class="card globe-card mobile-only">
+      ${globe}
+      <ul class="globe-list">${list || '<li class="mut">no located visits yet</li>'}</ul>
+    </div>`
+  return `<section class="block"><h2>Where visitors are <span class="hint">(${esc(note)})</span></h2>
+    ${flatCard}${globeCard}</section>`
 }
 
 /** Stitch each session id's events into one visit story. */
@@ -1079,13 +1116,53 @@ const DASH_CSS = `
   .empty-note{color:var(--mut);margin:0;text-align:center}
   .scroll{overflow-x:auto}
   .scroll table{min-width:720px}
+  /* Flat map (desktop) vs globe (mobile) — one shown at a time. */
+  .flat-only{display:block}
+  .mobile-only{display:none}
+  @media (max-width:720px){.flat-only{display:none}.mobile-only{display:flex}}
   .worldcard{padding:10px}
   .worldmap{width:100%;height:auto;display:block}
-  .world-land{fill:var(--row)}
-  .world-dot{fill:var(--accent);fill-opacity:.68;stroke:var(--card);stroke-width:1}
+  .worldmap .world-land{fill:var(--row)}
+  .worldmap .world-dot{fill:var(--accent);fill-opacity:.7;stroke:var(--card);stroke-width:1}
+  .globe-card{gap:26px;align-items:center}
+  .globe{position:relative;flex:0 0 auto;width:clamp(230px,34vw,330px);aspect-ratio:1;border-radius:50%;overflow:hidden;cursor:grab;touch-action:pan-y;background:radial-gradient(circle at 38% 32%, color-mix(in srgb, var(--ink) 7%, var(--card)), color-mix(in srgb, var(--ink) 16%, var(--card)))}
+  .globe:active{cursor:grabbing}
+  .globe-spin{display:flex;height:100%;width:max-content;animation:globe-rot 48s linear infinite;will-change:transform}
+  .globe-map{height:100%;width:auto;aspect-ratio:${WORLD_W}/360;display:block;flex:0 0 auto}
+  @keyframes globe-rot{to{transform:translateX(-50%)}}
+  .globe-map .world-land{fill:color-mix(in srgb, var(--ink) 26%, transparent)}
+  .globe-map .world-dot{fill:var(--accent);fill-opacity:.9;stroke:var(--card);stroke-width:1.2}
+  .globe-shade{position:absolute;inset:0;border-radius:50%;pointer-events:none;
+    background:radial-gradient(circle at 36% 30%, rgba(255,255,255,.16), rgba(255,255,255,0) 46%);
+    box-shadow:inset -16px -20px 42px rgba(0,0,0,.34), inset 12px 14px 34px rgba(0,0,0,.10), inset 0 0 0 1px var(--line)}
+  .globe-list{flex:1;min-width:0;list-style:none;margin:0;padding:0;columns:2;column-gap:26px}
+  .globe-list li{display:flex;justify-content:space-between;gap:12px;padding:5px 0;border-bottom:1px solid var(--line);break-inside:avoid}
+  .loc-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .loc-n{font-family:var(--mono);font-size:13px;color:var(--mut);font-variant-numeric:tabular-nums}
+  @media (prefers-reduced-motion: reduce){.globe-spin{animation:none}}
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;align-items:start}
   .grid .wide{grid-column:span 2}
   @media (max-width:720px){.grid .wide{grid-column:span 1}}
+  /* ── Mobile ─────────────────────────────────────────────── */
+  @media (max-width:640px){
+    body{padding:20px 16px 56px}
+    h1{font-size:22px}
+    .stats{gap:9px}
+    .stat{flex:1 1 calc(50% - 5px);min-width:0;padding:12px 14px;border-radius:11px}
+    .stat strong{font-size:23px}
+    .stat span{font-size:10px}
+    .globe-card{flex-direction:column;gap:16px}
+    .globe{width:min(76vw,300px)}
+    .globe-list{width:100%;columns:2;column-gap:18px}
+    .dg-day,.dg-day b{font-size:11px}
+    .dg-day{width:56px}
+    .lane-info{width:118px}
+    .sechead{gap:6px}
+  }
+  @media (max-width:360px){
+    .globe-list{columns:1}
+    .stat{flex-basis:100%}
+  }
   .raw td{font-size:12.5px}
   .raw .props{font-family:ui-monospace,SFMono-Regular,monospace;font-size:11px;max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .errmsg{font-family:ui-monospace,SFMono-Regular,monospace;font-size:12px;white-space:normal;word-break:break-word;color:var(--accent)}
@@ -1343,7 +1420,7 @@ ${dataCheckPage(events, allVisits, funnelHref(funnelKeys), notices.join(''))}
       ? dayPanel(scoped, visits, validDay, now, pageLink(week), dayLink)
       : dayGrid(scoped, visits, now, week, pageLink, dayLink)
   }</div>
-  ${worldMap(scoped)}
+  ${worldMap(scoped, filterHref)}
   <div class="pair">
     ${funnelSection(visits, funnelKeys, funnelHref, hiddenInputs)}
     ${sourceTable(visits, filterHref)}
@@ -1366,5 +1443,7 @@ ${dataCheckPage(events, allVisits, funnelHref(funnelKeys), notices.join(''))}
   ${barTable('All events', countBy(scoped, (e) => e.name), { limit: 24 })}
   ${barTable('Client errors', countBy(scoped.filter((e) => e.name === 'client-error'), (e) => e.props?.message), { limit: 8 })}
   </div>
-</main></body></html>`)
+</main>
+<script src="/portal-globe.js" defer></script>
+</body></html>`)
 }
