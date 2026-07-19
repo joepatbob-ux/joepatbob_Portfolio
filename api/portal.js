@@ -4,6 +4,13 @@
 // third parties, works on any Vercel plan. Auth: password form → HttpOnly
 // cookie; ?key= links also work.
 import { EVENTS_KEY, redisEnv } from './track.js'
+import {
+  COUNTRY_CENTROID,
+  US_STATE_CENTROID,
+  WORLD_H,
+  WORLD_PATH,
+  WORLD_W,
+} from './world-map.js'
 
 const WINDOW_DAYS = 30
 const AUTH_COOKIE = 'pa_key'
@@ -444,6 +451,64 @@ const TRAIL_SKIP = new Set([
   'session-geo',
 ])
 
+/**
+ * World map of where visits came from. Each page-view is placed by its
+ * stored lat/lon when present (Vercel-derived, precise); older events fall
+ * back to a US-state or country centroid so they still appear. Nearby
+ * points bucket together and the dot grows with the visit count. Pure
+ * inline SVG — no client JS, no map tiles.
+ */
+function worldMap(events) {
+  const px = (lon) => ((lon + 180) / 360) * WORLD_W
+  const py = (lat) => ((90 - lat) / 180) * WORLD_H
+  const spots = new Map()
+  let located = 0
+  let unlocated = 0
+  const views = events.filter((e) => e.name === 'page-view')
+  for (const e of views) {
+    let lat, lon, key, label
+    if (typeof e.lat === 'number' && typeof e.lon === 'number') {
+      lat = e.lat
+      lon = e.lon
+      key = `${lat.toFixed(1)},${lon.toFixed(1)}`
+      label = e.city ? `${e.city}, ${e.state ?? e.country ?? ''}` : (e.state ?? e.country ?? 'unknown')
+    } else if (e.country === 'US' && US_STATE_CENTROID[e.state]) {
+      ;[lat, lon] = US_STATE_CENTROID[e.state]
+      key = `US-${e.state}`
+      label = e.city ? `${e.city}, ${e.state}` : e.state
+    } else if (COUNTRY_CENTROID[e.country]) {
+      ;[lat, lon] = COUNTRY_CENTROID[e.country]
+      key = e.country
+      label = e.city ? `${e.city}, ${e.country}` : e.country
+    } else {
+      unlocated += 1
+      continue
+    }
+    located += 1
+    const spot = spots.get(key) ?? { lat, lon, n: 0, label }
+    spot.n += 1
+    spot.label = label
+    spots.set(key, spot)
+  }
+  const maxN = Math.max(1, ...[...spots.values()].map((s) => s.n))
+  const dots = [...spots.values()]
+    .sort((a, b) => b.n - a.n)
+    .map((s) => {
+      const r = (3 + 3.5 * Math.sqrt((s.n - 1) / maxN)).toFixed(1)
+      return `<circle class="world-dot" cx="${px(s.lon).toFixed(1)}" cy="${py(s.lat).toFixed(1)}" r="${r}"><title>${esc(`${s.label} · ${s.n} visit${s.n === 1 ? '' : 's'}`)}</title></circle>`
+    })
+    .join('')
+  const note = located
+    ? `${located} of ${views.length} visit${views.length === 1 ? '' : 's'} placed${unlocated ? ` · ${unlocated} location unknown` : ''}`
+    : 'appears as located visits arrive'
+  return `<section class="block"><h2>Where visitors are <span class="hint">(${esc(note)})</span></h2>
+    <div class="card worldcard">
+    <svg class="worldmap" viewBox="0 18 ${WORLD_W} 392" preserveAspectRatio="xMidYMid meet" role="img" aria-label="World map of visitor locations">
+      <path class="world-land" d="${WORLD_PATH}"/>
+      ${dots}
+    </svg></div></section>`
+}
+
 /** Stitch each session id's events into one visit story. */
 function buildVisits(events) {
   const bySid = new Map()
@@ -778,10 +843,19 @@ function mulberry32(seed) {
 function demoEvents(now) {
   const rnd = mulberry32(42)
   const pick = (arr) => arr[Math.floor(rnd() * arr.length)]
+  // [city, region, country, lat, lon] — mostly US, a few international so
+  // the demo world map spans the globe.
   const CITIES = [
-    ['Austin', 'TX'], ['Dallas', 'TX'], ['New York', 'NY'], ['Seattle', 'WA'],
-    ['Chicago', 'IL'], ['Boston', 'MA'], ['Denver', 'CO'], ['Atlanta', 'GA'],
-    ['Portland', 'OR'], ['San Francisco', 'CA'], ['Raleigh', 'NC'], ['Columbus', 'OH'],
+    ['Austin', 'TX', 'US', 30.27, -97.74], ['Dallas', 'TX', 'US', 32.78, -96.8],
+    ['New York', 'NY', 'US', 40.71, -74.01], ['Seattle', 'WA', 'US', 47.61, -122.33],
+    ['Chicago', 'IL', 'US', 41.88, -87.63], ['Boston', 'MA', 'US', 42.36, -71.06],
+    ['Denver', 'CO', 'US', 39.74, -104.99], ['Atlanta', 'GA', 'US', 33.75, -84.39],
+    ['Portland', 'OR', 'US', 45.52, -122.68], ['San Francisco', 'CA', 'US', 37.77, -122.42],
+    ['Raleigh', 'NC', 'US', 35.78, -78.64], ['Columbus', 'OH', 'US', 39.96, -83.0],
+    ['London', 'ENG', 'GB', 51.51, -0.13], ['Toronto', 'ON', 'CA', 43.65, -79.38],
+    ['Berlin', 'BE', 'DE', 52.52, 13.4], ['Tokyo', '13', 'JP', 35.68, 139.65],
+    ['Sydney', 'NSW', 'AU', -33.87, 151.21], ['São Paulo', 'SP', 'BR', -23.55, -46.63],
+    ['Bengaluru', 'KA', 'IN', 12.97, 77.59],
   ]
   const LAYOUTS = ['desktop', 'desktop', 'desktop', 'mobile', 'mobile', 'tablet', 'cinema']
   const SOURCES = [null, null, null, 'resume', 'linkedin', 'application']
@@ -804,13 +878,16 @@ function demoEvents(now) {
       // Keep today's demo sessions in the past so lanes read naturally.
       if (d === 0) targetMin = Math.max(0, Math.min(targetMin, minuteOfDay(now) - 20))
       const start = dayTs + (targetMin - minuteOfDay(dayTs)) * 60_000
-      const [city, state] = pick(CITIES)
+      const [city, state, country, clat, clon] = pick(CITIES)
       const layout = pick(LAYOUTS)
       const theme = rnd() < 0.4 ? 'dark' : 'light'
       const source = pick(SOURCES)
       const [dur, durMin, chMax] = DURS[Math.floor(rnd() * DURS.length)]
+      // Jitter a little so repeat visits from a city don't stack exactly.
       const base = {
-        sid, path: '/', country: 'US', state, city,
+        sid, path: '/', country, state, city,
+        lat: Math.round((clat + (rnd() - 0.5) * 0.4) * 100) / 100,
+        lon: Math.round((clon + (rnd() - 0.5) * 0.4) * 100) / 100,
         device: layout === 'mobile' ? 'mobile' : 'desktop',
         ref: source === 'linkedin' ? 'https://www.linkedin.com/' : rnd() < 0.12 ? 'https://www.google.com/' : '',
       }
@@ -944,6 +1021,10 @@ const DASH_CSS = `
   .empty-note{color:var(--mut);margin:0;text-align:center}
   .scroll{overflow-x:auto}
   .scroll table{min-width:720px}
+  .worldcard{padding:10px}
+  .worldmap{width:100%;height:auto;display:block}
+  .world-land{fill:var(--row)}
+  .world-dot{fill:var(--accent);fill-opacity:.68;stroke:var(--card);stroke-width:1}
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;align-items:start}
   .grid .wide{grid-column:span 2}
   @media (max-width:720px){.grid .wide{grid-column:span 1}}
@@ -1162,6 +1243,7 @@ ${dataCheckPage(events, visits, funnelHref(funnelKeys), notices.join(''))}
       ? dayPanel(events, visits, validDay, now, pageLink(week), dayLink)
       : dayGrid(events, visits, now, week, pageLink, dayLink)
   }</div>
+  ${worldMap(events)}
   <div class="pair">
     ${funnelSection(visits, funnelKeys, funnelHref, hiddenInputs)}
     ${sourceTable(visits)}
