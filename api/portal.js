@@ -1123,7 +1123,8 @@ const DASH_CSS = `
   .worldmap .world-land{fill:var(--row)}
   .worldmap .world-dot{fill:var(--accent);fill-opacity:.7;stroke:var(--card);stroke-width:1}
   .globe-card{gap:26px;align-items:center}
-  .globe{position:relative;flex:0 0 auto;width:clamp(230px,34vw,330px);aspect-ratio:1;border-radius:50%;overflow:hidden;background:radial-gradient(circle at 38% 32%, color-mix(in srgb, var(--ink) 7%, var(--card)), color-mix(in srgb, var(--ink) 16%, var(--card)))}
+  .globe{position:relative;flex:0 0 auto;width:clamp(230px,34vw,330px);aspect-ratio:1;border-radius:50%;overflow:hidden;cursor:grab;touch-action:pan-y;background:radial-gradient(circle at 38% 32%, color-mix(in srgb, var(--ink) 7%, var(--card)), color-mix(in srgb, var(--ink) 16%, var(--card)))}
+  .globe:active{cursor:grabbing}
   .globe-spin{display:flex;height:100%;width:max-content;animation:globe-rot 48s linear infinite;will-change:transform}
   .globe-map{height:100%;width:auto;display:block;flex:0 0 auto}
   @keyframes globe-rot{to{transform:translateX(-50%)}}
@@ -1440,5 +1441,7 @@ ${dataCheckPage(events, allVisits, funnelHref(funnelKeys), notices.join(''))}
   ${barTable('All events', countBy(scoped, (e) => e.name), { limit: 24 })}
   ${barTable('Client errors', countBy(scoped.filter((e) => e.name === 'client-error'), (e) => e.props?.message), { limit: 8 })}
   </div>
-</main></body></html>`)
+</main>
+<script src="/portal-globe.js" defer></script>
+</body></html>`)
 }
