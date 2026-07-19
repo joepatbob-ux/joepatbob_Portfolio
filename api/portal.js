@@ -567,11 +567,18 @@ function worldMap(events, flt = null) {
   const note = located
     ? `${located} of ${views.length} placed${unlocated ? ` · ${unlocated} unknown` : ''}`
     : 'appears as located visits arrive'
-  return `<section class="block"><h2>Where visitors are <span class="hint">(${esc(note)})</span></h2>
-    <div class="card globe-card">
+  // Flat map on desktop (room to see every dot at once); rotating globe on
+  // mobile (a squished flat map is unreadable). Toggled by CSS media query.
+  const flatCard = `<div class="card worldcard flat-only">
+    <svg class="worldmap" viewBox="0 18 ${WORLD_W} 392" preserveAspectRatio="xMidYMid meet" role="img" aria-label="World map of visitor locations">
+      <path class="world-land" d="${WORLD_PATH}"/>${dots}
+    </svg></div>`
+  const globeCard = `<div class="card globe-card mobile-only">
       ${globe}
       <ul class="globe-list">${list || '<li class="mut">no located visits yet</li>'}</ul>
-    </div></section>`
+    </div>`
+  return `<section class="block"><h2>Where visitors are <span class="hint">(${esc(note)})</span></h2>
+    ${flatCard}${globeCard}</section>`
 }
 
 /** Stitch each session id's events into one visit story. */
@@ -1107,13 +1114,21 @@ const DASH_CSS = `
   .empty-note{color:var(--mut);margin:0;text-align:center}
   .scroll{overflow-x:auto}
   .scroll table{min-width:720px}
-  .globe-card{display:flex;gap:26px;align-items:center}
+  /* Flat map (desktop) vs globe (mobile) — one shown at a time. */
+  .flat-only{display:block}
+  .mobile-only{display:none}
+  @media (max-width:720px){.flat-only{display:none}.mobile-only{display:flex}}
+  .worldcard{padding:10px}
+  .worldmap{width:100%;height:auto;display:block}
+  .worldmap .world-land{fill:var(--row)}
+  .worldmap .world-dot{fill:var(--accent);fill-opacity:.7;stroke:var(--card);stroke-width:1}
+  .globe-card{gap:26px;align-items:center}
   .globe{position:relative;flex:0 0 auto;width:clamp(230px,34vw,330px);aspect-ratio:1;border-radius:50%;overflow:hidden;background:radial-gradient(circle at 38% 32%, color-mix(in srgb, var(--ink) 7%, var(--card)), color-mix(in srgb, var(--ink) 16%, var(--card)))}
   .globe-spin{display:flex;height:100%;width:max-content;animation:globe-rot 48s linear infinite;will-change:transform}
   .globe-map{height:100%;width:auto;display:block;flex:0 0 auto}
   @keyframes globe-rot{to{transform:translateX(-50%)}}
-  .world-land{fill:color-mix(in srgb, var(--ink) 26%, transparent)}
-  .world-dot{fill:var(--accent);fill-opacity:.9;stroke:var(--card);stroke-width:1.2}
+  .globe-map .world-land{fill:color-mix(in srgb, var(--ink) 26%, transparent)}
+  .globe-map .world-dot{fill:var(--accent);fill-opacity:.9;stroke:var(--card);stroke-width:1.2}
   .globe-shade{position:absolute;inset:0;border-radius:50%;pointer-events:none;
     background:radial-gradient(circle at 36% 30%, rgba(255,255,255,.16), rgba(255,255,255,0) 46%);
     box-shadow:inset -16px -20px 42px rgba(0,0,0,.34), inset 12px 14px 34px rgba(0,0,0,.10), inset 0 0 0 1px var(--line)}
