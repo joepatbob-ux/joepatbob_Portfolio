@@ -500,7 +500,11 @@ function buildVisits(events) {
               e.props?.action ??
               e.props?.source ??
               e.props?.channel ??
-              e.props?.duration,
+              e.props?.duration ??
+              // client-error carries its message — surface what broke.
+              (e.props?.message != null
+                ? String(e.props.message).slice(0, 70)
+                : null),
           ]
             .filter(Boolean)
             .join(' · '),
