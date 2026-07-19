@@ -540,7 +540,9 @@ function worldMap(events, flt = null) {
     .join('')
   // viewBox crops to the inhabited band so it fills the circle; the two SVG
   // copies scroll seamlessly (translateX -50% loops one full map width).
-  const mapSvg = `<svg class="globe-map" viewBox="0 55 ${WORLD_W} 360" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><path class="world-land" d="${WORLD_PATH}"/>${dots}</svg>`
+  // Explicit width/height give the SVG an intrinsic aspect ratio — iOS
+  // Safari otherwise computes width:auto as 0 here, leaving an empty globe.
+  const mapSvg = `<svg class="globe-map" width="${WORLD_W}" height="360" viewBox="0 55 ${WORLD_W} 360" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><path class="world-land" d="${WORLD_PATH}"/>${dots}</svg>`
   const globe = `<div class="globe" role="img" aria-label="Rotating globe of visitor locations">
     <div class="globe-spin">${mapSvg}${mapSvg}</div>
     <div class="globe-shade"></div>
@@ -1126,7 +1128,7 @@ const DASH_CSS = `
   .globe{position:relative;flex:0 0 auto;width:clamp(230px,34vw,330px);aspect-ratio:1;border-radius:50%;overflow:hidden;cursor:grab;touch-action:pan-y;background:radial-gradient(circle at 38% 32%, color-mix(in srgb, var(--ink) 7%, var(--card)), color-mix(in srgb, var(--ink) 16%, var(--card)))}
   .globe:active{cursor:grabbing}
   .globe-spin{display:flex;height:100%;width:max-content;animation:globe-rot 48s linear infinite;will-change:transform}
-  .globe-map{height:100%;width:auto;display:block;flex:0 0 auto}
+  .globe-map{height:100%;width:auto;aspect-ratio:${WORLD_W}/360;display:block;flex:0 0 auto}
   @keyframes globe-rot{to{transform:translateX(-50%)}}
   .globe-map .world-land{fill:color-mix(in srgb, var(--ink) 26%, transparent)}
   .globe-map .world-dot{fill:var(--accent);fill-opacity:.9;stroke:var(--card);stroke-width:1.2}
@@ -1143,7 +1145,7 @@ const DASH_CSS = `
   @media (max-width:720px){.grid .wide{grid-column:span 1}}
   /* ── Mobile ─────────────────────────────────────────────── */
   @media (max-width:640px){
-    body{padding:20px 15px 56px}
+    body{padding:20px 16px 56px}
     h1{font-size:22px}
     .stats{gap:9px}
     .stat{flex:1 1 calc(50% - 5px);min-width:0;padding:12px 14px;border-radius:11px}
