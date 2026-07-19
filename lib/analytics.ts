@@ -353,19 +353,35 @@ export function initIntentSignalTracking(): void {
  * known. Message only (truncated); Vercel's built-in dimensions carry the
  * browser/OS.
  */
+/** First `file.js:line:col` frame in a stack — the source of a rejection. */
+function stackHint(stack: string | undefined): string {
+  const m = stack?.match(/([\w.-]+\.(?:js|ts)x?):(\d+):(\d+)/)
+  return m ? `${m[1]}:${m[2]}:${m[3]}` : ''
+}
+
 export function initClientErrorTracking(): void {
   if (isPrerenderSnapshot()) return
-  const report = (kind: 'error' | 'rejection', message: unknown) => {
-    trackEventOnce('client-error', 'client-error', {
+  // `where` (file:line:col) makes an error self-locating in the portal — the
+  // difference between "something threw" and "PhoneSwap-abc.js:1:2345 threw".
+  const report = (kind: 'error' | 'rejection', message: unknown, where: string) => {
+    const props: EventProps = {
       kind,
       message: String(message ?? 'unknown').slice(0, 120),
-    })
+    }
+    if (where) props.where = where.slice(0, 80)
+    trackEventOnce('client-error', 'client-error', props)
   }
-  window.addEventListener('error', (event) => report('error', event.message))
-  window.addEventListener('unhandledrejection', (event) =>
+  window.addEventListener('error', (event) => {
+    const file = event.filename ? event.filename.split('/').pop() : ''
+    const at = file ? `${file}:${event.lineno}:${event.colno}` : ''
+    report('error', event.message, at)
+  })
+  window.addEventListener('unhandledrejection', (event) => {
+    const reason = event.reason
     report(
       'rejection',
-      event.reason instanceof Error ? event.reason.message : event.reason,
-    ),
-  )
+      reason instanceof Error ? reason.message : reason,
+      reason instanceof Error ? stackHint(reason.stack) : '',
+    )
+  })
 }
