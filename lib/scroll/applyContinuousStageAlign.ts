@@ -5,7 +5,10 @@ import {
 } from '@/lib/scroll/chapterVisibility'
 import { isContinuousChapters } from '@/lib/scroll/continuousChapters'
 import { flushScrollFrame } from '@/lib/scroll/scrollFrame'
-import { publishChapterStageFx } from '@/lib/scroll/stageFxBus'
+import {
+  clearChapterStageFx,
+  publishChapterStageFx,
+} from '@/lib/scroll/stageFxBus'
 import { isTopBarNavViewport } from '@/lib/layout/isTopBarNavViewport'
 
 const STAGE_SELECTOR = `${CHAPTER_SLOT_SELECTOR} .chapter-slide__stage:not(:has(.flow-chapter-slide__stage--empty))`
@@ -432,6 +435,12 @@ export function resetContinuousStageAlign(): void {
     cancelStageFadeOut(stage)
     delete stage.dataset.stageOutY
     finalizeStageClear(stage, stageAlignTarget(stage))
+    // The continuous machine is no longer the authority for this stage (mobile
+    // / top-bar nav): drop the stage-fx state to "no machine" so companions
+    // (EIM art, stickers, the pile) fall back to their reveal threshold rather
+    // than reading the finalize's `false` as "hidden" and never lighting up.
+    const chapterId = stageChapterId(stage)
+    if (chapterId) clearChapterStageFx(chapterId)
   })
 }
 
