@@ -54,6 +54,9 @@ const ORPHAN_ALLOWED = new Set([
   // Referenced from lib/contact.ts (CONTACT_RESUME_URL) — root-level .docx
   // sits outside PATH_PATTERN's directory/extension scope.
   '/Joseph_Roberts_Resume.docx',
+  // Loaded by the analytics portal (api/portal.js — outside SOURCE_DIRS) as
+  // <script src="/portal-globe.js"> for the mobile globe drag interaction.
+  '/portal-globe.js',
 ])
 
 /** Optional local-only assets (gitignored exports). */
