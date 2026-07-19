@@ -211,7 +211,7 @@ const lastAlignTopByStage = new WeakMap<HTMLElement, number>()
 
 /* Handoff pause: an arriving stage waits until the outgoing dissolve finishes
  * plus a beat. Dialable via ?fadeTune=1 (documentElement.dataset.stagePauseMs). */
-const STAGE_HANDOFF_PAUSE_MS = 460
+const STAGE_HANDOFF_PAUSE_MS = 60
 let stageEntryGateUntil = 0
 let gateFlushTimer: number | null = null
 
