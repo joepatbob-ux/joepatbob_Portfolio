@@ -17,10 +17,11 @@ import { newDrivePage, report, sleep } from './harness.mjs'
 
 const VIEWPORT = { width: 1440, height: 900 }
 const CENTER = VIEWPORT.height / 2
-/* Paced to the owner-tuned dissolve (560ms fade + 460ms handoff pause):
- * artifacts need ~1s to materialize, so the drive scrolls at a reading pace
- * (~8px/frame ≈ 480px/s) rather than the old 16px/frame sprint. */
-const STEP_PX = 8
+/* Paced against the shipped dissolve (200ms fade + 60ms handoff pause):
+ * artifacts materialize in ~¼s, so a brisk 16px/frame drive must still see
+ * every artifact reach full opacity. Slow this pace if the fade tokens ever
+ * grow — the gate asserts materialization at scroll speed, not at rest. */
+const STEP_PX = 16
 
 export async function run({ browser, baseUrl }) {
   const failures = []

@@ -94,7 +94,7 @@ function fixGhostNavRest(container: HTMLElement, copy: HTMLElement): void {
  * tests the dialed values end to end. Visitor-local (localStorage) only. */
 function applyFadeTuneOverrides(): { holdMs: number; totalMs: number } {
   let holdMs = 0
-  let durationMs = 860
+  let durationMs = 300
   try {
     const raw = window.localStorage.getItem('fade-tune')
     if (raw) {

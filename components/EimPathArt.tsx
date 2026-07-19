@@ -12,7 +12,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 const SVG_SRC = '/images/devices/eimpath.svg'
 const PATH_FILL = '#F5431B'
 const CYCLE_HOLD_MS = 600
-const DASH_FADE_MIN_MS = 360
+const DASH_FADE_MIN_MS = 240
 const DASH_FADE_MAX_MS = 520
 const DASH_STAGGER_MIN_MS = 4
 
