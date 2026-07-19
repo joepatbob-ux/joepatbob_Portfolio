@@ -8,9 +8,6 @@ import { isContinuousChapters } from '@/lib/scroll/continuousChapters'
 import type { Chapter } from '@/lib/types'
 
 const CHAPTER_ID = 'hardware-eim'
-/* The cascade must land with the chapter's ~200ms crossfade — a slow draw
- * leaves the artifact half-dark through a normal scroll pass. */
-const DRAW_MS = 300
 
 interface Props {
   chapter: Chapter
@@ -54,13 +51,7 @@ export function EimChapter({ chapter, isLast }: Props) {
       modifier="eim"
       isLast={isLast}
       stageAriaLabel={chapter.imageAlt}
-      stage={
-        <EimPathArt
-          active={present}
-          triggerDraw={drawSettled}
-          drawDurationMs={DRAW_MS}
-        />
-      }
+      stage={<EimPathArt active={present} triggerDraw={drawSettled} />}
     />
   )
 }
