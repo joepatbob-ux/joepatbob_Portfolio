@@ -44,6 +44,21 @@ const STAGE_ENTRY_NEAR_PX = 56
  * out of its own entry position. */
 const STAGE_RIDE_AWAY_PX = STAGE_ENTRY_NEAR_PX + 40
 
+/* Begin the dissolve while the artifact is still ON the lock once the slot's
+ * remaining track drops below this lead — sticky containment at a slot's end
+ * carries the artifact upward with the scroll, and at flick velocity the
+ * displacement gates below fire only after it has visibly yanked off center.
+ * The lead gives the fade time to complete before the carry begins. Entry's
+ * roomToClamp uses lead + push-off so the two thresholds can't strobe. */
+const STAGE_SLOT_EXIT_LEAD_PX = 140
+
+/* Above this per-frame carry velocity, an exiting artifact clears instantly
+ * instead of fading: the 200ms dissolve plays while the sticky element is
+ * carried with the scroll, and at flick speed that reads as the artifact
+ * yanking hundreds of px off the lock at high opacity. A one-frame cut
+ * during that much motion is imperceptible; slower exits keep the fade. */
+const STAGE_FLICK_EXIT_PX_PER_FRAME = 64
+
 function stagePointerEvents(
   stage: HTMLElement,
   stageOpacity: number,
@@ -319,6 +334,9 @@ type StageMeasure = {
   centerHalf: number | null
   /** This chapter is the active sidebar-nav destination. */
   isNavTarget: boolean
+  /** Exit at flick velocity: clear instantly — a fade would visibly travel
+   * with the carried sticky element (the recorded "scroll yank"). */
+  flickExit?: boolean
 }
 
 function collectStageEntries(
@@ -445,6 +463,7 @@ function measureStage(
   const isNavTarget = navTargetId != null && chapterId === navTargetId
 
   let want = fx != null ? shouldKeep : shouldShow
+  let flickExit = false
 
   if (want && fx === 'visible' && !isNavTarget) {
     // The artifact has left its center lock — dissolve out near the lock, in
@@ -465,7 +484,18 @@ function measureStage(
       alignTop < centerTop - STAGE_PUSH_OFF_PX && movingUp
     const rodeAway =
       alignTop > centerTop + STAGE_RIDE_AWAY_PX && movingDown
-    if (pushedOff || rodeAway) want = false
+    // Slot end approaching: dissolve in place before containment can carry
+    // the artifact off the lock (see STAGE_SLOT_EXIT_LEAD_PX).
+    const slotEnding = slot
+      ? slot.getBoundingClientRect().bottom <
+        centerTop + artifactH + STAGE_SLOT_EXIT_LEAD_PX
+      : false
+    if (pushedOff || rodeAway || slotEnding) {
+      want = false
+      flickExit =
+        prevTop != null &&
+        Math.abs(alignTop - prevTop) > STAGE_FLICK_EXIT_PX_PER_FRAME
+    }
   }
 
   let centerHalf: number | null = null
@@ -496,7 +526,7 @@ function measureStage(
         align.getBoundingClientRect().top <= centerTop + STAGE_ENTRY_NEAR_PX
       const roomToClamp = slot
         ? slot.getBoundingClientRect().bottom >=
-          centerTop + artifactH + STAGE_PUSH_OFF_PX
+          centerTop + artifactH + STAGE_SLOT_EXIT_LEAD_PX + STAGE_PUSH_OFF_PX
         : true
       if ((engaged && roomToClamp) || isNavTarget) {
         centerHalf = artifactH / 2
@@ -506,7 +536,7 @@ function measureStage(
     }
   }
 
-  return { entry, want, centerHalf, isNavTarget }
+  return { entry, want, centerHalf, isNavTarget, flickExit }
 }
 
 function writeStage(m: StageMeasure, navActive: boolean): void {
@@ -568,6 +598,14 @@ function writeStage(m: StageMeasure, navActive: boolean): void {
   }
 
   if (fx === 'visible') {
+    if (m.flickExit) {
+      // Flick-speed carry: a fade would travel with the element — cut clean.
+      // Suppress the stage's own opacity/visibility transition for the flip.
+      stage.style.transition = 'none'
+      finalizeStageClear(stage, align)
+      requestAnimationFrame(() => stage.style.removeProperty('transition'))
+      return
+    }
     beginStageFadeOut(stage)
   }
   // fx === 'out': teardown timer is already running. fx == null: at rest.
