@@ -1,4 +1,6 @@
 import { isPrerenderSnapshot } from '@/lib/isPrerenderSnapshot'
+import { useLayoutTopBarNav } from '@/lib/hooks/useLayoutTopBarNav'
+import { isContinuousChapters } from '@/lib/scroll/continuousChapters'
 import {
   EIM_PATH_VIEWBOX,
   EIM_TIMING_RANGE,
@@ -34,6 +36,7 @@ interface Props {
 export function EimPathArt({ className }: Props) {
   const svgHostRef = useRef<HTMLDivElement>(null)
   const dashRefs = useRef<SVGPathElement[]>([])
+  const topBarNav = useLayoutTopBarNav()
   const [dashDebug, setDashDebug] = useState(false)
   const [timingDebug, setTimingDebug] = useState(false)
   const [timing, setTiming] = useState<EimTiming>(readEimTiming)
@@ -205,18 +208,30 @@ export function EimPathArt({ className }: Props) {
       '(prefers-reduced-motion: reduce)',
     ).matches
 
-    // Scroll position → fill amount. The artifact's center rises to the middle
-    // of the viewport (its center lock) as the chapter scrolls in; map that
-    // travel to 0→1. Clamped, so it holds full while pinned and through the
-    // exit fade, and reverses symmetrically on scroll-up.
+    const continuousDesktop = !topBarNav && isContinuousChapters()
+    const slot = host.closest<HTMLElement>('.portfolio-chapter-slot')
+    const clamp01 = (p: number) => (p < 0 ? 0 : p > 1 ? 1 : p)
+
+    // Scroll position → fill amount. Two regimes, because the stage is only
+    // *visible* over different spans in each:
+    // • Continuous desktop: the artifact dissolves in and holds pinned at the
+    //   viewport center while the copy scrolls past — that pinned span is the
+    //   only stretch where it's on screen, so the draw scrubs across the slot's
+    //   travel through it (drawing behind the earlier, still-hidden approach
+    //   would never be seen). Slot top runs 0 → −(slotH − vh) across the hold.
+    // • Mobile / non-pinned: the artifact simply travels up the viewport and is
+    //   visible the whole way, so the draw tracks its center rising to the mid.
     const progress = () => {
-      const r = host.getBoundingClientRect()
       const vh = window.innerHeight || 1
+      if (continuousDesktop && slot) {
+        const r = slot.getBoundingClientRect()
+        return clamp01(-r.top / Math.max(1, r.height - vh))
+      }
+      const r = host.getBoundingClientRect()
       const center = r.top + r.height / 2
       const start = DRAW_START_FRAC * vh
       const end = DRAW_END_FRAC * vh
-      const p = (start - center) / (start - end || 1)
-      return p < 0 ? 0 : p > 1 ? 1 : p
+      return clamp01((start - center) / (start - end || 1))
     }
 
     // Parked-loop fill for a given elapsed time: start lit, undraw over fade,
@@ -286,7 +301,7 @@ export function EimPathArt({ className }: Props) {
       if (scrubRaf) cancelAnimationFrame(scrubRaf)
       window.clearTimeout(idleTimer)
     }
-  }, [svgReady, dashCount, timing, dashDebug, getDashGroup])
+  }, [svgReady, dashCount, timing, dashDebug, getDashGroup, topBarNav])
 
   return (
     <div
