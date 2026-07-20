@@ -3,6 +3,9 @@ import { DECK_FADE_MS, isDeckActive } from '@/lib/deck/deckMode'
 import { isFixedSlideshowFlowChapter, isFlowChapterId } from '@/lib/chapterFlow'
 import { isContinuousChapters } from '@/lib/scroll/continuousChapters'
 import {
+  CHAPTER_HIDDEN_REVEAL,
+  CHAPTER_IDLE_ACTIVE_REVEAL,
+  CHAPTER_SLIDE_ACTIVE_REVEAL,
   chapterIsAccessible,
   chapterIsContinuousActive,
   chapterIsInteractive,
@@ -95,10 +98,10 @@ export function useChapterPanelOpacity(chapterId: string) {
   }
 
   if (phase === 'idle') {
-    const isActive = scrollReveal > 0.25
+    const isActive = scrollReveal > CHAPTER_IDLE_ACTIVE_REVEAL
 
     if (fixedSlideshowStacking) {
-      const active = scrollReveal > 0.5
+      const active = scrollReveal > CHAPTER_SLIDE_ACTIVE_REVEAL
       return {
         opacity: scrollReveal,
         isActive: active,
@@ -108,7 +111,7 @@ export function useChapterPanelOpacity(chapterId: string) {
           filter: 'none',
           zIndex: panelZFromScrollReveal(scrollReveal, false),
           pointerEvents: active ? 'auto' : 'none',
-          visibility: scrollReveal <= 0.02 ? 'hidden' : 'visible',
+          visibility: scrollReveal <= CHAPTER_HIDDEN_REVEAL ? 'hidden' : 'visible',
           transition: 'none',
         } as const,
       }
@@ -123,7 +126,7 @@ export function useChapterPanelOpacity(chapterId: string) {
         filter: 'none',
         zIndex: panelZFromScrollReveal(scrollReveal, layoutMobile),
         pointerEvents: isActive ? 'auto' : 'none',
-        visibility: scrollReveal <= 0.02 ? 'hidden' : 'visible',
+        visibility: scrollReveal <= CHAPTER_HIDDEN_REVEAL ? 'hidden' : 'visible',
         transition: 'none',
       } as const,
     }
@@ -180,7 +183,7 @@ export function useChapterPanelOpacity(chapterId: string) {
     // Binary onScreen opacity stacks every adjacent slide at 1 — overview covers sensi.
     if (fixedSlideshowStacking) {
       const reveal = scrollReveal
-      const isActive = scrollReveal > 0.5
+      const isActive = scrollReveal > CHAPTER_SLIDE_ACTIVE_REVEAL
       return {
         opacity: reveal,
         isActive,
@@ -211,7 +214,7 @@ export function useChapterPanelOpacity(chapterId: string) {
   }
 
   const reveal = scrollReveal
-  const isActive = scrollReveal > 0.5
+  const isActive = scrollReveal > CHAPTER_SLIDE_ACTIVE_REVEAL
 
   return {
     opacity: reveal,

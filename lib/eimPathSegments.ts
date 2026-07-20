@@ -19,14 +19,6 @@ export function subpathStartPoint(subpath: string): { x: number; y: number } | n
   }
 }
 
-/**
- * Dashes in `eimpath.svg` are stored in reveal order (1→70 along the connector).
- * Splitting the orange path preserves that order for animation and debug labels.
- */
-export function sortSubpathsByRevealOrder(segments: string[]): string[] {
-  return segments
-}
-
 export function isEimDashDebugEnabled(): boolean {
   if (typeof window === 'undefined') return false
   return new URLSearchParams(window.location.search).get('eimDashDebug') === '1'
@@ -58,19 +50,27 @@ export const EIM_TIMING_RANGE = {
   fadeMs: { min: 120, max: 1200, step: 20 },
 } as const
 
-function readTimingParam(key: string, fallback: number): number {
+function readTimingParam(
+  param: string,
+  key: keyof typeof EIM_TIMING_RANGE,
+): number {
+  const fallback = EIM_TIMING_DEFAULTS[key]
   if (typeof window === 'undefined') return fallback
-  const raw = new URLSearchParams(window.location.search).get(key)
+  const raw = new URLSearchParams(window.location.search).get(param)
   if (raw == null) return fallback
   const n = Number(raw)
-  return Number.isFinite(n) && n >= 0 ? n : fallback
+  if (!Number.isFinite(n)) return fallback
+  // Clamp into the tuner's published range so a hand-edited URL can't set a
+  // value the sliders forbid (e.g. ?eimFade=0 under fadeMs.min = 120).
+  const { min, max } = EIM_TIMING_RANGE[key]
+  return Math.min(max, Math.max(min, n))
 }
 
 /** Initial timing: URL-seeded where present, else the defaults. */
 export function readEimTiming(): EimTiming {
   return {
-    drawMs: readTimingParam('eimDraw', EIM_TIMING_DEFAULTS.drawMs),
-    holdMs: readTimingParam('eimHold', EIM_TIMING_DEFAULTS.holdMs),
-    fadeMs: readTimingParam('eimFade', EIM_TIMING_DEFAULTS.fadeMs),
+    drawMs: readTimingParam('eimDraw', 'drawMs'),
+    holdMs: readTimingParam('eimHold', 'holdMs'),
+    fadeMs: readTimingParam('eimFade', 'fadeMs'),
   }
 }
