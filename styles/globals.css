@@ -2157,9 +2157,10 @@ html {
    overrides applied in main.tsx before the ghost mounts). */
 :root {
   --ghost-fade-duration: 300ms;
-  /* Owner direction (2026-07): snappy renders — quick dissolves with a light
-     defocus, not luxurious ones. */
-  --ghost-fade-blur: 8px;
+  /* The hydration snapshot crossfades to the live tree on a clean opacity fade
+     — no defocus. (An earlier "light defocus" of 8px read as a whole-page
+     blur→focus on load; dialable via ?fadeTune=1.) */
+  --ghost-fade-blur: 0px;
   --sticker-exit-duration: 240ms;
   --sticker-exit-blur: 10px;
   --stage-exit-duration: 200ms;
