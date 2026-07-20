@@ -119,28 +119,6 @@
   margin-inline: auto;
 }
 
-/* Scroll-scrubbed reveal: the artifact is *uncovered* by a soft edge that
-   sweeps bottom→top as --stage-reveal (set per-frame by ChapterStageAlign)
-   climbs 0→1 with scroll — a wipe, not a fade, matching the EIM path drawing
-   itself on. No transition: it's driven every frame, so the wipe is
-   scroll-linked, not timed. It composes under the stage container's own
-   dissolve (which the choreography gate measures) and never touches the box the
-   stage machine positions. Defaults to fully shown before the scrubber mounts
-   and in deck / reduced-motion / prerender.
-   EIM opts out — its dashes are their own progressive uncover. */
-.chapter-stage-align:not(:has(.eim-path-art)) {
-  --stage-wipe-edge: calc(var(--stage-reveal, 1) * 130%);
-  -webkit-mask-image: linear-gradient(
-    to top,
-    #000 calc(var(--stage-wipe-edge) - 30%),
-    transparent var(--stage-wipe-edge)
-  );
-  mask-image: linear-gradient(
-    to top,
-    #000 calc(var(--stage-wipe-edge) - 30%),
-    transparent var(--stage-wipe-edge)
-  );
-}
 
 .chapter-slide__stage .phone-swap {
   width: auto;
