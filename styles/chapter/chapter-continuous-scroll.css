@@ -192,15 +192,6 @@
     /* opacity driven inline from scroll reveal */
   }
 
-  /* Layer promotion only while the artifact actually transforms (exit) —
-     a permanent will-change pins GPU memory for every visible stage. */
-  html.continuous-chapters
-    .portfolio-chapter-slot--fill.hardware-slideshow
-    .chapter-slide__stage[data-stage-pinned='true']
-    > [data-chapter-stage-align][data-stage-phase='exit'] {
-    will-change: transform;
-  }
-
   html.continuous-chapters
     .portfolio-chapter-slot--fill.hardware-slideshow
     .chapter-slide__stage[data-stage-pinned='true']

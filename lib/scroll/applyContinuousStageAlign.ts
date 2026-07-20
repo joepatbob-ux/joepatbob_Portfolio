@@ -15,9 +15,14 @@ const STAGE_SELECTOR = `${CHAPTER_SLOT_SELECTOR} .chapter-slide__stage:not(:has(
 const ALIGN_SELECTOR = '[data-chapter-stage-align]'
 const STAGE_PIN_REVEAL = CHAPTER_STAGE_PAINT_VISIBILITY
 const PIN_HYSTERESIS = 0.12
-const STAGE_INTERACTIVE_OPACITY = 0.38
-const STAGE_CLEAR_THRESHOLD = 0.004
-const VERDANT_INTERACTIVE_SELECTOR = '.verdant-interactive'
+
+/* Below this reveal the committed pin is effectively gone — hand the pin to
+ * the challenger immediately instead of applying PIN_HYSTERESIS to a ghost. */
+const PIN_GONE_REVEAL = 0.04
+
+/* Per-frame align-top movement below this is treated as jitter, not motion —
+ * the displacement exits only fire while genuinely moving away from the lock. */
+const ALIGN_MOVEMENT_EPSILON_PX = 1
 
 /* Exit hysteresis: a visible stage only dissolves out once its reveal drops
  * this far below the show threshold, so reveal noise at the boundary can't
@@ -62,18 +67,16 @@ const STAGE_SLOT_EXIT_LEAD_PX = 140
  * during that much motion is imperceptible; slower exits keep the fade. */
 const STAGE_FLICK_EXIT_PX_PER_FRAME = 64
 
-function stagePointerEvents(
-  stage: HTMLElement,
-  stageOpacity: number,
-): 'auto' | 'none' {
-  if (stage.querySelector(VERDANT_INTERACTIVE_SELECTOR)) {
-    return stageOpacity > STAGE_CLEAR_THRESHOLD ? 'auto' : 'none'
-  }
-  return stageOpacity >= STAGE_INTERACTIVE_OPACITY ? 'auto' : 'none'
-}
 const ALIGN_HEIGHT_MIN_PX = 48
 
-type AlignPhase = 'idle' | 'enter' | 'center' | 'exit'
+/* How often a still-collapsed (sub-minimum) align may re-run its full-subtree
+ * height measure while waiting for content to lay out — see artifactHeight. */
+const SUBMIN_REMEASURE_MS = 250
+
+/* Stage opacity is binary in this machine (a shown stage is written straight
+ * to 1), so the phase attribute only ever needs the resting and locked
+ * states — CSS keys sticky centering off 'center'. */
+type AlignPhase = 'idle' | 'center'
 
 let committedPinId: string | null = null
 
@@ -87,7 +90,7 @@ let safeAreaCache: { top: number; bottom: number } | null = null
 let heightGeneration = 0
 const artifactHeightCache = new WeakMap<
   HTMLElement,
-  { generation: number; height: number }
+  { generation: number; height: number; measuredAt: number }
 >()
 const observedAligns = new WeakSet<HTMLElement>()
 let artifactObserver: ResizeObserver | null = null
@@ -108,8 +111,20 @@ function bindCacheInvalidation(): void {
         finalizeStageClear(stage, stageAlignTarget(stage))
       })
   }
-  window.addEventListener('resize', invalidate, { passive: true })
-  window.addEventListener('orientationchange', invalidate, { passive: true })
+  // Coalesce to one teardown per frame — dragging a window edge fires resize
+  // at event rate (~60/s), and each invalidate is a DOM walk + style writes.
+  let invalidateRaf = 0
+  const scheduleInvalidate = () => {
+    if (invalidateRaf) return
+    invalidateRaf = requestAnimationFrame(() => {
+      invalidateRaf = 0
+      invalidate()
+    })
+  }
+  window.addEventListener('resize', scheduleInvalidate, { passive: true })
+  window.addEventListener('orientationchange', scheduleInvalidate, {
+    passive: true,
+  })
 }
 
 function safeAreaInsets(): { top: number; bottom: number } {
@@ -159,18 +174,25 @@ function artifactHeight(align: HTMLElement): number {
   bindCacheInvalidation()
   observeArtifact(align)
   const cached = artifactHeightCache.get(align)
-  // A below-minimum height means the stage content hasn't laid out yet, and
-  // deep-descendant growth won't fire the ResizeObserver when the align box
-  // itself stays collapsed — keep re-measuring until real content appears.
-  if (
-    cached &&
-    cached.generation === heightGeneration &&
-    cached.height >= ALIGN_HEIGHT_MIN_PX
-  ) {
-    return cached.height
+  if (cached && cached.generation === heightGeneration) {
+    if (cached.height >= ALIGN_HEIGHT_MIN_PX) return cached.height
+    // A below-minimum height means the stage content hasn't laid out yet, and
+    // deep-descendant growth won't fire the ResizeObserver when the align box
+    // itself stays collapsed — so re-measure until real content appears, but
+    // on a slow cadence: the full-subtree measure is a forced reflow, and
+    // sub-min stages are never shown anyway (measureStage defers them), so
+    // the only cost of the interval is a brief delay before a late-layout
+    // stage first appears.
+    if (performance.now() - cached.measuredAt < SUBMIN_REMEASURE_MS) {
+      return cached.height
+    }
   }
   const height = measureArtifactHeight(align)
-  artifactHeightCache.set(align, { generation: heightGeneration, height })
+  artifactHeightCache.set(align, {
+    generation: heightGeneration,
+    height,
+    measuredAt: performance.now(),
+  })
   return height
 }
 
@@ -389,7 +411,7 @@ function pickStagePinId(
   }
 
   const currentReveal = stageRevealMap[committedPinId] ?? 0
-  if (currentReveal < 0.04) {
+  if (currentReveal < PIN_GONE_REVEAL) {
     committedPinId = bestId
     return bestId
   }
@@ -429,6 +451,12 @@ export function releaseContinuousStageAlignForInFlowNav(): void {
 
 export function resetContinuousStageAlign(): void {
   committedPinId = null
+  // A pending gate flush belongs to the machine being torn down — clear it so
+  // a mode switch can't fire a stray scroll-frame later.
+  if (gateFlushTimer != null) {
+    window.clearTimeout(gateFlushTimer)
+    gateFlushTimer = null
+  }
   document.querySelectorAll<HTMLElement>(STAGE_SELECTOR).forEach((stage) => {
     // Mode switches tear down immediately — no lingering fade timers, and the
     // re-entry latch is meaningless across a layout change.
@@ -487,8 +515,10 @@ function measureStage(
     const alignTop = align.getBoundingClientRect().top
     const prevTop = lastAlignTopByStage.get(stage)
     lastAlignTopByStage.set(stage, alignTop)
-    const movingUp = prevTop != null && alignTop < prevTop - 1
-    const movingDown = prevTop != null && alignTop > prevTop + 1
+    const movingUp =
+      prevTop != null && alignTop < prevTop - ALIGN_MOVEMENT_EPSILON_PX
+    const movingDown =
+      prevTop != null && alignTop > prevTop + ALIGN_MOVEMENT_EPSILON_PX
     const pushedOff =
       alignTop < centerTop - STAGE_PUSH_OFF_PX && movingUp
     const rodeAway =
@@ -587,7 +617,9 @@ function writeStage(m: StageMeasure, navActive: boolean): void {
     stage.style.filter = ''
     stage.style.visibility = 'visible'
     stage.style.zIndex = '2'
-    stage.style.pointerEvents = stagePointerEvents(stage, 1)
+    // Shown stages are written straight to opacity 1, so they're always
+    // interactive — no opacity-threshold gating needed.
+    stage.style.pointerEvents = 'auto'
     setPhase(stage, align, 'center')
     // Companions (placed stickers, the pile) dissolve in on the same beat.
     publishChapterStageFx(chapterId, true)

@@ -6,7 +6,6 @@ import {
   isEimDashDebugEnabled,
   isEimTimingDebugEnabled,
   readEimTiming,
-  sortSubpathsByRevealOrder,
   splitPathSubpaths,
   subpathStartPoint,
   type EimTiming,
@@ -139,7 +138,9 @@ export function EimPathArt({
 
         meander.remove()
 
-        const segments = sortSubpathsByRevealOrder(splitPathSubpaths(d))
+        // Dashes in eimpath.svg are authored in reveal order (1→70 along the
+        // connector); splitting the path preserves that order.
+        const segments = splitPathSubpaths(d)
         dashRefs.current = []
 
         const dashGroup = document.createElementNS(

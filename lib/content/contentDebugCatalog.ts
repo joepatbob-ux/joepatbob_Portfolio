@@ -223,11 +223,11 @@ export function buildContentDebugCatalog(): {
 
   set(
     'interlude#headline',
-    'I shape each product to work at its best, while understanding how it can and should interconnect with the others.',
+    'The experience is bigger than any one product or team.',
   )
   set(
     'interlude#body',
-    'That is how strengths compound, weaknesses are offset, and the whole becomes more stable than any one product could be alone.',
+    'Hardware, software, brand, sales, support, and the people behind them all shape what reaches the user. I design with those relationships in mind, so each decision can do more than solve the problem in front of it.',
   )
 
   for (const section of [hardware, mobile, webApps, everythingElse]) {

@@ -1,5 +1,4 @@
 import { useChapterNav } from '@/components/ChapterNavProvider'
-import { isContinuousChapters } from '@/lib/scroll/continuousChapters'
 import {
   activeSlideIdPublished,
   chapterRevealForId,
@@ -19,10 +18,6 @@ export function useChapterReveal(chapterId: string): number {
 
   if (nav?.phase !== 'idle') {
     return nav.reveals[chapterId] ?? 0
-  }
-
-  if (isContinuousChapters()) {
-    return published
   }
 
   return published

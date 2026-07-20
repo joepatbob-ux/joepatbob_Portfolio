@@ -23,9 +23,9 @@ function interludeDevPickerRequested(): boolean {
 }
 
 export const INTERLUDE_HEADLINE =
-  'I shape each product to work at its best, while understanding how it can and should interconnect with the others.'
+  'The experience is bigger than any one product or team.'
 export const INTERLUDE_BODY =
-  'That is how strengths compound, weaknesses are offset, and the whole becomes more stable than any one product could be alone.'
+  'Hardware, software, brand, sales, support, and the people behind them all shape what reaches the user. I design with those relationships in mind, so each decision can do more than solve the problem in front of it.'
 
 function useInterludeCopy() {
   const { text } = useContentDebug()
@@ -43,13 +43,13 @@ function InterludeHeadline({
   headline: string
 }) {
   if (copyStyle === 'rhythm') {
-    const [lead, tail] = headline.split(', while understanding')
+    const [lead, tail] = headline.split(' than ')
     if (tail) {
       return (
         <p className="portfolio-interlude__headline">
-          {lead},
+          {lead}
           <br />
-          while understanding{tail}
+          than {tail}
         </p>
       )
     }

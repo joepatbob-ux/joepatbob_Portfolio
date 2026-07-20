@@ -15,8 +15,9 @@ import * as choreography from './choreography.mjs'
 import * as stickers from './stickers.mjs'
 import * as nav from './nav.mjs'
 import * as csp from './csp.mjs'
+import * as eim from './eim.mjs'
 
-const DRIVES = { hydration, choreography, stickers, nav, csp }
+const DRIVES = { hydration, choreography, stickers, nav, csp, eim }
 const PORT = 3014
 
 function assertPrerenderedDist() {

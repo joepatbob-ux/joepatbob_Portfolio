@@ -14,6 +14,16 @@ export const CHAPTER_STAGE_PAINT_VISIBILITY = 0.22
  * after the chapter has dissolved out. */
 export const CHAPTER_STICKER_SCROLL_VISIBILITY = CHAPTER_STAGE_PAINT_VISIBILITY
 
+/** In-flow idle scroll: a panel is interactive past this reveal. */
+export const CHAPTER_IDLE_ACTIVE_REVEAL = 0.25
+
+/** Crossfading slides: the more-revealed side (past the midpoint) owns
+ * interactivity/aria — exactly one slide of a crossfade is ever active. */
+export const CHAPTER_SLIDE_ACTIVE_REVEAL = 0.5
+
+/** At/below this reveal a panel is fully hidden (`visibility: hidden`). */
+export const CHAPTER_HIDDEN_REVEAL = 0.02
+
 export function chapterIsAccessible(visibility: number): boolean {
   return visibility >= CHAPTER_A11Y_VISIBILITY
 }
