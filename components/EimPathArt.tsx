@@ -1,7 +1,4 @@
 import { isPrerenderSnapshot } from '@/lib/isPrerenderSnapshot'
-import { useLayoutTopBarNav } from '@/lib/hooks/useLayoutTopBarNav'
-import { isContinuousChapters } from '@/lib/scroll/continuousChapters'
-import { stageScrubProgress } from '@/lib/scroll/stageScrubProgress'
 import {
   EIM_PATH_VIEWBOX,
   EIM_TIMING_RANGE,
@@ -18,20 +15,24 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 
 const SVG_SRC = '/images/devices/eimpath.svg'
 const PATH_FILL = '#F5431B'
-// Once fully drawn and the scroll has held still this long, the parked loop
-// takes over from the scrub.
-const LOOP_IDLE_MS = 220
+const DASH_STAGGER_MIN_MS = 4
 
 type DebugLabel = { order: number; x: number; y: number }
 
 interface Props {
+  active?: boolean
+  triggerDraw?: boolean
   className?: string
 }
 
-export function EimPathArt({ className }: Props) {
+export function EimPathArt({
+  active = true,
+  triggerDraw = true,
+  className,
+}: Props) {
   const svgHostRef = useRef<HTMLDivElement>(null)
   const dashRefs = useRef<SVGPathElement[]>([])
-  const topBarNav = useLayoutTopBarNav()
+  const illuminatedRef = useRef(false)
   const [dashDebug, setDashDebug] = useState(false)
   const [timingDebug, setTimingDebug] = useState(false)
   const [timing, setTiming] = useState<EimTiming>(readEimTiming)
@@ -48,6 +49,31 @@ export function EimPathArt({ className }: Props) {
     const group = svgHostRef.current?.querySelector('.eim-path-art__dashes')
     return group instanceof SVGGElement ? group : null
   }, [])
+
+  const setDashPhase = useCallback(
+    (phase: 'on' | 'off', instant = false) => {
+      const group = getDashGroup()
+      const root = svgHostRef.current
+      if (!group || !root) return
+
+      if (instant) {
+        root.classList.add('eim-path-art--instant')
+        group.setAttribute('data-phase', phase)
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => root.classList.remove('eim-path-art--instant'))
+        })
+        return
+      }
+
+      group.setAttribute('data-phase', phase)
+    },
+    [getDashGroup],
+  )
+
+  const resetDashes = useCallback(() => {
+    setDashPhase('off', true)
+    illuminatedRef.current = false
+  }, [setDashPhase])
 
   const measureDebugLabels = useCallback(() => {
     const host = svgHostRef.current
@@ -121,9 +147,7 @@ export function EimPathArt({ className }: Props) {
           'g',
         )
         dashGroup.setAttribute('class', 'eim-path-art__dashes')
-        // Draw amount (0–1) → per-dash opacity via calc (see globals.css).
-        dashGroup.style.setProperty('--dash-total', String(segments.length))
-        dashGroup.style.setProperty('--eim-draw', debug ? '1' : '0')
+        dashGroup.setAttribute('data-phase', debug ? 'on' : 'off')
 
         segments.forEach((segment, index) => {
           const dash = document.createElementNS(
@@ -184,98 +208,140 @@ export function EimPathArt({ className }: Props) {
   }, [dashDebug, svgReady, dashCount, measureDebugLabels])
 
   useEffect(() => {
-    if (!svgReady || dashCount < 1) return
+    if (!svgReady) return
 
-    const host = svgHostRef.current
-    const group = getDashGroup()
-    if (!host || !group) return
+    const root = svgHostRef.current
+    if (!root) return
 
-    const setDraw = (v: number) =>
-      group.style.setProperty('--eim-draw', v.toFixed(4))
+    const staggerMs = Math.max(
+      DASH_STAGGER_MIN_MS,
+      timing.drawMs / Math.max(dashCount, 1),
+    )
+    const fadeMs = timing.fadeMs
+    const phaseDuration =
+      (dashCount - 1) * staggerMs + fadeMs + timing.holdMs
 
-    // Debug: hold every dash lit, no scrub/loop.
-    if (dashDebug) {
-      setDraw(1)
-      return
+    root.style.setProperty('--dash-stagger', `${staggerMs}ms`)
+    root.style.setProperty('--dash-fade', `${fadeMs}ms`)
+
+    let cancelled = false
+    const timers: number[] = []
+
+    const schedule = (fn: () => void, delay: number) => {
+      timers.push(
+        window.setTimeout(() => {
+          if (!cancelled) fn()
+        }, delay),
+      )
     }
 
-    const reduce = window.matchMedia(
-      '(prefers-reduced-motion: reduce)',
-    ).matches
-
-    const continuousDesktop = !topBarNav && isContinuousChapters()
-    // Fill amount tracks the shared stage scrub, so the draw and the stage's
-    // own reveal move on the same scroll (see stageScrubProgress).
-    const progress = () => stageScrubProgress(host, continuousDesktop)
-
-    // Parked-loop fill for a given elapsed time: start lit, undraw over fade,
-    // hold dark, draw back over drawMs, hold lit — the owner-tuned cycle.
-    const { drawMs, holdMs, fadeMs } = timing
-    const period = fadeMs + holdMs + drawMs + holdMs
-    const loopFill = (elapsed: number) => {
-      let t = period > 0 ? elapsed % period : 0
-      if (t < fadeMs) return 1 - t / (fadeMs || 1)
-      t -= fadeMs
-      if (t < holdMs) return 0
-      t -= holdMs
-      if (t < drawMs) return t / (drawMs || 1)
-      return 1
+    const runTurnOn = (then: () => void) => {
+      const group = getDashGroup()
+      const alreadyOff = group?.getAttribute('data-phase') === 'off'
+      if (!alreadyOff) setDashPhase('off', true)
+      schedule(() => {
+        setDashPhase('on')
+        illuminatedRef.current = true
+        schedule(then, phaseDuration)
+      }, alreadyOff ? 0 : 32)
     }
 
-    let scrubRaf = 0
-    let loopRaf = 0
-    let idleTimer = 0
-    let looping = false
-    let loopStart = 0
-
-    const loopTick = () => {
-      setDraw(loopFill(performance.now() - loopStart))
-      loopRaf = requestAnimationFrame(loopTick)
-    }
-    const startLoop = () => {
-      if (looping) return
-      looping = true
-      loopStart = performance.now()
-      loopTick()
-    }
-    const stopLoop = () => {
-      looping = false
-      if (loopRaf) cancelAnimationFrame(loopRaf)
-      loopRaf = 0
-    }
-
-    const scrub = () => {
-      const p = progress()
-      setDraw(p)
-      window.clearTimeout(idleTimer)
-      // Only fully drawn and settled (parked at/after the center lock) does the
-      // ambient cycle kick in; mid-scroll it stays scroll-locked.
-      if (!reduce && p > 0.999) {
-        idleTimer = window.setTimeout(startLoop, LOOP_IDLE_MS)
+    const runTurnOff = (then: () => void) => {
+      if (!illuminatedRef.current) {
+        then()
+        return
       }
+      setDashPhase('off')
+      schedule(() => {
+        illuminatedRef.current = false
+        then()
+      }, phaseDuration)
     }
 
-    const onScroll = () => {
-      stopLoop()
-      if (scrubRaf) return
-      scrubRaf = requestAnimationFrame(() => {
-        scrubRaf = 0
-        scrub()
+    const clearTimers = () => {
+      cancelled = true
+      timers.forEach((id) => window.clearTimeout(id))
+    }
+
+    if (!active) {
+      if (dashDebug || !illuminatedRef.current) {
+        resetDashes()
+        return clearTimers
+      }
+
+      // Exit is passive: the chapter's own blur/fade carries the lit art out —
+      // de-drawing (or snapping dark) while still on screen reads as the art
+      // ignoring the fade. Reset instantly, but only once genuinely hidden,
+      // so the next entry re-draws from dark.
+      const host = svgHostRef.current
+      const hidden = () => {
+        if (!host || !host.isConnected) return true
+        const rect = host.getBoundingClientRect()
+        if (rect.bottom < 0 || rect.top > window.innerHeight) return true
+        for (
+          let el: HTMLElement | null = host;
+          el && !el.classList.contains('portfolio-chapter-slot');
+          el = el.parentElement
+        ) {
+          const cs = getComputedStyle(el)
+          if (Number(cs.opacity) <= 0.05 || cs.visibility === 'hidden') {
+            return true
+          }
+        }
+        return false
+      }
+      const waitForHidden = () => {
+        if (cancelled) return
+        if (hidden()) {
+          resetDashes()
+          return
+        }
+        schedule(waitForHidden, 160)
+      }
+      waitForHidden()
+      return clearTimers
+    }
+
+    if (dashDebug) return clearTimers
+
+    if (!triggerDraw || dashCount < 1) return clearTimers
+
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (reduced) {
+      setDashPhase('on', true)
+      illuminatedRef.current = true
+      return clearTimers
+    }
+
+    // Cycle while the chapter is on screen: draw the cascade on, hold, fade it
+    // back off, then redraw — repeating until the chapter leaves (active flips
+    // false), at which point the passive-exit branch above lets the chapter's
+    // own fade carry out whatever state the loop is in.
+    const loop = () => {
+      if (cancelled || !active) return
+      runTurnOn(() => {
+        if (cancelled || !active) return
+        runTurnOff(() => {
+          if (cancelled || !active) return
+          loop()
+        })
       })
     }
 
-    scrub()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    window.addEventListener('resize', onScroll)
+    loop()
 
-    return () => {
-      window.removeEventListener('scroll', onScroll)
-      window.removeEventListener('resize', onScroll)
-      stopLoop()
-      if (scrubRaf) cancelAnimationFrame(scrubRaf)
-      window.clearTimeout(idleTimer)
-    }
-  }, [svgReady, dashCount, timing, dashDebug, getDashGroup, topBarNav])
+    return clearTimers
+  }, [
+    active,
+    triggerDraw,
+    svgReady,
+    dashCount,
+    timing,
+    resetDashes,
+    dashDebug,
+    setDashPhase,
+    getDashGroup,
+  ])
 
   return (
     <div
@@ -319,9 +385,15 @@ export function EimPathArt({ className }: Props) {
             </label>
           ))}
           <p className="eim-path-art__timing-share">
-            Parked-loop timing (the draw itself scrubs to scroll). Cycle ≈{' '}
-            {timing.fadeMs + timing.holdMs + timing.drawMs + timing.holdMs}ms ·{' '}
-            <code>?eimTiming=1&amp;eimDraw={timing.drawMs}&amp;eimHold={timing.holdMs}&amp;eimFade={timing.fadeMs}</code>
+            Cycle ≈{' '}
+            {Math.round(
+              (Math.max(DASH_STAGGER_MIN_MS, timing.drawMs / Math.max(dashCount, 1)) *
+                (dashCount - 1) +
+                timing.fadeMs +
+                timing.holdMs) *
+                2,
+            )}
+            ms · <code>?eimTiming=1&amp;eimDraw={timing.drawMs}&amp;eimHold={timing.holdMs}&amp;eimFade={timing.fadeMs}</code>
           </p>
         </div>
       ) : null}

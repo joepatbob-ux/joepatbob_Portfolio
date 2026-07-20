@@ -1894,8 +1894,9 @@ html {
   max-width: 100%;
   margin: 0 auto;
   aspect-ratio: 379 / 374;
-  /* Width of the draw front, in dashes — larger feathers the leading edge. */
-  --dash-feather: 4;
+  --dash-stagger: 42ms;
+  --dash-fade: 420ms;
+  --dash-ease: cubic-bezier(0.22, 1, 0.36, 1);
   --dash-glow: rgba(245, 67, 27, 0.55);
 }
 
@@ -1956,25 +1957,34 @@ html {
   pointer-events: none;
 }
 
-/* The dash's fill tracks the scroll-driven draw amount (--eim-draw, 0–1),
-   published on the group by EimPathArt. A dash lights as the draw front passes
-   its reveal-order index; the feather spreads that front over a few dashes.
-   opacity auto-clamps to [0,1], so no per-dash JS or transitions are needed —
-   the var is updated once per frame while scrolling. Safari note: the glow is a
-   single static filter on the group, not a per-dash filter, to keep the subtree
-   cheap to composite under the stage's own blur/opacity dissolve. */
+/* Safari: keep this subtree cheap to composite. Per-dash animated filters +
+   will-change promoted ~100 layers, and when the stage's own blur/opacity
+   dissolve ran over that stack Safari skipped the transition and the art
+   snapped. Dashes transition opacity only; the glow lives on the group as a
+   single static filter. */
 .eim-path-art__dash {
-  opacity: calc(
-    (var(--eim-draw, 0) * var(--dash-total, 1) - var(--dash-index, 0)) /
-      var(--dash-feather, 4)
-  );
+  opacity: 0;
+  transition: opacity var(--dash-fade) var(--dash-ease);
+  transition-delay: calc(var(--dash-index, 0) * var(--dash-stagger));
 }
 
-.eim-path-art__dashes {
+.eim-path-art__dashes[data-phase='on'] {
   filter: brightness(1.06) drop-shadow(0 0 2px var(--dash-glow));
 }
 
-.eim-path-art--debug .eim-path-art__dash {
+.eim-path-art__dashes[data-phase='on'] .eim-path-art__dash {
+  opacity: 1;
+}
+
+.eim-path-art__dashes[data-phase='off'] .eim-path-art__dash {
+  opacity: 0;
+}
+
+.eim-path-art--instant .eim-path-art__dash {
+  transition: none !important;
+}
+
+.eim-path-art--debug .eim-path-art__dashes[data-phase='on'] .eim-path-art__dash {
   opacity: 0.35;
   filter: none;
 }
