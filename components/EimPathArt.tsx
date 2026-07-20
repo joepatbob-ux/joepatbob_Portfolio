@@ -1,6 +1,7 @@
 import { isPrerenderSnapshot } from '@/lib/isPrerenderSnapshot'
 import { useLayoutTopBarNav } from '@/lib/hooks/useLayoutTopBarNav'
 import { isContinuousChapters } from '@/lib/scroll/continuousChapters'
+import { stageScrubProgress } from '@/lib/scroll/stageScrubProgress'
 import {
   EIM_PATH_VIEWBOX,
   EIM_TIMING_RANGE,
@@ -17,12 +18,6 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 
 const SVG_SRC = '/images/devices/eimpath.svg'
 const PATH_FILL = '#F5431B'
-// Scrub zone: the cascade fills as the artifact's center rises from near the
-// viewport bottom (DRAW_START) to the middle (DRAW_END = its center lock), so
-// scrolling through the chapter always draws it — a fast pass can't skip it,
-// the way every other chapter artifact's reveal already tracks scroll.
-const DRAW_START_FRAC = 0.98
-const DRAW_END_FRAC = 0.5
 // Once fully drawn and the scroll has held still this long, the parked loop
 // takes over from the scrub.
 const LOOP_IDLE_MS = 220
@@ -209,30 +204,9 @@ export function EimPathArt({ className }: Props) {
     ).matches
 
     const continuousDesktop = !topBarNav && isContinuousChapters()
-    const slot = host.closest<HTMLElement>('.portfolio-chapter-slot')
-    const clamp01 = (p: number) => (p < 0 ? 0 : p > 1 ? 1 : p)
-
-    // Scroll position → fill amount. Two regimes, because the stage is only
-    // *visible* over different spans in each:
-    // • Continuous desktop: the artifact dissolves in and holds pinned at the
-    //   viewport center while the copy scrolls past — that pinned span is the
-    //   only stretch where it's on screen, so the draw scrubs across the slot's
-    //   travel through it (drawing behind the earlier, still-hidden approach
-    //   would never be seen). Slot top runs 0 → −(slotH − vh) across the hold.
-    // • Mobile / non-pinned: the artifact simply travels up the viewport and is
-    //   visible the whole way, so the draw tracks its center rising to the mid.
-    const progress = () => {
-      const vh = window.innerHeight || 1
-      if (continuousDesktop && slot) {
-        const r = slot.getBoundingClientRect()
-        return clamp01(-r.top / Math.max(1, r.height - vh))
-      }
-      const r = host.getBoundingClientRect()
-      const center = r.top + r.height / 2
-      const start = DRAW_START_FRAC * vh
-      const end = DRAW_END_FRAC * vh
-      return clamp01((start - center) / (start - end || 1))
-    }
+    // Fill amount tracks the shared stage scrub, so the draw and the stage's
+    // own reveal move on the same scroll (see stageScrubProgress).
+    const progress = () => stageScrubProgress(host, continuousDesktop)
 
     // Parked-loop fill for a given elapsed time: start lit, undraw over fade,
     // hold dark, draw back over drawMs, hold lit — the owner-tuned cycle.

@@ -119,6 +119,15 @@
   margin-inline: auto;
 }
 
+/* Scroll-scrubbed reveal: opacity tracks scroll position as the stage enters
+   (var set per-frame by ChapterStageAlign). No transition — it's driven every
+   frame, so the fade is scroll-linked, not timed. Composes under the stage
+   container's own dissolve; defaults to 1 before the scrubber mounts and in
+   deck / reduced-motion / prerender. */
+.chapter-stage-align {
+  opacity: var(--stage-reveal, 1);
+}
+
 .chapter-slide__stage .phone-swap {
   width: auto;
   max-width: 100%;
