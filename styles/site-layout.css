@@ -432,6 +432,15 @@ html.sidebar-tablet-hero-active .sidebar-desktop-shell {
   text-wrap: pretty;
 }
 
+/* Body split into two sentences — each its own line, with a gap between. */
+.portfolio-interlude__body-line {
+  display: block;
+}
+
+.portfolio-interlude__body-line + .portfolio-interlude__body-line {
+  margin-top: 0.6em;
+}
+
 /* Headline — the lead statement, set larger and tighter. */
 .portfolio-interlude__headline {
   font-weight: 700;
