@@ -57,16 +57,16 @@ function InterludeHeadline({
   return <p className="portfolio-interlude__headline">{headline}</p>
 }
 
-/* Break the body onto a new line at the second sentence ("I look for …").
+/* Break the body onto a new line at the second sentence ("I look for …"),
+ * with a gap between the two lines (see .portfolio-interlude__body-line).
  * Falls back to the whole string when overridden copy lacks that phrase. */
 function renderBodyLines(body: string) {
   const [lead, tail] = body.split(/\s+(?=I look for )/)
   if (tail) {
     return (
       <>
-        {lead}
-        <br />
-        {tail}
+        <span className="portfolio-interlude__body-line">{lead}</span>
+        <span className="portfolio-interlude__body-line">{tail}</span>
       </>
     )
   }
