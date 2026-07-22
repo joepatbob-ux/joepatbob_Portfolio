@@ -25,7 +25,7 @@ function interludeDevPickerRequested(): boolean {
 export const INTERLUDE_HEADLINE =
   'The experience is bigger than any one product or team.'
 export const INTERLUDE_BODY =
-  'Hardware, software, brand, sales, support, and the people behind them all shape what reaches the user. I design with those relationships in mind, so each decision can do more than solve the problem in front of it.'
+  'Hardware, software, brand, sales, support, and the people behind them all shape what reaches the user. I look for the patterns that connect them, so each decision can solve the immediate problem while strengthening the larger experience.'
 
 function useInterludeCopy() {
   const { text } = useContentDebug()
