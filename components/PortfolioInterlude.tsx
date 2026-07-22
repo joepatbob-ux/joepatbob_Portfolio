@@ -57,15 +57,31 @@ function InterludeHeadline({
   return <p className="portfolio-interlude__headline">{headline}</p>
 }
 
+/* Break the body onto a new line at the second sentence ("I look for …").
+ * Falls back to the whole string when overridden copy lacks that phrase. */
+function renderBodyLines(body: string) {
+  const [lead, tail] = body.split(/\s+(?=I look for )/)
+  if (tail) {
+    return (
+      <>
+        {lead}
+        <br />
+        {tail}
+      </>
+    )
+  }
+  return body
+}
+
 function InterludeBody({ copyStyle, body }: { copyStyle: InterludeCopyStyle; body: string }) {
   if (copyStyle === 'pull') {
     return (
       <blockquote className="portfolio-interlude__body portfolio-interlude__pull">
-        <p>{body}</p>
+        <p>{renderBodyLines(body)}</p>
       </blockquote>
     )
   }
-  return <p className="portfolio-interlude__body">{body}</p>
+  return <p className="portfolio-interlude__body">{renderBodyLines(body)}</p>
 }
 
 function InterludeCopy({
